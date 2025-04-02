@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 require("dotenv").config();
+const pool = require("./config/database.js");
 const port = process.env.PORT;
 
 app.use(cors());
@@ -11,5 +12,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log("Example app listening on port " + port);
+  console.log(`Server running at http://localhost:${port}`);
 });
