@@ -6,7 +6,7 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING,
             primaryKey: true
         },
-        MaTiecCuoi: {
+        MaHD: {
             type: DataTypes.STRING,
             allowNull: false
         },

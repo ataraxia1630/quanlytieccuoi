@@ -10,6 +10,7 @@ module.exports = (sequelize) => {
         TongTienBan: { type: DataTypes.FLOAT, allowNull: false },
         TongTienDichVu: { type: DataTypes.FLOAT, allowNull: false },
         TongChiPhiKhac: { type: DataTypes.FLOAT, allowNull: false },
+        TongTienHoaDon: { type: DataTypes.FLOAT, allowNull: false },
         TienDatCoc: { type: DataTypes.FLOAT, allowNull: false },
         TienConLai: { type: DataTypes.FLOAT, allowNull: false }
     });

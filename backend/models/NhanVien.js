@@ -4,6 +4,7 @@ module.exports = (sequelize) => {
     const NhanVien = sequelize.define("NhanVien", {
         MaNV: { type: DataTypes.STRING, primaryKey: true },
         MaQuyen: { type: DataTypes.STRING, allowNull: false },
+        MaCa: { type: DataTypes.STRING, allowNull: false },
         HoTen: { type: DataTypes.STRING(50), allowNull: false },
         NgayVaoLam: { type: DataTypes.DATE, allowNull: false },
         MatKhau: { type: DataTypes.STRING, allowNull: false },
