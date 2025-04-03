@@ -1,6 +1,5 @@
 require("dotenv").config();
 const { Sequelize } = require("sequelize");
-
 // Khởi tạo kết nối Sequelize
 const sequelize = new Sequelize({
   database: process.env.DATABASE,
