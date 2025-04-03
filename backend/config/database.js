@@ -1,24 +1,21 @@
 require('dotenv').config();
-const mysql = require('mysql2');
+const { Sequelize } = require('sequelize');
 
-const pool = mysql.createPool({
+const sequelize = new Sequelize(process.env.DATABASE, process.env.USER, process.env.PASSWORD, {
     host: process.env.HOST,
     port: process.env.PORT,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-});
-
-pool.getConnection((err, connection) => {
-    if (err) {
-        console.error('Kết nối thất bại:', err.message);
-    } else {
-        console.log('Kết nối MySQL thành công!');
-        connection.release();
+    dialect: 'mysql',
+    logging: false, // Tắt log query SQL (nếu cần bật, đặt là true)
+    pool: {
+        max: 10, // Số kết nối tối đa
+        min: 0,
+        acquire: 30000,
+        idle: 10000
     }
 });
 
-module.exports = pool;
+sequelize.authenticate()
+    .then(() => console.log('Kết nối MySQL bằng Sequelize thành công!'))
+    .catch(err => console.error('Kết nối thất bại:', err.message));
+
+module.exports = sequelize;
