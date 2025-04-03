@@ -1,0 +1,28 @@
+module.exports = (sequelize, Sequelize) => {
+ const ChiTietDichVu = sequelize.define("ChiTietDichVu", {
+  MaDichVu: {
+   type: Sequelize.STRING, 
+   primaryKey: true,
+   references: {
+    model: "DichVu",
+    key: "MaDichVu"
+   }
+  },
+  MaTiecCuoi: {
+   type: Sequelize.INTEGER,
+   primaryKey: true,
+   references: {
+    model: "TiecCuoi",
+    key: "MaTiecCuoi"
+   }
+  },
+  SLDichVu: {type: Sequelize.INTEGER, allowNull: false},
+  
+ }, {
+  timestamps: true,
+  charset: 'utf8mb4',
+  collate: 'utf8mb4_unicode_ci'
+ });
+
+ return ChiTietDichVu
+};
