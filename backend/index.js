@@ -7,7 +7,6 @@ const models = require("./models"); // Import tất cả các model
 
 const app = express();
 const port = process.env.PORT;
-console.log(process.env.USER)
 
 app.use(cors());
 app.use(express.json()); // Hỗ trợ JSON request body
