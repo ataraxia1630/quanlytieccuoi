@@ -1,16 +1,12 @@
 module.exports = (sequelize, Sequelize) => {
- const QUATANG = sequelize.define("QUATANG", {
-  MaQuaTang: {
+ const KHUYENMAI = sequelize.define("KHUYENMAI", {
+  MaKhuyenMai: {
    type: Sequelize.INTEGER,
    autoIncrement: true,
    primaryKey: true
   },
-  TenQuaTang: {
-   type: Sequelize.STRING(50),
-   allowNull: false
-  },
-  SLTon: {
-   type: sequelize.INTEGER,
+  PhanTramKhuyenMai: {
+   type: sequelize.FLOAT,
    allowNull: false
   },
   DieuKien: {
@@ -31,5 +27,5 @@ module.exports = (sequelize, Sequelize) => {
   collate: 'utf8mb4_unicode_ci'
  });
 
- return QUATANG
+ return KHUYENMAI
 };
