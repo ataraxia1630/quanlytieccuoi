@@ -19,12 +19,16 @@ backend/
 
 ## Hướng dẫn làm việc mới migration
 
+```
 Tạo migration cho mỗi bảng: npx sequelize-cli migration:generate --name <tênfile>
 Thêm migration cho khóa ngoại: npx sequelize-cli migration:generate --name add-foreign-key-to-posts
 Chạy migration: npx sequelize-cli db:migrate
+```
 
 ## Hướng dẫn sử dụng
 
+```
 npm run start:dev (cho môi trường development)
 npm run start:test (cho môi trường test)
 npm run start:prod (cho môi trường production)
+```
