@@ -29,6 +29,5 @@ Chạy migration: npx sequelize-cli db:migrate
 
 ```
 npm run start:dev (cho môi trường development)
-npm run start:test (cho môi trường test)
 npm run start:prod (cho môi trường production)
 ```
