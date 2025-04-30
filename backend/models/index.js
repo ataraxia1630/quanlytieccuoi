@@ -1,48 +1,52 @@
-const { Sequelize } = require('sequelize');
-const sequelize = require('../config/database');
+"use strict";
 
-const KhachHang = require('./KhachHang')(sequelize);
-const NhanVien = require('./NhanVien')(sequelize);
-const HoaDon = require('./HoaDon')(sequelize);
-const TiecCuoi = require('./TiecCuoi')(sequelize);
-const Ca = require('./Ca')(sequelize);
-const Quyen = require('./Quyen')(sequelize);
-const PhanQuyen = require('./PhanQuyen')(sequelize);
-const BaoCaoThang = require('./BaoCaoThang')(sequelize);
+const fs = require("fs");
+const path = require("path");
+const Sequelize = require("sequelize");
+const basename = path.basename(__filename);
+const env = process.env.NODE_ENV || "development";
+const config = require(__dirname + "/../config/config.js")[env];
+const db = {};
 
-// Định nghĩa quan hệ giữa các bảng
-KhachHang.hasMany(HoaDon, { foreignKey: 'MaKH' });
-HoaDon.belongsTo(KhachHang, { foreignKey: 'MaKH' });
+// Log thông tin kết nối database
+if (process.env.NODE_ENV === "development") {
+  console.log(
+    `Connecting to database: ${config.database} and admin: ${config.username}`
+  );
+}
 
-NhanVien.belongsTo(Quyen, { foreignKey: 'MaQuyen' });
-Quyen.hasMany(NhanVien, { foreignKey: 'MaQuyen' });
+const sequelize = new Sequelize({
+  ...config,
+  logging: false, // Tắt logging của SQL queries
+});
 
-NhanVien.hasMany(HoaDon, { foreignKey: 'MaNhanVien' });
-HoaDon.belongsTo(NhanVien, { foreignKey: 'MaNhanVien' });
+fs.readdirSync(__dirname)
+  .filter(
+    (file) =>
+      file.indexOf(".") !== 0 &&
+      file !== basename &&
+      file.slice(-3) === ".js" &&
+      file.indexOf(".test.js") === -1
+  )
+  .forEach((file) => {
+    try {
+      const model = require(path.join(__dirname, file))(
+        sequelize,
+        Sequelize.DataTypes
+      );
+      db[model.name] = model;
+    } catch (err) {
+      console.error(`Error loading model ${file}:`, err);
+    }
+  });
 
-TiecCuoi.belongsTo(Ca, { foreignKey: 'MaCa' });
-Ca.hasMany(TiecCuoi, { foreignKey: 'MaCa' });
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
+  }
+});
 
-TiecCuoi.belongsTo(HoaDon, { foreignKey: 'MaTiecCuoi' });
-HoaDon.belongsTo(TiecCuoi, { foreignKey: 'MaTiecCuoi' });
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
 
-NhanVien.hasMany(Ca, { foreignKey: 'MaCa' });
-Ca.hasMany(NhanVien, { foreignKey: 'MaCa' });
-
-BaoCaoThang.hasMany(HoaDon, { foreignKey: 'MaHD' });
-HoaDon.belongsTo(BaoCaoThang, { foreignKey: 'MaHD' });
-
-Quyen.hasMany(PhanQuyen, { foreignKey: 'MaQuyen' });
-PhanQuyen.belongsTo(Quyen, { foreignKey: 'MaQuyen' });
-
-module.exports = {
-    sequelize,
-    KhachHang,
-    NhanVien,
-    HoaDon,
-    TiecCuoi,
-    Ca,
-    Quyen,
-    PhanQuyen,
-    BaoCaoThang
-};
+module.exports = db;
