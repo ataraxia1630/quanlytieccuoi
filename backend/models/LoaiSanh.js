@@ -1,17 +1,15 @@
-"use strict";
-
 module.exports = (sequelize, DataTypes) => {
   const LoaiSanh = sequelize.define(
     "LoaiSanh",
     {
       MaLoaiSanh: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.CHAR(10),
         primaryKey: true,
-        autoIncrement: true,
       },
       TenLoaiSanh: {
-        type: DataTypes.STRING,
+        type: DataTypes.CHAR(10),
         allowNull: false,
+        unique: true,
       },
       DonGiaBanToiThieu: {
         type: DataTypes.DECIMAL(10, 2),

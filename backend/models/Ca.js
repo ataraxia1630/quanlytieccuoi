@@ -1,16 +1,13 @@
-"use strict";
-
 module.exports = (sequelize, DataTypes) => {
   const Ca = sequelize.define(
     "Ca",
     {
       MaCa: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.CHAR(10),
         primaryKey: true,
-        autoIncrement: true,
       },
       TenCa: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(5),
         allowNull: false,
       },
       GioBatDau: {

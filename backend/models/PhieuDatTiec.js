@@ -1,28 +1,25 @@
-"use strict";
-
 module.exports = (sequelize, DataTypes) => {
   const PhieuDatTiec = sequelize.define(
     "PhieuDatTiec",
     {
       SoPhieuDatTiec: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.CHAR(10),
         primaryKey: true,
-        autoIncrement: true,
       },
       MaSanh: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.CHAR(10),
         allowNull: false,
       },
       TenChuRe: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(50),
         allowNull: false,
       },
       TenCoDau: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(50),
         allowNull: false,
       },
       SDT: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(10),
         allowNull: false,
       },
       NgayDaiTiec: {
@@ -30,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       MaCa: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.CHAR(10),
         allowNull: false,
       },
       TienDatCoc: {
@@ -38,20 +35,20 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       SoLuongBan: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.TINYINT,
         allowNull: false,
       },
       SoBanDuTru: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+        type: DataTypes.TINYINT,
+        allowNull: true,
       },
       NgayDatTiec: {
         type: DataTypes.DATE,
         allowNull: false,
       },
       TrangThai: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        type: DataTypes.BOOLEAN,
+        defaultValue: true,
       },
     },
     {

@@ -1,28 +1,25 @@
-"use strict";
-
 module.exports = (sequelize, DataTypes) => {
   const Sanh = sequelize.define(
     "Sanh",
     {
       MaSanh: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.CHAR(10),
         primaryKey: true,
-        autoIncrement: true,
       },
       MaLoaiSanh: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.CHAR(10),
         allowNull: false,
       },
       TenSanh: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         allowNull: false,
       },
       SoLuongBanToiDa: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.TINYINT,
         allowNull: false,
       },
       GhiChu: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: true,
       },
     },

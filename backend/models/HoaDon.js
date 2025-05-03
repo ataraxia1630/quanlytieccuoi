@@ -1,16 +1,13 @@
-"use strict";
-
 module.exports = (sequelize, DataTypes) => {
   const HoaDon = sequelize.define(
     "HoaDon",
     {
       SoHoaDon: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.CHAR(10),
         primaryKey: true,
-        autoIncrement: true,
       },
       SoPhieuDatTiec: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.CHAR(10),
         allowNull: false,
       },
       NgayThanhToan: {
@@ -22,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       SoLuongBanDaDung: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.TINYINT,
         allowNull: false,
       },
       TongTienDichVu: {
@@ -39,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       TongTienPhat: {
         type: DataTypes.DECIMAL(10, 2),
-        allowNull: false,
+        allowNull: true,
       },
       TienConLai: {
         type: DataTypes.DECIMAL(10, 2),
