@@ -1,5 +1,3 @@
-require('dotenv').config();  // Đọc file .env
-
 const commonConfig = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
@@ -14,14 +12,13 @@ const commonConfig = {
   },
 };
 
-
 module.exports = {
   development: {
     ...commonConfig,
-    database: "defaultdb",
+    database: process.env.DB_NAME,
   },
   production: {
     ...commonConfig,
-    database: "defaultdb" + "_prod",
+    database: process.env.DB_NAME + "_prod",
   },
 };
