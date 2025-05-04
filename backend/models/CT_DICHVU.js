@@ -30,12 +30,12 @@ module.exports = (sequelize, DataTypes) => {
      onDelete: "CASCADE",
      onUpdate: "CASCADE",
    })
-  //  CT_DICHVU.belongsTo(models.PHIEUDATTIEC, {
-  //   foreignKey: "SoPhieuDatTiec",
-  //   targetKey: "SoPhieuDatTiec",
-  //   onDelete: "CASCADE",
-  //   onUpdate: "CASCADE",
-  // })
+   CT_DICHVU.belongsTo(models.PHIEUDATTIEC, {
+    foreignKey: "SoPhieuDatTiec",
+    targetKey: "SoPhieuDatTiec",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   }
   return CT_DICHVU;
 }

@@ -34,12 +34,12 @@ module.exports = (sequelize, DataTypes) => {
      onDelete: "CASCADE",
      onUpdate: "CASCADE",
    })
-  //  CT_DATBAN.belongsTo(models.PHIEUDATTIEC, {
-  //   foreignKey: "SoPhieuDatTiec",
-  //   targetKey: "SoPhieuDatTiec",
-  //   onDelete: "CASCADE",
-  //   onUpdate: "CASCADE",
-  // })
+   CT_DATBAN.belongsTo(models.PHIEUDATTIEC, {
+    foreignKey: "SoPhieuDatTiec",
+    targetKey: "SoPhieuDatTiec",
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   }
   return CT_DATBAN;
 }
