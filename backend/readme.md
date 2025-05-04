@@ -20,9 +20,10 @@ backend/
 ## Hướng dẫn làm việc mới migration
 
 ```
-Tạo migration cho mỗi bảng: npx sequelize-cli migration:generate --name <tênfile>
+Tạo migration cho mỗi lần thay đổi csdl: npx sequelize-cli migration:generate --name <tênfile>
 Thêm migration cho khóa ngoại: npx sequelize-cli migration:generate --name add-foreign-key-to-posts
 Chạy migration: npx sequelize-cli db:migrate
+Rollback: sequelize db:migrate:undo
 ```
 
 ## Hướng dẫn sử dụng
