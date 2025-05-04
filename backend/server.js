@@ -39,6 +39,7 @@ if (process.env.NODE_ENV === "development") {
     .catch((err) => console.error("Sync failed:", err.message));
 }
 
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
