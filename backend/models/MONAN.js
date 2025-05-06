@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
- const MONAN = sequelize.define('MONAN', {
+ const MonAn = sequelize.define('MonAn', {
   MaMonAn: {
    type: DataTypes.CHAR(10),
    allowNull: false,
@@ -26,10 +26,10 @@ module.exports = (sequelize, DataTypes) => {
    timestamps: false
   });
 
-  MONAN.associate = (models) => {
-    MONAN.hasMany(models.CT_DATBAN, {
+  MonAn.associate = (models) => {
+    MonAn.hasMany(models.Ct_DatBan, {
       foreignKey: 'MaMonAn',
     })
   }
-  return MONAN;
+  return MonAn;
 }

@@ -61,6 +61,12 @@ module.exports = (sequelize, DataTypes) => {
     PhieuDatTiec.belongsTo(models.Sanh, { foreignKey: "MaSanh" });
     PhieuDatTiec.belongsTo(models.Ca, { foreignKey: "MaCa" });
     PhieuDatTiec.hasOne(models.HoaDon, { foreignKey: "SoPhieuDatTiec" });
+    PhieuDatTiec.hasMany(models.Ct_DichVu, {
+      foreignKey: 'SoPhieuDatTiec',
+    })
+    PhieuDatTiec.hasMany(models.Ct_DatBan, {
+      foreignKey: 'SoPhieuDatTiec',
+    })
   };
 
   return PhieuDatTiec;

@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
- const BAOCAOTHANG = sequelize.define('BAOCAOTHANG', {
+ const BaoCaoThang = sequelize.define('BaoCaoThang', {
    MaBC: {
      type: DataTypes.CHAR(10),
      primaryKey: true,
@@ -24,10 +24,10 @@ module.exports = (sequelize, DataTypes) => {
    tableName: 'BAOCAOTHANG',
   });
 
-  BAOCAOTHANG.associate = (models) => {
-    BAOCAOTHANG.hasMany(models.CT_BAOCAOTHEONGAY, {
+  BaoCaoThang.associate = (models) => {
+    BaoCaoThang.hasMany(models.Ct_BaoCaoTheoNgay, {
       foreignKey: 'MaBC',
     })
   }
-  return BAOCAOTHANG;
+  return BaoCaoThang;
 }
