@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const CT_BAOCAOTHEONGAY = sequelize.define(
-    "CT_BAOCAOTHEONGAY",
+  const Ct_BaoCaoTheoNgay = sequelize.define(
+    "Ct_BaoCaoTheoNgay",
     {
       MaBC: {
         type: DataTypes.CHAR(10),
@@ -30,13 +30,13 @@ module.exports = (sequelize, DataTypes) => {
   );
 
 
-  CT_BAOCAOTHEONGAY.associate = (models) => {
-   CT_BAOCAOTHEONGAY.belongsTo(models.BAOCAOTHANG, {
+  Ct_BaoCaoTheoNgay.associate = (models) => {
+    Ct_BaoCaoTheoNgay.belongsTo(models.BaoCaoThang, {
     foreignKey: "MaBC",
     targetKey: "MaBC",
     onDelete: "CASCADE",
     onUpdate: "CASCADE"
    })
   }
-  return CT_BAOCAOTHEONGAY;
+  return Ct_BaoCaoTheoNgay;
 };

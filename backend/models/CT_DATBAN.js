@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
- const CT_DATBAN = sequelize.define('CT_DATBAN', {
+ const Ct_DatBan = sequelize.define('Ct_DatBan', {
    MaMonAn: {
      type: DataTypes.CHAR(10),
      allowNull: false,
@@ -27,19 +27,19 @@ module.exports = (sequelize, DataTypes) => {
    timestamps: false
   });
 
-  CT_DATBAN.associate = (models) => {
-   CT_DATBAN.belongsTo(models.MONAN, {
+  Ct_DatBan.associate = (models) => {
+   Ct_DatBan.belongsTo(models.MonAn, {
      foreignKey: "MaMonAn",
      targetKey: "MaMonAn",
      onDelete: "CASCADE",
      onUpdate: "CASCADE",
    })
-   CT_DATBAN.belongsTo(models.PHIEUDATTIEC, {
+   Ct_DatBan.belongsTo(models.PhieuDatTiec, {
     foreignKey: "SoPhieuDatTiec",
     targetKey: "SoPhieuDatTiec",
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })
   }
-  return CT_DATBAN;
+  return Ct_DatBan;
 }

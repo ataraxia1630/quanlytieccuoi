@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
- const CT_DICHVU = sequelize.define('CT_DICHVU', {
+ const  Ct_DichVu = sequelize.define('Ct_DichVu', {
    MaDichVu: {
      type: DataTypes.CHAR(10),
      allowNull: false,
@@ -23,19 +23,19 @@ module.exports = (sequelize, DataTypes) => {
    timestamps: false
   });
 
-  CT_DICHVU.associate = (models) => {
-   CT_DICHVU.belongsTo(models.DICHVU, {
+  Ct_DichVu.associate = (models) => {
+   Ct_DichVu.belongsTo(models.DichVu, {
      foreignKey: "MaDichVu",
      targetKey: "MaDichVu",
      onDelete: "CASCADE",
      onUpdate: "CASCADE",
    })
-   CT_DICHVU.belongsTo(models.PHIEUDATTIEC, {
+   Ct_DichVu.belongsTo(models.PhieuDatTiec, {
     foreignKey: "SoPhieuDatTiec",
     targetKey: "SoPhieuDatTiec",
     onDelete: "CASCADE",
     onUpdate: "CASCADE",
   })
   }
-  return CT_DICHVU;
+  return Ct_DichVu;
 }

@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
- const DICHVU = sequelize.define('DICHVU', {
+ const DichVu = sequelize.define('DichVu', {
    MaDichVu: {
      type: DataTypes.CHAR(10),
      allowNull: false,
@@ -22,10 +22,10 @@ module.exports = (sequelize, DataTypes) => {
    timestamps: false
   });
 
-  DICHVU.associate = (models) => {
-    DICHVU.hasMany(models.CT_DICHVU, {
+  DichVu.associate = (models) => {
+    DichVu.hasMany(models.Ct_DichVu, {
       foreignKey: 'MaDichVu',
     })
   }
-  return DICHVU;
+  return DichVu;
 }

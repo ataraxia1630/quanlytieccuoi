@@ -1,5 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
- const THAMSO = sequelize.define('THAMSO', {
+ const ThamSo = sequelize.define('ThamSo', {
   TenThamSo: {
    type: DataTypes.CHAR(10),
    primaryKey: true,
@@ -14,5 +14,5 @@ module.exports = (sequelize, DataTypes) => {
   });
 
  
-  return THAMSO;
+  return ThamSo;
 }
