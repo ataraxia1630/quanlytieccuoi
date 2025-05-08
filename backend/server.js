@@ -8,9 +8,6 @@ const errorHandler = require("./middlewares/errorHandler.js");
 const app = express();
 const port = process.env.DB_PORT || 3000;
 
-//route
-const myRoute = require("./routes/index.route.js");
-
 const requiredEnvVars = [
   "DB_USERNAME",
   "DB_PASSWORD",
@@ -173,13 +170,12 @@ if (process.env.NODE_ENV === "development") {
 }
 
 
-// app.get("/", (req, res) => {
-//   res.send("Hello World!");
-// });
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 
 
 app.use(errorHandler);
-myRoute(app);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
