@@ -33,31 +33,31 @@ module.exports.create = async (req, res) => {
   const {SoPhieuDatTiec, SoHoaDon, DonGiaBan, SoLuongBanDaDung} = req.body;
   const dsDichVu = await Ct_DichVu.findAll({
    where: { SoPhieuDatTiec },
-   attributes: ['SoLuong', 'DonGia']
+   attributes: ['TenDichVu', 'SoLuong', 'DonGia']
   });
 
-  console.log("dsDichVu:");
-  dsDichVu.forEach((item) => {
-    console.log(item);
-  })
+  // console.log("dsDichVu:");
+  // dsDichVu.forEach((item) => {
+  //   console.log(item);
+  // })
 
-  const dsDatBan = await Ct_DatBan.findAll({
-   where: { SoPhieuDatTiec },
-   attributes:['SoLuong', 'DonGia']
-  })
+  // const dsDatBan = await Ct_DatBan.findAll({
+  //  where: { SoPhieuDatTiec },
+  //  attributes:['SoLuong', 'DonGia']
+  // })
   
-  console.log("dsMonAn: ");
-  dsDatBan.forEach((item) => {
-    console.log(item);
-  })
+  // console.log("dsMonAn: ");
+  // dsDatBan.forEach((item) => {
+  //   console.log(item);
+  // })
 
   const phieuDatTiec = await PhieuDatTiec.findOne({
    where: { SoPhieuDatTiec },
    attributes: ['TienDatCoc', 'NgayDaiTiec']
   });
 
-  console.log("PHIEU Dat Tiec: /n");
-  console.log(phieuDatTiec);
+  // console.log("PHIEU Dat Tiec: /n");
+  // console.log(phieuDatTiec);
 
   const thamSo = await ThamSo.findAll();
   let THOIDIEMTHANHTOAN = 0;
@@ -80,9 +80,7 @@ module.exports.create = async (req, res) => {
   let tongTienDichVu = dsDichVu.reduce((tong, dv)=> {
     return tong + dv.SoLuong*dv.DonGia;
   }, 0);
-  let tongTienBan = dsDatBan.reduce((tong, ban) => {
-    return tong + ban.SoLuong*ban.DonGia;
-  }, 0);
+  let tongTienBan = SoLuongBanDaDung*DonGiaBan;
   let tienDatCoc = phieuDatTiec.TienDatCoc;
   let tongTien = tongTienDichVu + tongTienBan;
   let tienPhat = APDUNGPHAT&&(thoiDiemThanhToan>2) ? tongTien*TILEPHAT/100 : 0;
@@ -95,7 +93,7 @@ module.exports.create = async (req, res) => {
    DonGiaBan: DonGiaBan,
    SoLuongBanDaDung: SoLuongBanDaDung,
    TongTienDichVu: tongTienDichVu,
-   TongTienMonAn: tongTienBan,      // tong sluong * don gia trong ct_datban
+   TongTienMonAn: tongTienBan,      
    TongTienHoaDon: tongTien,
    TongTienPhat: tienPhat,
    TienConLai: tienConLai,

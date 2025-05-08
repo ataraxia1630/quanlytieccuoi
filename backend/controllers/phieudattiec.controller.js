@@ -1,21 +1,33 @@
 const { PhieuDatTiec } = require('../models');
+const { Op, fn, col, where } = require("sequelize");
 
 // GET http://localhost:25053/phieudattiec/
 module.exports.index = async (req, res) => {
- const find = {
+ const find = {}
+ const orderBy = []
+
+ if(req.query.tenChuRe) {
+  find.tenChuRe = { [Op.like]: `%${req.query.tenChuRe}%`};
+ }
+ if(req.query.tenCoDau) {
+  find.tenCoDau = { [Op.like]: `%${req.query.tenCoDau}%`};
+ }
+ if(req.query.sanh) {
+  find.sanh = { [Op.like]: `%${req.query.sanh}%`};
  }
 
- // if(req.query.trangthai) {
- //  find.trangthai = req.query.trangthai;
- // }
+//front end se chi cho chon 1 option, asc or des theo ngay or sl ban
+ if(req.query.sortBy && req.query.order) {
+  orderBy.push([req.query.sortBy, req.query.order.toUpperCase()])
+ }
 
- //pagination
+ const phieudattiecs = await PhieuDatTiec.findAll({
+  where: find,
+  order: orderBy
+ });
 
- //search
+ return res.status(200).json(phieudattiecs);
 
- const phieudattiecs = await PhieuDatTiec.findAll({where: find})
-
- res.json(phieudattiecs);
 }
 
 // GET http://localhost:25053/phieudattiec/detail/:id

@@ -8,6 +8,7 @@ const errorHandler = require("./middlewares/errorHandler.js");
 const app = express();
 const port = process.env.DB_PORT || 3000;
 
+const myRouter = require("./routes/index.route.js");
 const requiredEnvVars = [
   "DB_USERNAME",
   "DB_PASSWORD",
@@ -31,7 +32,7 @@ sequelize
   .then(async () => {
     console.log("Database connected successfully");
 
-    const { Ct_DichVu, Ct_DatBan, DichVu, MonAn } = models;
+    const { Ct_DichVu, Ct_DatBan, DichVu, MonAn, PhieuDatTiec } = models;
     
 
     // await DichVu.create({
@@ -135,20 +136,20 @@ sequelize
     //   console.log("SANH mẫu S001 đã tồn tại");
     // }
 
-    // const phieuDatTiecTest = {
-    //   SoPhieuDatTiec: "PDT002",
-    //   MaSanh: "S001", // Foreign key từ bảng SANH
-    //   TenChuRe: "ABC",
-    //   TenCoDau: "XYZ",
-    //   SDT: "0912345679",
-    //   NgayDaiTiec: new Date("2025-06-17T18:00:00"),
-    //   MaCa: "CA01", // Foreign key từ bảng CA
-    //   TienDatCoc: 1200000,
-    //   SoLuongBan: 20,
-    //   SoBanDuTru: 2,
-    //   NgayDatTiec: new Date(),
-    //   TrangThai: false
-    // };
+    const phieuDatTiecTest = {
+      SoPhieuDatTiec: "PDT003",
+      MaSanh: "S001", // Foreign key từ bảng SANH
+      TenChuRe: "ABC",
+      TenCoDau: "mny",
+      SDT: "0912345679",
+      NgayDaiTiec: new Date(),
+      MaCa: "CA01", // Foreign key từ bảng CA
+      TienDatCoc: 1200000,
+      SoLuongBan: 2,
+      SoBanDuTru: 2,
+      NgayDatTiec: new Date(),
+      TrangThai: false
+    };
 
     // const existingPhieuDatTiec = await PhieuDatTiec.findByPk(phieuDatTiecTest.SoPhieuDatTiec);
     // if (!existingPhieuDatTiec) {
@@ -176,7 +177,7 @@ app.get("/", (req, res) => {
 
 
 app.use(errorHandler);
-
+myRouter(app);
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
