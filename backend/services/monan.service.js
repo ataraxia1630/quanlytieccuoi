@@ -10,15 +10,12 @@ const MonAnStatus = {
 const StatusArray = ['AVAILABLE', 'UNAVAILABLE', 'NO_LONGER_AVAILABLE'];
 
 const MonAnService = {
-  getAllMonAn: async (
-    page = 1,
-    limit = 10,
-    filters = {
-      status: StatusArray,
-      price: { min: 0, max: 100, priceOrder: 'ASC' },
-      nameOrder: 'ASC',
-    }
-  ) => {
+  // filters = {
+  //   status: ['AVAILABLE', 'UNAVAILABLE', 'NO_LONGER_AVAILABLE'],
+  //   price: { min: 0, max: 10000000, priceOrder: 'ASC' },
+  //   nameOrder: 'ASC',
+  // }
+  getAllMonAn: async (page, limit, filters) => {
     try {
       const offset = (page - 1) * limit;
 
@@ -133,16 +130,50 @@ const MonAnService = {
     }
   },
 
-  searchMonAnByName: async (name) => {
+  // filters = {
+  //   status: ['AVAILABLE', 'UNAVAILABLE', 'NO_LONGER_AVAILABLE'],
+  //   price: { min: 0, max: 10000000, priceOrder: 'ASC' },
+  //   nameOrder: 'ASC',
+  // }
+  searchMonAnByName: async (name, page, limit, filters) => {
     try {
-      return await MonAn.findAll({
-        where: {
-          [Op.or]: [
-            { MaMonAn: { [Op.like]: `%${name}%` } },
-            { TenMonAn: { [Op.like]: `%${name}%` } },
-          ],
-        },
+      const offset = (page - 1) * limit;
+
+      const whereClause = {
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { MaMonAn: { [Op.like]: `%${name}%` } },
+              { TenMonAn: { [Op.like]: `%${name}%` } },
+            ],
+          },
+          {
+            TinhTrang: {
+              [Op.in]: filters.status,
+            },
+          },
+          {
+            DonGia: {
+              [Op.between]: [filters.price.min, filters.price.max],
+            },
+          },
+        ],
+      };
+
+      const { count, rows } = await MonAn.findAndCountAll({
+        where: whereClause,
+        limit,
+        offset,
+        order: [
+          ['TenMonAn', filters.nameOrder],
+          ['DonGia', filters.price.priceOrder],
+        ],
       });
+
+      return {
+        data: rows,
+        total: count,
+      };
     } catch (error) {
       throw new Error(
         'Error searching mon an by name in database (service): ' + error.message
