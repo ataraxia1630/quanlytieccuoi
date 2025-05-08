@@ -1,8 +1,7 @@
-const express = require('express');
-const router = express.Router();
+const router = require('express').Router({ mergeParams: true });
 const hoadonController = require('../controllers/hoadon.controller');
 
-router.get("/hoadon", hoadonController.index)
-router.get("/hoadon/create", hoadonController.create)
+router.get("/", hoadonController.index)
+router.post("/create", hoadonController.create)
 
 module.exports = router;

@@ -5,19 +5,21 @@ module.exports.index = async (req, res) => {
  try {
  const {id} = req.params;
   const hoadon = await HoaDon.findAll({
-   include: [
-    {
-     model: phieudattiec
-    }
-   ]
+    where: {SoPhieuDatTiec: id},
+  //  include: [
+  //   {
+  //    model: PhieuDatTiec
+  //   }
+  //  ]
   });
-  if(!hoadon) {
-   return res.status(404).json("Khong tim thay hoa don");
+  if (hoadon.length === 0) {
+    return res.status(404).json("Không tìm thấy hóa đơn");
   }
+  
   res.json(hoadon);
 
  } catch (error) {
-  res.status(500).json({ message: "Lỗi server", error: err.message });
+  res.status(500).json({ message: "Lỗi server", error: error.message });
  }
  
 
@@ -27,20 +29,36 @@ module.exports.index = async (req, res) => {
 module.exports.create = async (req, res) => {
 
  try {
-  const {SoPhieuDatTiec, SoHoaDon, DonGiaBan, SoLuongBanDaDung} = req.body;
 
+  const {SoPhieuDatTiec, SoHoaDon, DonGiaBan, SoLuongBanDaDung} = req.body;
   const dsDichVu = await Ct_DichVu.findAll({
    where: { SoPhieuDatTiec },
    attributes: ['SoLuong', 'DonGia']
   });
+
+  console.log("dsDichVu:");
+  dsDichVu.forEach((item) => {
+    console.log(item);
+  })
+
   const dsDatBan = await Ct_DatBan.findAll({
    where: { SoPhieuDatTiec },
    attributes:['SoLuong', 'DonGia']
   })
+  
+  console.log("dsMonAn: ");
+  dsDatBan.forEach((item) => {
+    console.log(item);
+  })
+
   const phieuDatTiec = await PhieuDatTiec.findOne({
    where: { SoPhieuDatTiec },
    attributes: ['TienDatCoc', 'NgayDaiTiec']
   });
+
+  console.log("PHIEU Dat Tiec: /n");
+  console.log(phieuDatTiec);
+
   const thamSo = await ThamSo.findAll();
   let THOIDIEMTHANHTOAN = 0;
   let TILEPHAT = 0;
@@ -55,8 +73,10 @@ module.exports.create = async (req, res) => {
      APDUNGPHAT = item.GiaTri == 1 ? true : false;
   })
 
+
   const now = new Date();
   const thoiDiemThanhToan = Math.floor((phieuDatTiec.NgayDaiTiec - now)/(1000*60*60*24))
+
   let tongTienDichVu = dsDichVu.reduce((tong, dv)=> {
     return tong + dv.SoLuong*dv.DonGia;
   }, 0);
@@ -65,8 +85,8 @@ module.exports.create = async (req, res) => {
   }, 0);
   let tienDatCoc = phieuDatTiec.TienDatCoc;
   let tongTien = tongTienDichVu + tongTienBan;
-  let tienPhat = APDUNGPHAT&&(!thoiDiemThanhToan.before(new Date()) ?true:false) ? tongTien*TILEPHAT/100 : 0;
-  let tienConLai = tongTien + tienPhat - tienDatCoc;
+  let tienPhat = APDUNGPHAT&&(thoiDiemThanhToan>2) ? tongTien*TILEPHAT/100 : 0;
+  let tienConLai = tongTien + tienPhat - tienDatCoc; //neu ra so am thi la tien khach hang con du
 
   const hoadon = await HoaDon.create({
    SoHoaDon: SoHoaDon,
@@ -75,7 +95,7 @@ module.exports.create = async (req, res) => {
    DonGiaBan: DonGiaBan,
    SoLuongBanDaDung: SoLuongBanDaDung,
    TongTienDichVu: tongTienDichVu,
-   TongTienMonAn: tongTienBan,
+   TongTienMonAn: tongTienBan,      // tong sluong * don gia trong ct_datban
    TongTienHoaDon: tongTien,
    TongTienPhat: tienPhat,
    TienConLai: tienConLai,
@@ -85,6 +105,6 @@ module.exports.create = async (req, res) => {
 
  } catch (error) {
 
-  res.status(500).json({ message: "Lỗi server", error: error.message });
+  res.status(500).json({ message: "Lỗi ở tạo HOADON", error: error.message });
  }
 }

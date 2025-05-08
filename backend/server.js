@@ -34,8 +34,43 @@ sequelize
   .then(async () => {
     console.log("Database connected successfully");
 
-    const { Sanh, PhieuDatTiec, LoaiSanh, Ca, HoaDon } = models;
+    const { Ct_DichVu, Ct_DatBan, DichVu, MonAn } = models;
+    
 
+    // await DichVu.create({
+    //   MaDichVu: "DV001",
+    //   TenDichVu: "Nước ngọt",
+    //   DonGia: 12000.0,
+    // })
+    // await DichVu.create({
+    //   MaDichVu: "DV002",
+    //   TenDichVu: "Trai cay",
+    //   DonGia: 19000.0,
+    // })
+    // await MonAn.create({
+    //   MaMonAn: "MA001",
+    //   TenMonAn: "Thịt heo",
+    //   DonGia: 10000.0,
+    // })
+    // await Ct_DichVu.create({
+    //   SoPhieuDatTiec: "PDT001",
+    //   MaDichVu: "DV001",
+    //   SoLuong: 2,
+    //   DonGia: 10000.0,
+    // })
+    // await Ct_DichVu.create({
+    //   SoPhieuDatTiec: "PDT001",
+    //   MaDichVu: "DV002",
+    //   SoLuong: 2,
+    //   DonGia: 20000.0,
+    // })
+    // await Ct_DatBan.create({
+    //   SoPhieuDatTiec: "PDT001",
+    //   MaMonAn: "MA001",
+    //   SoLuong: 5,
+    //   DonGia: 10000.0,
+    // })
+    
     // const existing = await HoaDon.findByPk("HD001");
     // if (!existing) {
     //   await HoaDon.create({
