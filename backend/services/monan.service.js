@@ -49,11 +49,17 @@ const MonAnService = {
 
   getMonAnById: async (id) => {
     try {
-      return await MonAn.findOne({
+      if (!id)
+        throw new Error({ message: 'Mon an id is required', statusCode: 400 });
+      const monan = await MonAn.findOne({
         where: {
           MaMonAn: id,
         },
       });
+
+      if (!monan)
+        throw new Error({ message: 'Mon an not found', statusCode: 404 });
+      return monan;
     } catch (error) {
       throw new Error(
         'Error fetching mon an by id from database (service): ' + error.message
@@ -69,7 +75,8 @@ const MonAnService = {
         },
       });
 
-      if (existing) throw new Error('Mon an already exists');
+      if (existing)
+        throw new Error({ message: 'Mon an already exists', statusCode: 400 });
 
       return await MonAn.create(data);
     } catch (error) {
@@ -81,12 +88,22 @@ const MonAnService = {
 
   updateMonAn: async (id, data) => {
     try {
+      if (!id) {
+        throw new Error({ message: 'Mon an id is required', statusCode: 400 });
+      }
+      if (!data) {
+        throw new Error({
+          message: 'Mon an data is required',
+          statusCode: 400,
+        });
+      }
       const monan = await MonAn.findOne({
         where: {
           MaMonAn: id,
         },
       });
-      if (!monan) throw new Error('Mon an not found');
+      if (!monan)
+        throw new Error({ message: 'Mon an not found', statusCode: 404 });
       return await monan.update(data);
     } catch (error) {
       throw new Error(
@@ -97,12 +114,16 @@ const MonAnService = {
 
   deleteMonAn: async (id) => {
     try {
+      if (!id) {
+        throw new Error({ message: 'Mon an id is required', statusCode: 400 });
+      }
       const monan = await MonAn.findOne({
         where: {
           MaMonAn: id,
         },
       });
-      if (!monan) throw new Error('Mon an not found');
+      if (!monan)
+        throw new Error({ message: 'Mon an not found', statusCode: 404 });
       return await monan.update({ TinhTrang: MonAnStatus.NO_LONGER_AVAILABLE });
     } catch (error) {
       throw new Error(

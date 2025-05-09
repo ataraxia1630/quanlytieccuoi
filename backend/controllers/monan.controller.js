@@ -38,12 +38,7 @@ const MonAnController = {
 
   getMonAnById: async (req, res) => {
     try {
-      const { id } = req.params;
-      if (!id) throw new Error('id is required');
-      const monan = await MonAnService.getMonAnById(id);
-      if (!monan) {
-        return res.status(404).json({ message: 'MonAn not found' });
-      }
+      const monan = await MonAnService.getMonAnById(req.params.id);
       return res.status(200).json(monan);
     } catch (error) {
       return res
@@ -65,9 +60,7 @@ const MonAnController = {
 
   updateMonAn: async (req, res) => {
     try {
-      const { id } = req.params;
-      if (!id) throw new Error('id is required');
-      const monan = await MonAnService.updateMonAn(id, req.body);
+      const monan = await MonAnService.updateMonAn(req.params.id, req.body);
       return res.status(200).json(monan);
     } catch (error) {
       return res.status(500).json({
@@ -79,8 +72,6 @@ const MonAnController = {
 
   deleteMonAn: async (req, res) => {
     try {
-      const { id } = req.params;
-      if (!id) throw new Error('id is required');
       await MonAnService.deleteMonAn(id);
       return res.status(204).send();
     } catch (error) {
