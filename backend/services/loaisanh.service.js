@@ -32,10 +32,16 @@ const LoaiSanhService = {
 
   getLoaiSanhById: async (id) => {
     try {
+      if (!id) {
+        throw new Error({ message: 'ID is required', statusCode: 400 });
+      }
+
       const loaisanh = await LoaiSanh.findOne({
         where: { MaLoaiSanh: id },
       });
-
+      if (!loaisanh) {
+        throw new Error({ message: 'LoaiSanh not found', statusCode: 404 });
+      }
       return loaisanh;
     } catch (error) {
       throw new Error(
@@ -51,7 +57,10 @@ const LoaiSanhService = {
         where: { MaLoaiSanh: data.MaLoaiSanh },
       });
       if (existing) {
-        throw new Error('LoaiSanh already exists');
+        throw new Error({
+          message: 'LoaiSanh already exists',
+          statusCode: 400,
+        });
       }
       return await LoaiSanh.create(data);
     } catch (error) {
@@ -63,11 +72,14 @@ const LoaiSanhService = {
 
   updateLoaiSanh: async (id, data) => {
     try {
+      if (!id) {
+        throw new Error({ message: 'ID is required', statusCode: 400 });
+      }
       const loaisanh = await LoaiSanh.findOne({
         where: { MaLoaiSanh: id },
       });
       if (!loaisanh) {
-        throw new Error('LoaiSanh not found');
+        throw new Error({ message: 'LoaiSanh not found', statusCode: 404 });
       }
       return await loaisanh.update(data);
     } catch (error) {
@@ -79,11 +91,14 @@ const LoaiSanhService = {
 
   deleteLoaiSanh: async (id) => {
     try {
+      if (!id) {
+        throw new Error({ message: 'ID is required', statusCode: 400 });
+      }
       const loaisanh = await LoaiSanh.findOne({
         where: { MaLoaiSanh: id },
       });
       if (!loaisanh) {
-        throw new Error('LoaiSanh not found');
+        throw new Error({ message: 'LoaiSanh not found', statusCode: 404 });
       }
       await loaisanh.destroy();
     } catch (error) {

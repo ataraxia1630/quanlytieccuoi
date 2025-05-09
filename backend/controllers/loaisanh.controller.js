@@ -32,15 +32,8 @@ const LoaiSanhController = {
   },
 
   getLoaiSanhById: async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ message: 'id is required' });
-    }
     try {
-      const loaisanh = await LoaiSanhService.getLoaiSanhById(id);
-      if (!loaisanh) {
-        return res.status(404).json({ message: 'LoaiSanh not found' });
-      }
+      const loaisanh = await LoaiSanhService.getLoaiSanhById(req.params.id);
       return res.status(200).json(loaisanh);
     } catch (error) {
       return res
@@ -64,12 +57,11 @@ const LoaiSanhController = {
   },
 
   updateLoaiSanh: async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ message: 'id is required' });
-    }
     try {
-      const loaisanh = await LoaiSanhService.updateLoaiSanh(id, req.body);
+      const loaisanh = await LoaiSanhService.updateLoaiSanh(
+        req.params.id,
+        req.body
+      );
       return res.status(200).json({
         message: 'Update LoaiSanh successfully',
         data: loaisanh,
@@ -83,15 +75,8 @@ const LoaiSanhController = {
   },
 
   deleteLoaiSanh: async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ message: 'id is required' });
-    }
     try {
-      const loaisanh = await LoaiSanhService.deleteLoaiSanh(id);
-      if (!loaisanh) {
-        return res.status(404).json({ message: 'LoaiSanh not found' });
-      }
+      const loaisanh = await LoaiSanhService.deleteLoaiSanh(req.params.id);
       return res.status(204).send();
     } catch (error) {
       return res.status(500).json({
