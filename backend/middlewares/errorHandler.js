@@ -3,23 +3,23 @@ const errorHandler = (err, req, res, next) => {
 
   // Mặc định mã trạng thái và thông điệp
   let statusCode = err.statusCode || 500;
-  let message = err.message || 'Internal Server Error';
+  let message = err.message || "Lỗi máy chủ nội bộ.";
 
   // Xử lý lỗi Sequelize (nếu có)
-  if (err.name === 'SequelizeValidationError') {
+  if (err.name === "SequelizeValidationError") {
     statusCode = 400;
-    message = err.errors.map(e => e.message).join(', ');
-  } else if (err.name === 'SequelizeUniqueConstraintError') {
+    message = err.errors.map((e) => e.message).join(", ");
+  } else if (err.name === "SequelizeUniqueConstraintError") {
     statusCode = 400;
-    message = 'Duplicate entry detected.';
+    message = "Dữ liệu đã tồn tại, không thể tạo trùng.";
   }
 
   const response = {
     status: statusCode,
-    message
+    message,
   };
 
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     response.stack = err.stack;
   }
 
