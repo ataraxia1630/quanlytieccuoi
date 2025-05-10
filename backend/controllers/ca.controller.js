@@ -1,4 +1,4 @@
-const caService = require('../services/caService');
+const caService = require('../services/ca.service');
 
 const getAllCa = async (req, res, next) => {
     try {
@@ -59,4 +59,25 @@ const deleteCa = async (req, res, next) => {
     }
 };
 
-module.exports = { getAllCa, getCaById, createCa, updateCa, deleteCa };
+const getCaSchedule = async (req, res, next) => {
+    try {
+        const { startDate, endDate } = req.query;
+        const result = await caService.getCaSchedule(startDate, endDate);
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const searchCa = async (req, res, next) => {
+    try {
+        //console.log('Entering caController.searchCa');
+        const { tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo } = req.query;
+        const cas = await caService.searchCa({ tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo });
+        res.json(cas);
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { getAllCa, getCaById, createCa, updateCa, deleteCa, getCaSchedule, searchCa };
