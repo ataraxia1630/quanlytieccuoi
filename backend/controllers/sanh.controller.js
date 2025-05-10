@@ -1,4 +1,4 @@
-const sanhService = require('../services/sanhService');
+const sanhService = require('../services/sanh.service');
 
 const getAllSanh = async (req, res, next) => {
     try {
@@ -59,4 +59,25 @@ const deleteSanh = async (req, res, next) => {
     }
 };
 
-module.exports = { getAllSanh, getSanhById, createSanh, updateSanh, deleteSanh };
+const checkSanhAvailability = async (req, res, next) => {
+    try {
+        const { maSanh } = req.params;
+        const { ngayDaiTiec, maCa } = req.query;
+        const result = await sanhService.checkSanhAvailability(maSanh, ngayDaiTiec, maCa);
+        res.json(result);
+    } catch (error) {
+        next(error);
+    }
+};
+
+const searchSanh = async (req, res, next) => {
+    try {
+        const { maSanh, maLoaiSanh, tenSanh, tenLoaiSanh, minSoLuongBan, maxSoLuongBan } = req.query;
+        const sanhs = await sanhService.searchSanh({ maSanh, maLoaiSanh, tenSanh, tenLoaiSanh, minSoLuongBan, maxSoLuongBan });
+        res.json(sanhs);
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = { getAllSanh, getSanhById, createSanh, updateSanh, deleteSanh, checkSanhAvailability, searchSanh };
