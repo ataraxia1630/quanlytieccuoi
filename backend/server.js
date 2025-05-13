@@ -33,19 +33,9 @@ sequelize
   })
   .catch((err) => console.error("Database connection failed:", err));
 
-// Đồng bộ models với database (Cập nhật cơ sở dữ liệu nếu có thay đổi trong các model)
-if (process.env.NODE_ENV === "development") {
-  // sequelize
-  //   .sync({ alter: true }) //nên dùng phương pháp migration để thay cho alter: true
-  //   .then(() => console.log("Database synchronized!"))
-  //   .catch((err) => console.error("Sync failed:", err.message));
-}
-
-
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
 
 app.use(errorHandler);
 
