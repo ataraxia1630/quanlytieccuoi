@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TINYINT,
         allowNull: false,
       },
+      HinhAnh: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+      },
       GhiChu: {
         type: DataTypes.STRING(255),
         allowNull: true,

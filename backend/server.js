@@ -5,6 +5,10 @@ const { sequelize } = require("./models/index.js"); // Import sequelize instance
 const models = require("./models/index.js"); // Import tất cả các model
 const errorHandler = require("./middlewares/errorHandler.js");
 
+// Import các route
+const caRouter = require("./routes/ca.route.js"); 
+const sanhRouter = require("./routes/sanh.route.js"); 
+
 const app = express();
 const port = process.env.DB_PORT || 3000;
 
@@ -26,6 +30,7 @@ requiredEnvVars.forEach((varName) => {
 app.use(cors());
 app.use(express.json()); // Hỗ trợ JSON request body
 
+// Kết nối database
 sequelize
   .authenticate()
   .then(async () => {
@@ -33,12 +38,14 @@ sequelize
   })
   .catch((err) => console.error("Database connection failed:", err));
 
+
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
 app.use(errorHandler);
 
+// Khởi động server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
