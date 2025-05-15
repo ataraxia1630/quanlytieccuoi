@@ -1,0 +1,50 @@
+import { Button, Box } from "@mui/material";
+
+const FilterButton = ({
+  onClick = () => {},
+  text = "Filter",
+  disabled = false,
+}) => {
+  return (
+    <Button
+      variant="outlined"
+      onClick={onClick}
+      disabled={disabled}
+      sx={{
+        height: "48px",
+        textTransform: "none",
+        borderColor: "#063F5C",
+        color: "#063F5C",
+        borderWidth: "2px",
+        padding: "2px 12px",
+        fontSize: "17px",
+        fontWeight: "bold",
+        borderRadius: 0,
+        "&:hover": {
+          backgroundColor: "rgba(10, 62, 101, 0.04)",
+        },
+      }}
+    >
+      <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+        <svg
+          width="25"
+          height="24"
+          viewBox="0 0 25 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M22.1668 3H2.03491L10.0877 12.46V19L14.1141 21V12.46L22.1668 3Z"
+            stroke="#063F5C"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        {text}
+      </Box>
+    </Button>
+  );
+};
+
+export default FilterButton;
