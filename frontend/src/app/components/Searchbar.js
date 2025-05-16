@@ -1,5 +1,4 @@
-import React from "react";
-import { Box, TextField } from "@mui/material";
+import { Box, Button, TextField } from "@mui/material";
 
 const SearchBar = ({
   value = "",
@@ -19,7 +18,7 @@ const SearchBar = ({
       sx={{
         display: "flex",
         width: "100%",
-        maxWidth: "610px",
+        maxWidth: "590px",
       }}
     >
       <TextField
@@ -31,7 +30,7 @@ const SearchBar = ({
         sx={{
           flexGrow: 1,
           "& .MuiOutlinedInput-root": {
-            height: "48px",
+            height: "45px",
             borderRadius: "20px 0 0 20px",
             "& fieldset": {
               borderRight: "none",
@@ -45,27 +44,26 @@ const SearchBar = ({
           "& .MuiInputBase-input": {
             height: "40px",
             padding: "0 23px",
-            fontSize: "18px",
+            fontSize: "16px",
             boxSizing: "border-box",
           },
         }}
       />
-      <button
+      <Button
         onClick={() => onSearch(value)}
         disabled={disabled}
         className="flex items-center justify-center"
         style={{
           backgroundColor: "#063F5C",
-          height: "48px",
+          height: "45px",
           borderRadius: "0 20px 20px 0",
           border: "none",
-          width: "59px",
-          flexShrink: 0, // Không co lại
+          width: "55px",
         }}
       >
         <svg
-          width="29"
-          height="24"
+          width="27"
+          height="22"
           viewBox="0 0 29 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -85,7 +83,7 @@ const SearchBar = ({
             strokeLinejoin="round"
           />
         </svg>
-      </button>
+      </Button>
     </Box>
   );
 };

@@ -11,13 +11,13 @@ const FilterButton = ({
       onClick={onClick}
       disabled={disabled}
       sx={{
-        height: "48px",
+        height: "45px",
         textTransform: "none",
         borderColor: "#063F5C",
         color: "#063F5C",
         borderWidth: "2px",
         padding: "2px 12px",
-        fontSize: "17px",
+        fontSize: "15px",
         fontWeight: "bold",
         borderRadius: 0,
         "&:hover": {
