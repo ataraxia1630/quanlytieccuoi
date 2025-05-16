@@ -5,6 +5,7 @@ const { sequelize } = require('./models/index.js'); // Import sequelize instance
 const models = require('./models/index.js'); // Import tất cả các model
 const errorHandler = require('./middlewares/errorHandler.js');
 const route = require('./routes/index.js');
+const imageRoutes = require('./routes/image.route.js'); // Import route xử lý hình ảnh
 
 // Import các route
 const caRouter = require("./routes/ca.route.js"); 
@@ -58,7 +59,7 @@ if (process.env.NODE_ENV === 'development') {
 
 // Routes
 app.use("/api/images", imageRoutes);
-app.use("/uploads", express.static("uploads"));
+
 app.get('/', (req, res) => {
   res.send('Hello World!');
 });
