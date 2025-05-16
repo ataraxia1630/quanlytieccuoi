@@ -4,10 +4,7 @@ require("dotenv").config();
 const { sequelize } = require("./models/index.js"); // Import sequelize instance từ models/index.js
 const models = require("./models/index.js"); // Import tất cả các model
 const errorHandler = require("./middlewares/errorHandler.js");
-
-// Import các route
-const caRouter = require("./routes/ca.route.js"); 
-const sanhRouter = require("./routes/sanh.route.js"); 
+const route = require("./routes/index.js");
 
 const app = express();
 const port = process.env.DB_PORT || 3000;
@@ -51,15 +48,6 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
-// Log tất cả request
-// app.use((req, res, next) => {
-//     console.log(`Request received: ${req.method} ${req.url}`);
-//     next();
-// });
-
-// Phục vụ file tĩnh (ảnh)
-app.use('/uploads', express.static('uploads'));
-
 // Middleware xử lý lỗi ApiError và multer trước
 app.use((err, req, res, next) => {
   if (err.name === 'ApiError') {
@@ -73,11 +61,8 @@ app.use((err, req, res, next) => {
   }
 });
 
-
-
-// Gắn các route
-app.use("/api", caRouter); // Các endpoint như /api/ca
-app.use("/api", sanhRouter); // Các endpoint như /api/sanh
+// Gọi hàm route để gắn các router
+route(app);
 
 // Middleware xử lý lỗi (phải đặt sau tất cả các route)
 app.use(errorHandler);

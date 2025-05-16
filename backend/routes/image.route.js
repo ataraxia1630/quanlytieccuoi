@@ -1,7 +1,7 @@
 const express = require('express');
 const { getImageUrl, uploadImage } = require('../controllers/image.controller');
-const { upload } = require('../middleware/upload.middleware');
-const validate = require('../middleware/validate');
+const upload = require('../middlewares/uploadHandler'); // Đổi tên middleware nếu cần
+const validate = require('../middlewares/validation'); // Đảm bảo middleware validate tồn tại
 const { getImageUrlValidation, uploadImageValidation } = require('../validations/image.validation');
 
 const router = express.Router();
