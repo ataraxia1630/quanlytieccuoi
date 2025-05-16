@@ -57,12 +57,36 @@ app.get("/", (req, res) => {
 //     next();
 // });
 
+// Phục vụ file tĩnh (ảnh)
+app.use('/uploads', express.static('uploads'));
+
+// Middleware xử lý lỗi ApiError và multer trước
+app.use((err, req, res, next) => {
+  if (err.name === 'ApiError') {
+    res.status(err.statusCode).json({ status: err.statusCode, message: err.message, details: err.details });
+  } else if (err instanceof multer.MulterError) {
+    res.status(400).json({ status: 400, message: 'Lỗi upload file: ' + err.message });
+  } else if (err.message.includes('Chỉ hỗ trợ file ảnh')) {
+    res.status(400).json({ status: 400, message: err.message });
+  } else {
+    next(err); // Chuyển lỗi cho errorHandler xử lý
+  }
+});
+
+
+
 // Gắn các route
 app.use("/api", caRouter); // Các endpoint như /api/ca
 app.use("/api", sanhRouter); // Các endpoint như /api/sanh
 
 // Middleware xử lý lỗi (phải đặt sau tất cả các route)
 app.use(errorHandler);
+
+// Middleware 404
+app.use((req, res) => {
+  console.log(`404 Error for: ${req.method} ${req.url}`);
+  res.status(404).json({ status: 404, message: 'Không tìm thấy tài nguyên' });
+});
 
 // Khởi động server
 app.listen(port, () => {
