@@ -1,3 +1,4 @@
+// Tạo cột mặc định cho bảng
 import { Box } from "@mui/material";
 import ActionButtons from "../../components/Actionbuttons";
 
@@ -39,7 +40,7 @@ const defaultColumns = [
     label: "Giá",
     sortable: true,
     width: 150,
-    render: (row) => `${row.price.toLocaleString()} VND`,
+    render: (row) => new Intl.NumberFormat("vi-VN").format(row.price),
   },
   {
     id: "status",
