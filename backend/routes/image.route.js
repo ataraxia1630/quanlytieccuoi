@@ -1,11 +1,11 @@
 const express = require('express');
 const { getImageUrl, uploadImage } = require('../controllers/image.controller');
-const { upload } = require('../middleware/upload.middleware');
-const validate = require('../middleware/validate');
+const { upload } = require('../middlewares/uploadHandler');
+const validate = require('../middlewares/validation');
 const { getImageUrlValidation, uploadImageValidation } = require('../validations/image.validation');
 
 const router = express.Router();
-
+console.log('validate:', validate);   
 // Route lấy URL ảnh từ Cloudinary
 router.get('/:imageId', getImageUrlValidation, validate, getImageUrl);
 

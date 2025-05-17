@@ -28,7 +28,7 @@ const getSanhById = async (maSanh) => {
                 attributes: ['MaLoaiSanh', 'TenLoaiSanh']
             }]
         });
-        return sanh;
+        return sanh;    
     } catch (error) {
         throw new ApiError(500, 'Lỗi khi lấy thông tin sảnh: ' + error.message);
     }
@@ -48,10 +48,10 @@ const createSanh = async ({ MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAn
             HinhAnh,
             GhiChu
         });
-    } catch (error) {
-        if (error.name === 'ApiError') throw error;
-        throw new ApiError(500, 'Lỗi khi thêm sảnh: ' + error.message);
-    }
+        } catch (error) {
+            if (error.name === 'ApiError') throw error;
+            throw new ApiError(500, 'Lỗi khi thêm sảnh: ' + error.message);
+        }
 };
 
 const updateSanh = async (maSanh, { MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAnh, GhiChu }) => {

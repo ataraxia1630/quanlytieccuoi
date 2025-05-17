@@ -1,25 +1,27 @@
-const express = require('express');
-const cors = require('cors');
-require('dotenv').config();
-const { sequelize } = require('./models/index.js'); // Import sequelize instance từ models/index.js
-const models = require('./models/index.js'); // Import tất cả các model
-const errorHandler = require('./middlewares/errorHandler.js');
-const route = require('./routes/index.js');
-const imageRoutes = require('./routes/image.route.js'); // Import route xử lý hình ảnh
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+const { sequelize } = require("./models/index.js"); // Import sequelize instance từ models/index.js
+const models = require("./models/index.js"); // Import tất cả các model
+const errorHandler = require("./middlewares/errorHandler.js");
 
 // Import các route
 const caRouter = require("./routes/ca.route.js"); 
 const sanhRouter = require("./routes/sanh.route.js"); 
+const imageRouter = require("./routes/image.route.js");
+const phieuDatTiecRouter = require("./routes/phieudattiec.route.js");
+const ctDichVuRouter = require("./routes/ct_dichvu.route.js");
+const ctDatBanRouter = require("./routes/ct_datban.route.js");
 
 const app = express();
 const port = process.env.DB_PORT || 3000;
 
 const requiredEnvVars = [
-  'DB_USERNAME',
-  'DB_PASSWORD',
-  'DB_NAME',
-  'DB_HOST',
-  'DB_DIALECT',
+  "DB_USERNAME",
+  "DB_PASSWORD",
+  "DB_NAME",
+  "DB_HOST",
+  "DB_DIALECT",
 ];
 
 // Kiểm tra các biến môi trường bắt buộc
@@ -31,46 +33,46 @@ requiredEnvVars.forEach((varName) => {
 
 app.use(cors());
 app.use(express.json()); // Hỗ trợ JSON request body
-app.use(express.static("public"));
-app.use(express.urlencoded({ extended: true }));
-
-
-
 
 // Kết nối database
 sequelize
   .authenticate()
   .then(async () => {
-    console.log('Database connected successfully');
+    console.log("Database connected successfully");
   })
-  .catch((err) => console.error('Database connection failed:', err));
-
+  .catch((err) => console.error("Database connection failed:", err));
 
 // Đồng bộ models với database (Cập nhật cơ sở dữ liệu nếu có thay đổi trong các model)
-if (process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV === "development") {
   // sequelize
-  //   .sync({ alter: true }) //nên dùng phương pháp migration để thay cho alter: true
+  //   .sync({ alter: true }) // nên dùng phương pháp migration để thay cho alter: true
   //   .then(() => console.log("Database synchronized!"))
   //   .catch((err) => console.error("Sync failed:", err.message));
 }
 
-
-
-
-// Routes
-app.use("/api/images", imageRoutes);
-
-app.get('/', (req, res) => {
-  res.send('Hello World!');
+// Route mặc định
+app.get("/", (req, res) => {
+  res.send("Hello World!");
 });
 
+// Log tất cả request
+// app.use((req, res, next) => {
+//     console.log(`Request received: ${req.method} ${req.url}`);
+//     next();
+// });
+
+// Gắn các route
+app.use("/api", caRouter); // Các endpoint như /api/ca
+app.use("/api", sanhRouter); // Các endpoint như /api/sanh
+app.use("/api",phieuDatTiecRouter);
+app.use("/api",ctDichVuRouter);
+app.use("/api",ctDatBanRouter);
+app.use("/api/images",imageRouter);
+
+// Middleware xử lý lỗi (phải đặt sau tất cả các route)
 app.use(errorHandler);
 
 // Khởi động server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
-
 });
-
-route(app);
-

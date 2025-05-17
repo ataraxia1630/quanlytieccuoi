@@ -16,7 +16,7 @@ const getSanhById = async (req, res, next) => {
             res.status(404).json({ error: 'Không tìm thấy sảnh' });
         } else {
             res.json(sanh);
-        }
+        }   
     } catch (error) {
         next(error);
     }
