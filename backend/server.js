@@ -67,6 +67,8 @@ app.use('/api', caRouter); // Các endpoint như /api/ca
 app.use('/api', sanhRouter); // Các endpoint như /api/sanh
 app.use('/api/images', imageRouter);
 
+route(app);
+
 // Middleware xử lý lỗi (phải đặt sau tất cả các route)
 
 app.use(errorHandler);
@@ -75,5 +77,3 @@ app.use(errorHandler);
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
-
-route(app);
