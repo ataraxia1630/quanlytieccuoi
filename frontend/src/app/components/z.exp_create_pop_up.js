@@ -1,11 +1,11 @@
 // Mở popup chỉnh sửa hoặc thêm
 import { useState } from "react";
 import { Dialog, DialogContent, Box, Divider } from "@mui/material";
-import DialogTitleCustom from "../../components/Dialogtitlecustom";
-import FormTextField from "../../components/Formtextfield";
-import SelectFieldCustom from "../../components/Selectfieldcustom";
-import ImageUploadField from "../../components/Imageuploadfield";
-import DialogButtons from "../../components/Dialogbutton";
+import DialogTitleCustom from "./Dialogtitlecustom";
+import FormTextField from "./Formtextfield";
+import SelectFieldCustom from "./Selectfieldcustom";
+import ImageUploadField from "./Imageuploadfield";
+import DialogButtons from "./Dialogbutton";
 
 // Danh sách các tùy chọn tình trạng trong popup
 const statusOptions = [
@@ -24,6 +24,7 @@ const EditDishDialog = ({ open, onClose, onSave, title }) => {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [status, setStatus] = useState("");
+  const [time, setTime] = useState("");
   const [image, setImage] = useState(null);
 
   const handleImageSelect = (e) => {
@@ -76,12 +77,23 @@ const EditDishDialog = ({ open, onClose, onSave, title }) => {
 
           <FormTextField
             label="Giá"
-            type="number"
+            type="number" // Thay đổi kiểu nhập thành số nếu là giá trị số
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+            // Bỏ InputProps nếu không có VNĐ
             InputProps={{
               endAdornment: <span style={{ marginLeft: 4 }}>VNĐ</span>,
             }}
+            fullWidth
+          />
+
+          {/* Thay đổi kiểu nhập thời gian thành HH:mm:ss */}
+          <FormTextField
+            label="Giờ"
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            inputProps={{ step: 1 }} // Cho phép hiển thị và nhập giây (HH:mm:ss)
             fullWidth
           />
 

@@ -1,6 +1,6 @@
 // Tạo cột mặc định cho bảng
 import { Box } from "@mui/material";
-import ActionButtons from "../../components/Actionbuttons";
+import ActionButtons from "./Actionbuttons";
 
 const defaultColumns = [
   {
