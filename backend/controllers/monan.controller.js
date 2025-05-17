@@ -62,7 +62,7 @@ const MonAnController = {
 
   createMonAn: async (req, res, next) => {
     try {
-      const monan = await MonAnService.createMonAn(req.body);
+      const monan = await MonAnService.createMonAn(req.body, req.file);
       return res.status(201).json(monan);
     } catch (error) {
       next(error);
@@ -71,7 +71,11 @@ const MonAnController = {
 
   updateMonAn: async (req, res, next) => {
     try {
-      const monan = await MonAnService.updateMonAn(req.params.id, req.body);
+      const monan = await MonAnService.updateMonAn(
+        req.params.id,
+        req.body,
+        req.file
+      );
       return res.status(200).json(monan);
     } catch (error) {
       next(error);

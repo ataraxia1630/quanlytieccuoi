@@ -2,6 +2,8 @@ const { Router } = require('express');
 
 const { MonAnController } = require('../controllers/monan.controller');
 
+const { upload } = require('../middlewares/uploadHandler');
+
 const router = Router();
 
 // Lấy danh sách món ăn (available)
@@ -14,10 +16,10 @@ router.get('/:id', MonAnController.getMonAnById);
 router.get('/', MonAnController.getAllMonAn);
 
 // Tạo một món ăn mới
-router.post('/', MonAnController.createMonAn);
+router.post('/', upload.single('image'), MonAnController.createMonAn);
 
 // Cập nhật thông tin món ăn theo ID
-router.put('/:id', MonAnController.updateMonAn);
+router.put('/:id', upload.single('image'), MonAnController.updateMonAn);
 
 // Xóa món ăn theo ID
 router.delete('/:id', MonAnController.deleteMonAn);

@@ -2,6 +2,8 @@ const { MonAn } = require('../models');
 const { Op } = require('sequelize');
 const ApiError = require('../utils/apiError');
 
+const { uploadImage } = require('./image.service');
+
 const MonAnStatus = {
   AVAILABLE: 'AVAILABLE',
   UNAVAILABLE: 'UNAVAILABLE',
@@ -109,7 +111,7 @@ const MonAnService = {
     }
   },
 
-  createMonAn: async (data) => {
+  createMonAn: async (data, file) => {
     try {
       if (!data || !data.MaMonAn || !data.TenMonAn || !data.DonGia) {
         throw new ApiError(400, 'Thiếu thông tin món ăn cần thiết.');
@@ -123,13 +125,22 @@ const MonAnService = {
       if (existing)
         throw new ApiError(400, 'Thêm mới thất bại!\nMón ăn đã tồn tại.');
 
-      return await MonAn.create(data);
+      let imageUrl = null;
+      if (file && file.buffer) {
+        const result = await uploadImage(file.buffer);
+        imageUrl = result.secure_url;
+      }
+
+      return await MonAn.create({
+        ...data,
+        HinhAnh: imageUrl,
+      });
     } catch (error) {
       throw new ApiError(500, 'Thêm mới thất bại\nLỗi server.');
     }
   },
 
-  updateMonAn: async (id, data) => {
+  updateMonAn: async (id, data, file) => {
     try {
       if (!id) {
         throw new ApiError(400, 'Thiếu trường id trong req.params');
@@ -143,7 +154,14 @@ const MonAnService = {
           404,
           'Cập nhật thất bại!\nKhông tìm thấy món ăn này trong CSDL!'
         );
-      return await monan.update(data);
+
+      const updateData = { ...data };
+      if (file && file.buffer) {
+        const result = await uploadImage(file.buffer);
+        updateData.HinhAnh = result.secure_url;
+      }
+
+      return await monan.update(updateData);
     } catch (error) {
       throw new ApiError(500, 'Cập nhật thất bại!\nLỗi server!');
     }
