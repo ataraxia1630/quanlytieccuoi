@@ -5,10 +5,13 @@ const { sequelize } = require('./models/index.js'); // Import sequelize instance
 const models = require('./models/index.js'); // Import tất cả các model
 const errorHandler = require('./middlewares/errorHandler.js');
 
+const route = require('./routes');
+
 // Import các route
 const caRouter = require('./routes/ca.route.js');
 const sanhRouter = require('./routes/sanh.route.js');
-const route = require('./routes');
+
+const imageRouter = require('./routes/image.route.js');
 
 const app = express();
 const port = process.env.DB_PORT || 3000;
@@ -59,8 +62,10 @@ app.get('/', (req, res) => {
 // });
 
 // Gắn các route
-// app.use('/api', caRouter); // Các endpoint như /api/ca
-// app.use('/api', sanhRouter); // Các endpoint như /api/sanh
+
+app.use('/api', caRouter); // Các endpoint như /api/ca
+app.use('/api', sanhRouter); // Các endpoint như /api/sanh
+app.use('/api/images', imageRouter);
 
 // Middleware xử lý lỗi (phải đặt sau tất cả các route)
 
