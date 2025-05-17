@@ -4,6 +4,12 @@ const { MonAnController } = require('../controllers/monan.controller');
 
 const { upload } = require('../middlewares/uploadHandler');
 
+const validate = require('../middlewares/validation');
+const {
+  createMonAnValidation,
+  updateMonAnValidation,
+} = require('../validations/monan.validation');
+
 const router = Router();
 
 // Lấy danh sách món ăn (available)
@@ -16,10 +22,22 @@ router.get('/:id', MonAnController.getMonAnById);
 router.get('/', MonAnController.getAllMonAn);
 
 // Tạo một món ăn mới
-router.post('/', upload.single('image'), MonAnController.createMonAn);
+router.post(
+  '/',
+  createMonAnValidation,
+  validate,
+  upload.single('image'),
+  MonAnController.createMonAn
+);
 
 // Cập nhật thông tin món ăn theo ID
-router.put('/:id', upload.single('image'), MonAnController.updateMonAn);
+router.put(
+  '/:id',
+  updateMonAnValidation,
+  validate,
+  upload.single('image'),
+  MonAnController.updateMonAn
+);
 
 // Xóa món ăn theo ID
 router.delete('/:id', MonAnController.deleteMonAn);
