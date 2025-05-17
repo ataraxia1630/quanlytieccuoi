@@ -36,8 +36,8 @@ const MonAnController = {
         page,
         limit,
         filters,
-        req.search,
-        req.sort
+        req.query.search,
+        req.query.sort
       );
 
       return res.status(200).json({

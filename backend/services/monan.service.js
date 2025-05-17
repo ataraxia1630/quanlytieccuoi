@@ -42,8 +42,8 @@ const MonAnService = {
 
       if (search) {
         where[Op.or] = [
-          { TenMonAn: { [Op.like]: `%${search}%` } },
-          { MaMonAn: { [Op.like]: `%${search}%` } },
+          { TenMonAn: { [Op.like]: `%${search.toLowerCase()}%` } },
+          { MaMonAn: { [Op.like]: `%${search.toLowerCase()}%` } },
         ];
       }
 
@@ -74,7 +74,7 @@ const MonAnService = {
           order.push(['DonGia', 'DESC']);
           break;
         default:
-          order.push(['MaMonAn', 'DESC']);
+          order.push(['MaMonAn', 'ASC']);
       }
 
       const { count, rows } = await MonAn.findAndCountAll({
