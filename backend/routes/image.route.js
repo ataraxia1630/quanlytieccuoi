@@ -1,7 +1,7 @@
 const express = require('express');
 const { getImageUrl, uploadImage } = require('../controllers/image.controller');
 const { upload } = require('../middlewares/uploadHandler');
-const validate = require('../middleware/validate');
+const validate = require('../middlewares/validation');
 const { getImageUrlValidation, uploadImageValidation } = require('../validations/image.validation');
 
 const router = express.Router();
