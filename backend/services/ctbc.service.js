@@ -1,4 +1,9 @@
-const { Ct_BaoCaoTheoNgay, PhieuDatTiec, sequelize } = require('../models');
+const {
+  Ct_BaoCaoTheoNgay,
+  PhieuDatTiec,
+  HoaDon,
+  sequelize,
+} = require('../models');
 const { Op } = require('sequelize');
 const ApiError = require('../utils/apiError');
 const { raw } = require('express');
@@ -13,12 +18,13 @@ const CTBCService = {
           {
             model: HoaDon,
             attributes: [],
+            required: true,
           },
         ],
         attributes: [
-          ['NgayDaiTiec', 'Ngay'],
+          [sequelize.col('PhieuDatTiec.NgayDaiTiec'), 'Ngay'],
           [
-            sequelize.fn('COUNT', sequelize.col('SoPhieuDatTiec')),
+            sequelize.fn('COUNT', sequelize.col('PhieuDatTiec.SoPhieuDatTiec')),
             'SoLuongTiec',
           ],
           [
@@ -44,6 +50,12 @@ const CTBCService = {
         order: [['NgayDaiTiec', 'ASC']],
         raw: true,
       });
+
+      console.log({ data });
+
+      if (data.length === 0) {
+        return { TongDoanhThu: 0, CTBCs: [] };
+      }
 
       // B2: Tính tổng doanh thu của tháng
       let TongDoanhThu = 0;

@@ -6,7 +6,12 @@ const { CTBCService } = require('./ctbc.service');
 const BaoCaoService = {
   XemBaoCao: async (data) => {
     try {
-      const { month, year, createdAt } = data;
+      const month = parseInt(data.month);
+      const year = parseInt(data.year);
+
+      const createdAt = new Date();
+
+      console.log({ month, year, createdAt });
 
       const existing = await BaoCaoThang.findOne({
         where: {
@@ -14,6 +19,8 @@ const BaoCaoService = {
         },
         include: [{ model: Ct_BaoCaoTheoNgay }],
       });
+
+      console.log({ existing });
 
       if (existing) return existing;
 
@@ -28,6 +35,8 @@ const BaoCaoService = {
         TongDoanhThu: 0,
       });
 
+      console.log({ BC });
+
       // B2: Tạo các chi tiết báo cáo
       const { TongDoanhThu, CTBCs } = await CTBCService.createCTBCs(
         MaBC,
@@ -35,13 +44,17 @@ const BaoCaoService = {
         year
       );
 
-      // B3: Cập nhật lại tổng doanh thu
-      BC.TongDoanhThu = TongDoanhThu;
-      await BC.save();
+      console.log({ TongDoanhThu, CTBCs });
 
-      return BC;
+      // B3: Cập nhật lại tổng doanh thu
+      if (TongDoanhThu > 0) {
+        BC.TongDoanhThu = TongDoanhThu;
+        await BC.save();
+      }
+
+      return { BC, CTBCs };
     } catch (error) {
-      throw new ApiError(500, 'Lỗi server');
+      throw new ApiError(500, 'Lỗi server' + error.message);
     }
   },
 

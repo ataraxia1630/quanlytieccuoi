@@ -8,3 +8,5 @@ router.get('/:year/:month', BaoCaoController.XemBaoCao);
 
 // Xuat file bao cao
 router.get('/export/:year/:month', BaoCaoController.XuatBaoCao);
+
+module.exports = router;

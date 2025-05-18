@@ -4,7 +4,7 @@ const BaoCaoController = {
   XemBaoCao: async (req, res, next) => {
     try {
       const baocao = await BaoCaoService.XemBaoCao(req.params);
-      return baocao;
+      return res.status(200).json({ baocao });
     } catch (error) {
       next(error);
     }
