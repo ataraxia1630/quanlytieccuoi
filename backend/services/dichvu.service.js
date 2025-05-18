@@ -1,34 +1,43 @@
 const { DichVu } = require("../models");
 const { Op } = require("sequelize");
-const { ApiError } = require("../utils/apiError");
+const ApiError = require("../utils/apiError.js");
 
 const DichVuService = {
   getAllDichVu: async (limit, offset) => {
     try {
       return await DichVu.findAll({ limit, offset });
-    } catch (error) {
-      throw new ApiError("Không thể lấy danh sách dịch vụ.", 500);
+    } catch (err) {
+      throw new ApiError(500, "Không thể lấy danh sách dịch vụ.");
     }
   },
 
   getDichVuById: async (id) => {
     try {
       const dichvu = await DichVu.findByPk(id);
-      if (!dichvu) throw new ApiError("Không tìm thấy dịch vụ.", 404);
+      if (!dichvu) throw new ApiError(404, "Không tìm thấy dịch vụ.");
       return dichvu;
     } catch (err) {
       throw err.statusCode
         ? err
-        : new ApiError("Lỗi khi lấy thông tin dịch vụ theo ID.", 500);
+        : new ApiError(500, "Lỗi khi lấy thông tin dịch vụ theo ID.");
     }
   },
 
   createDichVu: async (data) => {
     try {
       if (!data.TenDichVu || !data.DonGia || !data.TinhTrang) {
-        throw new ApiError("Thiếu thông tin bắt buộc.", 400);
+        throw new ApiError(400, "Thiếu thông tin bắt buộc.");
       }
 
+      // Kiểm tra trùng tên dịch vụ
+      const existed = await DichVu.findOne({
+        where: { TenDichVu: data.TenDichVu },
+      });
+      if (existed) {
+        throw new ApiError(400, "Tên dịch vụ đã tồn tại.");
+      }
+
+      // Tạo mã dịch vụ mới
       const lastDichVu = await DichVu.findOne({
         order: [["MaDichVu", "DESC"]],
       });
@@ -43,25 +52,25 @@ const DichVuService = {
 
       return await DichVu.create(data);
     } catch (err) {
-      throw err.statusCode ? err : new ApiError("Lỗi khi tạo dịch vụ.", 500);
+      throw err.statusCode ? err : new ApiError(500, "Lỗi khi tạo dịch vụ.");
     }
   },
 
   updateDichVu: async (id, data) => {
     try {
       if (!data || Object.keys(data).length === 0) {
-        throw new ApiError("Không có dữ liệu để cập nhật.", 400);
+        throw new ApiError(400, "Không có dữ liệu để cập nhật.");
       }
       const [affectedRows] = await DichVu.update(data, {
         where: { MaDichVu: id },
       });
       if (affectedRows === 0)
-        throw new ApiError("Không tìm thấy dịch vụ để cập nhật.", 404);
+        throw new ApiError(404, "Không tìm thấy dịch vụ để cập nhật.");
       return affectedRows;
     } catch (err) {
       throw err.statusCode
         ? err
-        : new ApiError("Cập nhật dịch vụ thất bại.", 500);
+        : new ApiError(500, "Cập nhật dịch vụ thất bại.");
     }
   },
 
@@ -69,10 +78,12 @@ const DichVuService = {
     try {
       const deletedRows = await DichVu.destroy({ where: { MaDichVu: id } });
       if (deletedRows === 0)
-        throw new ApiError("Không tìm thấy dịch vụ để xóa.", 404);
+        throw new ApiError(404, "Không tìm thấy dịch vụ để xóa.");
+      // Kiểm tra xem có chi tiết dịch vụ nào liên quan không
+      // ...
       return deletedRows;
     } catch (err) {
-      throw err.statusCode ? err : new ApiError("Xóa dịch vụ thất bại.", 500);
+      throw err.statusCode ? err : new ApiError(500, "Xóa dịch vụ thất bại.");
     }
   },
 
@@ -89,22 +100,32 @@ const DichVuService = {
         where.TenDichVu = { [Op.like]: `%${tenDichVu}%` };
       }
 
-      if (giaTu !== undefined && giaDen !== undefined) {
-        if (isNaN(giaTu) || isNaN(giaDen)) {
-          throw new ApiError("Khoảng giá không hợp lệ.", 400);
+      if (giaTu !== undefined || giaDen !== undefined) {
+        if (
+          (giaTu !== undefined && isNaN(giaTu)) ||
+          (giaDen !== undefined && isNaN(giaDen))
+        ) {
+          throw new ApiError(400, "Khoảng giá không hợp lệ.");
         }
-        where.DonGia = { [Op.between]: [Number(giaTu), Number(giaDen)] };
+
+        if (giaTu !== undefined && giaDen !== undefined) {
+          where.DonGia = { [Op.between]: [Number(giaTu), Number(giaDen)] };
+        } else if (giaTu !== undefined) {
+          where.DonGia = { [Op.gte]: Number(giaTu) };
+        } else if (giaDen !== undefined) {
+          where.DonGia = { [Op.lte]: Number(giaDen) };
+        }
       }
 
       if (tinhTrang) {
-        where.TinhTrang = { [Op.like]: `%${tinhTrang}%` };
+        where.TinhTrang = tinhTrang;
       }
 
       return await DichVu.findAll({ where, limit, offset });
     } catch (err) {
       throw err.statusCode
         ? err
-        : new ApiError("Tìm kiếm dịch vụ thất bại.", 500);
+        : new ApiError(500, "Tìm kiếm dịch vụ thất bại.");
     }
   },
 };

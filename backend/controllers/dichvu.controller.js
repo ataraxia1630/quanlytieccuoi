@@ -1,5 +1,5 @@
-const { DichVuService } = require("../services/dichvu.service");
-const { ApiError } = require("../utils/apiError");
+const DichVuService = require("../services/dichvu.service.js");
+const ApiError = require("../utils/apiError.js");
 
 const parsePagination = (req) => {
   const limit = parseInt(req.query.limit) || 10;
@@ -21,7 +21,7 @@ const DichVuController = {
   getDichVuById: async (req, res, next) => {
     try {
       if (!req.params.id) {
-        throw new ApiError("ID dịch vụ không hợp lệ.", 400);
+        throw new ApiError(400, "ID dịch vụ không hợp lệ.");
       }
       const data = await DichVuService.getDichVuById(req.params.id);
       res.status(200).json(data);
@@ -42,7 +42,7 @@ const DichVuController = {
   updateDichVu: async (req, res, next) => {
     try {
       if (!req.params.id) {
-        throw new ApiError("ID dịch vụ không hợp lệ.", 400);
+        throw new ApiError(400, "ID dịch vụ không hợp lệ.");
       }
       const updated = await DichVuService.updateDichVu(req.params.id, req.body);
       res
@@ -56,7 +56,7 @@ const DichVuController = {
   deleteDichVu: async (req, res, next) => {
     try {
       if (!req.params.id) {
-        throw new ApiError("ID dịch vụ không hợp lệ.", 400);
+        throw new ApiError(400, "ID dịch vụ không hợp lệ.");
       }
       await DichVuService.deleteDichVu(req.params.id);
       res.status(200).json({ message: "Xóa dịch vụ thành công." });
