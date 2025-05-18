@@ -2,6 +2,8 @@ const { BaoCaoThang, Ct_BaoCaoTheoNgay } = require('../models');
 const { Op } = require('sequelize');
 const ApiError = require('../utils/apiError');
 const { CTBCService } = require('./ctbc.service');
+const PDFDocument = require('pdfkit');
+const path = require('path');
 
 const BaoCaoService = {
   XemBaoCao: async (data) => {
@@ -11,16 +13,12 @@ const BaoCaoService = {
 
       const createdAt = new Date();
 
-      console.log({ month, year, createdAt });
-
       const existing = await BaoCaoThang.findOne({
         where: {
           [Op.and]: [{ Thang: month }, { Nam: year }],
         },
         include: [{ model: Ct_BaoCaoTheoNgay }],
       });
-
-      console.log({ existing });
 
       if (existing) return existing;
 
@@ -35,16 +33,12 @@ const BaoCaoService = {
         TongDoanhThu: 0,
       });
 
-      console.log({ BC });
-
       // B2: Tạo các chi tiết báo cáo
       const { TongDoanhThu, CTBCs } = await CTBCService.createCTBCs(
         MaBC,
         month,
         year
       );
-
-      console.log({ TongDoanhThu, CTBCs });
 
       // B3: Cập nhật lại tổng doanh thu
       if (TongDoanhThu > 0) {
@@ -60,7 +54,8 @@ const BaoCaoService = {
 
   XuatBaoCao: async (data, res) => {
     try {
-      const { month, year } = data;
+      const month = parseInt(data.month);
+      const year = parseInt(data.year);
       const baocao = await BaoCaoThang.findOne({
         where: { Thang: month, Nam: year },
         include: [{ model: Ct_BaoCaoTheoNgay }],
@@ -69,16 +64,22 @@ const BaoCaoService = {
       if (!baocao) throw new ApiError(404, 'Không tìm thấy báo cáo');
 
       const doc = new PDFDocument();
+      const fontPath = path.join(__dirname, '../fonts/Roboto-Regular.ttf');
+      doc.font(fontPath);
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader(
         'Content-Disposition',
-        `attachment; filename=BaoCao_${month}_${year}.pdf`
+        `attachment; filename=BaoCao_${
+          month >= 10 ? month : `0${month}`
+        }_${year}.pdf`
       );
       doc.pipe(res);
 
       doc
         .fontSize(18)
-        .text(`BÁO CÁO THÁNG ${month}/${year}`, { align: 'center' });
+        .text(`BÁO CÁO THÁNG ${month >= 10 ? month : `0${month}`}/${year}`, {
+          align: 'center',
+        });
       doc.moveDown();
 
       doc.fontSize(12).text(`Ngày lập: ${baocao.NgayLap}`);
@@ -88,7 +89,7 @@ const BaoCaoService = {
       doc.fontSize(14).text('Chi tiết theo ngày:', { underline: true });
       doc.moveDown(0.5);
 
-      baocao.Ct_BaoCaoTheoNgay.forEach((ct) => {
+      (baocao.Ct_BaoCaoTheoNgays || []).forEach((ct) => {
         doc
           .fontSize(12)
           .text(
@@ -96,7 +97,6 @@ const BaoCaoService = {
           );
       });
       doc.end();
-      res.status(200).json({ message: 'Xuất báo cáo thành công!' });
     } catch (error) {
       throw new ApiError(500, 'Xuất báo cáo thất bại!');
     }
