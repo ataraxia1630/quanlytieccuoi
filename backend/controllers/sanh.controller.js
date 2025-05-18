@@ -1,4 +1,5 @@
 const sanhService = require('../services/sanh.service');
+const ApiError = require('../utils/apiError');
 
 const getAllSanh = async (req, res, next) => {
     try {
@@ -24,8 +25,18 @@ const getSanhById = async (req, res, next) => {
 
 const createSanh = async (req, res, next) => {
     try {
-        const { MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAnh, GhiChu } = req.body;
-        await sanhService.createSanh({ MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAnh, GhiChu });
+        const { MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, GhiChu } = req.body;
+        const fileBuffer = req.file ? req.file.buffer : null;
+
+        const sanh = await sanhService.createSanh({
+            MaSanh,
+            MaLoaiSanh,
+            TenSanh,
+            SoLuongBanToiDa,
+            fileBuffer,
+            GhiChu
+        });
+
         res.status(201).json({ message: 'Thêm sảnh thành công', MaSanh });
     } catch (error) {
         next(error);
@@ -34,14 +45,17 @@ const createSanh = async (req, res, next) => {
 
 const updateSanh = async (req, res, next) => {
     try {
-        const { MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAnh, GhiChu } = req.body;
+        const { MaLoaiSanh, TenSanh, SoLuongBanToiDa, GhiChu } = req.body;
+        const fileBuffer = req.file ? req.file.buffer : null;
+
         const updated = await sanhService.updateSanh(req.params.maSanh, {
             MaLoaiSanh,
             TenSanh,
             SoLuongBanToiDa,
-            HinhAnh,
+            fileBuffer,
             GhiChu,
         });
+
         if (!updated) {
             res.status(404).json({ error: 'Không tìm thấy sảnh' });
         } else {
@@ -89,8 +103,8 @@ const uploadImage = async (req, res, next) => {
         if (!req.file) {
             throw new ApiError(400, 'Vui lòng cung cấp file ảnh');
         }
-        const uploadPath = await sanhService.uploadImage(maSanh, req.file);
-        res.json({ message: 'Upload ảnh thành công', HinhAnh: uploadPath });
+        const imageUrl = await sanhService.uploadImage(maSanh, req.file.buffer);
+        res.json({ message: 'Upload ảnh thành công', HinhAnh: imageUrl });
     } catch (error) {
         next(error);
     }

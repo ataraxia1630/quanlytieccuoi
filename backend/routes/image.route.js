@@ -1,7 +1,7 @@
 const express = require('express');
 const { getImageUrl, uploadImage } = require('../controllers/image.controller');
-const upload = require('../middlewares/uploadHandler'); // Đổi tên middleware nếu cần
-const validate = require('../middlewares/validation'); // Đảm bảo middleware validate tồn tại
+const uploadHandler = require('../middlewares/uploadHandler'); // Sửa tên để rõ ràng hơn
+const validate = require('../middlewares/validation');
 const { getImageUrlValidation, uploadImageValidation } = require('../validations/image.validation');
 
 const router = express.Router();
@@ -12,7 +12,7 @@ router.get('/:imageId', getImageUrlValidation, validate, getImageUrl);
 // Route upload ảnh lên Cloudinary
 router.post(
   '/upload',
-  upload.single('image'),
+  uploadHandler.upload.single('image'), // Sửa: Dùng uploadHandler.upload
   uploadImageValidation,
   validate,
   uploadImage
