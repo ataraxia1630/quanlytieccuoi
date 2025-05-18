@@ -11,7 +11,6 @@ import defaultColumns from "../../components/z.exp_create_column";
 function DanhSachDichVu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [dishToEdit, setDishToEdit] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [mode, setMode] = useState("add");
 
@@ -140,7 +139,6 @@ function DanhSachDichVu() {
         open={openDialog}
         onClose={handleCloseDialog}
         onSave={handleSaveDish}
-        dish={dishToEdit}
         title={mode === "edit" ? "Chỉnh sửa món ăn" : "Thêm món ăn"} // Tiêu đề của pop up
       />
     </Box>
