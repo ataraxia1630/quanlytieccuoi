@@ -5,12 +5,6 @@ const { sequelize } = require('./models/index.js');
 const errorHandler = require('./middlewares/errorHandler.js');
 const route = require('./routes');
 
-// Import các route
-const caRouter = require('./routes/ca.route.js');
-const sanhRouter = require('./routes/sanh.route.js');
-const dichVuRoute = require("./routes/dichvu.route.js");
-const imageRouter = require('./routes/image.route.js');
-
 const app = express();
 const port = process.env.DB_PORT;
 
@@ -48,16 +42,31 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-app.use('/api', caRouter); // Các endpoint như /api/ca
-app.use('/api', sanhRouter); // Các endpoint như /api/sanh
-app.use('/api/images', imageRouter);
-app.use("/api/dichvu", dichVuRoute);
-route(app);
+// Middleware xử lý lỗi ApiError và multer trước
+app.use((err, req, res, next) => {
+  if (err.name === 'ApiError') {
+    res.status(err.statusCode).json({ status: err.statusCode, message: err.message, details: err.details });
+  } else if (err instanceof multer.MulterError) {
+    res.status(400).json({ status: 400, message: 'Lỗi upload file: ' + err.message });
+  } else if (err.message.includes('Chỉ hỗ trợ file ảnh')) {
+    res.status(400).json({ status: 400, message: err.message });
+  } else {
+    next(err); // Chuyển lỗi cho errorHandler xử lý
+  }
+});
 
+// Gọi hàm route để gắn các router
+route(app);
 
 // Middleware xử lý lỗi (phải đặt sau tất cả các route)
 
 app.use(errorHandler);
+
+// Middleware 404
+app.use((req, res) => {
+  console.log(`404 Error for: ${req.method} ${req.url}`);
+  res.status(404).json({ status: 404, message: 'Không tìm thấy tài nguyên' });
+});
 
 // Khởi động server
 app.listen(port, () => {

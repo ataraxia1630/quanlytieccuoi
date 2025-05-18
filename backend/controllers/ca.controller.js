@@ -69,15 +69,23 @@ const getCaSchedule = async (req, res, next) => {
     }
 };
 
-const searchCa = async (req, res, next) => {
+const searchAndFilterCa = async (req, res, next) => {
     try {
-        //console.log('Entering caController.searchCa');
-        const { tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo } = req.query;
-        const cas = await caService.searchCa({ tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo });
+        const { maCa, tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo, sortBy, sortOrder } = req.query;
+        const cas = await caService.searchAndFilterCa({
+            maCa,
+            tenCa,
+            gioBatDauFrom,
+            gioBatDauTo,
+            gioKetThucFrom,
+            gioKetThucTo,
+            sortBy,
+            sortOrder
+        });
         res.json(cas);
     } catch (error) {
         next(error);
     }
 };
 
-module.exports = { getAllCa, getCaById, createCa, updateCa, deleteCa, getCaSchedule, searchCa };
+module.exports = { getAllCa, getCaById, createCa, updateCa, deleteCa, getCaSchedule, searchAndFilterCa };

@@ -2,6 +2,9 @@ const { sequelize } = require("../models/index.js");
 const ApiError = require('../utils/apiError');
 const { Op, literal } = require('sequelize');
 const Ca = sequelize.models.Ca;
+const PhieuDatTiec = sequelize.models.PhieuDatTiec;
+const Sanh = sequelize.models.Sanh;
+const LoaiSanh = sequelize.models.LoaiSanh;
 
 const getAllCa = async () => {
     try {
@@ -65,13 +68,11 @@ const deleteCa = async (maCa) => {
 
 const getCaSchedule = async (startDate, endDate) => {
     try {
-        // Lấy tất cả ca
         const cas = await Ca.findAll({
             attributes: ['MaCa', 'TenCa'],
             order: [['MaCa', 'ASC']]
         });
 
-        // Lấy tất cả phiếu đặt tiệc trong khoảng thời gian
         const phieuDatTiecs = await PhieuDatTiec.findAll({
             where: {
                 NgayDaiTiec: {
@@ -97,7 +98,6 @@ const getCaSchedule = async (startDate, endDate) => {
             ]
         });
 
-        // Tạo danh sách ngày từ startDate đến endDate
         const days = [];
         let currentDate = new Date(startDate);
         const end = new Date(endDate);
@@ -141,14 +141,12 @@ const getCaSchedule = async (startDate, endDate) => {
     }
 };
 
-const searchCa = async ({ tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo }) => {
+const searchAndFilterCa = async ({ maCa, tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo, sortBy, sortOrder }) => {
     try {
-        //console.log('Search params:', { tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo });
-
         const where = {};
+        if (maCa) where.MaCa = { [Op.like]: `%${maCa}%` };
         if (tenCa) where.TenCa = { [Op.like]: `%${tenCa}%` };
 
-        // So sánh thời gian bằng Sequelize.literal
         const conditions = [];
         if (gioBatDauFrom) conditions.push(literal(`GioBatDau >= '${gioBatDauFrom}'`));
         if (gioBatDauTo) conditions.push(literal(`GioBatDau <= '${gioBatDauTo}'`));
@@ -159,16 +157,17 @@ const searchCa = async ({ tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gio
             where[Op.and] = conditions;
         }
 
+        const order = sortBy && sortOrder ? [[sortBy, sortOrder]] : [['MaCa', 'ASC']];
+
         const cas = await Ca.findAll({
             where,
-            order: [['MaCa', 'ASC']]
+            order
         });
 
-        //console.log('Found cas:', cas);
         return cas;
     } catch (error) {
-        throw new ApiError(500, 'Lỗi khi tìm kiếm ca: ' + error.message);
+        throw new ApiError(500, 'Lỗi khi tìm kiếm và lọc ca: ' + error.message);
     }
 };
 
-module.exports = { getAllCa, getCaById, createCa, updateCa, deleteCa, getCaSchedule, searchCa };
+module.exports = { getAllCa, getCaById, createCa, updateCa, deleteCa, getCaSchedule, searchAndFilterCa };
