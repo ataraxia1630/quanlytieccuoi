@@ -20,12 +20,29 @@ const statusOptions = [
   "Sắp ra mắt",
 ];
 
+
+
 const EditDishDialog = ({ open, onClose, onSave, title }) => {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [status, setStatus] = useState("");
   const [time, setTime] = useState("");
   const [image, setImage] = useState(null);
+  const [error, setError] = useState("");
+
+  const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
+
+  const handleChange = (e) => {
+    setTime(e.target.value);
+    setError(""); // Xóa lỗi tạm thời khi đang nhập
+  };
+
+  // Thông báo khi người dùng nhập sai
+  const handleBlur = () => {
+    if (!timeRegex.test(time)) {
+      setError("Giờ không hợp lệ. Định dạng phải là HH:mm:ss");
+    }
+  };
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -90,10 +107,14 @@ const EditDishDialog = ({ open, onClose, onSave, title }) => {
           {/* Thay đổi kiểu nhập thời gian thành HH:mm:ss */}
           <FormTextField
             label="Giờ"
-            type="time"
+            type="text"
             value={time}
-            onChange={(e) => setTime(e.target.value)}
-            inputProps={{ step: 1 }} // Cho phép hiển thị và nhập giây (HH:mm:ss)
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder="HH:mm:ss"
+            inputProps={{ maxLength: 8 }}
+            error={Boolean(error)}
+            helperText={error}
             fullWidth
           />
 

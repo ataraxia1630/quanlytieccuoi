@@ -1,72 +1,69 @@
-import axios from 'axios';
-
-const API_URL = '/api'; // Thay đổi URL API tùy theo backend của bạn
-
-// Các hàm gọi API
-export const getAllHalls = async (page, filters) => {
-  try {
-    const response = await axios.get(`${API_URL}/halls`, {
-      params: {
-        page,
-        ...filters
-      }
-    });
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+const getAllSanh = async () => {
+  const response = await fetch("/api/sanh");
+  if (!response.ok) throw new Error("Failed to fetch sanhs");
+  return response.json();
 };
 
-export const getHallById = async (id) => {
-  try {
-    const response = await axios.get(`${API_URL}/halls/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+const searchAndFilterSanh = async (filters) => {
+  const query = new URLSearchParams(filters).toString();
+  const response = await fetch(`/api/sanh/search?${query}`);
+  if (!response.ok) throw new Error("Failed to filter sanhs");
+  return response.json();
 };
 
-export const createHall = async (hallData) => {
-  try {
-    const response = await axios.post(`${API_URL}/halls`, hallData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+const getSanhById = async (maSanh) => {
+  const response = await fetch(`/api/sanh/${maSanh}`);
+  if (!response.ok) throw new Error("Sanh not found");
+  return response.json();
 };
 
-export const updateHall = async (id, hallData) => {
-  try {
-    const response = await axios.put(`${API_URL}/halls/${id}`, hallData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+const createSanh = async (sanhData) => {
+  const response = await fetch("/api/sanh", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(sanhData),
+  });
+  if (!response.ok) throw new Error("Failed to create sanh");
+  return response.json();
 };
 
-export const deleteHall = async (id) => {
-  try {
-    const response = await axios.delete(`${API_URL}/halls/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+const updateSanh = async (maSanh, sanhData) => {
+  const response = await fetch(`/api/sanh/${maSanh}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(sanhData),
+  });
+  if (!response.ok) throw new Error("Failed to update sanh");
+  return response.json();
 };
 
-// Hàm upload ảnh (nếu cần)
-export const uploadHallImage = async (file) => {
-  try {
-    const formData = new FormData();
-    formData.append('image', file);
-    
-    const response = await axios.post(`${API_URL}/upload/hall-image`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
-    
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+const deleteSanh = async (maSanh) => {
+  const response = await fetch(`/api/sanh/${maSanh}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) throw new Error("Failed to delete sanh");
+  return response.json();
 };
+
+const uploadImage = async (maSanh, file) => {
+  const formData = new FormData();
+  formData.append("file", file);  
+  const response = await fetch(`/api/sanh/${maSanh}/upload-image`, {
+    method: "POST",
+    body: formData,
+  });
+  if (!response.ok) throw new Error("Failed to upload image");
+  return response.json();
+};
+
+const sanhService = {
+  getAllSanh,
+  searchAndFilterSanh,
+  getSanhById,
+  createSanh,
+  updateSanh,
+  deleteSanh,
+  uploadImage,
+};
+
+export default sanhService;
