@@ -20,7 +20,4 @@ router.delete('/:id', LoaiSanhController.deleteLoaiSanh);
 // Xóa tất cả loại sânh
 router.delete('/', LoaiSanhController.deleteAllLoaiSanh);
 
-// Tìm kiếm loại sânh theo tên
-router.get('/search/:name', LoaiSanhController.searchLoaiSanhByName);
-
 module.exports = router;

@@ -4,6 +4,7 @@ const sanhRouter = require('./sanh.route.js');
 const imageRouter = require('./image.route.js');
 const monanRoutes = require('./monan.route');
 const baocaoRoutes = require('./baocao.route');
+const loaisanhRoutes = require('./loaisanh.route.js');
 
 // Hàm gắn các route vào ứng dụng
 function route(app) {
@@ -12,6 +13,7 @@ function route(app) {
   app.use('/api/images', imageRouter); // Các endpoint như /api/images
   app.use('/api/monan', monanRoutes);
   app.use('/api/baocao', baocaoRoutes);
+  app.use('/api/loaisanh', loaisanhRoutes);
 }
 
 module.exports = route;
