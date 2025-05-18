@@ -3,7 +3,8 @@ const cors = require("cors");
 require("dotenv").config();
 
 const { sequelize } = require("./models/index.js");
-const models = require("./models/index.js");
+
+// const models = require("./models/index.js");
 
 // Middlewares
 const errorHandler = require("./middlewares/errorHandler.js");
@@ -44,18 +45,27 @@ sequelize
     console.error("Database connection failed:", err);
   });
 
-// Default route
+// Route mặc định
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+
+// Log tất cả request
+// app.use((req, res, next) => {
+//     console.log(`Request received: ${req.method} ${req.url}`);
+//     next();
+// });
+
 // API routes
+app.use("/api", caRouter); // Các endpoint như /api/ca
+app.use("/api", sanhRouter); // Các endpoint như /api/sanh
 app.use("/api/dichvu", dichVuRoute);
 
-// Error handling middleware
+// Middleware xử lý lỗi (phải đặt sau tất cả các route)
 app.use(errorHandler);
 
-// Start server
+// Khởi động server
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
 });
