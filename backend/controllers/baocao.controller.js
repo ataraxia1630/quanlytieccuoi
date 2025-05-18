@@ -10,7 +10,13 @@ const BaoCaoController = {
     }
   },
 
-  XuatFile: async (req, res, next) => {},
+  XuatBaoCao: async (req, res, next) => {
+    try {
+      await BaoCaoService.XuatBaoCao(req.params, res);
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 module.exports = { BaoCaoController };

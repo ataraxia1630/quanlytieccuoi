@@ -7,7 +7,4 @@ const router = Router();
 router.get('/:year/:month', BaoCaoController.XemBaoCao);
 
 // Xuat file bao cao
-router.post('/export', BaoCaoController.XuatFile);
-
-// In bao cao
-router.post('/print', BaoCaoController.InBaoCao);
+router.get('/export/:year/:month', BaoCaoController.XuatBaoCao);
