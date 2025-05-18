@@ -1,40 +1,51 @@
 const { Router } = require("express");
-const { validate } = require("../middleware/validation");
-const dichVuValidation = require("../validations/dichvu.validation");
-const dichVuController = require("../controllers/dichvu.controller");
+const DichVuValidation = require("../validations/dichvu.validation.js");
+const DichVuController = require("../controllers/dichvu.controller.js");
+const validate = require("../middlewares/validation.js");
 
 const router = Router();
 
-router.get("/", dichVuController.getAllDichVu);
-router.get(
-  "/:id",
-  dichVuValidation.getDichVuById,
-  validate,
-  dichVuController.getDichVuById
-);
-router.post(
-  "/",
-  dichVuValidation.createDichVu,
-  validate,
-  dichVuController.createDichVu
-);
-router.put(
-  "/:id",
-  dichVuValidation.updateDichVu,
-  validate,
-  dichVuController.updateDichVu
-);
-router.delete(
-  "/:id",
-  dichVuValidation.deleteDichVu,
-  validate,
-  dichVuController.deleteDichVu
-);
+// Lấy tất cả dịch vụ
+router.get("/", DichVuController.getAllDichVu);
+
+// Tìm kiếm và lọc dịch vụ
 router.get(
   "/search",
-  dichVuValidation.searchDichVu,
+  DichVuValidation.searchDichVu,
   validate,
-  dichVuController.searchDichVu
+  DichVuController.searchDichVu
+);
+
+// Lấy dịch vụ theo ID
+router.get(
+  "/:id",
+  DichVuValidation.getDichVuById,
+  validate,
+  DichVuController.getDichVuById
+);
+
+// Tạo dịch vụ mới
+router.post(
+  "/",
+  DichVuValidation.createDichVu,
+  validate,
+  DichVuController.createDichVu
+);
+
+// Cập nhật dịch vụ
+router.put(
+  "/:id",
+  DichVuValidation.updateDichVu,
+  validate,
+  DichVuController.updateDichVu
+);
+
+// Xóa dịch vụ
+router.delete(
+  "/:id",
+  DichVuValidation.deleteDichVu,
+  validate,
+  DichVuController.deleteDichVu
 );
 
 module.exports = router;

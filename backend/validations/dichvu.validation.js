@@ -28,6 +28,7 @@ const dichVuValidation = {
 
     body("TinhTrang")
       .notEmpty()
+      .withMessage("Tình trạng không được để trống.")
       .trim()
       .isIn(validTinhTrang)
       .withMessage(
@@ -44,15 +45,13 @@ const dichVuValidation = {
       .withMessage("Mã dịch vụ phải có định dạng DVxxx (x là chữ số)."),
 
     body("TenDichVu")
+      .optional()
       .trim()
-      .optional({ nullable: true })
-      .withMessage("Tên dịch vụ không được để trống.")
       .isLength({ max: 100 })
       .withMessage("Tên dịch vụ không được vượt quá 100 ký tự."),
 
     body("DonGia")
-      .optional({ nullable: true })
-      .withMessage("Đơn giá không được để trống.")
+      .optional()
       .isFloat({ min: 0 })
       .withMessage("Đơn giá phải là số không âm."),
 

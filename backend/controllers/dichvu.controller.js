@@ -1,5 +1,5 @@
-const { DichVuService } = require("../services/dichvu.service");
-const { ApiError } = require("../utils/apiError");
+const DichVuService = require("../services/dichvu.service.js");
+const ApiError = require("../utils/apiError.js");
 
 const parsePagination = (req) => {
   const limit = parseInt(req.query.limit) || 10;
