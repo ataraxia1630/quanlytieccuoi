@@ -1,7 +1,7 @@
-const phieuDatTiecRoute = require("./phieudattiec.route");
+const phieuDatTiecRoute = require("./danhsachtiec.route");
 const hoaDonRoute = require("./hoadon.route");
 
 module.exports = (app) => {
- app.use("/phieudattiec", phieuDatTiecRoute);
- app.use("/phieudattiec/:id/hoadon", hoaDonRoute);
+ app.use("/danhsachtiec", phieuDatTiecRoute);
+ app.use("/danhsachtiec/:id/hoadon", hoaDonRoute);
 }

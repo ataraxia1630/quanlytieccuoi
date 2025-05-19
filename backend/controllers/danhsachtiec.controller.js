@@ -1,7 +1,7 @@
 const { PhieuDatTiec } = require('../models');
 const { Op, fn, col, where } = require("sequelize");
 
-// GET http://localhost:25053/phieudattiec/
+// GET http://localhost:25053/danhsachtiec/
 module.exports.index = async (req, res) => {
  const find = {}
  const orderBy = []
@@ -30,7 +30,7 @@ module.exports.index = async (req, res) => {
 
 }
 
-// GET http://localhost:25053/phieudattiec/detail/:id
+// GET http://localhost:25053/danhsachtiec/detail/:id
 module.exports.detail = async (req, res ) => {
  try 
  {
