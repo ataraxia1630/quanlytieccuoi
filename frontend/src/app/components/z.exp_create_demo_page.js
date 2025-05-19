@@ -21,7 +21,6 @@ function DanhSachDichVu() {
 
   const handleAdd = () => {
     // Gọi hàm khi người dùng nhấn nút thêm
-    setDishToEdit(null);
     setOpenDialog(true);
     console.log("Add button clicked");
     setMode("add");
@@ -40,7 +39,6 @@ function DanhSachDichVu() {
   const handleEdit = () => {
     // Gọi hàm khi người dùng nhấn nút chỉnh sửa trong bảng
     console.log("Edit row");
-    setDishToEdit();
     setOpenDialog(true);
     setMode("edit");
   };
@@ -52,7 +50,6 @@ function DanhSachDichVu() {
   const handleCloseDialog = () => {
     // Đóng pop up khi người dùng nhấn nút hủy
     setOpenDialog(false);
-    setDishToEdit(null);
   };
 
   const handleSaveDish = () => {

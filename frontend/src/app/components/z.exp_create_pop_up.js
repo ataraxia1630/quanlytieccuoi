@@ -27,6 +27,7 @@ const EditDishDialog = ({ open, onClose, onSave, title }) => {
   const [price, setPrice] = useState("");
   const [status, setStatus] = useState("");
   const [time, setTime] = useState("");
+  const [date, setDate] = useState("");
   const [image, setImage] = useState(null);
   const [error, setError] = useState("");
 
@@ -40,7 +41,7 @@ const EditDishDialog = ({ open, onClose, onSave, title }) => {
   // Thông báo khi người dùng nhập sai
   const handleBlur = () => {
     if (!timeRegex.test(time)) {
-      setError("Giờ không hợp lệ. Định dạng phải là HH:mm:ss");
+      setError("Giờ không hợp lệ. Định dạng phải là hh:mm:ss");
     }
   };
 
@@ -111,16 +112,25 @@ const EditDishDialog = ({ open, onClose, onSave, title }) => {
             value={time}
             onChange={handleChange}
             onBlur={handleBlur}
-            placeholder="HH:mm:ss"
+            placeholder="hh:mm:ss"
             inputProps={{ maxLength: 8 }}
             error={Boolean(error)}
             helperText={error}
             fullWidth
           />
 
+          <FormTextField
+            label="Ngày"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+
           <SelectFieldCustom
             label="Tình trạng"
-            options={statusOptions}
+            options={statusOptions} // Tình trạng cho combo box
             value={status}
             onChange={(e) => setStatus(e.target.value)}
             fullWidth
