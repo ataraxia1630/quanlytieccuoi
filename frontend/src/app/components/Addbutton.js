@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 
-const AddButton = ({ onClick = () => {}, text = "Thêm", disabled = false }) => {
+const AddButton = ({ onClick = () => { }, text = "Thêm", disabled = false }) => {
   return (
     <Button
       variant="contained"

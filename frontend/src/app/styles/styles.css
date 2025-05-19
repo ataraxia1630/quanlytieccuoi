@@ -1,0 +1,51 @@
+html {
+  font-size: 20px;
+}
+
+body {
+  font-family: "Inconsolata", monospace;
+  color: #2d2c2c;
+  font-weight: 400;
+  font-size: 1.2rem;
+  font-variation-settings: "wdth" 87.5;
+  margin: 0;
+  padding: 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "noto-serif", serif;
+  font-optical-sizing: auto;
+  color: #151515;
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variation-settings: "wdth" 100;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 87.5;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  font-variation-settings: "wdth" 75;
+}
+
+p {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
