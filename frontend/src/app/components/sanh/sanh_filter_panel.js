@@ -2,12 +2,14 @@ import { Box, Collapse, Paper } from "@mui/material";
 import Dropdown from "../../components/Dropdown";
 import RangeInputs from "../../components/Rangeinput";
 import FilterButton from "../../components/Filterbutton";
-import { useState } from "react";
+import sanhService from "../../service/sanh.service";
+import { useEffect, useState } from "react";
 
 const FilterPanel = ({ isOpen, onApply, options }) => {
   const [maLoaiSanh, setMaLoaiSanh] = useState("");
-  const [quantityFrom, setQuantityFrom] = useState("");
-  const [quantityTo, setQuantityTo] = useState("");
+  const [quantityFrom, setQuantityFrom] = useState("0");
+  const [quantityTo, setQuantityTo] = useState("255");
+  const [loaiSanhOptions, setLoaiSanhOptions] = useState(["LS001", "LS002", "LS003"]); // Default options
 
   const handleApply = () => {
     onApply({
@@ -16,6 +18,24 @@ const FilterPanel = ({ isOpen, onApply, options }) => {
       maxSoLuongBan: quantityTo,
     });
   };
+  useEffect(() => {
+    const fetchLoaiSanh = async () => {
+      try {
+        const response = await sanhService.getAllLoaiSanh();
+        const loaiSanhData = await response.data;
+        console.log("Dữ liệu loại sảnh từ API (đã trích xuất data):", loaiSanhData);
+
+        const options = loaiSanhData.map((loai) => ({
+          value: loai.MaLoaiSanh,
+          label: loai.MaLoaiSanh,
+        }));
+        setLoaiSanhOptions(options);
+      } catch (error) {
+        console.error("Error fetching loai sanh options:", error.message);
+      }
+    };
+    fetchLoaiSanh();
+  }, []);
 
   return (
     <Collapse in={isOpen}>
@@ -34,10 +54,7 @@ const FilterPanel = ({ isOpen, onApply, options }) => {
             value={maLoaiSanh}
             onChange={setMaLoaiSanh}
             width="150px"
-            options={options.maLoaiSanh.map((value) => ({
-              value,
-              label: value,
-            }))}
+            options={loaiSanhOptions}
           />
 
           <RangeInputs

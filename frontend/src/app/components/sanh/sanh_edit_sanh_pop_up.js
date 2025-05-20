@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, Box, Divider } from "@mui/material";
 import DialogTitleCustom from "../../components/Dialogtitlecustom";
 import FormTextField from "../../components/Formtextfield";
-import SelectFieldCustom from "../../components/Selectfieldcustom";
+import SelectFieldCustom from "./sanh_select_field";
 import ImageUploadField from "../../components/Imageuploadfield";
 import DialogButtons from "../../components/Dialogbutton";
 import sanhService from "../../service/sanh.service";
+import { toast } from "react-toastify";
 
 const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
     GhiChu: sanh?.GhiChu || "",
     HinhAnh: null,
   });
+  const [loaiSanhOptions, setLoaiSanhOptions] = useState(["LS001", "LS002", "LS003"]); // Default options
 
   useEffect(() => {
     if (sanh) {
@@ -27,15 +29,50 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
         GhiChu: sanh.GhiChu || "",
         HinhAnh: null,
       });
+    } else {
+      setFormData({
+        MaSanh: "",
+        TenSanh: "",
+        MaLoaiSanh: "",
+        SoLuongBanToiDa: "",
+        GhiChu: "",
+        HinhAnh: null,
+      });
     }
+
+    const fetchLoaiSanh = async () => {
+      try {
+        const response = await sanhService.getAllLoaiSanh();
+        const loaiSanhData = await response.data;
+        console.log("Dữ liệu loại sảnh từ API (đã trích xuất data):", loaiSanhData);
+
+        const options = loaiSanhData.map((loai) => ({
+          value: loai.MaLoaiSanh,
+          label: loai.TenLoaiSanh || loai.MaLoaiSanh,
+        }));
+        setLoaiSanhOptions(options);
+      } catch (error) {
+        console.error("Error fetching loai sanh options:", error.message);
+        toast.error("Có lỗi xảy ra khi tải loại sảnh.");
+      }
+    };
+    fetchLoaiSanh();
   }, [sanh]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    console.log("Field changed:", e.target.name, "Value:", e.target.value);
+    if(e.target.name === "SoLuongBanToiDa") {
+      const value = e.target.value.replace(/\D/g, "");
+      setFormData({ ...formData, [e.target.name]: value });
+    }
+    else {
+      setFormData({ ...formData, [e.target.name]: e.target.value });
+    }
   };
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
+    console.log("Selected file:", file, "instanceof File:", file instanceof File);
     if (file) {
       setFormData({ ...formData, HinhAnh: file });
     }
@@ -46,9 +83,12 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
   };
 
   const handleSave = async () => {
-    if (formData.HinhAnh && formData.MaSanh) {
-      await sanhService.uploadImage(formData.MaSanh, formData.HinhAnh);
+    console.log("Saving formData:", formData, "HinhAnh instanceof File:", formData.HinhAnh instanceof File);
+    if (!formData.MaSanh || !formData.TenSanh || !formData.MaLoaiSanh || !formData.SoLuongBanToiDa) {
+      toast.warn("Vui lòng nhập đầy đủ thông tin!");
+      return;
     }
+
     onSave(formData);
   };
 
@@ -94,7 +134,7 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
           <SelectFieldCustom
             label="Mã loại sảnh"
             name="MaLoaiSanh"
-            options={["LS001", "LS002", "LS003"]}
+            options={loaiSanhOptions}
             value={formData.MaLoaiSanh}
             onChange={handleChange}
             fullWidth
@@ -103,10 +143,11 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
           <FormTextField
             label="Số lượng bàn tối đa"
             name="SoLuongBanToiDa"
-            type="number"
+            type="text"
             value={formData.SoLuongBanToiDa}
             onChange={handleChange}
             fullWidth
+            inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
           />
 
           <ImageUploadField
@@ -138,5 +179,4 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
     </Dialog>
   );
 };
-
 export default EditSanhDialog;
