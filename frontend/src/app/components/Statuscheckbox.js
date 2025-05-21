@@ -35,6 +35,11 @@ const StatusCheckbox = ({
               <Checkbox
                 checked={value.includes(option.value)}
                 onChange={() => handleCheckboxChange(option.value)}
+                sx={{
+                  "&.Mui-checked": {
+                    color: "#063F5C",
+                  },
+                }}
               />
             }
             label={option.label}

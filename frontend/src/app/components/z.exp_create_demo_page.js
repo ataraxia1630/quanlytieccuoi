@@ -141,8 +141,8 @@ function DanhSachDichVu() {
       <DeleteDialog
         open={isDeleteDialogOpen}
         onClose={handleCloseDeleteDialog}
-        title={"Xác nhận xóa"}
         onDelete={acceptDelete}
+        title={"Xác nhận xóa"}
       />
     </Box>
   );

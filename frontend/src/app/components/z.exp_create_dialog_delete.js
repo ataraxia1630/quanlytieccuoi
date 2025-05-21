@@ -2,7 +2,7 @@ import { Dialog, DialogContent, Box, Divider } from "@mui/material";
 import DialogTitleCustom from "./Dialogtitlecustom";
 import DialogButtons from "./Dialogbutton";
 
-const DeleteDialog = ({ open, onClose, title, onDelete }) => {
+const DeleteDialog = ({ open, onClose, onDelete, title }) => {
   return (
     <Dialog
       open={open}
