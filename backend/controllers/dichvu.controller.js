@@ -30,6 +30,16 @@ const DichVuController = {
     }
   },
 
+  getActiveDichVu: async (req, res, next) => {
+    try {
+      const { limit, offset } = parsePagination(req);
+      const data = await DichVuService.getActiveDichVu(limit, offset);
+      res.status(200).json(data);
+    } catch (err) {
+      next(err);
+    }
+  },
+
   createDichVu: async (req, res, next) => {
     try {
       const data = await DichVuService.createDichVu(req.body);
@@ -70,8 +80,14 @@ const DichVuController = {
       const { limit, offset } = parsePagination(req);
       const { maDichVu, tenDichVu, giaTu, giaDen, tinhTrang } = req.query;
 
+      const parsedTinhTrang = tinhTrang
+        ? Array.isArray(tinhTrang)
+          ? tinhTrang
+          : [tinhTrang]
+        : undefined;
+
       const data = await DichVuService.searchDichVu(
-        { maDichVu, tenDichVu, giaTu, giaDen, tinhTrang },
+        { maDichVu, tenDichVu, giaTu, giaDen, tinhTrang: parsedTinhTrang },
         limit,
         offset
       );

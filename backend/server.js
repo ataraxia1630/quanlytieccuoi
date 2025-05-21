@@ -13,6 +13,7 @@ const errorHandler = require("./middlewares/errorHandler.js");
 const caRouter = require("./routes/ca.route.js");
 const sanhRouter = require("./routes/sanh.route.js");
 const dichVuRoute = require("./routes/dichvu.route.js");
+const ct_dichVuRoute = require("./routes/ct_dichvu.route.js");
 
 const app = express();
 const port = process.env.DB_PORT;
@@ -61,6 +62,7 @@ app.get("/", (req, res) => {
 app.use("/api", caRouter); // Các endpoint như /api/ca
 app.use("/api", sanhRouter); // Các endpoint như /api/sanh
 app.use("/api/dichvu", dichVuRoute);
+app.use("/api/ct_dichvu", ct_dichVuRoute);
 
 // Middleware xử lý lỗi (phải đặt sau tất cả các route)
 app.use(errorHandler);
