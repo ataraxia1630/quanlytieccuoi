@@ -21,8 +21,8 @@ const sanhValidation = [
     .withMessage('Tên sảnh là bắt buộc'),
 
   check('SoLuongBanToiDa')
-    .isInt({ min: 0, max: 255 })
-    .withMessage('Số lượng bàn tối đa từ 0 đến 255')
+    .isInt({ min: 0, max: 999 })
+    .withMessage('Số lượng bàn tối đa từ 0 đến 999')
     .notEmpty()
     .withMessage('Số lượng bàn tối đa là bắt buộc'),
 
@@ -51,8 +51,8 @@ const sanhUpdateValidation = [
 
   check('SoLuongBanToiDa')
     .optional()
-    .isInt({ min: 0, max: 255 })
-    .withMessage('Số lượng bàn tối đa từ 0 đến 255'),
+    .isInt({ min: 0, max: 999 })
+    .withMessage('Số lượng bàn tối đa từ 0 đến 999'),
 
   check('HinhAnh')
     .optional()
@@ -84,13 +84,13 @@ const searchAndFilterValidation = [
 
   check('minSoLuongBan')
     .optional()
-    .isInt({ min: 0, max: 255 })
-    .withMessage('Số lượng bàn tối thiểu từ 0 đến 255'),
+    .isInt({ min: 0, max: 999 })
+    .withMessage('Số lượng bàn tối thiểu từ 0 đến 999'),
 
   check('maxSoLuongBan')
     .optional()
-    .isInt({ min: 0, max: 255 })
-    .withMessage('Số lượng bàn tối đa từ 0 đến 255'),
+    .isInt({ min: 0, max: 999 })
+    .withMessage('Số lượng bàn tối đa từ 0 đến 999'),
 
   check('sortBy')
     .optional()

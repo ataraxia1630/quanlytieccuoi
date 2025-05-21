@@ -17,7 +17,7 @@ const Sidebar = () => {
     { text: 'Đặt tiệc cưới', icon: <ChurchIcon />, path: 'DatTiecCuoi' },
     { text: 'Danh sách tiệc', icon: <BookIcon />, path: 'DanhSachSanhTiec' },
     { text: 'Sảnh tổ chức', icon: <PeopleIcon />, path: 'DanhSachSanhTiec' },
-    { text: 'Menu tiệc', icon: <RestaurantMenuIcon />, path: 'DanhSachMonAn' },
+    { text: 'Menu tiệc', icon: <RestaurantMenuIcon />, path: 'DanhSachCa' }, //Tui đổi thành DanhSachCa để test, nào merge thì chỉnh lại thành DanhSachMonAn
     { text: 'Dịch vụ', icon: <VideocamIcon />, path: 'DanhSachDichVu' },
     { icon: <MoreVertIcon />, path: '' },
   ];

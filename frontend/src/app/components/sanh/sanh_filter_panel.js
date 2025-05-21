@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 const FilterPanel = ({ isOpen, onApply, options }) => {
   const [maLoaiSanh, setMaLoaiSanh] = useState("");
   const [quantityFrom, setQuantityFrom] = useState("0");
-  const [quantityTo, setQuantityTo] = useState("255");
+  const [quantityTo, setQuantityTo] = useState("999");
   const [loaiSanhOptions, setLoaiSanhOptions] = useState(["LS001", "LS002", "LS003"]); // Default options
 
   const handleApply = () => {

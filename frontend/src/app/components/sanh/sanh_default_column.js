@@ -43,7 +43,7 @@ const defaultColumns = [
         component="img"
         src={row.HinhAnh || "https://via.placeholder.com/50"}
         alt={row.TenSanh}
-        sx={{ width: 100, height: 100, objectFit: "contain" }}
+        sx={{ width: 200, height: 200, objectFit: "contain" }}
       />
     ),
   },
