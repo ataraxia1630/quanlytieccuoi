@@ -4,15 +4,15 @@ import SearchBar from "../../components/Searchbar";
 import FilterButton from "../../components/Filterbutton";
 import AddButton from "../../components/Addbutton";
 import CustomTable from "../../components/Customtable";
-import FilterPanel from "./Filterpanel";
-import EditDishDialog from "./EditDishDialog";
-import defaultColumns from "./DefaultColumn";
+import FilterPanel from "../../components/z.exp_create_filter_panel";
+import EditDishDialog from "../../components/z.exp_create_pop_up";
+import defaultColumns from "../../components/z.exp_create_column";
 
 function DanhSachDichVu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [dishToEdit, setDishToEdit] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
+  const [mode, setMode] = useState("add");
 
   const handleSearch = () => {
     // Gọi hàm khi người dùng tìm kiếm
@@ -21,9 +21,9 @@ function DanhSachDichVu() {
 
   const handleAdd = () => {
     // Gọi hàm khi người dùng nhấn nút thêm
-    setDishToEdit(null);
     setOpenDialog(true);
     console.log("Add button clicked");
+    setMode("add");
   };
 
   const handleFilter = () => {
@@ -39,8 +39,8 @@ function DanhSachDichVu() {
   const handleEdit = () => {
     // Gọi hàm khi người dùng nhấn nút chỉnh sửa trong bảng
     console.log("Edit row");
-    setDishToEdit();
     setOpenDialog(true);
+    setMode("edit");
   };
   const handleDelete = () => {
     // Gọi hàm khi người dùng nhấn nút xóa trong bảng
@@ -50,7 +50,6 @@ function DanhSachDichVu() {
   const handleCloseDialog = () => {
     // Đóng pop up khi người dùng nhấn nút hủy
     setOpenDialog(false);
-    setDishToEdit(null);
   };
 
   const handleSaveDish = () => {
@@ -137,8 +136,7 @@ function DanhSachDichVu() {
         open={openDialog}
         onClose={handleCloseDialog}
         onSave={handleSaveDish}
-        dish={dishToEdit}
-        title={dishToEdit ? "Chỉnh sửa món ăn" : "Thêm món ăn"} // Tiêu đề của pop up
+        title={mode === "edit" ? "Chỉnh sửa món ăn" : "Thêm món ăn"} // Tiêu đề của pop up
       />
     </Box>
   );

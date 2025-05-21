@@ -1,4 +1,5 @@
 const sanhService = require('../services/sanh.service');
+const ApiError = require('../utils/apiError');
 
 const getAllSanh = async (req, res, next) => {
     try {
@@ -24,8 +25,18 @@ const getSanhById = async (req, res, next) => {
 
 const createSanh = async (req, res, next) => {
     try {
-        const { MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAnh, GhiChu } = req.body;
-        await sanhService.createSanh({ MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAnh, GhiChu });
+        const { MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, GhiChu } = req.body;
+        const fileBuffer = req.file ? req.file.buffer : null;
+
+        const sanh = await sanhService.createSanh({
+            MaSanh,
+            MaLoaiSanh,
+            TenSanh,
+            SoLuongBanToiDa,
+            fileBuffer,
+            GhiChu
+        });
+
         res.status(201).json({ message: 'Thêm sảnh thành công', MaSanh });
     } catch (error) {
         next(error);
@@ -34,8 +45,17 @@ const createSanh = async (req, res, next) => {
 
 const updateSanh = async (req, res, next) => {
     try {
-        const { MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAnh, GhiChu } = req.body;
-        const updated = await sanhService.updateSanh(req.params.maSanh, { MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAnh, GhiChu });
+        const { MaLoaiSanh, TenSanh, SoLuongBanToiDa, GhiChu } = req.body;
+        const fileBuffer = req.file ? req.file.buffer : null;
+
+        const updated = await sanhService.updateSanh(req.params.maSanh, {
+            MaLoaiSanh,
+            TenSanh,
+            SoLuongBanToiDa,
+            fileBuffer,
+            GhiChu,
+        });
+
         if (!updated) {
             res.status(404).json({ error: 'Không tìm thấy sảnh' });
         } else {
@@ -59,25 +79,43 @@ const deleteSanh = async (req, res, next) => {
     }
 };
 
-const checkSanhAvailability = async (req, res, next) => {
+const searchAndFilterSanh = async (req, res, next) => {
     try {
-        const { maSanh } = req.params;
-        const { ngayDaiTiec, maCa } = req.query;
-        const result = await sanhService.checkSanhAvailability(maSanh, ngayDaiTiec, maCa);
-        res.json(result);
-    } catch (error) {
-        next(error);
-    }
-};
-
-const searchSanh = async (req, res, next) => {
-    try {
-        const { maSanh, maLoaiSanh, tenSanh, tenLoaiSanh, minSoLuongBan, maxSoLuongBan } = req.query;
-        const sanhs = await sanhService.searchSanh({ maSanh, maLoaiSanh, tenSanh, tenLoaiSanh, minSoLuongBan, maxSoLuongBan });
+        const { maSanh, tenSanh, maLoaiSanh, minSoLuongBan, maxSoLuongBan, sortBy, sortOrder } = req.query;
+        const sanhs = await sanhService.searchAndFilterSanh({
+            maSanh,
+            tenSanh,
+            maLoaiSanh,
+            minSoLuongBan,
+            maxSoLuongBan,
+            sortBy,
+            sortOrder,
+        });
         res.json(sanhs);
     } catch (error) {
         next(error);
     }
 };
 
-module.exports = { getAllSanh, getSanhById, createSanh, updateSanh, deleteSanh, checkSanhAvailability, searchSanh };
+const uploadImage = async (req, res, next) => {
+    try {
+        const { maSanh } = req.params;
+        if (!req.file) {
+            throw new ApiError(400, 'Vui lòng cung cấp file ảnh');
+        }
+        const imageUrl = await sanhService.uploadImage(maSanh, req.file.buffer);
+        res.json({ message: 'Upload ảnh thành công', HinhAnh: imageUrl });
+    } catch (error) {
+        next(error);
+    }
+};
+
+module.exports = {
+    getAllSanh,
+    getSanhById,
+    searchAndFilterSanh,
+    createSanh,
+    updateSanh,
+    deleteSanh,
+    uploadImage,
+};
