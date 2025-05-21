@@ -1,8 +1,8 @@
 import { Box, Collapse, Paper } from "@mui/material";
-import Dropdown from "../../components/Dropdown";
-import RangeInputs from "../../components/Rangeinput";
-import FilterButton from "../../components/Filterbutton";
-import StatusRadio from "../../components/Statusradio";
+import Dropdown from "./Dropdown";
+import RangeInputs from "./Rangeinput";
+import FilterButton from "./Filterbutton";
+import StatusRadio from "./Statusradio";
 import { useState } from "react";
 
 const FilterPanel = ({ isOpen, onApply }) => {

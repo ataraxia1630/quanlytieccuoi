@@ -1,20 +1,28 @@
 const { sequelize } = require("../models/index.js");
-const ApiError = require('../utils/apiError');
 const { Op, literal } = require('sequelize');
+const ApiError = require('../utils/apiError');
+const imageService = require('./image.service');
+const cloudinary = require('../config/cloudinaryConfig');
+
+// Hàm trích xuất public_id từ URL ảnh của Cloudinary
+const extractPublicIdFromUrl = (url) => {
+    if (!url) return null;
+    const parts = url.split('/');
+    const lastPart = parts[parts.length - 1];
+    const publicId = lastPart.split('.')[0]; // Lấy phần trước đuôi file (ví dụ: "sanh123" từ "sanh123.jpg")
+    return publicId;
+};
+
 const Sanh = sequelize.models.Sanh;
 const LoaiSanh = sequelize.models.LoaiSanh;
-const PhieuDatTiec = sequelize.models.PhieuDatTiec;
-const Ca = sequelize.models.Ca;
 
 const getAllSanh = async () => {
     try {
-        return await Sanh.findAll({
+        const sanhs = await Sanh.findAll({
             order: [['MaSanh', 'ASC']],
-            include: [{
-                model: LoaiSanh,
-                attributes: ['MaLoaiSanh', 'TenLoaiSanh']
-            }]
+            include: [{ model: LoaiSanh, attributes: ['MaLoaiSanh', 'TenLoaiSanh'] }]
         });
+        return sanhs;
     } catch (error) {
         throw new ApiError(500, 'Lỗi khi lấy danh sách sảnh: ' + error.message);
     }
@@ -23,10 +31,7 @@ const getAllSanh = async () => {
 const getSanhById = async (maSanh) => {
     try {
         const sanh = await Sanh.findByPk(maSanh, {
-            include: [{
-                model: LoaiSanh,
-                attributes: ['MaLoaiSanh', 'TenLoaiSanh']
-            }]
+            include: [{ model: LoaiSanh, attributes: ['MaLoaiSanh', 'TenLoaiSanh'] }]
         });
         return sanh;    
     } catch (error) {
@@ -34,18 +39,25 @@ const getSanhById = async (maSanh) => {
     }
 };
 
-const createSanh = async ({ MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAnh, GhiChu }) => {
+const createSanh = async ({ MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, GhiChu }) => {
     try {
         const loaiSanh = await LoaiSanh.findByPk(MaLoaiSanh);
         if (!loaiSanh) {
             throw new ApiError(400, 'Mã loại sảnh không tồn tại');
         }
+
+        let imageUrl = null;
+        if (fileBuffer) {
+            const imageResult = await imageService.uploadImage(fileBuffer);
+            imageUrl = imageResult.url;
+        }
+
         return await Sanh.create({
             MaSanh,
             MaLoaiSanh,
             TenSanh,
             SoLuongBanToiDa,
-            HinhAnh,
+            HinhAnh: imageUrl,
             GhiChu
         });
         } catch (error) {
@@ -54,23 +66,39 @@ const createSanh = async ({ MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAn
         }
 };
 
-const updateSanh = async (maSanh, { MaLoaiSanh, TenSanh, SoLuongBanToiDa, HinhAnh, GhiChu }) => {
+const updateSanh = async (maSanh, { MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, GhiChu }) => {
     try {
         const sanh = await Sanh.findByPk(maSanh);
         if (!sanh) return false;
+
         if (MaLoaiSanh) {
             const loaiSanh = await LoaiSanh.findByPk(MaLoaiSanh);
             if (!loaiSanh) {
                 throw new ApiError(400, 'Mã loại sảnh không tồn tại');
             }
         }
+
+        let imageUrl = sanh.HinhAnh;
+        if (fileBuffer) {
+            // Xóa ảnh cũ trên Cloudinary nếu tồn tại
+            if (sanh.HinhAnh) {
+                const publicId = extractPublicIdFromUrl(sanh.HinhAnh);
+                if (publicId) {
+                    await cloudinary.uploader.destroy(publicId);
+                }
+            }
+            const imageResult = await imageService.uploadImage(fileBuffer);
+            imageUrl = imageResult.url;
+        }
+
         await sanh.update({
             MaLoaiSanh: MaLoaiSanh || sanh.MaLoaiSanh,
             TenSanh: TenSanh || sanh.TenSanh,
             SoLuongBanToiDa: SoLuongBanToiDa !== undefined ? SoLuongBanToiDa : sanh.SoLuongBanToiDa,
-            HinhAnh: HinhAnh !== undefined ? HinhAnh : sanh.HinhAnh,
+            HinhAnh: imageUrl,
             GhiChu: GhiChu !== undefined ? GhiChu : sanh.GhiChu
         });
+
         return true;
     } catch (error) {
         if (error.name === 'ApiError') throw error;
@@ -82,6 +110,15 @@ const deleteSanh = async (maSanh) => {
     try {
         const sanh = await Sanh.findByPk(maSanh);
         if (!sanh) return false;
+
+        // Xóa ảnh trên Cloudinary nếu tồn tại
+        if (sanh.HinhAnh) {
+            const publicId = extractPublicIdFromUrl(sanh.HinhAnh);
+            if (publicId) {
+                await cloudinary.uploader.destroy(publicId);
+            }
+        }
+
         await sanh.destroy();
         return true;
     } catch (error) {
@@ -89,107 +126,69 @@ const deleteSanh = async (maSanh) => {
     }
 };
 
-const checkSanhAvailability = async (maSanh, ngayDaiTiec, maCa) => {
+const searchAndFilterSanh = async ({ maSanh, tenSanh, maLoaiSanh, minSoLuongBan, maxSoLuongBan, sortBy, sortOrder }) => {
     try {
-        // Kiểm tra sảnh tồn tại
-        const sanh = await Sanh.findByPk(maSanh);
-        if (!sanh) {
-            throw new ApiError(404, 'Không tìm thấy sảnh');
-        }
-
-        // Kiểm tra ca tồn tại
-        const ca = await Ca.findByPk(maCa);
-        if (!ca) {
-            throw new ApiError(400, 'Mã ca không tồn tại');
-        }
-
-        // Lấy loại sảnh
-        const loaiSanh = await LoaiSanh.findByPk(sanh.MaLoaiSanh);
-        if (!loaiSanh) {
-            throw new ApiError(400, 'Loại sảnh không tồn tại');
-        }
-
-        // Tìm phiếu đặt tiệc khớp với MaSanh, NgayDaiTiec, MaCa và TrangThai = true
-        const phieuDatTiec = await PhieuDatTiec.findOne({
-            where: {
-                MaSanh: maSanh,
-                NgayDaiTiec: ngayDaiTiec,
-                MaCa: maCa,
-                TrangThai: true
-            }
-        });
-
-        if (phieuDatTiec) {
-            return {
-                isBooked: true,
-                message: `Sảnh ${sanh.TenSanh} (${loaiSanh.TenLoaiSanh}) đã được đặt vào ngày ${ngayDaiTiec} cho ca ${ca.TenCa}`,
-                bookingDetails: {
-                    SoPhieuDatTiec: phieuDatTiec.SoPhieuDatTiec,
-                    TenChuRe: phieuDatTiec.TenChuRe,
-                    TenCoDau: phieuDatTiec.TenCoDau,
-                    SDT: phieuDatTiec.SDT
-                }
-            };
-        }
-
-        return {
-            isBooked: false,
-            message: `Sảnh ${sanh.TenSanh} (${loaiSanh.TenLoaiSanh}) trống vào ngày ${ngayDaiTiec} cho ca ${ca.TenCa}`
-        };
-    } catch (error) {
-        if (error.name === 'ApiError') throw error;
-        throw new ApiError(500, 'Lỗi khi kiểm tra trạng thái sảnh: ' + error.message);
-    }
-};
-
-const searchSanh = async ({ maSanh, maLoaiSanh, tenSanh, tenLoaiSanh, minSoLuongBan, maxSoLuongBan }) => {
-    try {
-        // Tìm kiếm loại sảnh theo tenLoaiSanh trước
-        let loaiSanhIds = [];
-        if (tenLoaiSanh) {
-            const loaiSanhs = await LoaiSanh.findAll({
-                where: { TenLoaiSanh: { [Op.like]: `%${tenLoaiSanh}%` } }
-            });
-            loaiSanhIds = loaiSanhs.map(ls => ls.MaLoaiSanh);
-        }
-
-        // Tạo điều kiện tìm kiếm sảnh
         const where = {};
-        if (maSanh) where.MaSanh = maSanh;
-        if (maLoaiSanh) where.MaLoaiSanh = maLoaiSanh;
+        if (maSanh) where.MaSanh = { [Op.like]: `%${maSanh}%` };
         if (tenSanh) where.TenSanh = { [Op.like]: `%${tenSanh}%` };
-        if (loaiSanhIds.length > 0) where.MaLoaiSanh = { [Op.in]: loaiSanhIds };
+        if (maLoaiSanh) where.MaLoaiSanh = maLoaiSanh;
         if (minSoLuongBan || maxSoLuongBan) {
             where.SoLuongBanToiDa = {};
             if (minSoLuongBan) where.SoLuongBanToiDa[Op.gte] = parseInt(minSoLuongBan);
             if (maxSoLuongBan) where.SoLuongBanToiDa[Op.lte] = parseInt(maxSoLuongBan);
         }
 
+        const order = sortBy && sortOrder ? [[sortBy, sortOrder]] : [['MaSanh', 'ASC']];
+
         const sanhs = await Sanh.findAll({
             where,
-            order: [['MaSanh', 'ASC']]
+            order,
+            include: [{ model: LoaiSanh, attributes: ['MaLoaiSanh', 'TenLoaiSanh'] }]
         });
 
-        // Lấy TenLoaiSanh cho từng sảnh
-        const sanhsWithLoaiSanh = await Promise.all(
-            sanhs.map(async (sanh) => {
-                const loaiSanh = await LoaiSanh.findByPk(sanh.MaLoaiSanh);
-                return {
-                    MaSanh: sanh.MaSanh,
-                    TenSanh: sanh.TenSanh,
-                    MaLoaiSanh: sanh.MaLoaiSanh,
-                    TenLoaiSanh: loaiSanh ? loaiSanh.TenLoaiSanh : null,
-                    SoLuongBanToiDa: sanh.SoLuongBanToiDa,
-                    HinhAnh: sanh.HinhAnh,
-                    GhiChu: sanh.GhiChu
-                };
-            })
-        );
-
-        return sanhsWithLoaiSanh;
+        return sanhs;
     } catch (error) {
-        throw new ApiError(500, 'Lỗi khi tìm kiếm sảnh: ' + error.message);
+        throw new ApiError(500, 'Lỗi khi tìm kiếm và lọc sảnh: ' + error.message);
     }
 };
 
-module.exports = { getAllSanh, getSanhById, createSanh, updateSanh, deleteSanh, checkSanhAvailability, searchSanh };
+const uploadImage = async (maSanh, fileBuffer) => {
+    try {
+        console.log('Uploading image for MaSanh:', maSanh);
+        console.log('File buffer received:', fileBuffer);
+
+        const sanh = await Sanh.findByPk(maSanh);
+        if (!sanh) {
+            throw new ApiError(404, 'Không tìm thấy sảnh');
+        }
+
+        // Xóa ảnh cũ trên Cloudinary nếu tồn tại
+        if (sanh.HinhAnh) {
+            const publicId = extractPublicIdFromUrl(sanh.HinhAnh);
+            if (publicId) {
+                await cloudinary.uploader.destroy(publicId);
+            }
+        }
+
+        // Upload ảnh mới lên Cloudinary
+        const imageResult = await imageService.uploadImage(fileBuffer);
+        const imageUrl = imageResult.url;
+
+        // Cập nhật URL vào sảnh
+        await sanh.update({ HinhAnh: imageUrl });
+
+        return imageUrl;
+    } catch (error) {
+        throw new ApiError(500, 'Lỗi khi upload ảnh: ' + error.message);
+    }
+};
+
+module.exports = {
+    getAllSanh,
+    getSanhById,
+    searchAndFilterSanh,
+    createSanh,
+    updateSanh,
+    deleteSanh,
+    uploadImage,
+};

@@ -45,12 +45,12 @@ const ActionButtons = ({ row, onEdit, onDelete }) => {
         <Typography variant="body2" sx={{ ml: 1, color: "#000" }}>
           Sửa
         </Typography>
-      </IconButton>
+      </IconButton>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
       <IconButton onClick={() => onDelete(row)}>
         <DeleteIcon />
         <Typography variant="body2" sx={{ ml: 1, color: "#000" }}>
           Xoá
-        </Typography>
+        </Typography> 
       </IconButton>
     </Box>
   );

@@ -44,7 +44,7 @@ const SelectFieldCustom = ({
           disablePortal: true,
           PaperProps: {
             style: {
-              maxHeight: 170,
+              maxHeight: 160,
               overflowY: "auto",
             },
           },

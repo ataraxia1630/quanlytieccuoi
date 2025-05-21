@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Header.css';
+import CancelButton from '../../components/Cancelbutton';
+import SaveAndPrintButton from '../../components/Saveandprintbutton';
 import {
   AppBar,
   Toolbar,
@@ -42,17 +44,20 @@ const Header = () => {
   };
 
   return (
-    <AppBar position="static" elevation={0} sx={{
-      padding: '10px 0px 0px 0px ',
+    <AppBar position="sticky" elevation={0} sx={{
+      padding: '10px 0px 10px 0px ',
       color: 'rgb(41, 41, 41)',
-      backgroundColor: 'transparent',
+      backgroundColor: 'white',
+      width: '100vw',
+      boxShadow: '0px -4px 6px 0px rgba(198, 191, 212, 0.18) inset'
     }} className={scrolled && 'scrolled'}>
       <Toolbar sx={{
         justifyItems: 'space-between',
         display: 'grid',
-        gridTemplateColumns: '1fr 2fr 1fr',
+        gridTemplateColumns: '1fr 3fr 2fr',
         gap: '10px',
-        whiteSpace: 'nowrap'
+        whiteSpace: 'nowrap',
+        marginX: '100px'
       }}>
         {/* Logo */}
         <Typography variant="h6" sx={{ fontWeight: 'light' }}>
@@ -83,9 +88,9 @@ const Header = () => {
         </Box>
 
         {/* Actions */}
-        <Box sx={{ display: 'flex', gap: 2 }}>
-          <Button variant="outlined" >Get Started</Button>
-          <Button sx={{ color: 'black' }}>Sign In</Button>
+        <Box sx={{ display: 'flex', justifyContent: 'end', gap: 2, }}>
+          <CancelButton onClick={() => { }} textCancel='Sign In' />
+          <SaveAndPrintButton onClick={() => { }} text='Sign Up' sx={{ color: "white" }} />
         </Box>
       </Toolbar>
     </AppBar>

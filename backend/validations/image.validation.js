@@ -1,11 +1,23 @@
-const { body, param } = require('express-validator');
+const { check } = require('express-validator');
 
-exports.getImageUrlValidation = [
-    param('imageId')
+const uploadImageValidation = [
+    check('image').custom((value, { req }) => {
+        if (!req.file) {
+            throw new Error('File ảnh là bắt buộc');
+        }
+        return true;
+    }),
+];
+
+const getImageUrlValidation = [
+    check('imageId')
         .notEmpty()
-        .withMessage('Image ID là bắt buộc')
+        .withMessage('imageId là bắt buộc')
         .isString()
         .withMessage('Image ID phải là chuỗi'),
 ];
 
-exports.uploadImageValidation = [];
+module.exports = {
+    uploadImageValidation,
+    getImageUrlValidation,
+};

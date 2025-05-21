@@ -1,7 +1,7 @@
 const { LoaiSanhService } = require('../services/loaisanh.service');
 
 const LoaiSanhController = {
-  getAllLoaiSanh: async (req, res) => {
+  getAllLoaiSanh: async (req, res, next) => {
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
@@ -9,13 +9,17 @@ const LoaiSanhController = {
       const filters = {
         price: {
           min: parseInt(req.query.minPrice) || 0,
-          max: parseInt(req.query.maxPrice) || 10000000,
-          priceOrder: req.query.priceOrder || 'ASC',
+          max: parseInt(req.query.maxPrice) || 99999999,
         },
-        nameOrder: req.query.nameOrder || 'ASC',
       };
 
-      const result = await LoaiSanhService.getAllLoaiSanh(page, limit, filters);
+      const result = await LoaiSanhService.getAllLoaiSanh(
+        page,
+        limit,
+        filters,
+        req.query.search,
+        req.query.sort
+      );
 
       return res.status(200).json({
         message: 'Get all LoaiSanh successfully',
@@ -25,126 +29,60 @@ const LoaiSanhController = {
         totalPages: Math.ceil(result.total / limit),
       });
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: 'Error fetching all LoaiSanh', error: error.message });
+      next(error);
     }
   },
 
-  getLoaiSanhById: async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ message: 'id is required' });
-    }
+  getLoaiSanhById: async (req, res, next) => {
     try {
-      const loaisanh = await LoaiSanhService.getLoaiSanhById(id);
-      if (!loaisanh) {
-        return res.status(404).json({ message: 'LoaiSanh not found' });
-      }
+      const loaisanh = await LoaiSanhService.getLoaiSanhById(req.params.id);
       return res.status(200).json(loaisanh);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ message: 'Error fetching LoaiSanh', error: error.message });
+      next(error);
     }
   },
 
-  createLoaiSanh: async (req, res) => {
+  createLoaiSanh: async (req, res, next) => {
     try {
       const loaisanh = await LoaiSanhService.createLoaiSanh(req.body);
       return res
         .status(201)
         .json({ message: 'Create LoaiSanh successfully', data: loaisanh });
     } catch (error) {
-      return res.status(500).json({
-        message: 'Error creating LoaiSanh',
-        error: error.message,
-      });
+      next(error);
     }
   },
 
-  updateLoaiSanh: async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ message: 'id is required' });
-    }
+  updateLoaiSanh: async (req, res, next) => {
     try {
-      const loaisanh = await LoaiSanhService.updateLoaiSanh(id, req.body);
+      const loaisanh = await LoaiSanhService.updateLoaiSanh(
+        req.params.id,
+        req.body
+      );
       return res.status(200).json({
         message: 'Update LoaiSanh successfully',
         data: loaisanh,
       });
     } catch (error) {
-      return res.status(500).json({
-        message: 'Error updating LoaiSanh',
-        error: error.message,
-      });
+      next(error);
     }
   },
 
-  deleteLoaiSanh: async (req, res) => {
-    const { id } = req.params;
-    if (!id) {
-      return res.status(400).json({ message: 'id is required' });
-    }
+  deleteLoaiSanh: async (req, res, next) => {
     try {
-      const loaisanh = await LoaiSanhService.deleteLoaiSanh(id);
-      if (!loaisanh) {
-        return res.status(404).json({ message: 'LoaiSanh not found' });
-      }
+      const loaisanh = await LoaiSanhService.deleteLoaiSanh(req.params.id);
       return res.status(204).send();
     } catch (error) {
-      return res.status(500).json({
-        message: 'Error deleting LoaiSanh',
-        error: error.message,
-      });
+      next(error);
     }
   },
 
-  deleteAllLoaiSanh: async (req, res) => {
+  deleteAllLoaiSanh: async (req, res, next) => {
     try {
       await LoaiSanhService.deleteAllLoaiSanh();
       return res.status(204).send();
     } catch (error) {
-      return res.status(500).json({
-        message: 'Error deleting all LoaiSanh',
-        error: error.message,
-      });
-    }
-  },
-
-  searchLoaiSanhByName: async (req, res) => {
-    try {
-      const { name } = req.params;
-      const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
-
-      const filters = {
-        price: {
-          min: parseInt(req.query.minPrice) || 0,
-          max: parseInt(req.query.maxPrice) || 10000000,
-          priceOrder: req.query.priceOrder || 'ASC',
-        },
-        nameOrder: req.query.nameOrder || 'ASC',
-      };
-      const result = await LoaiSanhService.searchLoaiSanhByName(
-        name,
-        page,
-        limit,
-        filters
-      );
-      return res.status(200).json({
-        message: 'Search LoaiSanh by name successfully',
-        data: result.data,
-        total: result.total,
-        currentPage: parseInt(page),
-        totalPages: Math.ceil(result.total / limit),
-      });
-    } catch (error) {
-      return res.status(500).json({
-        message: 'Error searching LoaiSanh by name',
-        error: error.message,
-      });
+      next(error);
     }
   },
 };

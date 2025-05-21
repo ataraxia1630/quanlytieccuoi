@@ -1,4 +1,4 @@
-const  cloudinary  = require('../config/cloudinaryConfig');
+const cloudinary = require('../config/cloudinaryConfig');
 const streamifier = require('streamifier');
 const ApiError = require('../utils/apiError');
 

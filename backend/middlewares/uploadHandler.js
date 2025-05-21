@@ -1,14 +1,4 @@
-const { body, param } = require('express-validator');
-
-exports.getImageUrlValidation = [
-    param('imageId')
-        .notEmpty()
-        .withMessage('Image ID là bắt buộc')
-        .isString()
-        .withMessage('Image ID phải là chuỗi'),
-];
-
-exports.uploadImageValidation = [];const multer = require('multer');
+const multer = require('multer');
 const path = require('path');
 
 exports.upload = multer({

@@ -1,6 +1,6 @@
 const { DichVu } = require("../models");
 const { Op } = require("sequelize");
-const { ApiError } = require("../utils/apiError");
+const ApiError = require("../utils/apiError.js");
 
 const DichVuService = {
   getAllDichVu: async (limit, offset) => {

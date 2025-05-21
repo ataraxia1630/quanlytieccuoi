@@ -1,11 +1,11 @@
 // Mở popup chỉnh sửa hoặc thêm
 import { useState } from "react";
 import { Dialog, DialogContent, Box, Divider } from "@mui/material";
-import DialogTitleCustom from "../../components/Dialogtitlecustom";
-import FormTextField from "../../components/Formtextfield";
-import SelectFieldCustom from "../../components/Selectfieldcustom";
-import ImageUploadField from "../../components/Imageuploadfield";
-import DialogButtons from "../../components/Dialogbutton";
+import DialogTitleCustom from "./Dialogtitlecustom";
+import FormTextField from "./Formtextfield";
+import SelectFieldCustom from "./Selectfieldcustom";
+import ImageUploadField from "./Imageuploadfield";
+import DialogButtons from "./Dialogbutton";
 
 // Danh sách các tùy chọn tình trạng trong popup
 const statusOptions = [
@@ -24,7 +24,24 @@ const EditDishDialog = ({ open, onClose, onSave, title }) => {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [status, setStatus] = useState("");
+  const [time, setTime] = useState("");
+  const [date, setDate] = useState("");
   const [image, setImage] = useState(null);
+  const [error, setError] = useState("");
+
+  const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
+
+  const handleChange = (e) => {
+    setTime(e.target.value);
+    setError(""); // Xóa lỗi tạm thời khi đang nhập
+  };
+
+  // Thông báo khi người dùng nhập sai
+  const handleBlur = () => {
+    if (!timeRegex.test(time)) {
+      setError("Giờ không hợp lệ. Định dạng phải là hh:mm:ss");
+    }
+  };
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -76,18 +93,42 @@ const EditDishDialog = ({ open, onClose, onSave, title }) => {
 
           <FormTextField
             label="Giá"
-            type="number"
+            type="number" // Thay đổi kiểu nhập thành số nếu là giá trị số
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+            // Bỏ InputProps nếu không có VNĐ
             InputProps={{
               endAdornment: <span style={{ marginLeft: 4 }}>VNĐ</span>,
             }}
             fullWidth
           />
 
+          {/* Thay đổi kiểu nhập thời gian thành HH:mm:ss */}
+          <FormTextField
+            label="Giờ"
+            type="text"
+            value={time}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder="hh:mm:ss"
+            inputProps={{ maxLength: 8 }}
+            error={Boolean(error)}
+            helperText={error}
+            fullWidth
+          />
+
+          <FormTextField
+            label="Ngày"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
+
           <SelectFieldCustom
             label="Tình trạng"
-            options={statusOptions}
+            options={statusOptions} // Tình trạng cho combo box
             value={status}
             onChange={(e) => setStatus(e.target.value)}
             fullWidth
