@@ -16,6 +16,9 @@ router.get(
   DichVuController.searchDichVu
 );
 
+// Lấy các dịch vụ có thể đặt tiệc
+router.get("/active", DichVuController.getActiveDichVu);
+
 // Lấy dịch vụ theo ID
 router.get(
   "/:id",
