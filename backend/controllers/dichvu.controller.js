@@ -43,7 +43,7 @@ const DichVuController = {
   createDichVu: async (req, res, next) => {
     try {
       const data = await DichVuService.createDichVu(req.body);
-      res.status(201).json(data);
+      res.status(201).json({ message: "Cập nhật dịch vụ thành công.", data });
     } catch (err) {
       next(err);
     }

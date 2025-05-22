@@ -46,7 +46,7 @@ const Ct_DichVuService = {
     try {
       const { MaDichVu, SoPhieuDatTiec, SoLuong } = data;
 
-			console.log("Received data:", data);
+      console.log("Received data:", data);
 
       if (!MaDichVu || !SoPhieuDatTiec || !SoLuong) {
         throw new ApiError(
@@ -60,15 +60,12 @@ const Ct_DichVuService = {
       }
 
       const dichVu = await DichVu.findOne({
-        where: { MaDichVu, TinhTrang: "Đang áp dụng" },
+        where: { MaDichVu, TinhTrang: "Có sẵn" },
       });
 
-			console.log("Dịch vụ tìm được:", dichVu); // <- Xem có null không
+      console.log("Dịch vụ tìm được:", dichVu);
       if (!dichVu) {
-        throw new ApiError(
-          404,
-          "Dịch vụ không tồn tại hoặc không đang áp dụng."
-        );
+        throw new ApiError(404, "Dịch vụ không tồn tại hoặc không có sẵn.");
       }
 
       const phieuDatTiec = await PhieuDatTiec.findByPk(SoPhieuDatTiec);
