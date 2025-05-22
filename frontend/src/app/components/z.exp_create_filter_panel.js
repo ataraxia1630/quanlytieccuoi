@@ -2,8 +2,9 @@ import { Box, Collapse, Paper } from "@mui/material";
 import Dropdown from "./Dropdown";
 import RangeInputs from "./Rangeinput";
 import FilterButton from "./Filterbutton";
-import StatusCheckbox from "./Statuscheckbox";
+import StatusCheckbox from "./Statuscheckbx";
 import { useState } from "react";
+import StatusRadio from "./Statusradio";
 
 const FilterPanel = ({ isOpen, onApply }) => {
   const [category, setCategory] = useState("");
@@ -12,6 +13,7 @@ const FilterPanel = ({ isOpen, onApply }) => {
   const [priceFrom, setPriceFrom] = useState("");
   const [priceTo, setPriceTo] = useState("");
   const [status, setStatus] = useState([]);
+  const [statusRadiobtn, setStatusRadiobtn] = useState();
 
   const handleApply = () => {
     onApply({
@@ -82,6 +84,18 @@ const FilterPanel = ({ isOpen, onApply }) => {
               ]}
             />
           </Box>
+
+          <StatusRadio
+            label="Trạng thái áp dụng"
+            value={statusRadiobtn}
+            onChange={setStatusRadiobtn}
+            options={[
+              { value: "con_ap_dung", label: "Còn áp dụng" },
+              { value: "tam_ngung", label: "Tạm ngưng" },
+              { value: "ngung_ap_dung", label: "Ngưng áp dụng" },
+              { value: "tat_ca", label: "Tất cả" },
+            ]}
+          />
         </Box>
 
         {/* Nút áp dụng lọc */}
