@@ -34,8 +34,8 @@ const Ct_DichVuController = {
     try {
       const data = await Ct_DichVuService.createCt_DichVu(req.body);
       res.status(201).json({
-        data,
         message: "Tạo chi tiết dịch vụ thành công.",
+        data,
       });
     } catch (err) {
       next(err);
@@ -51,8 +51,8 @@ const Ct_DichVuController = {
         req.body
       );
       res.status(200).json({
-        data: { affectedRows: updated },
         message: "Cập nhật chi tiết dịch vụ thành công.",
+        data: { affectedRows: updated },
       });
     } catch (err) {
       next(err);

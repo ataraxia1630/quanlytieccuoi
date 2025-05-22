@@ -27,7 +27,7 @@ const DichVuService = {
   getActiveDichVu: async (limit, offset) => {
     try {
       return await DichVu.findAll({
-        where: { TinhTrang: "Đang áp dụng" },
+        where: { TinhTrang: "Có sẵn" },
         limit,
         offset,
       });
@@ -95,7 +95,7 @@ const DichVuService = {
 
       if (hasRelatedRecords) {
         const [affectedRows] = await DichVu.update(
-          { TinhTrang: "Ngừng áp dụng" },
+          { TinhTrang: "Ngừng cung cấp" },
           { where: { MaDichVu: id } }
         );
         if (affectedRows === 0)
@@ -104,7 +104,7 @@ const DichVuService = {
             "Không tìm thấy dịch vụ để cập nhật trạng thái."
           );
         return {
-          message: "Dịch vụ đã được chuyển sang trạng thái Ngừng áp dụng",
+          message: "Dịch vụ đã được chuyển sang trạng thái ngừng cung cấp",
         };
       } else {
         const deletedRows = await DichVu.destroy({ where: { MaDichVu: id } });
