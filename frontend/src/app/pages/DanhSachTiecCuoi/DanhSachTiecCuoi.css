@@ -22,8 +22,6 @@ margin-bottom: 28px;
 height: 29px;
 flex-shrink: 0;
 background: #D9D9D9;
-
-
 }
 .apply {
  width: 103.835px;
@@ -56,4 +54,14 @@ font-weight: 400;
 line-height: normal;
 margin: 0;
 top: 41px;
+}
+.action {
+ display: flex;
+ align-items: center;
+ gap: 10px;
+ font-size: 15px;
+ 
+}
+.action:first-child {
+ margin-bottom: 10px;
 }

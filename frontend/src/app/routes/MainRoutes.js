@@ -8,6 +8,7 @@ import DashBoard from '../layouts/DashBoard';
 
 import DatTiecCuoi from '../pages/DatTiecCuoi'; 
 import DanhSachTiecCuoi from '../pages/DanhSachTiecCuoi'; 
+import HoaDon from '../pages/HoaDon/HoaDon';
 import DanhSachSanhTiec from '../pages/DanhSachSanhTiec';
 import DanhSachMonAn from '../pages/DanhSachMonAn';
 import DanhSachDichVu from '../pages/DanhSachDichVu';
@@ -45,6 +46,7 @@ export default function MainRoutes() {
           </Route>
           <Route path="DanhSachTiecCuoi" element={<DanhSachTiecCuoi />} />
           <Route path="DanhSachSanhTiec" element={<DanhSachSanhTiec />} />
+          <Route path="HoaDon" element={<HoaDon /> }/>
           <Route path="DanhSachMonAn" element={<DanhSachMonAn />} /> 
           <Route path="DanhSachDichVu" element={<DanhSachDichVu />} /> 
       </Route>

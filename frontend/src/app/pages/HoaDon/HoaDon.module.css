@@ -1,0 +1,81 @@
+.hoadonBox {
+  display: flex;
+  width: 1230px;
+  height: 838px;
+  flex-shrink: 0;
+  border-radius: 5px;
+  background: #063F5C;
+}
+
+.ctHoadon {
+  color: #FFF;
+  padding-left: 200px;
+  font-size: 48px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  color: #FFF;
+  margin: 0 0;
+  margin-top: 20px;
+
+}
+
+.hoadonLeft {
+  width: 293px;
+  height: 838px;
+  border-right: 1px dashed white;
+  margin-left: 19px;
+}
+
+.dashedBorder {
+  border-right: 1px solid;
+  border-image: repeating-linear-gradient(to bottom,
+      white 0 8px,
+      transparent 10px 20px) 1 stretch;
+}
+
+.hoadonRight {
+  margin-left: 43px;
+  width: 800px;
+  height: 838px;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  margin-top: 37px;
+  display: flex;
+  gap: 91px;
+  margin-bottom: 40px;
+}
+
+
+.hoadonText {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #FFF;
+  font-family: "Libre Bodoni";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+}
+
+.hoadonName {
+  color: #FFD66D;
+  font-family: "Josefin Slab";
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+.css-1r8a61k-MuiTableRow-root {
+  background-color: #ffd66d!important;
+}
+.inf {
+  display: flex;
+  flex-direction: column;
+  justify-content:end;
+  margin-top: auto;
+}

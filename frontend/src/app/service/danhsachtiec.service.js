@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:2025/danhsachtiec/";
+const API_URL = "http://localhost:25053/api/danhsachtiec";
 
 export const getDanhSach = async () => {
  try {
@@ -12,3 +12,22 @@ export const getDanhSach = async () => {
   throw error
  }
 }
+export const postDanhSach = async (data) => {
+  const response = await fetch('http://localhost:25053/api/danhsachtiec/filter', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    console.error("Chi tiết lỗi:", result);
+    throw new Error('Lỗi khi gọi API');
+  }
+
+  return result;
+};
+
