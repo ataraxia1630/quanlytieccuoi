@@ -1,6 +1,6 @@
 const { body, param, query } = require("express-validator");
 
-const validTinhTrang = ["Có sẵn", "Tạm ngừng", "Ngừng cung cấp"];
+const validTinhTrang = ["Có sẵn", "Tạm dừng", "Ngừng cung cấp"];
 
 const dichVuValidation = {
   getDichVuById: [
@@ -32,7 +32,7 @@ const dichVuValidation = {
       .trim()
       .isIn(validTinhTrang)
       .withMessage(
-        "Tình trạng phải là một trong các giá trị: Đang áp dụng, Tạm ngừng, Ngừng áp dụng."
+        "Tình trạng phải là một trong các giá trị: Có sẵn, Tạm dừng, Ngừng cung cấp."
       ),
   ],
 
@@ -60,7 +60,7 @@ const dichVuValidation = {
       .trim()
       .isIn(validTinhTrang)
       .withMessage(
-        "Tình trạng phải là một trong các giá trị: Có sẵn, Tạm ngừng, Ngừng cung cấp."
+        "Tình trạng phải là một trong các giá trị: Có sẵn, Tạm dừng, Ngừng cung cấp."
       ),
   ],
 
@@ -111,7 +111,7 @@ const dichVuValidation = {
       .trim()
       .isIn(validTinhTrang)
       .withMessage(
-        "Tình trạng phải là một trong các giá trị: Đang áp dụng, Tạm ngừng, Ngừng áp dụng."
+        "Tình trạng phải là một trong các giá trị: Có sẵn, Tạm dừng, Ngừng cung cấp."
       ),
   ],
 };
