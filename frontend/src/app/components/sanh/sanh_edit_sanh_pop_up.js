@@ -172,7 +172,7 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
             textCancel={"Hủy"}
             text={"Lưu"}
             onCancel={onClose}
-            onSave={handleSave}
+            onAction={handleSave}
           />
         </Box>
       </DialogContent>
