@@ -1,4 +1,5 @@
 const { DichVu } = require("../models");
+const { Ct_DichVu } = require("../models");
 const { Op } = require("sequelize");
 const ApiError = require("../utils/apiError.js");
 
@@ -20,6 +21,18 @@ const DichVuService = {
       throw err.statusCode
         ? err
         : new ApiError(500, "Lỗi khi lấy thông tin dịch vụ theo ID.");
+    }
+  },
+
+  getActiveDichVu: async (limit, offset) => {
+    try {
+      return await DichVu.findAll({
+        where: { TinhTrang: "Đang áp dụng" },
+        limit,
+        offset,
+      });
+    } catch (err) {
+      throw new ApiError(500, "Không thể lấy danh sách dịch vụ đang áp dụng.");
     }
   },
 
@@ -76,12 +89,29 @@ const DichVuService = {
 
   deleteDichVu: async (id) => {
     try {
-      const deletedRows = await DichVu.destroy({ where: { MaDichVu: id } });
-      if (deletedRows === 0)
-        throw new ApiError(404, "Không tìm thấy dịch vụ để xóa.");
-      // Kiểm tra xem có chi tiết dịch vụ nào liên quan không
-      // ...
-      return deletedRows;
+      const hasRelatedRecords = await Ct_DichVu.findOne({
+        where: { MaDichVu: id },
+      });
+
+      if (hasRelatedRecords) {
+        const [affectedRows] = await DichVu.update(
+          { TinhTrang: "Ngừng áp dụng" },
+          { where: { MaDichVu: id } }
+        );
+        if (affectedRows === 0)
+          throw new ApiError(
+            404,
+            "Không tìm thấy dịch vụ để cập nhật trạng thái."
+          );
+        return {
+          message: "Dịch vụ đã được chuyển sang trạng thái Ngừng áp dụng",
+        };
+      } else {
+        const deletedRows = await DichVu.destroy({ where: { MaDichVu: id } });
+        if (deletedRows === 0)
+          throw new ApiError(404, "Không tìm thấy dịch vụ để xóa.");
+        return { message: "Xóa dịch vụ thành công" };
+      }
     } catch (err) {
       throw err.statusCode ? err : new ApiError(500, "Xóa dịch vụ thất bại.");
     }
@@ -118,7 +148,11 @@ const DichVuService = {
       }
 
       if (tinhTrang) {
-        where.TinhTrang = tinhTrang;
+        if (Array.isArray(tinhTrang) && tinhTrang.length > 0) {
+          where.TinhTrang = { [Op.in]: tinhTrang };
+        } else if (typeof tinhTrang === "string") {
+          where.TinhTrang = tinhTrang;
+        }
       }
 
       return await DichVu.findAll({ where, limit, offset });

@@ -18,7 +18,7 @@ const ImageUploadField = ({ imagePath, onClear, onSelect }) => (
         boxShadow: "none",
         borderRadius: "4px 0 0 4px",
         minWidth: "130px",
-				fontSize: "14.5px",
+        fontSize: "0.9rem",
       }}
     >
       Chọn hình ảnh

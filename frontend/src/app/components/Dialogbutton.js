@@ -1,11 +1,11 @@
 import { Box } from "@mui/material";
 import CancelButton from "./Cancelbutton";
-import SaveButton from "./Saveandprintbutton";
+import ActionButton from "./Someactionbutton";
 
-const DialogButtons = ({ textCancel, text, onCancel, onSave }) => (
+const DialogButtons = ({ textCancel, text, onCancel, onAction }) => (
   <Box display="flex" justifyContent="center" gap={4} sx={{ mb: 1.5 }}>
     <CancelButton textCancel={textCancel} onClick={onCancel} />
-    <SaveButton text={text} onClick={onSave} />
+    <ActionButton text={text} onClick={onAction} />
   </Box>
 );
 
