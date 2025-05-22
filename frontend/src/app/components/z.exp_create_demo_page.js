@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Box, Typography } from "@mui/material";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import SearchBar from "../../components/Searchbar";
 import FilterButton from "../../components/Filterbutton";
 import AddButton from "../../components/Addbutton";
@@ -17,13 +20,13 @@ function DanhSachDichVu() {
   const [mode, setMode] = useState("add");
 
   const handleSearch = () => {
-    console.log("Searching for:", searchTerm);
+    toast.info(`Đang tìm kiếm: ${searchTerm}`);
   };
 
   const handleAdd = () => {
     setMode("add");
     setIsEditDialogOpen(true);
-    console.log("thêm món");
+    toast.success("Thêm món ăn mới");
   };
 
   const handleFilter = () => {
@@ -31,38 +34,38 @@ function DanhSachDichVu() {
   };
 
   const handleApplyFilter = () => {
-    console.log("đã lọc");
+    toast.success("Đã áp dụng bộ lọc");
   };
 
   const handleEdit = () => {
     setMode("edit");
     setIsEditDialogOpen(true);
-    console.log("icon sửa");
+    toast.info("Chỉnh sửa món ăn");
   };
 
   const handleDelete = () => {
     setIsDeleteDialogOpen(true);
-    console.log("icon xóa");
+    toast.warn("Bạn sắp xóa món ăn này");
   };
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
-    console.log("đóng popup xóa");
+    toast.info("Đã hủy xóa");
   };
 
   const handleCloseEditDialog = () => {
     setIsEditDialogOpen(false);
-    console.log("đóng popup chỉnh sửa");
+    toast.info("Đã đóng chỉnh sửa");
   };
 
   const handleSaveDish = () => {
-    console.log(mode === "edit" ? "Edited dish" : "Added dish");
+    toast.success(mode === "edit" ? "Đã lưu chỉnh sửa" : "Đã thêm món ăn");
     setIsEditDialogOpen(false);
   };
 
   const acceptDelete = () => {
+    toast.success("Đã xóa thành công");
     setIsDeleteDialogOpen(false);
-    console.log("xóa");
   };
 
   const sampleData = [
@@ -92,6 +95,8 @@ function DanhSachDichVu() {
 
   return (
     <Box sx={{ p: 3 }}>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+
       <Typography
         variant="h4"
         sx={{ fontWeight: "bold", color: "#063F5C", mb: 4 }}
