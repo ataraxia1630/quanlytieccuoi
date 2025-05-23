@@ -6,7 +6,6 @@ const monanRoutes = require('./monan.route');
 const baocaoRoutes = require('./baocao.route');
 const loaisanhRoutes = require('./loaisanh.route.js');
 const dichvuRoutes = require('./dichvu.route.js');
-const ct_dichvuRoutes = require('./ct_dichvu.route.js');
 
 // Hàm gắn các route vào ứng dụng
 function route(app) {
@@ -17,7 +16,6 @@ function route(app) {
   app.use('/api/baocao', baocaoRoutes);
   app.use('/api/loaisanh', loaisanhRoutes);
   app.use('/api/dichvu', dichvuRoutes);
-  app.use('/api/ct_dichvu', ct_dichvuRoutes);
 }
 
 module.exports = route;

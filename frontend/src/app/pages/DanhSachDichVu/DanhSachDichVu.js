@@ -8,8 +8,8 @@ import FilterButton from "../../components/Filterbutton";
 import AddButton from "../../components/Addbutton";
 import CustomTable from "../../components/Customtable";
 import DeleteDialog from "../../components/Deletedialog";
-import DichVuFilter from "./../../components/dichvu/dichvu_filter_panel";
-import DichVuColumn from "./../../components/dichvu/dichvu_column";
+import DichVuFilter from "../../components/dichvu/dichvu_filter_panel";
+import DichVuColumn from "../../components/dichvu/dichvu_column";
 import DichVuDialog from "../../components/dichvu/dichvu_popup";
 import DichVuService from "../../service/dichvu.service";
 

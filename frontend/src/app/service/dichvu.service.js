@@ -19,6 +19,7 @@ const DichVuService = {
       );
     }
   },
+
   getDichVuById: async (id) => {
     try {
       const response = await apiClient.get(`/${id}`);
@@ -29,6 +30,7 @@ const DichVuService = {
       );
     }
   },
+
   getActiveDichVu: async (limit = 10, offset = 0) => {
     try {
       const response = await apiClient.get("/active", {
@@ -42,6 +44,7 @@ const DichVuService = {
       );
     }
   },
+
   searchDichVu: async (searchParams = {}, limit = 10, offset = 0) => {
     try {
       const params = { ...searchParams, limit, offset };
@@ -62,6 +65,7 @@ const DichVuService = {
       );
     }
   },
+
   createDichVu: async (dichVuData) => {
     try {
       const response = await apiClient.post("/", dichVuData);
@@ -72,6 +76,7 @@ const DichVuService = {
       );
     }
   },
+
   updateDichVu: async (id, updateData) => {
     try {
       const response = await apiClient.put(`/${id}`, updateData);
@@ -82,6 +87,7 @@ const DichVuService = {
       );
     }
   },
+
   deleteDichVu: async (id) => {
     try {
       const response = await apiClient.delete(`/${id}`);
