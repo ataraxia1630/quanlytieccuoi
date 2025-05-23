@@ -8,6 +8,20 @@ const RangeInputs = ({
   onFromChange,
   onToChange,
 }) => {
+  const inputSx = {
+    width: width,
+    "& .MuiOutlinedInput-root": {
+      fontSize: "0.95rem",
+      height: "37.5px",
+      "& input": {
+        padding: "7px 12px",
+      },
+      "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+        borderColor: "#063F5C",
+      },
+    },
+  };
+
   return (
     <Box>
       <Typography variant="subtitle1" sx={{ mb: 1 }}>
@@ -20,16 +34,7 @@ const RangeInputs = ({
           placeholder="Từ"
           value={fromValue}
           onChange={(e) => onFromChange(e.target.value)}
-          sx={{
-            width: width,
-            "& .MuiOutlinedInput-root": {
-              fontSize: "0.875rem",
-              height: "37.5px",
-              "& input": {
-                padding: "7px 12px",
-              },
-            },
-          }}
+          sx={inputSx}
         />
         <Box sx={{ width: "10px", borderTop: "1.2px solid #ccc" }} />
         <TextField
@@ -38,7 +43,7 @@ const RangeInputs = ({
           placeholder="Đến"
           value={toValue}
           onChange={(e) => onToChange(e.target.value)}
-          sx={{ width: width }}
+          sx={inputSx}
         />
       </Box>
     </Box>

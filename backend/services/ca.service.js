@@ -144,8 +144,16 @@ const getCaSchedule = async (startDate, endDate) => {
 const searchAndFilterCa = async ({ maCa, tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo, sortBy, sortOrder }) => {
     try {
         const where = {};
-        if (maCa) where.MaCa = { [Op.like]: `%${maCa}%` };
-        if (tenCa) where.TenCa = { [Op.like]: `%${tenCa}%` };
+        if (maCa || tenCa) {
+        const orConditions = [];
+        if (maCa) {
+            orConditions.push({ MaCa: { [Op.like]: `%${maCa}%` } });
+        }
+        if (tenCa) {
+            orConditions.push({ TenCa: { [Op.like]: `%${tenCa}%` } });
+        }
+        where[Op.or] = orConditions;
+    }
 
         const conditions = [];
         if (gioBatDauFrom) conditions.push(literal(`GioBatDau >= '${gioBatDauFrom}'`));

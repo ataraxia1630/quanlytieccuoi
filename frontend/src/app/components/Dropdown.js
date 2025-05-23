@@ -16,6 +16,9 @@ const Dropdown = ({ label, value, onChange, width, options = [] }) => {
             "& .MuiSelect-select": {
               padding: "7px 12px",
             },
+            "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+              borderColor: "#063F5C",
+            },
           }}
         >
           <MenuItem value="">Tất cả</MenuItem>

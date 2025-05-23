@@ -27,7 +27,7 @@ const DichVuService = {
   getActiveDichVu: async (limit, offset) => {
     try {
       return await DichVu.findAll({
-        where: { TinhTrang: "Đang áp dụng" },
+        where: { TinhTrang: "Có sẵn" },
         limit,
         offset,
       });
@@ -89,28 +89,51 @@ const DichVuService = {
 
   deleteDichVu: async (id) => {
     try {
+      const dichVu = await DichVu.findOne({ where: { MaDichVu: id } });
+
+      if (!dichVu) {
+        throw new ApiError(404, "Không tìm thấy dịch vụ.");
+      }
+
       const hasRelatedRecords = await Ct_DichVu.findOne({
         where: { MaDichVu: id },
       });
 
       if (hasRelatedRecords) {
+        if (dichVu.TinhTrang === "Ngừng cung cấp") {
+          return {
+            status: "already-soft-deleted",
+            message:
+              "Dịch vụ đã ngừng cung cấp và không thể xóa vì có trong phiếu đặt tiệc.",
+          };
+        }
+
         const [affectedRows] = await DichVu.update(
-          { TinhTrang: "Ngừng áp dụng" },
+          { TinhTrang: "Ngừng cung cấp" },
           { where: { MaDichVu: id } }
         );
+
         if (affectedRows === 0)
           throw new ApiError(
             404,
             "Không tìm thấy dịch vụ để cập nhật trạng thái."
           );
+
         return {
-          message: "Dịch vụ đã được chuyển sang trạng thái Ngừng áp dụng",
+          status: "soft-deleted",
+          message:
+            "Dịch vụ sang trạng thái ngừng cung cấp do có trong phiếu đặt tiệc.",
         };
       } else {
         const deletedRows = await DichVu.destroy({ where: { MaDichVu: id } });
+
         if (deletedRows === 0)
           throw new ApiError(404, "Không tìm thấy dịch vụ để xóa.");
-        return { message: "Xóa dịch vụ thành công" };
+
+        return {
+          status: "deleted",
+          message: "Xóa dịch vụ thành công",
+        };
       }
     } catch (err) {
       throw err.statusCode ? err : new ApiError(500, "Xóa dịch vụ thất bại.");
