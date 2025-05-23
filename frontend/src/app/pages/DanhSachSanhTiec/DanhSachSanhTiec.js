@@ -10,7 +10,7 @@ import defaultColumns from "../../components/sanh/sanh_default_column";
 import sanhService from "../../service/sanh.service";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DeleteDialog from "../../components/z.exp_create_dialog_delete";
+import DeleteDialog from "../../components/Deletedialog";
 
 function DanhSachSanh() {
   const [searchTerm, setSearchTerm] = useState("");

@@ -10,7 +10,7 @@ import defaultColumns from "../../components/ca/ca_default_column";
 import caService from "../../service/ca.service";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import DeleteDialog from "../../components/z.exp_create_dialog_delete";
+import DeleteDialog from './../../components/Deletedialog';
 
 function DanhSachCa() {
   const [searchTerm, setSearchTerm] = useState("");
