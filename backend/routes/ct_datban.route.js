@@ -4,16 +4,15 @@ const ctDatBanValidation = require("../validations/ct_datban.validation");
 const ctDatBanController = require("../controllers/ct_datban.controller");
 
 const router = Router();
-console.log( "á", validate)
 
 
 
 router.get("/:soPhieuDatTiec",
-    ctDatBanValidation.getAllCTDatBanByPDTId,
-    validate,
-     ctDatBanController.getAllCTDatBanByPDTId);
+  ctDatBanValidation.getAllCTDatBanByPDTId,
+  validate,
+  ctDatBanController.getAllCTDatBanByPDTId);
 router.get(
-  "/:soPhieuDatTiec/:maMonan",
+  "/:soPhieuDatTiec/:maMonAn",
   ctDatBanValidation.getCTDatBanById,
   validate,
   ctDatBanController.getCTDatBanById
@@ -25,13 +24,13 @@ router.post(
   ctDatBanController.createCTDatBan
 );
 router.put(
-  "/:soPhieuDatTiec/:maMonan",
+  "/:soPhieuDatTiec/:maMonAn",
   ctDatBanValidation.updateCTDatBan,
   validate,
   ctDatBanController.updateCTDatBan
 );
 router.delete(
-  "/:soPhieuDatTiec/:maMonan",
+  "/:soPhieuDatTiec/:maMonAn",
   ctDatBanValidation.deleteCTDatBan,
   validate,
   ctDatBanController.deleteCTDatBan

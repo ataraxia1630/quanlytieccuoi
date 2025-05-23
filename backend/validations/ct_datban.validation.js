@@ -3,7 +3,7 @@ const { body, param } = require("express-validator");
 
 const ctDatBanValidation = {
 
-     getAllCTDatBanByPDTId: [
+  getAllCTDatBanByPDTId: [
     param("soPhieuDatTiec")
       .trim()
       .notEmpty()
@@ -13,13 +13,13 @@ const ctDatBanValidation = {
   ],
   getCTDatBanById: [
     param("maMonAn")
-    .trim()
-    .notEmpty()
-    .withMessage("Mã món ăn không được để trống.")
-    .matches(/^DV\d{3}$/)
-    .withMessage("Mã món ăn phải có định dạng DVxxx (x là chữ số)."),
+      .trim()
+      .notEmpty()
+      .withMessage("Mã món ăn không được để trống.")
+      .matches(/^MA\d{3}$/)
+      .withMessage("Mã món ăn phải có định dạng MAxxx (x là chữ số)."),
 
-   param("soPhieuDatTiec")
+    param("soPhieuDatTiec")
       .trim()
       .notEmpty()
       .withMessage("Số phiếu đặt tiệc gắn với chi tiết món ăn không được để trống.")
@@ -28,14 +28,19 @@ const ctDatBanValidation = {
   ],
 
   createCTDatBan: [
-    body("MaDichVu")
+    body("MaMonAn")
       .trim()
       .notEmpty()
-      .withMessage("Tên món ăn không được để trống.")
-      .isLength({ max: 100 })
-      .withMessage("Tên món ăn không được vượt quá 100 ký tự."),
+      .withMessage("Mã món ăn gắn với chi tiết món ăn không được để trống.")
+      .matches(/^MA\d{3}$/)
+      .withMessage("Mã món ăn  phải có định dạng MAxxx (x là chữ số)."),
 
-   body("SoPhieuDatTiec")
+    body("GhiChu")
+      .trim()
+      .isLength({ max: 200 })
+      .withMessage("Ghi chú không được vượt quá 200 ký tự."),
+
+    body("SoPhieuDatTiec")
       .trim()
       .notEmpty()
       .withMessage("Số phiếu đặt tiệc gắn với chi tiết món ăn không được để trống.")
@@ -56,44 +61,51 @@ const ctDatBanValidation = {
   ],
 
   updateCTDatBan: [
-     param("maMonAn")
-    .trim()
-    .optional({ nullable: true })
-    .matches(/^DV\d{3}$/)
-    .withMessage("Mã món ăn phải có định dạng DVxxx (x là chữ số)."),
+    param("maMonAn")
+      .trim()
+      .optional({ nullable: true })
+      .matches(/^MA\d{3}$/)
+      .withMessage("Mã món ăn phải có định dạng MAxxx (x là chữ số)."),
 
-   param("soPhieuDatTiec")
+    param("soPhieuDatTiec")
       .trim()
       .optional({ nullable: true })
       .matches(/^PDT\d{3}$/)
       .withMessage("Số phiếu đặt tiệc phải có định dạng PDTxxx (x là chữ số)."),
-      
+
     body("DonGia")
       .optional({ nullable: true })
       .isFloat({ min: 0 })
       .withMessage("Đơn giá phải là số không âm."),
 
     body("SoLuong")
-     .optional({ nullable: true })
+      .optional({ nullable: true })
       .isFloat({ min: 0 })
       .withMessage("Số lượng phải là số không âm."),
+
+    body("GhiChu")
+      .trim()
+      .optional({ nullable: true })
+      .isLength({ max: 200 })
+      .withMessage("Ghi chú không được vượt quá 200 ký tự."),
+
   ],
 
   deleteCTDatBan: [
-     param("maMonAn")
-    .trim()
-    .notEmpty()
-    .withMessage("Mã món ăn không được để trống.")
-    .matches(/^DV\d{3}$/)
-    .withMessage("Mã món ăn phải có định dạng DVxxx (x là chữ số)."),
+    param("maMonAn")
+      .trim()
+      .notEmpty()
+      .withMessage("Mã món ăn không được để trống.")
+      .matches(/^MA\d{3}$/)
+      .withMessage("Mã món ăn phải có định dạng MAxxx (x là chữ số)."),
 
-   param("soPhieuDatTiec")
+    param("soPhieuDatTiec")
       .trim()
       .notEmpty()
       .withMessage("Số phiếu đặt tiệc gắn với chi tiết món ăn không được để trống.")
       .matches(/^PDT\d{3}$/)
       .withMessage("Số phiếu đặt tiệc phải có định dạng PDTxxx (x là chữ số)."),
-      
+
   ],
 
 }

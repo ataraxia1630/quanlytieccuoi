@@ -1,17 +1,18 @@
 // @ts-nocheck
 const { PhieuDatTiec, Sanh, Ca, Ct_DichVu, Ct_DatBan } = require('../models');
 const { Op } = require('sequelize');
+const ApiError = require('../utils/apiError');
 
 
-const PhieuDatTiecStatus = {
-  HELD_NOT_PAID: 'CHUA_THANH_TOAN',
-  HELD_PAID: 'DA_THANH_TOAN',
-  CANCEL: 'DA_HUY',
-};
+// const PhieuDatTiecStatus = {
+//     HELD_NOT_PAID: 'CHUA_THANH_TOAN',
+//     HELD_PAID: 'DA_THANH_TOAN',
+//     CANCEL: 'DA_HUY',
+// };
 
 const PhieuDatTiecService = {
-    
-     getAllPhieuDatTiec: async({ page = 1, limit = 10 })=>{
+
+    getAllPhieuDatTiec: async ({ page = 1, limit = 10 }) => {
         try {
 
             const offset = (page - 1) * limit;
@@ -21,9 +22,9 @@ const PhieuDatTiecService = {
                 offset,
                 include: [
                     { model: Sanh, attributes: ['TenSanh'] },
-                    { model:Ca, attributes: ['TenCa'] },
+                    { model: Ca, attributes: ['TenCa'] },
                 ],
-            });            
+            });
             return {
                 total: count,
                 page,
@@ -31,42 +32,58 @@ const PhieuDatTiecService = {
                 data: rows,
             };
         } catch (error) {
-            throw new ApiError(500, "Không thể lấy danh sách phiếu đặt tiệc(searching).");
+            throw new ApiError(500, "Không thể lấy danh sách phiếu đặt tiệc");
         }
     },
 
-    searchPhieuDatTiec :async({search, page = 1, limit = 10 })=>{
+    searchPhieuDatTiec: async ({ search, page = 1, limit = 10 }) => {
         try {
-            const find = {};
-            const { TenChuRe, TenCoDau, TenSanh } = search || {};
+            const {
+                TenChuRe,
+                TenCoDau,
+                TenSanh
+            } = search || {};
+            const whereCondition = {};
+            const conditions = [];
 
-            const rawConditions = [
-                TenChuRe && { TenChuRe: { [Op.like]: `%${TenChuRe}%` } },
-                TenCoDau && { TenCoDau: { [Op.like]: `%${TenCoDau}%` } },
-            ];
 
-            if (TenSanh) {
-                const sanh = await Sanh.findOne({ where: { TenSanh: { [Op.like]: `%${TenSanh}%` } } });
+
+
+            if (TenChuRe && TenChuRe.trim()) {
+                conditions.push({ TenChuRe: { [Op.like]: `%${TenChuRe.trim()}%` } });
+
+            }
+
+            if (TenCoDau && TenCoDau.trim()) {
+                conditions.push({ TenCoDau: { [Op.like]: `%${TenCoDau.trim()}%` } });
+
+            }
+
+            if (TenSanh && TenSanh.trim()) {
+                const sanh = await Sanh.findOne({
+                    where: { TenSanh: { [Op.like]: `%${TenSanh.trim()}%` } }
+                });
                 if (sanh) {
-                    rawConditions.push({ MaSanh: sanh.MaSanh });
+                    conditions.push({ MaSanh: sanh.MaSanh });
+
                 }
             }
 
-            const filteredConditions = rawConditions.filter(Boolean);
-
-            if (filteredConditions.length > 0) {
-                find[Op.or] = filteredConditions;
+            if (conditions.length > 0) {
+                whereCondition[Op.and] = conditions;
             }
+
+            console.log("Search conditions:", JSON.stringify(whereCondition, null, 2));
 
             const offset = (page - 1) * limit;
 
             const { count, rows } = await PhieuDatTiec.findAndCountAll({
-                where: find,
+                where: whereCondition,
                 limit,
                 offset,
                 include: [
                     { model: Sanh, attributes: ['TenSanh'] },
-                    { model:Ca, attributes: ['TenCa'] },
+                    { model: Ca, attributes: ['TenCa'] },
                 ],
             });
 
@@ -77,13 +94,14 @@ const PhieuDatTiecService = {
                 data: rows,
             };
         } catch (error) {
+            console.error('Search error:', error);
             throw new ApiError(500, "Không thể lấy danh sách phiếu đặt tiệc(searching).");
         }
     },
 
-   
-     getPhieuDatTiecById: async(id)=>{
-        try{
+
+    getPhieuDatTiecById: async (id) => {
+        try {
             const phieudattiec = await PhieuDatTiec.findOne({
                 where: { SoPhieuDatTiec: id },
                 include: [
@@ -100,9 +118,9 @@ const PhieuDatTiecService = {
         }
     },
 
-    
-    createPhieuDatTiec: async (data)=>{
-        try{
+
+    createPhieuDatTiec: async (data) => {
+        try {
             const {
                 SoPhieuDatTiec,
                 MaSanh,
@@ -146,7 +164,7 @@ const PhieuDatTiecService = {
                 SoLuongBan,
                 SoBanDuTru,
                 NgayDatTiec,
-                TrangThai: TrangThai !== undefined ? TrangThai : PhieuDatTiecStatus.HELD_NOT_PAID,
+                TrangThai: TrangThai !== undefined ? TrangThai : 1,
             });
 
             return phieudattiec;
@@ -157,8 +175,8 @@ const PhieuDatTiecService = {
     },
 
 
-    updatePhieuDatTiec: async (id, data)=>{
-        try{
+    updatePhieuDatTiec: async ({ id, data }) => {
+        try {
             const {
                 MaSanh,
                 TenChuRe,
@@ -193,14 +211,14 @@ const PhieuDatTiecService = {
             });
 
             return true;
-        }catch (error) {
+        } catch (error) {
             if (error.name === 'ApiError') throw error;
             throw new ApiError(500, 'Lỗi khi cập nhật phiếu đặt tiệc: ' + error.message);
         }
     },
 
-    
-     deletePhieuDatTiec: async(id)=>{
+
+    deletePhieuDatTiec: async (id) => {
         try {
             const phieudattiec = await PhieuDatTiec.findOne({ where: { SoPhieuDatTiec: id } });
             if (!phieudattiec) {
@@ -210,7 +228,7 @@ const PhieuDatTiecService = {
             await phieudattiec.destroy();
             return true;
         } catch (error) {
-        throw new ApiError(500, 'Lỗi khi xóa phiếu đặt tiệc: ' + error.message);
+            throw new ApiError(500, 'Lỗi khi xóa phiếu đặt tiệc: ' + error.message);
         }
     },
 }

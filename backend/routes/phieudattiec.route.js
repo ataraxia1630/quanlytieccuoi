@@ -7,10 +7,10 @@ const router = express.Router();
 
 
 router.get("/", phieuDatTiecController.getAllPhieuDatTiec);
-router.get("/search",
-    phieuDatTiecValidation.searchPhieuDatTiec,
-    validate,
-     phieuDatTiecController.searchPhieuDatTiec);
+router.post("/search",
+  phieuDatTiecValidation.searchPhieuDatTiec,
+  validate,
+  phieuDatTiecController.searchPhieuDatTiec);
 router.get(
   "/:id",
   phieuDatTiecValidation.getPhieuDatTiecById,

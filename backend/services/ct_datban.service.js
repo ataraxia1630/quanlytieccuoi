@@ -1,29 +1,32 @@
 const { PhieuDatTiec, Ct_DatBan, MonAn } = require('../models');
 const { Op } = require('sequelize');
+const ApiError = require('../utils/apiError');
 
 
-class CTDatBanService {
+const CTDatBanService = {
     // Lấy danh sách phiếu đặt tiệc với phân trang và tìm kiếm
-    async getAllCTDatBanByPDTId(pdtId) {
+    getAllCTDatBanByPDTId: async (pdtId) => {
         try {
             const pdt = await PhieuDatTiec.findByPk(pdtId);
             if (!pdt) {
                 throw new ApiError(404, 'Không tìm thấy phiếu đặt tiệc');
             }
-            return await Ct_DatBan.findAll({ 
+            return await Ct_DatBan.findAll({
                 where: { SoPhieuDatTiec: pdtId },
             });
 
         } catch (error) {
-             throw new ApiError(500, "Không thể lấy danh sách đặt bàn theo phiếu đặt tiệc : ${pdtId}");
+            throw new ApiError(500, "Không thể lấy danh sách đặt bàn theo phiếu đặt tiệc : ${pdtId}");
         }
-    }
+    },
 
-   
-    async getCTDatBanById(monAnId,phieuDatTiecId) {
-        try{
-            const ct= await Ct_DatBan.findOne({
-                where: {  MaMonAn: monAnId ,
+
+    getCTDatBanById: async (phieuDatTiecId, monAnId) => {
+        try {
+            console.log("paramss:", phieuDatTiecId)
+            const ct = await Ct_DatBan.findOne({
+                where: {
+                    MaMonAn: monAnId,
                     SoPhieuDatTiec: phieuDatTiecId
                 },
                 include: [
@@ -33,15 +36,15 @@ class CTDatBanService {
 
             return ct;
         } catch (error) {
-            throw new ApiError(500, 'Không tìm thấy chi tiết dịch vụ ');
+            throw new ApiError(500, 'Không tìm thấy chi tiết đặt bàn');
         }
-    }
+    },
 
-    
-    async createCTDatBan(data) {
-        try{
+
+    createCTDatBan: async (data) => {
+        try {
             const {
-                MaMonAn, SoPhieuDatTiec, SoLuong, DonGia,GhiChu
+                MaMonAn, SoPhieuDatTiec, SoLuong, DonGia, GhiChu
             } = data;
 
             const monan = await MonAn.findByPk(MaMonAn);
@@ -49,18 +52,18 @@ class CTDatBanService {
                 throw new ApiError(400, 'Mã món ăn không tồn tại');
             }
 
-            const pdt= await PhieuDatTiec.findByPk(SoPhieuDatTiec);
+            const pdt = await PhieuDatTiec.findByPk(SoPhieuDatTiec);
             if (!pdt) {
                 throw new ApiError(400, 'Số Phiếu đặt tiệc không tồn tại');
             }
 
             // Kiểm tra trùng ct_dichvu
-            const existingCT = await Ct_DatBan.findOne({ 
+            const existingCT = await Ct_DatBan.findOne({
                 where: {
                     MaMonAn,
-                    SoPhieuDatTiec 
-                    } 
-                });
+                    SoPhieuDatTiec
+                }
+            });
 
             if (existingCT) {
                 throw new ApiError('chi tiết đặt bàn đã tồn tại');
@@ -79,20 +82,20 @@ class CTDatBanService {
             if (error.name === 'ApiError') throw error;
             throw new ApiError(500, 'Lỗi khi tạo chi tiết đặt bàn: ' + error.message);
         }
-    }
+    },
 
 
-    async updateCTDatBan(monAnId,phieuDatTiecId, data) {
-        try{
+    updateCTDatBan: async (monAnId, phieuDatTiecId, data) => {
+        try {
             const {
-                MaMonAn, SoPhieuDatTiec, SoLuong, DonGia,GhiChu
+                MaMonAn, SoPhieuDatTiec, SoLuong, DonGia, GhiChu
             } = data;
 
-           const ct = await Ct_DatBan.findOne({
-                where: { 
+            const ct = await Ct_DatBan.findOne({
+                where: {
                     SoPhieuDatTiec: phieuDatTiecId,
-                    MaMonAn: monAnId 
-                } 
+                    MaMonAn: monAnId
+                }
             });
             if (!ct) {
                 throw new Error('Không tìm thấy chi tiết món ăn');
@@ -102,26 +105,25 @@ class CTDatBanService {
                 MaMonAn: MaMonAn || ct.MaMonAn,
                 SoPhieuDatTiec: SoPhieuDatTiec || ct.SoPhieuDatTiec,
                 SoLuong: SoLuong !== undefined ? SoLuong : ct.SoLuong,
-                NgayDatTiec: NgayDatTiec || phieudattiec.NgayDatTiec,
                 DonGia: DonGia !== undefined ? DonGia : ct.DonGia,
                 GhiChu: GhiChu || ct.GhiChu
             });
-            
+
             return true;
-        }catch (error) {
+        } catch (error) {
             if (error.name === 'ApiError') throw error;
             throw new ApiError(500, 'Lỗi khi cập nhật chi tiết món ăn  ${phieuDatTiecId}: ' + error.message);
         }
-    }
+    },
 
-    
-    async deleteCTDatBan(monAnId,phieuDatTiecId,id) {
+
+    deleteCTDatBan: async (monAnId, phieuDatTiecId) => {
         try {
             const ct = await Ct_DatBan.findOne({
-                where: { 
+                where: {
                     SoPhieuDatTiec: phieuDatTiecId,
-                    MaMonAn: monAnId 
-                } 
+                    MaMonAn: monAnId
+                }
             });
             if (!ct) {
                 throw new Error('Không tìm thấy chi tiết  món ăn');
@@ -129,9 +131,9 @@ class CTDatBanService {
             await ct.destroy();
             return true;
         } catch (error) {
-        throw new ApiError(500, 'Lỗi khi xóa chi tiết món ăn ${phieuDatTiecId}: ' + error.message);
+            throw new ApiError(500, 'Lỗi khi xóa chi tiết món ăn ${phieuDatTiecId}: ' + error.message);
         }
     }
 }
 
-module.exports = new CTDatBanService();
+module.exports = CTDatBanService;
