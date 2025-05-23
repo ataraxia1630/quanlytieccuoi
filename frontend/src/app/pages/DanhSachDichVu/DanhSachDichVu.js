@@ -158,7 +158,15 @@ function DanhSachDichVu() {
     try {
       setLoading(true);
       const result = await DichVuService.deleteDichVu(selectedDichVu.MaDichVu);
-      toast.success(result.message);
+
+      const toastByStatus = {
+        "soft-deleted": toast.info,
+        "already-soft-deleted": toast.warning,
+        deleted: toast.success,
+      };
+
+      (toastByStatus[result.status] || toast.success)(result.message);
+
       setIsDeleteDialogOpen(false);
       setSelectedDichVu(null);
       fetchDichVuList(currentFilters, pagination.limit, pagination.offset);
@@ -166,7 +174,6 @@ function DanhSachDichVu() {
       toast.error(error.message);
     } finally {
       setLoading(false);
-      console.log("Loading state:", false);
     }
   };
 
