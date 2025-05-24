@@ -1,30 +1,75 @@
 // Mở popup chỉnh sửa hoặc thêm
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, Box, Divider } from '@mui/material';
 import DialogTitleCustom from '../Dialogtitlecustom';
 import FormTextField from '../Formtextfield';
 import SelectFieldCustom from '../Selectfieldcustom';
 import ImageUploadField from '../Imageuploadfield';
 import DialogButtons from '../Dialogbutton';
+import {
+  statusList,
+  statusMapToFrontend,
+  statusMapToBackend,
+} from '../../pages/DanhSachMonAn/statusMapping';
 
 // Danh sách các tùy chọn tình trạng trong popup
-const statusOptions = ['Còn hàng', 'Tạm hết hàng', 'Ngừng bán'];
 
-const EditDishPopUp = ({ open, onClose, onSave, title }) => {
+const EditDishPopUp = ({
+  open,
+  onClose,
+  onSave,
+  title,
+  editData = null,
+  mode = 'add',
+}) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [status, setStatus] = useState('');
   const [image, setImage] = useState(null);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState({ name: '', price: '', status: '' });
 
-  const timeRegex = /^(?:[01]\d|2[0-3]):[0-5]\d:[0-5]\d$/;
+  useEffect(() => {
+    console.log('editData', editData);
+    if (mode === 'edit' && editData) {
+      setName(editData.TenMonAn || '');
+      setPrice(editData.DonGia || '');
+      setStatus(statusMapToFrontend[editData.TinhTrang] || '');
+      setImage(editData.HinhAnh || null);
+      console.log(statusMapToFrontend[editData.TinhTrang]);
+    } else {
+      setName('');
+      setPrice('');
+      setStatus('');
+      setImage(null);
+    }
+    setErrors({ name: '', price: '', status: '' });
+  }, [editData, mode]);
 
-  const handleChange = (e) => {
-    setError(''); // Xóa lỗi tạm thời khi đang nhập
+  const validate = () => {
+    let tempErrors = { name: '', price: '', status: '' };
+    let isValid = true;
+
+    if (!name.trim()) {
+      tempErrors.name = 'Tên món ăn không được để trống';
+      isValid = false;
+    }
+    if (!price || isNaN(price) || Number(price) <= 0) {
+      tempErrors.price = 'Giá phải là số dương';
+      isValid = false;
+    }
+    if (!status) {
+      tempErrors.status = 'Vui lòng chọn tình trạng';
+      isValid = false;
+    }
+
+    setErrors(tempErrors);
+    return isValid;
   };
 
   // Thông báo khi người dùng nhập sai
-  const handleBlur = () => {};
+  const handleBlur = () => {
+    validate();
+  };
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -35,6 +80,13 @@ const EditDishPopUp = ({ open, onClose, onSave, title }) => {
 
   const handleClearImage = () => {
     setImage(null);
+  };
+
+  const handleSave = () => {
+    if (validate()) {
+      const data = { name, price, status: statusMapToBackend[status] };
+      onSave(data, image);
+    }
   };
 
   return (
@@ -65,11 +117,20 @@ const EditDishPopUp = ({ open, onClose, onSave, title }) => {
             label="Tên món ăn"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onBlur={() => handleBlur('name')}
             fullWidth
+            error={!!errors.name}
+            helperText={errors.name}
           />
 
           <ImageUploadField
-            imagePath={image?.name || ''}
+            imagePath={
+              image
+                ? typeof image === 'string'
+                  ? image
+                  : URL.createObjectURL(image)
+                : ''
+            }
             onClear={handleClearImage}
             onSelect={handleImageSelect}
           />
@@ -79,19 +140,25 @@ const EditDishPopUp = ({ open, onClose, onSave, title }) => {
             type="number" // Thay đổi kiểu nhập thành số nếu là giá trị số
             value={price}
             onChange={(e) => setPrice(e.target.value)}
+            onBlur={() => handleBlur('price')}
             // Bỏ InputProps nếu không có VNĐ
             InputProps={{
               endAdornment: <span style={{ marginLeft: 4 }}>VNĐ</span>,
             }}
             fullWidth
+            error={!!errors.price}
+            helperText={errors.price}
           />
 
           <SelectFieldCustom
             label="Tình trạng"
-            options={statusOptions} // Tình trạng cho combo box
+            options={statusList}
             value={status}
             onChange={(e) => setStatus(e.target.value)}
+            onBlur={() => handleBlur('status')}
             fullWidth
+            error={!!errors.status}
+            helperText={errors.status}
           />
         </Box>
 
@@ -100,7 +167,7 @@ const EditDishPopUp = ({ open, onClose, onSave, title }) => {
             textCancel={'Hủy'}
             text={'Lưu'}
             onCancel={onClose}
-            onAction={onSave}
+            onAction={handleSave}
           />
         </Box>
       </DialogContent>

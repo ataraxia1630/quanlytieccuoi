@@ -1,6 +1,7 @@
 // Tạo cột mặc định cho bảng
 import { Box } from '@mui/material';
 import ActionButtons from '../Actionbuttons';
+import { statusMapToFrontend } from '../../pages/DanhSachMonAn/statusMapping';
 
 const DishColumns = [
   {
@@ -10,43 +11,54 @@ const DishColumns = [
     width: 50,
   },
   {
-    id: 'id',
+    id: 'MaMonAn',
     label: 'Mã món ăn',
     sortable: true,
     width: 150,
   },
   {
-    id: 'name',
+    id: 'TenMonAn',
     label: 'Tên món ăn',
     sortable: true,
     width: 200,
   },
   {
-    id: 'image',
+    id: 'HinhAnh',
     label: 'Hình ảnh',
     sortable: false,
     width: 200,
-    render: (row) => (
-      <Box
-        component="img"
-        src={row.image}
-        alt={row.name}
-        sx={{ width: 100, height: 100, objectFit: 'contain' }}
-      />
-    ),
+    render: (row) =>
+      row.HinhAnh ? (
+        <img
+          src={row.HinhAnh}
+          alt={row.TenMonAn}
+          style={{
+            width: '200px',
+            height: '200px',
+            objectFit: 'contain',
+            borderRadius: '4px',
+          }}
+          onError={(e) => {
+            e.target.src = 'https://via.placeholder.com/100?text=No+Image';
+          }}
+        />
+      ) : (
+        <span>Chưa có hình</span>
+      ),
   },
   {
-    id: 'price',
+    id: 'DonGia',
     label: 'Giá',
     sortable: true,
     width: 150,
-    render: (row) => new Intl.NumberFormat('vi-VN').format(row.price),
+    render: (row) => new Intl.NumberFormat('vi-VN').format(row.DonGia),
   },
   {
-    id: 'status',
+    id: 'TinhTrang',
     label: 'Tình Trạng',
     sortable: false,
     width: 150,
+    render: (row) => statusMapToFrontend[row.TinhTrang] || row.TinhTrang,
   },
   {
     id: 'actions',

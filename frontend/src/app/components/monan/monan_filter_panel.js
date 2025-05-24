@@ -2,19 +2,66 @@ import { Box, Collapse, Paper } from '@mui/material';
 import RangeInputs from '../Rangeinput';
 import FilterButton from '../Filterbutton';
 import StatusCheckbox from '../Statuscheckbx';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import {
+  statusOptions,
+  statusMapToBackend,
+} from '../../pages/DanhSachMonAn/statusMapping';
 
-const DishFilterPanel = ({ isOpen, onApply }) => {
-  const statusList = ['AVAILABLE', 'UNAVAILABLE', 'NO_LONGER_AVAILABLE'];
+const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
-  const [status, setStatus] = useState(statusList || []);
+  const [status, setStatus] = useState(filters.status || []);
+  const [errors, setErrors] = useState({ priceFrom: '', priceTo: '' });
+
+  // Đồng bộ với filters từ props
+  useEffect(() => {
+    setPriceFrom(filters.priceMin || '');
+    setPriceTo(filters.priceMax || '');
+    setStatus(filters.status || []);
+    setErrors({ priceFrom: '', priceTo: '' });
+  }, [filters]);
+
+  const validate = () => {
+    let tempErrors = { priceFrom: '', priceTo: '' };
+    let isValid = true;
+
+    const from = Number(priceFrom);
+    const to = Number(priceTo);
+
+    if (priceFrom && (isNaN(from) || from < 0)) {
+      tempErrors.priceFrom = 'Giá tối thiểu phải là số không âm';
+      isValid = false;
+    }
+    if (priceTo && (isNaN(to) || to < 0)) {
+      tempErrors.priceTo = 'Giá tối đa phải là số không âm';
+      isValid = false;
+    }
+    if (priceFrom && priceTo && from > to) {
+      tempErrors.priceFrom = 'Giá tối thiểu phải nhỏ hơn hoặc bằng giá tối đa';
+      isValid = false;
+    }
+
+    setErrors(tempErrors);
+    return isValid;
+  };
 
   const handleApply = () => {
-    onApply({
-      price: { min: priceFrom, max: priceTo },
-      filters: status,
-    });
+    if (validate()) {
+      onApply({
+        status: status.map((s) => statusMapToBackend[s] || s),
+        priceMin: priceFrom ? Number(priceFrom) : 0,
+        priceMax: priceTo ? Number(priceTo) : 10000000,
+      });
+    }
+  };
+
+  const handleReset = () => {
+    setPriceFrom('');
+    setPriceTo('');
+    setStatus([]);
+    setErrors({ priceFrom: '', priceTo: '' });
+    onReset();
   };
 
   return (
@@ -35,8 +82,16 @@ const DishFilterPanel = ({ isOpen, onApply }) => {
             label="Giá"
             fromValue={priceFrom}
             toValue={priceTo}
-            onFromChange={setPriceFrom}
-            onToChange={setPriceTo}
+            onFromChange={(value) => {
+              setPriceFrom(value);
+              setErrors({ ...errors, priceFrom: '' });
+            }}
+            onToChange={(value) => {
+              setPriceTo(value);
+              setErrors({ ...errors, priceTo: '' });
+            }}
+            errorFrom={errors.priceFrom}
+            errorTo={errors.priceTo}
           />
 
           {/* Checkbox cho Trạng thái */}
@@ -46,17 +101,14 @@ const DishFilterPanel = ({ isOpen, onApply }) => {
               value={status}
               onChange={setStatus}
               row={false}
-              options={[
-                { value: 'AVAILABLE', label: 'Còn hàng' },
-                { value: 'UNAVAILABLE', label: 'Tạm hết hàng' },
-                { value: 'NO_LONGER_AVAILABLE', label: 'Ngừng bán' },
-              ]}
+              options={statusOptions}
             />
           </Box>
         </Box>
 
         {/* Nút áp dụng lọc */}
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+          <FilterButton text="Reset" onClick={handleReset} />
           <FilterButton text="Apply" onClick={handleApply} />
         </Box>
       </Paper>

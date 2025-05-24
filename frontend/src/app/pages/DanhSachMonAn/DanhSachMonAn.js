@@ -24,78 +24,127 @@ export default function DanhSachMonAn() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [mode, setMode] = useState('add');
   const [dishData, setDishData] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [filters, setFilters] = useState({
+    status: [],
+    priceMin: 0,
+    priceMax: 10000000,
+  });
+  const [loading, setLoading] = useState(false);
   //#endregion
 
   //#region useEffect
-  useEffect(() => {
-    fetchData();
-  }, []);
-  //#endregion
-
   const fetchData = async () => {
+    setLoading(true);
     try {
-      toast.info('Đang xử lý …');
-      const data = await MonAnService.getAll();
-      setDishData(data);
-      toast.success('Tải danh sách món ăn thành công!');
+      const result = await MonAnService.getAll(
+        filters.status,
+        searchTerm,
+        filters.priceMin,
+        filters.priceMax
+      );
+      console.log(result.data);
+      setDishData(result.data);
     } catch (error) {
-      console.error('Error fetching sanhs:', error.message);
+      console.log('Error fetching sanhs:', error.message);
       toast.error('Có lỗi xảy ra: ' + error.message);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [filters, searchTerm]);
+  //#endregion
 
   //#region func handler
   const handleSearch = () => {
     toast.info(`Đang tìm kiếm: ${searchTerm}`);
+    fetchData();
   };
 
   const handleOpenHideFilter = () => {
     setIsFilterOpen(!isFilterOpen);
   };
 
-  const handleApplyFilter = () => {
+  const handleApplyFilter = (newFilters) => {
+    setFilters(newFilters);
     toast.success('Đã áp dụng bộ lọc');
   };
 
   const handleResetFilter = () => {
+    setFilters({ status: [], priceMin: 0, priceMax: 10000000 });
+    setSearchTerm('');
     toast.success('Đã reset bộ lọc');
   };
 
   const handleAdd = () => {
     setMode('add');
+    setSelectedRow(null);
     setIsEditDialogOpen(true);
     toast.success('Thêm món ăn mới');
   };
 
-  const handleEdit = () => {
+  const handleEdit = async (row) => {
     setMode('edit');
+    setSelectedRow(row);
     setIsEditDialogOpen(true);
     toast.info('Chỉnh sửa món ăn');
   };
 
   const handleCloseEditDialog = () => {
     setIsEditDialogOpen(false);
+    setSelectedRow(false);
     toast.info('Đã đóng chỉnh sửa');
   };
 
-  const handleDelete = () => {
+  const handleDelete = async (row) => {
     setIsDeleteDialogOpen(true);
+    setSelectedRow(row);
     toast.warn('Bạn sắp xóa món ăn này');
   };
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
+    setSelectedRow(null);
     toast.info('Đã hủy xóa');
   };
 
-  const handleSaveDish = () => {
-    toast.success(mode === 'edit' ? 'Đã lưu chỉnh sửa' : 'Đã thêm món ăn');
-    setIsEditDialogOpen(false);
+  const handleSaveDish = async (data, file) => {
+    try {
+      const monanData = {
+        TenMonAn: data.name,
+        DonGia: Number(data.price),
+        TinhTrang: data.status,
+      };
+
+      if (mode === 'edit' && selectedRow) {
+        await MonAnService.update(selectedRow.MaMonAn, monanData, file);
+        toast.success('Cập nhật món ăn thành công');
+      } else {
+        await MonAnService.createNew(monanData, file);
+        toast.success('Thêm món ăn thành công');
+      }
+
+      setIsEditDialogOpen(false);
+      setSelectedRow(null);
+      await fetchData();
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
-  const acceptDelete = () => {
-    toast.success('Đã xóa thành công');
-    setIsDeleteDialogOpen(false);
+  const acceptDelete = async () => {
+    try {
+      await MonAnService.delete(selectedRow.MaMonAn);
+      toast.success('Đã xóa thành công');
+      setIsDeleteDialogOpen(false);
+      setSelectedRow(null);
+      await fetchData();
+    } catch (error) {
+      toast.error('Xóa thất bại: ' + error.message);
+    }
   };
 
   //#endregion
@@ -133,20 +182,33 @@ export default function DanhSachMonAn() {
         </Box>
       </Box>
 
-      <DishFilterPanel isOpen={isFilterOpen} onApply={handleApplyFilter} />
-
-      <CustomTable
-        data={dishData}
-        columns={DishColumns}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+      <DishFilterPanel
+        isOpen={isFilterOpen}
+        onApply={handleApplyFilter}
+        onReset={handleResetFilter}
+        filters={filters}
       />
+
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <CustomTable
+          data={dishData}
+          columns={DishColumns}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      )}
 
       <EditDishPopUp
         open={isEditDialogOpen}
         onClose={handleCloseEditDialog}
         onSave={handleSaveDish}
         title={mode === 'edit' ? 'Chỉnh sửa món ăn' : 'Thêm món ăn'}
+        editData={selectedRow}
+        mode={mode}
       />
 
       <DeleteDialog
