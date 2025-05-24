@@ -30,7 +30,6 @@ export default function MainRoutes() {
         {/* Route chứa layout sidebar (DashBoardLayout) */}
         <Route path="/DashBoard" element={<DashBoard />}>
           <Route path="DatTiecCuoi" element={<DatTiecCuoi />} >
-            <Route index element={<ThongTinTiecCuoi />} />
             <Route path="ThongTinTiecCuoi" element={<ThongTinTiecCuoi />} />
             <Route path="DatSanhTiec" element={<DatSanhTiec />} />
             <Route path="DatMonAn" element={<DatMonAn />} />
@@ -38,14 +37,10 @@ export default function MainRoutes() {
           </Route>
           <Route path="DanhSachTiecCuoi" element={<DanhSachTiecCuoi />} />
           <Route path="DanhSachSanhTiec" element={<DanhSachSanhTiec />} />
-<<<<<<< HEAD
+
           <Route path="DanhSachMonAn" element={<DanhSachMonAn />} />
           <Route path="DanhSachDichVu" element={<DanhSachDichVu />} />
-=======
-          <Route path="DanhSachMonAn" element={<DanhSachMonAn />} /> 
-          <Route path="DanhSachDichVu" element={<DanhSachDichVu />} /> 
           <Route path="DanhSachCa" element={<DanhSachCa />} />
->>>>>>> 38c7cdf0d479bb3128a634ca474abbc4b624cb7c
         </Route>
 
       </Routes>

@@ -57,10 +57,11 @@ p {
 .selection-container {
   width: 90vw;
   display: flex;
-  column-gap: 3.5rem;
+  column-gap: 3rem;
   row-gap: 8rem;
   flex-wrap: wrap;
   padding-bottom: 3rem;
+  margin-left: auto;
 }
 
 

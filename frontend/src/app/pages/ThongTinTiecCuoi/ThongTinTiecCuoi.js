@@ -6,16 +6,50 @@ import './ThongTinTiecCuoi.css';
 import FormTextField from '../../components/Formtextfield';
 import Cancelbutton from '../../components/Cancelbutton';
 import { StepContext } from '../DatTiecCuoi/DatTiecCuoi';
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { PhieuDatTiecService } from '../../service/phieudattiec.service';
+import useValidation from '../../validation/validation';
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 
-function ThongTinTiecCuoi() {
-  const [brideName, setBrideName] = useState('');
-  const [groomName, setGroomName] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [deposit, setDeposit] = useState('');
-  const [reservedTables, setReservedTables] = useState(1);
-  const [extraTables, setExtraTables] = useState(0);
+const ThongTinTiecCuoi = () => {
+  const { validatePhoneNumberField, validateNumberField, validateTimeField } = useValidation();
+  const [errors, setErrors] = useState({
+    SDT: "",
+    NgayDaiTiec: "",
+    TienDatCoc: "",
+    SoLuongBan: "",
+    NgayDatTiec: "",
+  });
+  const [phieuDatTiec, setPhieuDatTiec] = useState({
+    MaSanh: "",
+    TenChuRe: "",
+    TenCoDau: "",
+    SDT: "",
+    NgayDaiTiec: "",
+    MaCa: "",
+    TienDatCoc: 0,
+    SoLuongBan: 0,
+    SoBanDuTru: 0,
+    NgayDatTiec: "",
+    TrangThai: "CHUA_THANH_TOAN",
+  })
 
   const { handleNav } = useContext(StepContext);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setPhieuDatTiec({ ...phieuDatTiec, [name]: value });
+    if (name === "NgayDaiTiec" || name === "NgayDatTiec") {
+      validateTimeField(name, value, setErrors);
+    }
+    else if (name === "TienDatCoc" || name === "SoLuongBan") {
+      validateNumberField(name, value, setErrors);
+    }
+    else if (name === "SDT") {
+      validatePhoneNumberField(name, value, setErrors);
+    }
+  };
 
   return (
     <div className="thongtintieccuoi-page">
@@ -24,29 +58,82 @@ function ThongTinTiecCuoi() {
         {/* Left Section */}
         <Box className="form-section">
           <Box className="form-grid">
-            <FormTextField label="Tên cô dâu" value={brideName} onChange={(e) => setBrideName(e.target.value)} />
-            <FormTextField label="Tên chú rể" value={groomName} onChange={(e) => setGroomName(e.target.value)} />
-            <FormTextField label="Số điện thoại" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} />
-            <FormTextField label="Đặt cọc" value={deposit} onChange={(e) => setDeposit(e.target.value)} />
+            <FormTextField label="Tên chú rể" name="TenChuRe" value={phieuDatTiec.TenChuRe} onChange={handleChange} />
+            <FormTextField label="Tên cô dâu" name="TenCoDau" value={phieuDatTiec.TenCoDau} onChange={handleChange} />
+            <FormTextField
+              label="Số điện thoại"
+              name="SDT"
+              value={phieuDatTiec.SDT}
+              onChange={handleChange}
+              error={!!errors.SDT}
+              helperText={errors.SDT} />
+
+            <FormTextField
+              label="Tiền đặt cọc"
+              name="TienDatCoc"
+              value={phieuDatTiec.TienDatCoc}
+              onChange={handleChange}
+              error={!!errors.TienDatCoc}
+              helperText={errors.TienDatCoc}
+            />
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateTimePicker
+                label="Ngày đặt tiệc"
+                name="NgayDatTiec"
+                value={phieuDatTiec.NgayDatTiec}
+                onChange={(newValue) => handleChange({ target: { name: "NgayDatTiec", value: newValue } })}
+                format="dd-MM-yyyy HH:mm:ss"
+                ampm={false}
+                renderInput={(params) => (
+                  <FormTextField
+                    {...params}
+                    fullWidth
+                    error={!!errors.NgayDatTiec}
+                    helperText={errors.NgayDatTiec}
+                  />
+                )}
+              />
+
+              <DateTimePicker
+                label="Ngày đãi tiệc"
+                name="NgayDaiTiec"
+                value={phieuDatTiec.NgayDaiTiec}
+                onChange={(newValue) => handleChange({ target: { name: "NgayDaiTiec", value: newValue } })}
+                format="dd-MM-yyyy HH:mm:ss"
+                ampm={false}
+                renderInput={(params) => (
+                  <FormTextField
+                    {...params}
+                    fullWidth
+                    error={!!errors.NgayDaiTiec}
+                    helperText={errors.NgayDaiTiec}
+                  />
+                )}
+              />
+            </LocalizationProvider>
           </Box>
 
           {/* Table Selection */}
           <Box className="table-selection">
-            <div className="BookingCount-container">
-              <span>Số lượng bàn</span>
-              <IconButton sx={{ ml: 2 }} onClick={() => setReservedTables(Math.max(1, reservedTables - 1))}><RemoveIcon /></IconButton>
-              <span>{reservedTables}</span>
-              <IconButton onClick={() => setReservedTables(reservedTables + 1)}><AddIcon /></IconButton>
+            <div className="BookingCount-container" style={{ paddingTop: 20 }}  >
+              <FormTextField
+                label="Số lượng bàn"
+                value={phieuDatTiec.SoLuongBan}
+                name="SoLuongBan"
+                onChange={handleChange}
+                size="medium"
+                error={!!errors.SoLuongBan}
+                helperText={errors.SoLuongBan}
+              />
             </div>
 
             <div className="BookingCount-container">
-              <span>Bàn dự trữ</span>
-              <TextField
-                value={extraTables}
-                onChange={(e) => setExtraTables(Math.max(0, Number(e.target.value)))}
-                size="small"
-                sx={{ width: 60, ml: 2, mt: 2 }} />
+              <span>Số lượng bàn dự trữ</span>
+              <IconButton sx={{ ml: 2 }} onClick={() => handleChange({ target: { name: "SoLuongBan", value: Math.max(1, phieuDatTiec.SoLuongBan - 5) } })}><RemoveIcon /></IconButton>
+              <Typography mt={5}>{phieuDatTiec.SoBanDuTru}</Typography>
+              <IconButton onClick={() => handleChange({ target: { name: "SoLuongBan", value: phieuDatTiec.SoBanDuTru + 5 } })}><AddIcon /></IconButton>
             </div>
+
 
             <Cancelbutton onClick={() => handleNav()} textCancel="Continue" />
           </Box>

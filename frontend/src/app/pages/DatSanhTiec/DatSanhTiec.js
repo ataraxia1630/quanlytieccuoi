@@ -1,5 +1,4 @@
 import React, { useContext, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import './DatSanhTiec.css';
 import { Button, Grid, Typography, IconButton, CardMedia } from '@mui/material';
 import { styled } from '@mui/material/styles';

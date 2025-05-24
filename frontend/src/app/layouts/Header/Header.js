@@ -57,7 +57,7 @@ const Header = () => {
         gridTemplateColumns: '1fr 3fr 2fr',
         gap: '10px',
         whiteSpace: 'nowrap',
-        marginX: '100px'
+        marginX: '60px'
       }}>
         {/* Logo */}
         <Typography variant="h6" sx={{ fontWeight: 'light' }}>
