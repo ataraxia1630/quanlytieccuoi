@@ -4,6 +4,7 @@ import { createHoaDon, getHoaDon } from '../../service/hoadon.service';
 import { useLocation } from 'react-router-dom';
 import { TextField } from '@mui/material';
 import CustomTable from '../../components/Customtable';
+import ActionButtons from '../../components/Actionbuttons';
 
 function HoaDon() {
   const location = useLocation();
@@ -11,6 +12,11 @@ function HoaDon() {
 
   const isViewMode = Boolean(soHoaDon);
   const isWriteMode = Boolean(soPhieuDatTiec && initData);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [mode, setMode] = useState("add");
 
   const [form, setForm] = useState({
     SoPhieuDatTiec: '',
@@ -34,6 +40,25 @@ function HoaDon() {
       [name]: value,
     }));
   };
+    const handleAdd = () => {
+    // Gọi hàm khi người dùng nhấn nút thêm
+    setOpenDialog(true);
+    console.log("Add button clicked");
+    setMode("add");
+  };
+
+  const handleEdit = () => {
+    // Gọi hàm khi người dùng nhấn nút chỉnh sửa trong bảng
+    console.log("Edit row");
+    setOpenDialog(true);
+    setMode("edit");
+  };
+  const handleDelete = () => {
+    // Gọi hàm khi người dùng nhấn nút xóa trong bảng
+    console.log("Delete row");
+  };
+
+  
 
   const columns = [
     { id: "index", label: "STT", width: 10 },
@@ -46,6 +71,36 @@ function HoaDon() {
       width: 50,
       render: (row) => row.DonGia && row.SoLuong ? row.DonGia * row.SoLuong : null
     },
+    {
+    id: "actions",
+    label: "Thao tác",
+    sortable: false,
+    width: 10,
+    render: (row, onEdit, onDelete) => (
+      <ActionButtons row={row} onEdit={onEdit} onDelete={onDelete} />
+    ),
+  },
+  ];
+  const columns2 = [
+    { id: "index2", label: "STT", width: 10 },
+    { id: "MonAn.TenMonAn", label: "Mon an", width: 150 },
+    { id: "SLMonAn", label: "Số lượng", width: 30 },
+    { id: "DonGiaMonAn", label: "Đơn giá", width: 50 },
+    {
+      id: "ThanhTienMonAn",
+      label: "Thành tiền",
+      width: 50,
+      render: (row) => row.DonGiaMonAn && row.SLMonAn ? row.DonGiaMonAn * row.SLMonAn : null
+    },
+    {
+    id: "actions",
+    label: "Thao tác",
+    sortable: false,
+    width: 10,
+    render: (row, onEdit, onDelete) => (
+      <ActionButtons row={row} onEdit={onEdit} onDelete={onDelete} />
+    ),
+  },
   ];
 
   useEffect(() => {
@@ -94,6 +149,7 @@ function HoaDon() {
   return (
     <div className={styles.hoadonBox}>
       <div className={`${styles.hoadonLeft} ${styles.dashedBorder}`}>
+        <div style={{ flex: 1 }}> 
         <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '100px'}}>Chú rể:</p>
         <span className={styles.hoadonName}>{chuRe}</span>
 
@@ -106,6 +162,14 @@ function HoaDon() {
           <p  className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '30px'}}>Ngày thanh toán: </p>
           {isViewMode ? <span className={styles.hoadonName}>{formatDate(form.NgayThanhToan)}</span>  : <span></span>}
         
+        </div>
+      <div style={{ marginTop: 'auto' }}>
+          <p className={styles.hoadonText} style={{ marginTop:'50px' }}>Tổng tiền dịch vụ: {isViewMode ? form.TongTienDichVu : '__'}</p>
+          <p className={styles.hoadonText}>Tổng tiền hoá đơn: {isViewMode ? form.TongTienHoaDon : '__'}</p>
+          <p className={styles.hoadonText}>Tiền đặt cọc: {tienCoc}</p>
+          <p className={styles.hoadonText}>Tiền phạt: {isViewMode ? form.TongTienPhat : '__'}</p>
+          <p className={styles.hoadonText}>Còn lại: {isViewMode ? form.TienConLai : '__'}</p>
+      </div>
       </div>
 
       <div className={styles.hoadonRight}>
@@ -113,7 +177,7 @@ function HoaDon() {
         <p className={styles.ctHoadon}>CHI TIẾT HOÁ ĐƠN</p>
 
         
-
+        
         <div className={styles.row}>
           <div className={styles.hoadonText}>
             <p>Số lượng bàn: </p>
@@ -144,21 +208,36 @@ function HoaDon() {
           </div>
 
           <p className={styles.hoadonText}>Tổng tiền bàn: {isViewMode ? form.TongTienMonAn : '__'}</p>
+          
         </div>
-      <div style={{ maxHeight:'390px', overflow:'auto'}}>
+      <div style={{ maxHeight:'400px', overflow:'auto', border: '1px solid rgba(224, 224, 224, 1)'}}>
         <CustomTable
           data={form.dsDichVu}
           columns={columns}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+         
         />
       </div>
+      
+      
+      {form.dsMonAn.length > 0 ? (
+      <div style={{ maxHeight:'195px', overflow:'auto', border: '1px solid rgba(224, 224, 224, 1)', marginTop:'30px'}}>
+            <CustomTable
+              data={form.dsMonAn}
+              columns={columns2}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            
+            />
+          </div>
+      ) : (
+        <p>Không có dữ liệu món ăn.</p>
+      )}
+
+
       </div>
-      <div style={{ marginTop: 'auto' }}>
-          <p className={styles.hoadonText} style={{ marginTop:'50px' }}>Tổng tiền dịch vụ: {isViewMode ? form.TongTienDichVu : '__'}</p>
-          <p className={styles.hoadonText}>Tổng tiền hoá đơn: {isViewMode ? form.TongTienHoaDon : '__'}</p>
-          <p className={styles.hoadonText}>Tiền đặt cọc: {tienCoc}</p>
-          <p className={styles.hoadonText}>Tiền phạt: {isViewMode ? form.TongTienPhat : '__'}</p>
-          <p className={styles.hoadonText}>Còn lại: {isViewMode ? form.TienConLai : '__'}</p>
-      </div>
+      
       </div>
     </div>
   );

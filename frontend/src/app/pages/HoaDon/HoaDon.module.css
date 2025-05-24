@@ -25,6 +25,7 @@
   height: 838px;
   border-right: 1px dashed white;
   margin-left: 19px;
+  
 }
 
 .dashedBorder {
@@ -70,9 +71,7 @@
   font-weight: 700;
   line-height: normal;
 }
-.css-1r8a61k-MuiTableRow-root {
-  background-color: #ffd66d!important;
-}
+
 .inf {
   display: flex;
   flex-direction: column;
