@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const phieudattiecController = require("../controllers/danhsachtiec.controller");
+const danhsachtiecController = require("../controllers/danhsachtiec.controller");
 
-router.get("/", phieudattiecController.index);
-router.get("/detail/:id", phieudattiecController.detail);
-
+router.get("/", danhsachtiecController.index);
+router.get("/detail/:id", danhsachtiecController.detail);
+router.post("/filter", danhsachtiecController.filter)
 module.exports = router;

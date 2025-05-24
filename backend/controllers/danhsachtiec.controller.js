@@ -1,36 +1,57 @@
-const { PhieuDatTiec } = require('../models');
+const { PhieuDatTiec, Ca } = require('../models');
 const { Op, fn, col, where } = require("sequelize");
 
-// GET http://localhost:25053/danhsachtiec/
+// GET http://localhost:25053/api/danhsachtiec/
 module.exports.index = async (req, res) => {
  const find = {}
- const orderBy = []
-
- if(req.query.tenChuRe) {
-  find.tenChuRe = { [Op.like]: `%${req.query.tenChuRe}%`};
- }
- if(req.query.tenCoDau) {
-  find.tenCoDau = { [Op.like]: `%${req.query.tenCoDau}%`};
- }
- if(req.query.sanh) {
-  find.sanh = { [Op.like]: `%${req.query.sanh}%`};
- }
-
-//front end se chi cho chon 1 option, asc or des theo ngay or sl ban
- if(req.query.sortBy && req.query.order) {
-  orderBy.push([req.query.sortBy, req.query.order.toUpperCase()])
- }
-
- const phieudattiecs = await PhieuDatTiec.findAll({
-  where: find,
-  order: orderBy
+  try {
+    const phieudattiecs = await PhieuDatTiec.findAll({
+  include: [{
+        model: Ca, 
+        as: 'Ca', 
+        attributes: ['GioBatDau'], 
+      }],
+  where: find
  });
-
  return res.status(200).json(phieudattiecs);
+
+  } catch (er) {
+    console.error(er)
+  }
+ 
+
 
 }
 
-// GET http://localhost:25053/danhsachtiec/detail/:id
+module.exports.filter = async (req, res) => {
+ const { ten, sanh, tuNgay, denNgay, tuBan, denBan, trangThai } = req.body;
+
+  const where = {};
+if (ten) {
+  where[Op.or] = [
+    { tenChuRe: { [Op.like]: `%${ten}%` } },
+    { tenCoDau: { [Op.like]: `%${ten}%` } },
+  ];
+}
+  if (sanh) where.sanh = { [Op.like]: `%${sanh}%` };
+  if (tuNgay && denNgay) {
+    where.ngayDaiTiec = {
+      [Op.between]: [new Date(tuNgay), new Date(denNgay)],
+    };
+  }
+  if (tuBan && denBan) {
+    where.soluongban = {
+      [Op.between]: [tuBan, denBan],
+    };
+  }
+  if(trangThai) {
+   where.trangthai = trangThai
+  }
+
+  const danhSach = await PhieuDatTiec.findAll({ where });
+  res.json(danhSach);
+};
+// GET http://localhost:25053/api/danhsachtiec/detail/:id
 module.exports.detail = async (req, res ) => {
  try 
  {
