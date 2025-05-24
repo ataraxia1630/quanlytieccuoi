@@ -114,7 +114,7 @@ function DanhSachSanh() {
       console.log("handleSaveSanh received sanhData:", sanhData);
       console.log("HinhAnh in handleSaveSanh:", sanhData.HinhAnh, "instanceof File:", sanhData.HinhAnh instanceof File);
 
-      if (!sanhData.MaSanh || !sanhData.TenSanh || !sanhData.MaLoaiSanh || !sanhData.SoLuongBanToiDa) {
+      if (!sanhData.TenSanh || !sanhData.MaLoaiSanh || !sanhData.SoLuongBanToiDa) {
         toast.warn("Vui lòng nhập đầy đủ thông tin!");
         return;
       }

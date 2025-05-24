@@ -10,7 +10,6 @@ import { toast } from "react-toastify";
 
 const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
   const [formData, setFormData] = useState({
-    MaSanh: sanh?.MaSanh || "",
     TenSanh: sanh?.TenSanh || "",
     MaLoaiSanh: sanh?.MaLoaiSanh || "",
     SoLuongBanToiDa: sanh?.SoLuongBanToiDa || "",
@@ -22,7 +21,6 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
   useEffect(() => {
     if (sanh) {
       setFormData({
-        MaSanh: sanh.MaSanh || "",
         TenSanh: sanh.TenSanh || "",
         MaLoaiSanh: sanh.MaLoaiSanh || "",
         SoLuongBanToiDa: sanh.SoLuongBanToiDa || "",
@@ -31,7 +29,6 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
       });
     } else {
       setFormData({
-        MaSanh: "",
         TenSanh: "",
         MaLoaiSanh: "",
         SoLuongBanToiDa: "",
@@ -84,7 +81,7 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
 
   const handleSave = async () => {
     console.log("Saving formData:", formData, "HinhAnh instanceof File:", formData.HinhAnh instanceof File);
-    if (!formData.MaSanh || !formData.TenSanh || !formData.MaLoaiSanh || !formData.SoLuongBanToiDa) {
+    if (!formData.TenSanh || !formData.MaLoaiSanh || !formData.SoLuongBanToiDa) {
       toast.warn("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
@@ -114,15 +111,6 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
 
       <DialogContent sx={{ pt: 4, px: 3.5, pb: 3 }}>
         <Box display="flex" flexDirection="column" gap={3.5}>
-          <FormTextField
-            label="Mã sảnh"
-            name="MaSanh"
-            value={formData.MaSanh}
-            onChange={handleChange}
-            fullWidth
-            disabled={!!sanh}
-          />
-
           <FormTextField
             label="Tên sảnh"
             name="TenSanh"

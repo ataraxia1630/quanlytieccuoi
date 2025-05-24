@@ -2,12 +2,6 @@ const { check } = require('express-validator');
 
 // Validation cho việc tạo mới ca làm việc
 const caValidation = [
-  check('MaCa')
-    .isLength({ max: 10 })
-    .withMessage('Mã ca tối đa 10 ký tự')
-    .notEmpty()
-    .withMessage('Mã ca là bắt buộc'),
-
   check('TenCa')
     .isLength({ max: 5 })
     .withMessage('Tên ca tối đa 5 ký tự')
