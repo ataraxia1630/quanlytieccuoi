@@ -1,1 +1,12 @@
 /* CSS cho DatMonAn */
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.background-image {
+    width: 80vw;
+    height: 50%;
+    object-fit: fill;
+}

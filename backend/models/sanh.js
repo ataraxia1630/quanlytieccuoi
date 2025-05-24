@@ -1,3 +1,5 @@
+const { UniqueConstraintError } = require("sequelize");
+
 module.exports = (sequelize, DataTypes) => {
   const Sanh = sequelize.define(
     "Sanh",
@@ -10,12 +12,13 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.CHAR(10),
         allowNull: false,
       },
-      TenSanh: {
+      TenSanh: { 
         type: DataTypes.STRING(100),
+        unique: true,
         allowNull: false,
       },
       SoLuongBanToiDa: {
-        type: DataTypes.TINYINT,
+        type: DataTypes.SMALLINT,
         allowNull: false,
       },
       HinhAnh: {

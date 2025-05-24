@@ -1,20 +1,21 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { sequelize } = require('./models/index.js'); 
+const { sequelize } = require('./models/index.js');
 const errorHandler = require('./middlewares/errorHandler.js');
-const route = require('./routes');
+const route = require('./routes/index.js');
+const multer = require('multer');
 
 const app = express();
 const port = process.env.DB_PORT;
 
 // Kiểm tra các biến môi trường bắt buộc
 const requiredEnvVars = [
-  'DB_USERNAME',
-  'DB_PASSWORD',
-  'DB_NAME',
-  'DB_HOST',
-  'DB_DIALECT',
+  "DB_USERNAME",
+  "DB_PASSWORD",
+  "DB_NAME",
+  "DB_HOST",
+  "DB_DIALECT",
 ];
 requiredEnvVars.forEach((varName) => {
   if (!process.env[varName]) {
@@ -25,6 +26,7 @@ requiredEnvVars.forEach((varName) => {
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
 
 // Kết nối database
 sequelize

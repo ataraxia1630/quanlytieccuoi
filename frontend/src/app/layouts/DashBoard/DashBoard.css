@@ -1,16 +1,11 @@
 /* DashBoard.css */
 .dashboard-main {
-    display: flex;
-    transition: all 0.3s ease;
-  }
-  
-  .dashboard-content {
-    flex: 1;
-    padding: 20px;
-    transition: margin-left 0.3s ease;
-  }
-  
-  .dashboard-main.hovered .dashboard-content {
-    margin-left: 140px; /* đúng bằng độ rộng tăng thêm của sidebar */
-  }
-  
+  display: flex;
+  transition: all 0.3s ease;
+
+}
+
+.dashboard-content {
+  flex: 1;
+  width: 100%;
+}

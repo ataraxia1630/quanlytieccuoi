@@ -17,7 +17,7 @@ const getSanhById = async (req, res, next) => {
             res.status(404).json({ error: 'Không tìm thấy sảnh' });
         } else {
             res.json(sanh);
-        }
+        }   
     } catch (error) {
         next(error);
     }
@@ -37,13 +37,16 @@ const createSanh = async (req, res, next) => {
             GhiChu
         });
 
-        res.status(201).json({ message: 'Thêm sảnh thành công', MaSanh });
+        // Fetch the newly created sanh to return the full object
+        const createdSanh = await sanhService.getSanhById(sanh.MaSanh);
+        res.status(201).json(createdSanh);
     } catch (error) {
         next(error);
     }
 };
 
 const updateSanh = async (req, res, next) => {
+    console.log("Received PUT:", req.body, "File:", req.file ? req.file.originalname : "No file");
     try {
         const { MaLoaiSanh, TenSanh, SoLuongBanToiDa, GhiChu } = req.body;
         const fileBuffer = req.file ? req.file.buffer : null;
@@ -59,7 +62,8 @@ const updateSanh = async (req, res, next) => {
         if (!updated) {
             res.status(404).json({ error: 'Không tìm thấy sảnh' });
         } else {
-            res.json({ message: 'Cập nhật sảnh thành công' });
+            const updatedSanh = await sanhService.getSanhById(req.params.maSanh); // Fetch the updated sanh
+            res.json(updatedSanh);
         }
     } catch (error) {
         next(error);

@@ -1,10 +1,11 @@
-const  cloudinary  = require('../config/cloudinaryConfig');
+const cloudinary = require('../config/cloudinaryConfig');
 const streamifier = require('streamifier');
 const ApiError = require('../utils/apiError');
 
 
 exports.uploadImage = async (fileBuffer) => {
     try {
+        console.log('Received fileBuffer:', fileBuffer); // Debug log
         const streamUpload = () => {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream((error, result) => {
