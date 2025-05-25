@@ -5,11 +5,11 @@ import { useLocation } from 'react-router-dom';
 import { TextField } from '@mui/material';
 import CustomTable from '../../components/Customtable';
 import ActionButtons from '../../components/Actionbuttons';
-import {
-  createCTDichVu,
-  updateCTDichVu,
-  deleteCTDichVu
-} from '../../service/ct_dichvu.service';
+// import {
+//   createCTDichVu,
+//   updateCTDichVu,
+//   deleteCTDichVu
+// } from '../../service/ct_dichvu.service';
 
 
 function HoaDon() {
@@ -39,25 +39,25 @@ function HoaDon() {
   });
   const [loading, setLoading] = useState(true);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-    const handleAdd = async (newData) => {
-  try {
-    const res = await createCTDichVu({ ...newData, SoPhieuDatTiec: soPhieuDatTiec });
-    setForm(prev => ({
-      ...prev,
-      dsDichVu: [...prev.dsDichVu, res]
-    }));
-    setOpenDialog(false);
-  } catch (err) {
-    console.error("Thêm dịch vụ thất bại", err);
-  }
-};
+//   const handleChange = (e) => {
+//     const { name, value } = e.target;
+//     setForm((prev) => ({
+//       ...prev,
+//       [name]: value,
+//     }));
+//   };
+//     const handleAdd = async (newData) => {
+//   try {
+//     const res = await createCTDichVu({ ...newData, SoPhieuDatTiec: soPhieuDatTiec });
+//     setForm(prev => ({
+//       ...prev,
+//       dsDichVu: [...prev.dsDichVu, res]
+//     }));
+//     setOpenDialog(false);
+//   } catch (err) {
+//     console.error("Thêm dịch vụ thất bại", err);
+//   }
+// };
 
 
   const handleEdit = () => {
@@ -199,7 +199,7 @@ function HoaDon() {
                 name="SoLuongBanDaDung"
                 type="number"
                 value={form.SoLuongBanDaDung}
-                onChange={handleChange}
+                //onChange={handleChange}
                 variant="filled"
                 sx={{ width: 80 }}
               />
@@ -213,7 +213,7 @@ function HoaDon() {
                 name="DonGiaBan"
                 type="number"
                 value={form.DonGiaBan}
-                onChange={handleChange}
+                //onChange={handleChange}
                 variant="filled"
                 sx={{ width: 100 }}
               />
