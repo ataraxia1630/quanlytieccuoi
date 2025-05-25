@@ -12,8 +12,8 @@ const MonAnService = {
 
     if (status.length > 0) params.set('status', status.join(','));
     if (search) params.set('search', search);
-    if (priceMin) params.set('priceMin', priceMin);
-    if (priceMax) params.set('priceMax', priceMax);
+    if (priceMin) params.set('minPrice', priceMin);
+    if (priceMax) params.set('maxPrice', priceMax);
 
     const queryString = params.toString();
     if (queryString) {
