@@ -9,14 +9,14 @@ import {
 } from '../../pages/DanhSachMonAn/statusMapping';
 
 const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
-  const [priceFrom, setPriceFrom] = useState('');
+  const [priceFrom, setPriceFrom] = useState(0);
   const [priceTo, setPriceTo] = useState('');
   const [status, setStatus] = useState(filters.status || []);
   const [errors, setErrors] = useState({ priceFrom: '', priceTo: '' });
 
   // Đồng bộ với filters từ props
   useEffect(() => {
-    setPriceFrom(filters.priceMin || '');
+    setPriceFrom(filters.priceMin || 0);
     setPriceTo(filters.priceMax || '');
     setStatus(filters.status || []);
     setErrors({ priceFrom: '', priceTo: '' });

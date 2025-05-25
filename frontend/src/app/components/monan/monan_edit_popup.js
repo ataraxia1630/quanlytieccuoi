@@ -35,11 +35,10 @@ const EditDishPopUp = ({
       setPrice(editData.DonGia || '');
       setStatus(statusMapToFrontend[editData.TinhTrang] || '');
       setImage(editData.HinhAnh || null);
-      console.log(statusMapToFrontend[editData.TinhTrang]);
     } else {
       setName('');
       setPrice('');
-      setStatus('');
+      setStatus(statusList[0] || '');
       setImage(null);
     }
     setErrors({ name: '', price: '', status: '' });
@@ -83,10 +82,25 @@ const EditDishPopUp = ({
   };
 
   const handleSave = () => {
-    if (validate()) {
-      const data = { name, price, status: statusMapToBackend[status] };
-      onSave(data, image);
+    const isValid = validate();
+    if (!isValid) {
+      console.log('Validate thất bại:', errors);
+      alert(
+        'Vui lòng kiểm tra lại thông tin: \n' +
+          (errors.name ? errors.name + '\n' : '') +
+          (errors.price ? errors.price + '\n' : '') +
+          (errors.status ? errors.status : '')
+      );
+      return;
     }
+
+    const data = {
+      name,
+      price: Number(price),
+      status: statusMapToBackend[status],
+    };
+    console.log('Dữ liệu gửi từ popup:', data);
+    onSave(data, image);
   };
 
   return (
