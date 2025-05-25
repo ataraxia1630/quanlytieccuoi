@@ -9,7 +9,6 @@ const Sidebar = () => {
   const location = useLocation(); // Lấy thông tin route hiện tại
 
   const menuItems = [
-<<<<<<< HEAD
     {
       text: 'Đặt tiệc cưới',
       icon: (
@@ -164,16 +163,14 @@ const Sidebar = () => {
         </svg>
       ),
       path: 'DanhSachDichVu'
-    },
-=======
-    { text: 'Đặt tiệc cưới', icon: <ChurchIcon />, path: 'DatTiecCuoi' },
-    { text: 'Danh sách tiệc', icon: <BookIcon />, path: 'DanhSachSanhTiec' },
-    { text: 'Sảnh tổ chức', icon: <PeopleIcon />, path: 'DanhSachSanhTiec' },
-    { text: 'Menu tiệc', icon: <RestaurantMenuIcon />, path: 'DanhSachCa' }, //Tui đổi thành DanhSachCa để test, nào merge thì chỉnh lại thành DanhSachMonAn
-    { text: 'Dịch vụ', icon: <VideocamIcon />, path: 'DanhSachDichVu' },
-    { icon: <MoreVertIcon />, path: '' },
->>>>>>> 38c7cdf0d479bb3128a634ca474abbc4b624cb7c
-  ];
+    }
+  //   { text: 'Đặt tiệc cưới', icon: <ChurchIcon />, path: 'DatTiecCuoi' },
+  //   { text: 'Danh sách tiệc', icon: <BookIcon />, path: 'DanhSachSanhTiec' },
+  //   { text: 'Sảnh tổ chức', icon: <PeopleIcon />, path: 'DanhSachSanhTiec' },
+  //   { text: 'Menu tiệc', icon: <RestaurantMenuIcon />, path: 'DanhSachCa' }, //Tui đổi thành DanhSachCa để test, nào merge thì chỉnh lại thành DanhSachMonAn
+  //   { text: 'Dịch vụ', icon: <VideocamIcon />, path: 'DanhSachDichVu' },
+  //   { icon: <MoreVertIcon />, path: '' },
+   ];
 
   return (
     <Drawer

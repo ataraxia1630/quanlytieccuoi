@@ -46,29 +46,54 @@ function DanhSachTiecCuoi() {
   }, []);
 
   const handleSearch = async () => {
-    try {
-      const searchForm = { ...form, ten: searchText };
-      const cleanForm = Object.fromEntries(
-        Object.entries(searchForm).filter(([_, value]) => value !== "")
-      );
-      const result = await postDanhSach(cleanForm);
-      setData(result);
-    } catch (error) {
-      console.error("Lỗi tìm kiếm:", error);
+  setLoading(true);
+  try {
+    if (!searchText.trim()) {
+      await fetchData(); // Nếu ô tìm kiếm trống, lấy lại danh sách ban đầu
+      return;
     }
-  };
 
-  const handleSubmit = async () => {
-    try {
-      const cleanForm = Object.fromEntries(
-        Object.entries(form).filter(([_, value]) => value !== "")
-      );
-      const result = await postDanhSach(cleanForm);
-      setData(result);
-    } catch (error) {
-      console.error("Lỗi lọc dữ liệu:", error);
-    }
-  };
+    const payload = { ten: searchText.trim() };
+    const result = await postDanhSach(payload);
+    setData(result);
+  } catch (error) {
+    console.error("Lỗi tìm kiếm:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+const handleSubmit = async () => {
+  setLoading(true);
+  try {
+    const {
+      tuBan,
+      denBan,
+      sanh,
+      tuNgay,
+      denNgay,
+      trangThai
+    } = form;
+
+    const payload = {};
+
+    if (tuBan !== "") payload.tuBan = parseInt(tuBan);
+    if (denBan !== "") payload.denBan = parseInt(denBan);
+    if (sanh !== "") payload.sanh = sanh;
+    if (tuNgay !== "") payload.tuNgay = new Date(tuNgay).toISOString();
+    if (denNgay !== "") payload.denNgay = new Date(denNgay).toISOString();
+    if (trangThai !== "") payload.trangThai = trangThai;
+
+    const result = await postDanhSach(payload);
+    setData(result);
+  } catch (error) {
+    console.error("Lỗi lọc dữ liệu:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const columns = [
     { id: "index", label: "STT", width: 30 },

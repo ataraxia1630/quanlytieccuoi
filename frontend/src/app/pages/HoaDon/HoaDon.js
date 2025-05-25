@@ -5,6 +5,12 @@ import { useLocation } from 'react-router-dom';
 import { TextField } from '@mui/material';
 import CustomTable from '../../components/Customtable';
 import ActionButtons from '../../components/Actionbuttons';
+import {
+  createCTDichVu,
+  updateCTDichVu,
+  deleteCTDichVu
+} from '../../service/ct_dichvu.service';
+
 
 function HoaDon() {
   const location = useLocation();
@@ -40,12 +46,19 @@ function HoaDon() {
       [name]: value,
     }));
   };
-    const handleAdd = () => {
-    // Gọi hàm khi người dùng nhấn nút thêm
-    setOpenDialog(true);
-    console.log("Add button clicked");
-    setMode("add");
-  };
+    const handleAdd = async (newData) => {
+  try {
+    const res = await createCTDichVu({ ...newData, SoPhieuDatTiec: soPhieuDatTiec });
+    setForm(prev => ({
+      ...prev,
+      dsDichVu: [...prev.dsDichVu, res]
+    }));
+    setOpenDialog(false);
+  } catch (err) {
+    console.error("Thêm dịch vụ thất bại", err);
+  }
+};
+
 
   const handleEdit = () => {
     // Gọi hàm khi người dùng nhấn nút chỉnh sửa trong bảng

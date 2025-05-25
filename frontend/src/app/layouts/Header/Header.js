@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './Header.css';
+import './header.css';
 import CancelButton from '../../components/Cancelbutton';
 import SaveAndPrintButton from '../../components/Saveandprintbutton';
 import {
