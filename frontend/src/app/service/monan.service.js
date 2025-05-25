@@ -21,46 +21,60 @@ const MonAnService = {
     }
 
     const res = await fetch(uri);
-    if (!res.ok) throw new Error('Không thể lấy danh sách món ăn!');
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Không thể lấy danh sách món ăn!');
+    }
     const result = await res.json();
     return result;
   },
 
   getById: async (id) => {
     const res = await fetch(`${baseURL}/${id}`);
-    if (!res.ok) throw new Error('Không thể lấy thông tin món ăn!');
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Không thể lấy thông tin món ăn!');
+    }
     const result = await res.json();
     return result;
   },
 
   createNew: async (data, file) => {
     const formData = new FormData();
-    formData.append('data', JSON.stringify(data));
-    if (file) formData.append('file', file);
+    formData.append('TenMonAn', data.TenMonAn);
+    formData.append('DonGia', data.DonGia);
+    formData.append('TinhTrang', data.TinhTrang);
+    if (file) formData.append('image', file);
 
     const res = await fetch(baseURL, {
       method: 'POST',
       body: formData,
     });
 
-    if (!res.ok) throw new Error('Không thể thêm món ăn!');
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Không thể thêm món ăn!');
+    }
     const result = await res.json();
     return result;
   },
 
   update: async (id, data, file) => {
     const formData = new FormData();
-    formData.append('data', JSON.stringify(data));
-    if (file) {
-      formData.append('file', file);
-    }
+    formData.append('TenMonAn', data.TenMonAn);
+    formData.append('DonGia', data.DonGia);
+    formData.append('TinhTrang', data.TinhTrang);
+    if (file) formData.append('image', file);
 
     const res = await fetch(`${baseURL}/${id}`, {
       method: 'PUT',
       body: formData,
     });
 
-    if (!res.ok) throw new Error('Không thể sửa món ăn!');
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Không thể sửa món ăn!');
+    }
     const result = await res.json();
     return result;
   },
@@ -73,7 +87,11 @@ const MonAnService = {
       },
     });
 
-    if (!res.ok) throw new Error('Không thể xóa món ăn!');
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Không thể xóa món ăn!');
+    }
+    return res.status === 204 ? '' : await res.json();
   },
 };
 
