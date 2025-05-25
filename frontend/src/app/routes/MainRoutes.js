@@ -31,7 +31,6 @@ export default function MainRoutes() {
         {/* Route chứa layout sidebar (DashBoardLayout) */}
         <Route path="/DashBoard" element={<DashBoard />}>
           <Route path="DatTiecCuoi" element={<DatTiecCuoi />} >
-            <Route index element={<ThongTinTiecCuoi />} />
             <Route path="ThongTinTiecCuoi" element={<ThongTinTiecCuoi />} />
             <Route path="DatSanhTiec" element={<DatSanhTiec />} />
             <Route path="DatMonAn" element={<DatMonAn />} />

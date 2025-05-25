@@ -61,7 +61,7 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
 
   const handleChange = (e) => {
     console.log("Field changed:", e.target.name, "Value:", e.target.value);
-    if(e.target.name === "SoLuongBanToiDa") {
+    if (e.target.name === "SoLuongBanToiDa") {
       const value = e.target.value.replace(/\D/g, "");
       setFormData({ ...formData, [e.target.name]: value });
     }

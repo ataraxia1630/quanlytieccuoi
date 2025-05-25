@@ -15,7 +15,7 @@ const Footer = () => {
         {/* Save the Date Calendar */}
         <Grid item xs={12} md={3} ml={6} sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
           <img
-            src="https://res.cloudinary.com/digpe9tmq/image/upload/v1747706236/Group_84_rdcorn.png" // Thay bằng ảnh lịch thật
+            src="https://res.cloudinary.com/digpe9tmq/image/upload/v1747706236/Group_84_rdcorn.png"
             alt="Save the Date"
             style={{ width: '100%' }}
           />
@@ -63,9 +63,9 @@ const Footer = () => {
         {/* Wedding Couple Image */}
         <Grid item xs={12} md={2} sx={{ display: 'flex', position: "relative", justifyContent: 'end', alignItems: 'center', flexDirection: 'column' }}>
           <img
-            src="https://res.cloudinary.com/digpe9tmq/image/upload/v1747706237/Group_169_pjxhoz.png" // Thay bằng ảnh thật
+            src="https://res.cloudinary.com/digpe9tmq/image/upload/v1747706237/Group_169_pjxhoz.png"
             alt="Wedding Couple"
-            style={{ height: '100%', marginRight: '80px' }}
+            style={{ height: '100%' }}
           />
           <IconButton sx={{ position: 'absolute', top: -10, left: 120, border: '2px solid #ccc', backgroundColor: 'white', borderRadius: '0%' }}>
             <KeyboardDoubleArrowUp />

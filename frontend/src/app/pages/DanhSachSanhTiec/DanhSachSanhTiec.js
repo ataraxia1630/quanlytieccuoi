@@ -133,15 +133,15 @@ function DanhSachSanh() {
       toast.info("Đang gửi yêu cầu …");
       console.log("Sending update with data:", sanhData);
 
-    if (mode === "edit") {
-      const updatedSanh = await sanhService.updateSanh(sanhToEdit.MaSanh, sanhData);
-      setSanhs(sanhs.map((s) => s.MaSanh === sanhToEdit.MaSanh ? updatedSanh : s));
-      toast.success("Cập nhật thành công!");
-    } else {
-      const newSanh = await sanhService.createSanh(sanhData);
-      setSanhs([...sanhs, newSanh]);
-      toast.success("Thêm mới thành công!");
-    }
+      if (mode === "edit") {
+        const updatedSanh = await sanhService.updateSanh(sanhToEdit.MaSanh, sanhData);
+        setSanhs(sanhs.map((s) => s.MaSanh === sanhToEdit.MaSanh ? updatedSanh : s));
+        toast.success("Cập nhật thành công!");
+      } else {
+        const newSanh = await sanhService.createSanh(sanhData);
+        setSanhs([...sanhs, newSanh]);
+        toast.success("Thêm mới thành công!");
+      }
       setOpenDialog(false);
     } catch (error) {
       if (error.message.includes("Không tìm thấy sảnh")) {
@@ -188,7 +188,7 @@ function DanhSachSanh() {
       <FilterPanel
         isOpen={isFilterOpen}
         onApply={handleApplyFilter}
-        //options={{ maLoaiSanh: ["LS001", "LS002", "LS003"] }}
+      //options={{ maLoaiSanh: ["LS001", "LS002", "LS003"] }}
       />
 
       <CustomTable
