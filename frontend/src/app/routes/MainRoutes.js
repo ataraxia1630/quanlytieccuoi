@@ -13,6 +13,8 @@ import DanhSachDichVu from '../pages/DanhSachDichVu';
 import DanhSachCa from '../pages/DanhSachCa';
 import DanhSachLoaiSanh from '../pages/DanhSachLoaiSanh';
 
+import BaoCaoThang from '../pages/BaoCaoThang';
+
 import DatSanhTiec from '../pages/DatSanhTiec';
 import DatMonAn from '../pages/DatMonAn';
 import DatDichVu from '../pages/DatDichVu';
@@ -50,6 +52,8 @@ export default function MainRoutes() {
           <Route path="DanhSachDichVu" element={<DanhSachDichVu />} />
           <Route path="DanhSachCa" element={<DanhSachCa />} />
           <Route path="DanhSachLoaiSanh" element={<DanhSachLoaiSanh />} />
+
+          <Route path="BaoCaoThang" element={<BaoCaoThang />} />
         </Route>
       </Routes>
       <Footer />
