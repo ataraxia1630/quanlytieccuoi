@@ -3,20 +3,20 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Header from '../layouts/Header';
 import Footer from '../layouts/Footer';
 import PageNotFound from '../layouts/PageNotFound';
-import DashBoard from '../layouts/DashBoard'; 
+import DashBoard from '../layouts/DashBoard';
 
-
-import DatTiecCuoi from '../pages/DatTiecCuoi'; 
-import DanhSachTiecCuoi from '../pages/DanhSachTiecCuoi'; 
+import DatTiecCuoi from '../pages/DatTiecCuoi';
+import DanhSachTiecCuoi from '../pages/DanhSachTiecCuoi';
 import DanhSachSanhTiec from '../pages/DanhSachSanhTiec';
 import DanhSachMonAn from '../pages/DanhSachMonAn';
 import DanhSachDichVu from '../pages/DanhSachDichVu';
 import DanhSachCa from '../pages/DanhSachCa';
+import DanhSachLoaiSanh from '../pages/DanhSachLoaiSanh';
 
-import DatSanhTiec from '../pages/DatSanhTiec'; 
-import DatMonAn from '../pages/DatMonAn'; 
-import DatDichVu from '../pages/DatDichVu'; 
-import ThongTinTiecCuoi from '../pages/ThongTinTiecCuoi'; 
+import DatSanhTiec from '../pages/DatSanhTiec';
+import DatMonAn from '../pages/DatMonAn';
+import DatDichVu from '../pages/DatDichVu';
+import ThongTinTiecCuoi from '../pages/ThongTinTiecCuoi';
 
 import Home from '../pages/Home';
 
@@ -29,33 +29,30 @@ console.log('DashBoard =', DashBoard);
 export default function MainRoutes() {
   return (
     <BrowserRouter>
-      <Header />  
+      <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="*" element={<PageNotFound />} />
 
         {/* Route chứa layout sidebar (DashBoardLayout) */}
         <Route path="/DashBoard" element={<DashBoard />}>
-           <Route index element={<DatTiecCuoi />} />
-          <Route path="DatTiecCuoi" element={<DatTiecCuoi />} >
+          <Route index element={<DatTiecCuoi />} />
+          <Route path="DatTiecCuoi" element={<DatTiecCuoi />}>
             <Route index element={<ThongTinTiecCuoi />} />
             <Route path="ThongTinTiecCuoi" element={<ThongTinTiecCuoi />} />
             <Route path="DatSanhTiec" element={<DatSanhTiec />} />
-            <Route path="DatMonAn" element={<DatMonAn />} /> 
-            <Route path="DatDichVu" element={<DatDichVu />} /> 
+            <Route path="DatMonAn" element={<DatMonAn />} />
+            <Route path="DatDichVu" element={<DatDichVu />} />
           </Route>
           <Route path="DanhSachTiecCuoi" element={<DanhSachTiecCuoi />} />
           <Route path="DanhSachSanhTiec" element={<DanhSachSanhTiec />} />
-          <Route path="DanhSachMonAn" element={<DanhSachMonAn />} /> 
-          <Route path="DanhSachDichVu" element={<DanhSachDichVu />} /> 
+          <Route path="DanhSachMonAn" element={<DanhSachMonAn />} />
+          <Route path="DanhSachDichVu" element={<DanhSachDichVu />} />
           <Route path="DanhSachCa" element={<DanhSachCa />} />
+          <Route path="DanhSachLoaiSanh" element={<DanhSachLoaiSanh />} />
         </Route>
-
       </Routes>
-       <Footer /> 
+      <Footer />
     </BrowserRouter>
   );
 }
-
-
-
