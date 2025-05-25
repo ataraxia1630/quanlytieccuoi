@@ -24,18 +24,18 @@ router.get('/', MonAnController.getAllMonAn);
 // Tạo một món ăn mới
 router.post(
   '/',
+  upload.single('image'),
   createMonAnValidation,
   validate,
-  upload.single('image'),
   MonAnController.createMonAn
 );
 
 // Cập nhật thông tin món ăn theo ID
 router.put(
   '/:id',
+  upload.single('image'),
   updateMonAnValidation,
   validate,
-  upload.single('image'),
   MonAnController.updateMonAn
 );
 

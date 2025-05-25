@@ -7,7 +7,7 @@ const MonAnController = {
     try {
       const monans = await MonAnService.getAvailableMonAn();
       return res.status(200).json({
-        message: 'Lay danh sach mon an AVAILABLE thanh cong',
+        message: 'Lấy danh sách món ăn Còn hàng thành công.',
         data: monans,
       });
     } catch (error) {
@@ -41,6 +41,7 @@ const MonAnController = {
       );
 
       return res.status(200).json({
+        message: 'Lấy danh sách món ăn thành công.',
         data: result.data,
         total: result.total,
         currentPage: parseInt(page),
@@ -54,7 +55,10 @@ const MonAnController = {
   getMonAnById: async (req, res, next) => {
     try {
       const monan = await MonAnService.getMonAnById(req.params.id);
-      return res.status(200).json(monan);
+      return res.status(200).json({
+        message: 'Lấy thông tin món ăn thành công.',
+        data: monan,
+      });
     } catch (error) {
       next(error);
     }
@@ -63,7 +67,10 @@ const MonAnController = {
   createMonAn: async (req, res, next) => {
     try {
       const monan = await MonAnService.createMonAn(req.body, req.file);
-      return res.status(201).json(monan);
+      return res.status(201).json({
+        message: 'Tạo món ăn mới thành công.',
+        data: monan,
+      });
     } catch (error) {
       next(error);
     }
@@ -76,7 +83,10 @@ const MonAnController = {
         req.body,
         req.file
       );
-      return res.status(200).json(monan);
+      return res.status(200).json({
+        message: 'Cập nhật món ăn thành công.',
+        data: monan,
+      });
     } catch (error) {
       next(error);
     }
@@ -84,7 +94,12 @@ const MonAnController = {
 
   deleteMonAn: async (req, res, next) => {
     try {
-      await MonAnService.deleteMonAn(req.params.id);
+      const result = await MonAnService.deleteMonAn(req.params.id);
+      if (result.action === 'updated') {
+        return res.status(200).json({
+          message: result.message,
+        });
+      }
       return res.status(204).send();
     } catch (error) {
       next(error);
