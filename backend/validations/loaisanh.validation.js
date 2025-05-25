@@ -1,12 +1,6 @@
 const { check } = require('express-validator');
 
 const createLoaiSanhValidation = [
-  check('MaLoaiSanh')
-    .notEmpty()
-    .withMessage('Mã loại sảnh là bắt buộc')
-    .isLength({ max: 10 })
-    .withMessage('Mã loại sảnh tối đa 10 ký tự'),
-
   check('TenLoaiSanh')
     .notEmpty()
     .withMessage('Tên loại sảnh là bắt buộc')

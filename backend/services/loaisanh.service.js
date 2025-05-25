@@ -82,6 +82,20 @@ const LoaiSanhService = {
     }
   },
 
+  getLatestLoaiSanh: async () => {
+    try {
+      const loaisanh = await LoaiSanh.findOne({
+        order: [['MaLoaiSanh', 'DESC']],
+      });
+      return loaisanh || null;
+    } catch (error) {
+      throw new ApiError(
+        500,
+        'Lấy thông tin loại sảnh mới nhất thất bại! Vui lòng thử lại sau.'
+      );
+    }
+  },
+
   createLoaiSanh: async (data) => {
     try {
       const existing = await LoaiSanh.findOne({
@@ -92,8 +106,20 @@ const LoaiSanhService = {
       if (existing) {
         throw new ApiError(400, 'Thêm mới thất bại!\nLoại sảnh đã tồn tại.');
       }
-      return await LoaiSanh.create(data);
+
+      const latest = await LoaiSanhService.getLatestLoaiSanh();
+      let newMaLoaiSanh = 'LS00000001';
+      if (latest && latest.MaLoaiSanh) {
+        const number = parseInt(latest.MaLoaiSanh.replace('LS', '')) || 0;
+        newMaLoaiSanh = 'LS' + (number + 1).toString().padStart(8, '0');
+      }
+
+      return await LoaiSanh.create({
+        ...data,
+        MaLoaiSanh: newMaLoaiSanh,
+      });
     } catch (error) {
+      console.log(error);
       throw new ApiError(500, 'Thêm mới thất bại\nLỗi server.');
     }
   },
@@ -128,6 +154,15 @@ const LoaiSanhService = {
         );
       await loaisanh.destroy();
     } catch (error) {
+      if (
+        error.name === 'SequelizeForeignKeyConstraintError' ||
+        (error.parent && error.parent.code === '23503')
+      ) {
+        throw new ApiError(
+          409,
+          'Xóa thất bại!\nLoại sảnh đang được sử dụng ở nơi khác (ràng buộc khóa ngoại).'
+        );
+      }
       throw new ApiError(500, 'Xóa thất bại!\nLỗi server!');
     }
   },
