@@ -1,7 +1,6 @@
-const { MonAn } = require('../models');
+const { MonAn, Ct_DatBan } = require('../models');
 const { Op } = require('sequelize');
 const ApiError = require('../utils/apiError');
-
 const { uploadImage } = require('./image.service');
 
 const MonAnStatus = {
@@ -9,8 +8,6 @@ const MonAnStatus = {
   UNAVAILABLE: 'UNAVAILABLE',
   NO_LONGER_AVAILABLE: 'NO_LONGER_AVAILABLE',
 };
-
-// const StatusArray = ['AVAILABLE', 'UNAVAILABLE', 'NO_LONGER_AVAILABLE'];
 
 const MonAnService = {
   getAvailableMonAn: async () => {
@@ -22,7 +19,10 @@ const MonAnService = {
       });
       return rows;
     } catch (error) {
-      throw new ApiError(500, 'Lấy danh sách các món ăn có thể đặt thất bại!');
+      throw new ApiError(
+        500,
+        'Lấy danh sách các món ăn có thể đặt thất bại! Vui lòng thử lại sau.'
+      );
     }
   },
 
@@ -91,7 +91,10 @@ const MonAnService = {
         data: rows,
       };
     } catch (error) {
-      throw new ApiError(500, 'Lấy danh sách các món ăn thất bại!');
+      throw new ApiError(
+        500,
+        'Lấy danh sách các món ăn thất bại! Vui lòng kiểm tra lại tham số hoặc thử lại sau.'
+      );
     }
   },
 
@@ -101,21 +104,32 @@ const MonAnService = {
       const monan = await MonAn.findByPk(id);
 
       if (!monan)
-        throw new ApiError(
-          404,
-          'Không tìm thấy, có thể id món ăn không đúng hoặc món ăn đã bị xóa!'
-        );
+        throw new ApiError(404, 'Không tìm thấy món ăn với ID cung cấp.');
       return monan;
     } catch (error) {
-      throw new ApiError(500, 'Lấy món ăn thất bại');
+      throw new ApiError(
+        500,
+        'Lấy thông tin món ăn thất bại! Vui lòng thử lại sau.'
+      );
+    }
+  },
+
+  getLatestMonAn: async () => {
+    try {
+      const monan = await MonAn.findOne({
+        order: [['MaMonAn', 'DESC']],
+      });
+      return monan || null;
+    } catch (error) {
+      throw new ApiError(
+        500,
+        'Lấy thông tin món ăn mới nhất thất bại! Vui lòng thử lại sau.'
+      );
     }
   },
 
   createMonAn: async (data, file) => {
     try {
-      if (!data || !data.MaMonAn || !data.TenMonAn || !data.DonGia) {
-        throw new ApiError(400, 'Thiếu thông tin món ăn cần thiết.');
-      }
       const existing = await MonAn.findOne({
         where: {
           TenMonAn: data.TenMonAn,
@@ -123,7 +137,31 @@ const MonAnService = {
       });
 
       if (existing)
-        throw new ApiError(400, 'Thêm mới thất bại!\nMón ăn đã tồn tại.');
+        throw new ApiError(
+          400,
+          `Món ăn "${data.TenMonAn}" đã tồn tại trong hệ thống.`
+        );
+
+      let newMaMonAn = 'MA00000001';
+      const latestMonAn = await MonAnService.getLatestMonAn();
+      console.log('Latest MonAn:', latestMonAn);
+      if (latestMonAn && latestMonAn.MaMonAn) {
+        let latestNumber = parseInt(latestMonAn.MaMonAn.replace('MA', '')) || 0;
+        let newNumber = latestNumber + 1;
+        newMaMonAn = `MA${newNumber.toString().padStart(8, '0')}`;
+      }
+
+      let existingMaMonAn = await MonAn.findOne({
+        where: { MaMonAn: newMaMonAn },
+      });
+      while (existingMaMonAn) {
+        const currentNumber = parseInt(newMaMonAn.replace('MA', '')) || 0;
+        newMaMonAn = `MA${(currentNumber + 1).toString().padStart(8, '0')}`;
+        existingMaMonAn = await MonAn.findOne({
+          where: { MaMonAn: newMaMonAn },
+        });
+      }
+      console.log('New MaMonAn:', newMaMonAn);
 
       let imageUrl = null;
       if (file && file.buffer) {
@@ -133,10 +171,17 @@ const MonAnService = {
 
       return await MonAn.create({
         ...data,
+        MaMonAn: newMaMonAn,
         HinhAnh: imageUrl,
+        TinhTrang: data.TinhTrang || MonAnStatus.AVAILABLE,
       });
     } catch (error) {
-      throw new ApiError(500, 'Thêm mới thất bại\nLỗi server.');
+      console.error('Lỗi khi tạo món ăn:', error);
+      if (error instanceof ApiError) throw error;
+      throw new ApiError(
+        500,
+        'Tạo món ăn mới thất bại! Vui lòng thử lại sau.' + error.message
+      );
     }
   },
 
@@ -150,10 +195,22 @@ const MonAnService = {
       }
       const monan = await MonAn.findByPk(id);
       if (!monan)
-        throw new ApiError(
-          404,
-          'Cập nhật thất bại!\nKhông tìm thấy món ăn này trong CSDL!'
-        );
+        throw new ApiError(404, 'Không tìm thấy món ăn với ID cung cấp.');
+
+      if (data.TenMonAn && data.TenMonAn !== monan.TenMonAn) {
+        const existing = await MonAn.findOne({
+          where: {
+            TenMonAn: data.TenMonAn,
+            id: { [Op.ne]: id },
+          },
+        });
+        if (existing) {
+          throw new ApiError(
+            400,
+            `Món ăn "${data.TenMonAn}" đã tồn tại trong hệ thống.`
+          );
+        }
+      }
 
       const updateData = { ...data };
       if (file && file.buffer) {
@@ -163,7 +220,26 @@ const MonAnService = {
 
       return await monan.update(updateData);
     } catch (error) {
-      throw new ApiError(500, 'Cập nhật thất bại!\nLỗi server!');
+      throw new ApiError(
+        500,
+        'Cập nhật món ăn thất bại! Vui lòng thử lại sau.'
+      );
+    }
+  },
+
+  checkForeignKeyConstraints: async (id) => {
+    try {
+      const orderDetail = await Ct_DatBan.findOne({
+        where: {
+          MaMonAn: id,
+        },
+      });
+      return !!orderDetail;
+    } catch (error) {
+      throw new ApiError(
+        500,
+        'Kiểm tra ràng buộc khóa ngoại thất bại! Vui lòng thử lại sau.'
+      );
     }
   },
 
@@ -176,11 +252,21 @@ const MonAnService = {
       if (!monan)
         throw new ApiError(
           404,
-          'Xóa thất bại!\nKhông tìm thấy món ăn này trong CSDL!'
+          'Xóa thất bại!\nKhông tìm thấy món ăn với ID cung cấp.'
         );
-      return await monan.update({ TinhTrang: MonAnStatus.NO_LONGER_AVAILABLE });
+      const hasConstraints = await MonAnService.checkForeignKeyConstraints(id);
+      if (hasConstraints) {
+        await monan.update({ TinhTrang: MonAnStatus.NO_LONGER_AVAILABLE });
+        return {
+          action: 'updated',
+          message:
+            'Món ăn đã hoặc đang được đặt, chuyển trạng thái thành "Ngừng bán".',
+        };
+      }
+      await monan.destroy();
+      return { action: 'deleted' };
     } catch (error) {
-      throw new ApiError(500, 'Cập nhật thất bại!\nLỗi server!');
+      throw new ApiError(500, 'Xóa thất bại!\nVui lòng thử lại sau.');
     }
   },
 
