@@ -191,7 +191,7 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
             textCancel={"Hủy"}
             text={"Lưu"}
             onCancel={onClose}
-            onSave={handleSave}
+            onAction={handleSave}
           />
         </Box>
       </DialogContent>

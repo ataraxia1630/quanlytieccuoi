@@ -7,7 +7,7 @@ import Rangeinput from '../../components/Rangeinput';
 import StatusRadio from '../../components/Statusradio';
 import FilterButton from '../../components/Filterbutton';
 import { getDanhSach, postDanhSach } from '../../service/danhsachtiec.service';
-import { getHoaDon } from '../../service/hoadon.service';
+import { createHoaDon, getHoaDon } from '../../service/hoadon.service';
 import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
 import { useNavigate } from "react-router-dom";
 
@@ -107,7 +107,12 @@ const handleSubmit = async () => {
     },
     {
       id: "gio", label: "Giờ", sortable: true,
-      render: (row) => row.Ca?.GioBatDau || "Không có giờ"
+      render: (row) => {
+        const hour = new Date(row.NgayDaiTiec).getHours().toString().padStart(2, '0');
+        const minute = new Date(row.NgayDaiTiec).getMinutes().toString().padStart(2, '0');
+        const formattedTime = `${hour}:${minute}`; // Ví dụ: "14:05"
+        return formattedTime;
+      }
     },
     {
       id: "actions", label: "Thao tác", width: 200,
@@ -117,10 +122,12 @@ const handleSubmit = async () => {
           onClick={async () => {
             try {
               const hoaDon = await getHoaDon(row.SoPhieuDatTiec);
+              
               if (hoaDon && hoaDon.length > 0) {
                 navigate('/DashBoard/HoaDon', {
                   state: {
                     soHoaDon: hoaDon[0].SoHoaDon,
+                    data: hoaDon,
                     chuRe: row.TenChuRe,
                     coDau: row.TenCoDau,
                     tienCoc: row.TienDatCoc,

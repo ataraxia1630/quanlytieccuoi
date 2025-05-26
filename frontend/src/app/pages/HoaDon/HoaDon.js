@@ -2,14 +2,22 @@ import { useEffect, useState } from 'react';
 import styles from './HoaDon.module.css';
 import { createHoaDon, getHoaDon } from '../../service/hoadon.service';
 import { useLocation } from 'react-router-dom';
-import { TextField } from '@mui/material';
+import { MenuItem, Select, TextField } from '@mui/material';
 import CustomTable from '../../components/Customtable';
 import ActionButtons from '../../components/Actionbuttons';
-// import {
-//   createCTDichVu,
-//   updateCTDichVu,
-//   deleteCTDichVu
-// } from '../../service/ct_dichvu.service';
+import {
+  getAllCTDichVuByPDTId,
+  createCTDichVu,
+  updateCTDichVu,
+  deleteCTDichVu
+} from '../../service/ct_dichvu.service';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+} from '@mui/material';
 
 
 function HoaDon() {
@@ -24,6 +32,13 @@ function HoaDon() {
   const [openDialog, setOpenDialog] = useState(false);
   const [mode, setMode] = useState("add");
 
+  const [dvForm, setDvForm] = useState({
+    MaDichVu: '',
+    TenDichVu: '',
+    SoLuong: 1,
+    DonGia: 0
+  });
+
   const [form, setForm] = useState({
     SoPhieuDatTiec: '',
     SoHoaDon: '',
@@ -35,47 +50,93 @@ function HoaDon() {
     TongTienHoaDon: '',
     TongTienPhat: '',
     TienConLai: '',
-    dsDichVu: ''
+    dsDichVu: [],
+    dsMonAn: []
   });
   const [loading, setLoading] = useState(true);
 
-//   const handleChange = (e) => {
-//     const { name, value } = e.target;
-//     setForm((prev) => ({
-//       ...prev,
-//       [name]: value,
-//     }));
-//   };
-//     const handleAdd = async (newData) => {
-//   try {
-//     const res = await createCTDichVu({ ...newData, SoPhieuDatTiec: soPhieuDatTiec });
-//     setForm(prev => ({
-//       ...prev,
-//       dsDichVu: [...prev.dsDichVu, res]
-//     }));
-//     setOpenDialog(false);
-//   } catch (err) {
-//     console.error("Thêm dịch vụ thất bại", err);
-//   }
-// };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
 
-  const handleEdit = () => {
-    // Gọi hàm khi người dùng nhấn nút chỉnh sửa trong bảng
-    console.log("Edit row");
+  const handleAdd = async (newData) => {
+    try {
+      const res = await createCTDichVu({ ...newData, SoPhieuDatTiec: soPhieuDatTiec });
+      setForm((prev) => ({
+        ...prev,
+        dsDichVu: [...prev.dsDichVu, res]
+      }));
+      setOpenDialog(false);
+    } catch (err) {
+      console.error("Thêm dịch vụ thất bại", err);
+    }
+  };
+
+  const handleEdit = async (updatedRow) => {
+    try {
+      const { MaDichVu, SoPhieuDatTiec } = updatedRow;
+      const res = await updateCTDichVu(MaDichVu, SoPhieuDatTiec, updatedRow);
+      setForm((prev) => ({
+        ...prev,
+        dsDichVu: prev.dsDichVu.map((dv) =>
+          dv.MaDichVu === MaDichVu && dv.SoPhieuDatTiec === SoPhieuDatTiec ? res : dv
+        ),
+      }));
+      setOpenDialog(false);
+    } catch (err) {
+      console.error("Cập nhật dịch vụ thất bại", err);
+    }
+  };
+
+  const handleDelete = async (row) => {
+    try {
+      await deleteCTDichVu(row.MaDichVu, row.SoPhieuDatTiec);
+      setForm((prev) => ({
+        ...prev,
+        dsDichVu: prev.dsDichVu.filter(
+          (dv) =>
+            !(dv.MaDichVu === row.MaDichVu && dv.SoPhieuDatTiec === row.SoPhieuDatTiec)
+        ),
+      }));
+    } catch (err) {
+      console.error("Xoá dịch vụ thất bại", err);
+    }
+  };
+
+  const handleOpenAdd = () => {
+    setMode("add");
+    setDvForm({
+      MaDichVu: '',
+      DichVu: {
+        TenDichVu: ''
+      },
+      SoLuong: 1,
+      DonGia: 0
+    });
+
     setOpenDialog(true);
-    setMode("edit");
-  };
-  const handleDelete = () => {
-    // Gọi hàm khi người dùng nhấn nút xóa trong bảng
-    console.log("Delete row");
   };
 
-  
+  const handleOpenEdit = (row) => {
+    setMode("edit");
+    setDvForm(row);
+    setOpenDialog(true);
+  };
+
 
   const columns = [
     { id: "index", label: "STT", width: 10 },
-    { id: "DichVu.TenDichVu", label: "Dịch vụ", width: 150 },
+    {
+      id: "TenDichVu",
+      label: "Dịch vụ",
+      width: 150,
+      render: (row) => row?.DichVu?.TenDichVu || "Không rõ", width: 150
+    },
     { id: "SoLuong", label: "Số lượng", width: 30 },
     { id: "DonGia", label: "Đơn giá", width: 50 },
     {
@@ -85,14 +146,14 @@ function HoaDon() {
       render: (row) => row.DonGia && row.SoLuong ? row.DonGia * row.SoLuong : null
     },
     {
-    id: "actions",
-    label: "Thao tác",
-    sortable: false,
-    width: 10,
-    render: (row, onEdit, onDelete) => (
-      <ActionButtons row={row} onEdit={onEdit} onDelete={onDelete} />
-    ),
-  },
+      id: "actions",
+      label: "Thao tác",
+      sortable: false,
+      width: 10,
+      render: (row, onEdit, onDelete) => (
+        <ActionButtons row={row} onEdit={onEdit} onDelete={onDelete} />
+      ),
+    },
   ];
   const columns2 = [
     { id: "index2", label: "STT", width: 10 },
@@ -106,48 +167,70 @@ function HoaDon() {
       render: (row) => row.DonGiaMonAn && row.SLMonAn ? row.DonGiaMonAn * row.SLMonAn : null
     },
     {
-    id: "actions",
-    label: "Thao tác",
-    sortable: false,
-    width: 10,
-    render: (row, onEdit, onDelete) => (
-      <ActionButtons row={row} onEdit={onEdit} onDelete={onDelete} />
-    ),
-  },
+      id: "actions",
+      label: "Thao tác",
+      sortable: false,
+      width: 10,
+      render: (row, onEdit, onDelete) => (
+        <ActionButtons row={row} onEdit={onEdit} onDelete={onDelete} />
+      ),
+    },
   ];
 
   useEffect(() => {
     async function fetchData() {
-      if (isViewMode) {
-        try {
-          const result = await getHoaDon(soHoaDon);
-          const hoadon = result[0];
-          if (hoadon) {
-            setForm(hoadon);
-          }
-        } catch (err) {
-          console.error("Không thể lấy dữ liệu hóa đơn", err);
-        }
-      } else if (isWriteMode) {
-        const newForm = {
+      try {
+        // 1. Lấy toàn bộ danh sách chi tiết dịch vụ trong phiếu
+        const dsChiTietDichVu = await getAllCTDichVuByPDTId(soPhieuDatTiec);
+        console.log('✅ Danh sách chi tiết dịch vụ:', dsChiTietDichVu);
+        setForm({
           ...form,
-          SoPhieuDatTiec: initData.SoPhieuDatTiec || '',
-          SoHoaDon: initData.SoPhieuDatTiec || '',
-          SoLuongBanDaDung: initData.SoLuongBan,
-          NgayThanhToan: new Date().toISOString()
-        };
-        setForm(newForm);
-        try {
-          const kq = await createHoaDon(soHoaDon, newForm);
-          if (kq) setForm(kq);
-        } catch (er) {
-          console.error(er);
+          // dsMonAn: dsChiTietDichVu.dsMonAn || [],
+          dsDichVu: dsChiTietDichVu || []
+        });
+        if (isViewMode) {
+          console.log('vao read');
+          setForm({
+            ...initData,
+            dsDichVu: dsChiTietDichVu || []  // Gộp vào
+          });
+
+        } else if (isWriteMode) {
+          console.log('vao create');
+          const randomNum = Math.floor(100000 + Math.random() * 900000);
+
+          const newForm = {
+            ...form,
+            SoPhieuDatTiec: initData.SoPhieuDatTiec || '',
+            SoHoaDon: `HD${randomNum}`,
+            SoLuongBanDaDung: initData.SoLuongBan,
+            NgayThanhToan: new Date().toISOString(),
+            dsDichVu: dsChiTietDichVu || []  // Gán danh sách dịch vụ lấy được vào form luôn
+          };
+          setForm(newForm);
+
+          try {
+            const kq = await createHoaDon(soHoaDon, newForm);
+            if (kq) {
+              console.log('Tạo hóa đơn thành công');
+
+            } else {
+              console.log('Tạo hóa đơn không thành công');
+            }
+          } catch (er) {
+            console.error('Lỗi khi tạo hóa đơn:', er);
+          }
         }
+      } catch (err) {
+        console.error('❌ Lỗi khi lấy dữ liệu:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
+
     fetchData();
   }, [soHoaDon, soPhieuDatTiec]);
+
 
   function formatDate(date) {
     const d = new Date(date);
@@ -161,96 +244,152 @@ function HoaDon() {
 
   return (
     <div className={styles.hoadonBox}>
+
       <div className={`${styles.hoadonLeft} ${styles.dashedBorder}`}>
-        <div style={{ flex: 1 }}> 
-        <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '100px'}}>Chú rể:</p>
-        <span className={styles.hoadonName}>{chuRe}</span>
+        <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
+          <DialogTitle>{mode === 'add' ? 'Thêm Dịch Vụ' : 'Chỉnh Sửa Dịch Vụ'}</DialogTitle>
+          <DialogContent>
+            <TextField
+              margin="dense"
+              label="Tên dịch vụ"
+              fullWidth
+              value={dvForm.DichVu?.TenDichVu || ''}
+              onChange={(e) =>
+                setDvForm({
+                  ...dvForm,
+                  DichVu: { ...dvForm.DichVu, TenDichVu: e.target.value }
+                })
+              }
+            />
 
-        <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '30px'}}>Cô dâu:</p>
-        <span className={styles.hoadonName}>{coDau}</span>
+            <TextField
+              margin="dense"
+              label="Số lượng"
+              type="number"
+              fullWidth
+              value={dvForm.SoLuong}
+              onChange={(e) => setDvForm({ ...dvForm, SoLuong: parseInt(e.target.value) })}
+            />
+            <TextField
+              margin="dense"
+              label="Đơn giá"
+              type="number"
+              fullWidth
+              value={dvForm.DonGia}
+              onChange={(e) => setDvForm({ ...dvForm, DonGia: parseInt(e.target.value) })}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDialog(false)}>Huỷ</Button>
+            <Button
+              onClick={() => {
+                if (mode === 'add') handleAdd(dvForm);
+                else handleEdit(dvForm);
+              }}
+            >
+              Lưu
+            </Button>
+          </DialogActions>
+        </Dialog>
 
-        <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '30px'}}>Ngày đãi tiệc: </p>
-        <span className={styles.hoadonName}>{formatDate(ngayDaiTiec)}</span>
 
-          <p  className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '30px'}}>Ngày thanh toán: </p>
-          {isViewMode ? <span className={styles.hoadonName}>{formatDate(form.NgayThanhToan)}</span>  : <span></span>}
-        
+        {/* <MuiModal open={openModal}>
+  <Select value={selectedMon} onChange={handleChange}>
+    {listMonAn.map(mon => (
+      <MenuItem value={mon.id}>{mon.tenMon} - {mon.gia}đ</MenuItem>
+    ))}
+  </Select>
+</MuiModal> */}
+
+        <div style={{ flex: 1 }}>
+          <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '100px' }}>Chú rể:</p>
+          <span className={styles.hoadonName}>{chuRe}</span>
+
+          <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '30px' }}>Cô dâu:</p>
+          <span className={styles.hoadonName}>{coDau}</span>
+
+          <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '30px' }}>Ngày đãi tiệc: </p>
+          <span className={styles.hoadonName}>{formatDate(ngayDaiTiec)}</span>
+
+          <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '30px' }}>Ngày thanh toán: </p>
+          {isViewMode ? <span className={styles.hoadonName}>{formatDate(form.NgayThanhToan)}</span> : <span></span>}
+
         </div>
-      <div style={{ marginTop: 'auto' }}>
-          <p className={styles.hoadonText} style={{ marginTop:'50px' }}>Tổng tiền dịch vụ: {isViewMode ? form.TongTienDichVu : '__'}</p>
-          <p className={styles.hoadonText}>Tổng tiền hoá đơn: {isViewMode ? form.TongTienHoaDon : '__'}</p>
-          <p className={styles.hoadonText}>Tiền đặt cọc: {tienCoc}</p>
-          <p className={styles.hoadonText}>Tiền phạt: {isViewMode ? form.TongTienPhat : '__'}</p>
-          <p className={styles.hoadonText}>Còn lại: {isViewMode ? form.TienConLai : '__'}</p>
-      </div>
+        {isViewMode ?
+          <div style={{ marginTop: 'auto' }}>
+            <p className={styles.hoadonText} style={{ marginTop: '50px' }}>Tổng tiền dịch vụ: {isViewMode ? form.TongTienDichVu : '__'}</p>
+            <p className={styles.hoadonText}>Tổng tiền hoá đơn: {isViewMode ? form.TongTienHoaDon : '__'}</p>
+            <p className={styles.hoadonText}>Tiền đặt cọc: {tienCoc}</p>
+            <p className={styles.hoadonText}>Tiền phạt: {isViewMode ? form.TongTienPhat : '__'}</p>
+            <p className={styles.hoadonText}>Còn lại: {isViewMode ? form.TienConLai : '__'}</p>
+          </div> : null}
       </div>
 
       <div className={styles.hoadonRight}>
-        <div style={{ flex: 1, overflow:'auto' }}>
-        <p className={styles.ctHoadon}>CHI TIẾT HOÁ ĐƠN</p>
+        <div style={{ flex: 1, overflow: 'auto' }}>
+          <p className={styles.ctHoadon}>CHI TIẾT HOÁ ĐƠN</p>
 
-        
-        
-        <div className={styles.row}>
-          <div className={styles.hoadonText}>
-            <p>Số lượng bàn: </p>
-            {isViewMode ? form.SoLuongBanDaDung : (
-              <TextField
-                name="SoLuongBanDaDung"
-                type="number"
-                value={form.SoLuongBanDaDung}
-                //onChange={handleChange}
-                variant="filled"
-                sx={{ width: 80 }}
-              />
-            )}
+
+
+          <div className={styles.row}>
+            <div className={styles.hoadonText}>
+              <p>Số lượng bàn: </p>
+              {isViewMode ? form.SoLuongBanDaDung : (
+                <TextField
+                  name="SoLuongBanDaDung"
+                  type="number"
+                  value={form.SoLuongBanDaDung}
+                  onChange={handleChange}
+                  variant="filled"
+                  sx={{ width: 80 }}
+                />
+              )}
+            </div>
+
+            {isViewMode ?
+              <div className={styles.hoadonText}>
+                <p>Đơn giá bàn: {form.DonGiaBan}</p>
+              </div> : null}
+
+            {isViewMode ?
+              <div className={styles.hoadonText}>
+                <p>Tổng tiền bàn: {form.TongTienMonAn}</p>
+              </div> : null}
+
           </div>
+          {console.log('form la: ')}
+          {console.log(form.dsDichVu)}
+          {Array.isArray(form.dsDichVu) && form.dsDichVu.length > 0 ? (
+            <div style={{ maxHeight: '400px', overflow: 'auto', border: '1px solid rgba(224, 224, 224, 1)' }}>
+              <CustomTable
+                data={form.dsDichVu}
+                columns={columns}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
 
-          <div className={styles.hoadonText}>
-            <p>Đơn giá bàn: </p>
-            {isViewMode ? form.DonGiaBan : (
-              <TextField
-                name="DonGiaBan"
-                type="number"
-                value={form.DonGiaBan}
-                //onChange={handleChange}
-                variant="filled"
-                sx={{ width: 100 }}
               />
-            )}
-          </div>
+            </div>
+          ) : (
+            <p>Không có dữ liệu dich vu.</p>
+          )}
 
-          <p className={styles.hoadonText}>Tổng tiền bàn: {isViewMode ? form.TongTienMonAn : '__'}</p>
-          
+          {form.dsMonAn.length > 0 ? (
+            <div style={{ maxHeight: '195px', overflow: 'auto', border: '1px solid rgba(224, 224, 224, 1)', marginTop: '30px' }}>
+              <CustomTable
+                data={form.dsMonAn}
+                columns={columns2}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+
+              />
+            </div>
+          ) : (
+            <p>Không có dữ liệu món ăn.</p>
+          )}
+
+
         </div>
-      <div style={{ maxHeight:'400px', overflow:'auto', border: '1px solid rgba(224, 224, 224, 1)'}}>
-        <CustomTable
-          data={form.dsDichVu}
-          columns={columns}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-         
-        />
-      </div>
-      
-      
-      {form.dsMonAn.length > 0 ? (
-      <div style={{ maxHeight:'195px', overflow:'auto', border: '1px solid rgba(224, 224, 224, 1)', marginTop:'30px'}}>
-            <CustomTable
-              data={form.dsMonAn}
-              columns={columns2}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            
-            />
-          </div>
-      ) : (
-        <p>Không có dữ liệu món ăn.</p>
-      )}
 
-
-      </div>
-      
       </div>
     </div>
   );

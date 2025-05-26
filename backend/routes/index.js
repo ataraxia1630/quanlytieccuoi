@@ -10,6 +10,7 @@ const hoadon = require('./hoadon.route.js')
 const phieuDatTiecRoutes = require('./phieudattiec.route.js');
 const ctDatBanRoutes = require('./ct_datban.route.js');
 const ctDichVuRoutes = require('./ct_dichvu.route.js');
+const dichvuRoutes = require('./dichvu.route.js');
 
 // Hàm gắn các route vào ứng dụng
 function route(app) {
@@ -24,6 +25,7 @@ function route(app) {
   app.use('/api/phieudattiec', phieuDatTiecRoutes);
   app.use('/api/ct-datban', ctDatBanRoutes);
   app.use('/api/ct-dichvu', ctDichVuRoutes);
+  app.use('/api/dichvu', dichvuRoutes);
 }
 
 module.exports = route;

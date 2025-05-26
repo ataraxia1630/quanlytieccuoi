@@ -1,7 +1,7 @@
 import React from "react";
 import { Button } from "@mui/material";
 
-const SaveAndPrintButton = ({ text, onClick }) => (
+const SomeActionButton = ({ text, onClick }) => (
   <Button
     variant="contained"
     onClick={onClick}
@@ -20,4 +20,4 @@ const SaveAndPrintButton = ({ text, onClick }) => (
   </Button>
 );
 
-export default SaveAndPrintButton;
+export default SomeActionButton;

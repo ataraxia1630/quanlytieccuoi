@@ -1,17 +1,25 @@
 const API_URL = "http://localhost:25053/api/danhsachtiec";
 export const getHoaDon = async (id) => {
- try {
-  const res = await fetch(`${API_URL}/hoadon/${id}`)
-  if(!res.ok) {
-   console.log("Không thể lấy hoa don");
-   return null
+  try {
+    const res = await fetch(`${API_URL}/hoadon/${id}`);
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Không thể lấy hóa đơn:", res.status, errorText);
+      return null;
+    }
+    const data = await res.json();
+    
+    // Nếu là mảng => lấy phần tử đầu tiên
+    if (Array.isArray(data)) return data[0];
+
+    // Nếu là object => trả thẳng về
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi gọi API hóa đơn:", error);
+    throw error;
   }
-  return await res.json();
- } catch (error) {
-  console.error("Lỗi khi lấy hoa don:", error)
-  throw error
- }
-}
+};
+
 
 export const createHoaDon = async (id, data) => {
  try {

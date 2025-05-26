@@ -1,4 +1,5 @@
 const { DichVu } = require("../models");
+const { Ct_DichVu } = require("../models");
 const { Op } = require("sequelize");
 const ApiError = require("../utils/apiError.js");
 
@@ -20,6 +21,18 @@ const DichVuService = {
       throw err.statusCode
         ? err
         : new ApiError(500, "Lỗi khi lấy thông tin dịch vụ theo ID.");
+    }
+  },
+
+  getActiveDichVu: async (limit, offset) => {
+    try {
+      return await DichVu.findAll({
+        where: { TinhTrang: "Có sẵn" },
+        limit,
+        offset,
+      });
+    } catch (err) {
+      throw new ApiError(500, "Không thể lấy danh sách dịch vụ đang áp dụng.");
     }
   },
 
@@ -76,12 +89,52 @@ const DichVuService = {
 
   deleteDichVu: async (id) => {
     try {
-      const deletedRows = await DichVu.destroy({ where: { MaDichVu: id } });
-      if (deletedRows === 0)
-        throw new ApiError(404, "Không tìm thấy dịch vụ để xóa.");
-      // Kiểm tra xem có chi tiết dịch vụ nào liên quan không
-      // ...
-      return deletedRows;
+      const dichVu = await DichVu.findOne({ where: { MaDichVu: id } });
+
+      if (!dichVu) {
+        throw new ApiError(404, "Không tìm thấy dịch vụ.");
+      }
+
+      const hasRelatedRecords = await Ct_DichVu.findOne({
+        where: { MaDichVu: id },
+      });
+
+      if (hasRelatedRecords) {
+        if (dichVu.TinhTrang === "Ngừng cung cấp") {
+          return {
+            status: "already-soft-deleted",
+            message:
+              "Dịch vụ đã ngừng cung cấp và không thể xóa vì có trong phiếu đặt tiệc.",
+          };
+        }
+
+        const [affectedRows] = await DichVu.update(
+          { TinhTrang: "Ngừng cung cấp" },
+          { where: { MaDichVu: id } }
+        );
+
+        if (affectedRows === 0)
+          throw new ApiError(
+            404,
+            "Không tìm thấy dịch vụ để cập nhật trạng thái."
+          );
+
+        return {
+          status: "soft-deleted",
+          message:
+            "Dịch vụ sang trạng thái ngừng cung cấp do có trong phiếu đặt tiệc.",
+        };
+      } else {
+        const deletedRows = await DichVu.destroy({ where: { MaDichVu: id } });
+
+        if (deletedRows === 0)
+          throw new ApiError(404, "Không tìm thấy dịch vụ để xóa.");
+
+        return {
+          status: "deleted",
+          message: "Xóa dịch vụ thành công",
+        };
+      }
     } catch (err) {
       throw err.statusCode ? err : new ApiError(500, "Xóa dịch vụ thất bại.");
     }
@@ -118,7 +171,11 @@ const DichVuService = {
       }
 
       if (tinhTrang) {
-        where.TinhTrang = tinhTrang;
+        if (Array.isArray(tinhTrang) && tinhTrang.length > 0) {
+          where.TinhTrang = { [Op.in]: tinhTrang };
+        } else if (typeof tinhTrang === "string") {
+          where.TinhTrang = tinhTrang;
+        }
       }
 
       return await DichVu.findAll({ where, limit, offset });

@@ -10,11 +10,13 @@ import defaultColumns from "../../components/ca/ca_default_column";
 import caService from "../../service/ca.service";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DeleteDialog from './../../components/Deletedialog';
 
 function DanhSachCa() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [mode, setMode] = useState("add");
   const [cas, setCas] = useState([]);
   const [caToEdit, setCaToEdit] = useState(null);
@@ -81,45 +83,31 @@ function DanhSachCa() {
   };
 
   const handleDelete = (ca) => {
-    console.log("Deleting ca with maCa:", ca);
-    const maCa = ca.MaCa; // Use only the MaCa value
-    const confirmDelete = () => {
-      toast(
-        ({ closeToast }) => (
-          <div>
-            <p>Bạn có chắc chắn muốn xóa ca này?</p>
-            <button
-              className="bg-blue-500 text-white px-2 py-1 mr-2 rounded"
-              onClick={async () => {
-                closeToast();
-                try {
-                  toast.info("Đang xử lý …");
-                  await caService.deleteCa(maCa);
-                  await fetchCas();
-                  toast.success("Xóa thành công!");
-                } catch (error) {
-                  if (error.message.includes("Không tìm thấy ca")) {
-                    toast.warn("Không tìm thấy ca!");
-                  } else {
-                    toast.error("Xóa thất bại! Vui lòng thử lại.");
-                  }
-                }
-              }}
-            >
-              Có
-            </button>
-            <button
-              className="bg-gray-500 text-white px-2 py-1 rounded"
-              onClick={closeToast}
-            >
-              Không
-            </button>
-          </div>
-        ),
-        { autoClose: false }
-      );
-    };
-    confirmDelete();
+    console.log("Deleting ca with maCa:", ca.MaCa);
+    setCaToEdit(ca); // Store the ca to delete
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setCaToEdit(null); // Clear the ca to delete
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      toast.info("Đang xử lý …");
+      await caService.deleteCa(caToEdit.MaCa);
+      await fetchCas();
+      toast.success("Xóa thành công!");
+      setIsDeleteDialogOpen(false);
+      setCaToEdit(null);
+    } catch (error) {
+      if (error.message.includes("Không tìm thấy ca")) {
+        toast.warn("Không tìm thấy ca!");
+      } else {
+        toast.error("Xóa thất bại! Vui lòng thử lại.");
+      }
+    }
   };
 
   const handleCloseDialog = () => {
@@ -208,6 +196,13 @@ function DanhSachCa() {
         onSave={handleSaveCa}
         ca={caToEdit}
         title={mode === "edit" ? "Chỉnh sửa ca" : "Thêm ca"}
+      />
+
+      <DeleteDialog
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onDelete={handleConfirmDelete}
+        title="Xác nhận xóa ca"
       />
     </Box>
   );
