@@ -5,22 +5,22 @@ const ApiError = require('../utils/apiError');
 
 const CTDichVuService = {
     getAllCTDichVuByPDTId: async (pdtId) => {
-  try {
-    const pdt = await PhieuDatTiec.findByPk(pdtId);
-    if (!pdt) {
-      throw new ApiError(404, 'Không tìm thấy phiếu đặt tiệc');
-    }
-    return await Ct_DichVu.findAll({
-      where: { SoPhieuDatTiec: pdtId },
-      include: [
-        { model: DichVu, attributes: ['TenDichVu'] }  
-      ],
-    });
+        try {
+            const pdt = await PhieuDatTiec.findByPk(pdtId);
+            if (!pdt) {
+                throw new ApiError(404, 'Không tìm thấy phiếu đặt tiệc');
+            }
+            return await Ct_DichVu.findAll({
+                where: { SoPhieuDatTiec: pdtId },
+                include: [
+                    { model: DichVu, attributes: ['TenDichVu'] }
+                ],
+            });
 
-  } catch (error) {
-    throw new ApiError(500, `Không thể lấy danh sách dịch vụ theo phiếu đặt tiệc : ${pdtId}`);
-  }
-},
+        } catch (error) {
+            throw new ApiError(500, `Không thể lấy danh sách dịch vụ theo phiếu đặt tiệc : ${pdtId}`);
+        }
+    },
 
 
 

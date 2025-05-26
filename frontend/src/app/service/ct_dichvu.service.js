@@ -40,7 +40,7 @@ export const getAllCTDichVuByPDTId = async (soPhieuDatTiec) => {
       throw new Error('Không thể lấy danh sách chi tiết dịch vụ');
     }
     const data = await response.json();
-    return data; // mảng chi tiết dịch vụ kèm tên dịch vụ nếu backend trả đủ
+    return data; 
   } catch (error) {
     console.error('Lỗi khi gọi API:', error);
     throw error;
@@ -71,7 +71,7 @@ export const getAllChiTietDichVu = async (soPhieuDatTiec, maDichVu = null) => {
 
 // Thêm chi tiết dịch vụ
 export async function createCTDichVu(data) {
-  const response = await fetch(`${API_BASE_URL}/ct-dich-vu`, {
+  const response = await fetch(`${API_BASE_URL}/ct-dichvu`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -85,7 +85,7 @@ export async function createCTDichVu(data) {
 
 // Cập nhật chi tiết dịch vụ
 export async function updateCTDichVu(maDichVu, soPhieuDatTiec, data) {
-  const response = await fetch(`${API_BASE_URL}/ct-dich-vu/${soPhieuDatTiec}/${maDichVu}`, {
+  const response = await fetch(`${API_BASE_URL}/ct-dichvu/${soPhieuDatTiec}/${maDichVu}`, {
     method: 'PUT',
     headers: {
       'Content-Type': 'application/json'
@@ -99,7 +99,7 @@ export async function updateCTDichVu(maDichVu, soPhieuDatTiec, data) {
 
 // Xoá chi tiết dịch vụ
 export async function deleteCTDichVu(maDichVu, soPhieuDatTiec) {
-  const response = await fetch(`${API_BASE_URL}/ct-dich-vu/${soPhieuDatTiec}/${maDichVu}`, {
+  const response = await fetch(`${API_BASE_URL}/ct-dichvu/${soPhieuDatTiec}/${maDichVu}`, {
     method: 'DELETE'
   });
 

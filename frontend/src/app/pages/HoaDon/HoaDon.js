@@ -1,36 +1,45 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styles from './HoaDon.module.css';
 import { createHoaDon, getHoaDon } from '../../service/hoadon.service';
 import { useLocation } from 'react-router-dom';
 import { MenuItem, Select, TextField } from '@mui/material';
 import CustomTable from '../../components/Customtable';
 import ActionButtons from '../../components/Actionbuttons';
+import AddButton from '../../components/Addbutton';
+
 import {
   getAllCTDichVuByPDTId,
   createCTDichVu,
   updateCTDichVu,
   deleteCTDichVu
 } from '../../service/ct_dichvu.service';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-} from '@mui/material';
+
+import CTDatBanCotroller from '../../service/ct_datban.service';
+
+import DichVuDialog from "../../components/hoadon_dv/dichvu_popup";
+import DanhSachDichVuDialog from '../../components/hoadon_dv/danhsachdichvu_popup';
+
+import DichVuService from "../../service/dichvu.service";
+import { toast } from 'react-toastify';
+import DeleteDialog from "../../components/Deletedialog";
+import { useNavigate } from 'react-router-dom';
+
 
 
 function HoaDon() {
+  const navigate = useNavigate();
+
   const location = useLocation();
   const { soHoaDon, soPhieuDatTiec, data: initData, coDau, chuRe, tienCoc, ngayDaiTiec } = location.state || {};
 
   const isViewMode = Boolean(soHoaDon);
   const isWriteMode = Boolean(soPhieuDatTiec && initData);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [openDichVuDialog, setOpenDichVuDialog] = useState(false);
+  const handleOpenDialog = () => setOpenDichVuDialog(true);
+  const handleCloseDialog = () => setOpenDichVuDialog(false);
+
   const [openDialog, setOpenDialog] = useState(false);
-  const [mode, setMode] = useState("add");
 
   const [dvForm, setDvForm] = useState({
     MaDichVu: '',
@@ -53,7 +62,184 @@ function HoaDon() {
     dsDichVu: [],
     dsMonAn: []
   });
-  const [loading, setLoading] = useState(true);
+
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [mode, setMode] = useState("add");
+  const [loading, setLoading] = useState(false);
+  const [dichVuList, setDichVuList] = useState([]);
+  const [selectedDichVu, setSelectedDichVu] = useState(null);
+  const [currentFilters, setCurrentFilters] = useState({});
+  const [pagination, setPagination] = useState({
+    limit: 10,
+    offset: 0,
+    total: 0,
+  });
+
+  const fetchDichVuList = useCallback(
+    async (filters = {}, limit = 10, offset = 0) => {
+      try {
+        setLoading(true);
+        let data;
+
+        if (Object.keys(filters).length > 0 || searchTerm.trim()) {
+          const trimmedTerm = searchTerm.trim();
+          const searchParams = {
+            ...filters,
+            ...(trimmedTerm &&
+              (() => {
+                if (/^DV\d{3}$/.test(trimmedTerm)) {
+                  return { maDichVu: trimmedTerm };
+                } else {
+                  return { tenDichVu: trimmedTerm };
+                }
+              })()),
+          };
+          data = await DichVuService.searchDichVu(searchParams, limit, offset);
+        } else {
+          data = await DichVuService.getAllDichVu(limit, offset);
+        }
+
+        setDichVuList(data);
+        setPagination((prev) => ({ ...prev, limit, offset }));
+
+        return data;
+      } catch (error) {
+        toast.error(error.message);
+        setDichVuList([]);
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    },
+    [searchTerm]
+  );
+
+  useEffect(() => {
+    fetchDichVuList();
+  }, [fetchDichVuList]);
+
+  const handleSearch = async () => {
+    toast.info(`Đang tìm kiếm: ${searchTerm}`);
+
+    const result = await fetchDichVuList(currentFilters, pagination.limit, 0);
+
+    if (result?.length === 0) {
+      toast.warning("Không tìm thấy dịch vụ nào phù hợp.");
+      setSearchTerm("");
+    } else {
+      toast.success(`Đã tìm thấy: ${searchTerm}`);
+    }
+  };
+  const handleChonDichVu = (dichVu) => {
+    setSelectedDichVu({
+      MaDichVu: dichVu.MaDichVu,
+      DonGia: dichVu.DonGia,
+      SoLuong: 1,
+      DichVu: dichVu, // để hiển thị tên
+    });
+    setMode("add");
+    setIsDialogOpen(true);
+  };
+
+
+  // const handleAdd = () => {
+  //   setMode("add");
+
+  //   setSelectedDichVu(null);
+  //   setIsDialogOpen(true);
+  // };
+
+
+  const handleEdit = (dichVu) => {
+    setMode("edit");
+    setSelectedDichVu(dichVu);
+    setIsDialogOpen(true);
+  };
+
+  const handleDelete = (dichVu) => {
+    setSelectedDichVu(dichVu);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedDichVu(null);
+  };
+
+  const handleCloseEditDialog = () => {
+    setIsDialogOpen(false);
+    setSelectedDichVu(null);
+  };
+
+  const handleSaveCT_DichVu = async (formData) => {
+    try {
+      setLoading(true);
+      const dichVuData = {
+        MaDichVu: selectedDichVu.MaDichVu,
+        DonGia: Number(formData.price),
+        SoLuong: Number(formData.sl),
+        SoPhieuDatTiec: soPhieuDatTiec,
+      };
+
+      if (mode === "edit" && selectedDichVu) {
+        console.log("vao edit dich vu");
+        const updated = await updateCTDichVu(selectedDichVu.MaDichVu, soPhieuDatTiec, dichVuData);
+
+        setForm((prev) => ({
+          ...prev,
+          dsDichVu: prev.dsDichVu.map((dv) =>
+            dv.MaDichVu === selectedDichVu.MaDichVu ? updated : dv
+          ),
+        }));
+        toast.success("Chỉnh sửa dịch vụ trong hoá đơn thành công");
+      } else {
+        console.log("vao add dich vu");
+        const created = await createCTDichVu(dichVuData);
+        setForm((prev) => ({
+          ...prev,
+          dsDichVu: [...prev.dsDichVu, created],
+        }));
+        toast.success("Thêm dịch vụ vào hoá đơn thành công");
+      }
+
+      setIsDialogOpen(false);
+      setSelectedDichVu(null);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const acceptDelete = async () => {
+    try {
+      setLoading(true);
+      const result = await deleteCTDichVu(selectedDichVu.MaDichVu, soPhieuDatTiec);
+
+      const toastByStatus = {
+        "soft-deleted": toast.info,
+        "already-soft-deleted": toast.warning,
+        deleted: toast.success,
+      };
+
+      (toastByStatus[result.status] || toast.success)(result.message);
+
+      setIsDeleteDialogOpen(false);
+      setSelectedDichVu(null);
+      fetchDichVuList(currentFilters, pagination.limit, pagination.offset);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  /////////////////////////////////////////
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,69 +250,51 @@ function HoaDon() {
   };
 
 
-  const handleAdd = async (newData) => {
-    try {
-      const res = await createCTDichVu({ ...newData, SoPhieuDatTiec: soPhieuDatTiec });
-      setForm((prev) => ({
-        ...prev,
-        dsDichVu: [...prev.dsDichVu, res]
-      }));
-      setOpenDialog(false);
-    } catch (err) {
-      console.error("Thêm dịch vụ thất bại", err);
-    }
-  };
+  // const handleAdd = async (newData) => {
+  //   try {
+  //     const res = await createCTDichVu({ ...newData, SoPhieuDatTiec: soPhieuDatTiec });
+  //     setForm((prev) => ({
+  //       ...prev,
+  //       dsDichVu: [...prev.dsDichVu, res]
+  //     }));
+  //     setOpenDialog(false);
+  //   } catch (err) {
+  //     console.error("Thêm dịch vụ thất bại", err);
+  //   }
+  // };
 
-  const handleEdit = async (updatedRow) => {
-    try {
-      const { MaDichVu, SoPhieuDatTiec } = updatedRow;
-      const res = await updateCTDichVu(MaDichVu, SoPhieuDatTiec, updatedRow);
-      setForm((prev) => ({
-        ...prev,
-        dsDichVu: prev.dsDichVu.map((dv) =>
-          dv.MaDichVu === MaDichVu && dv.SoPhieuDatTiec === SoPhieuDatTiec ? res : dv
-        ),
-      }));
-      setOpenDialog(false);
-    } catch (err) {
-      console.error("Cập nhật dịch vụ thất bại", err);
-    }
-  };
+  // const handleEdit = async (updatedRow) => {
+  //   try {
+  //     const { MaDichVu, SoPhieuDatTiec } = updatedRow;
+  //     const res = await updateCTDichVu(MaDichVu, SoPhieuDatTiec, updatedRow);
+  //     setForm((prev) => ({
+  //       ...prev,
+  //       dsDichVu: prev.dsDichVu.map((dv) =>
+  //         dv.MaDichVu === MaDichVu && dv.SoPhieuDatTiec === SoPhieuDatTiec ? res : dv
+  //       ),
+  //     }));
+  //     setOpenDialog(false);
+  //   } catch (err) {
+  //     console.error("Cập nhật dịch vụ thất bại", err);
+  //   }
+  // };
 
-  const handleDelete = async (row) => {
-    try {
-      await deleteCTDichVu(row.MaDichVu, row.SoPhieuDatTiec);
-      setForm((prev) => ({
-        ...prev,
-        dsDichVu: prev.dsDichVu.filter(
-          (dv) =>
-            !(dv.MaDichVu === row.MaDichVu && dv.SoPhieuDatTiec === row.SoPhieuDatTiec)
-        ),
-      }));
-    } catch (err) {
-      console.error("Xoá dịch vụ thất bại", err);
-    }
-  };
+  // const handleDelete = async (row) => {
+  //   try {
+  //     await deleteCTDichVu(row.MaDichVu, row.SoPhieuDatTiec);
+  //     setForm((prev) => ({
+  //       ...prev,
+  //       dsDichVu: prev.dsDichVu.filter(
+  //         (dv) =>
+  //           !(dv.MaDichVu === row.MaDichVu && dv.SoPhieuDatTiec === row.SoPhieuDatTiec)
+  //       ),
+  //     }));
+  //   } catch (err) {
+  //     console.error("Xoá dịch vụ thất bại", err);
+  //   }
+  // };
 
-  const handleOpenAdd = () => {
-    setMode("add");
-    setDvForm({
-      MaDichVu: '',
-      DichVu: {
-        TenDichVu: ''
-      },
-      SoLuong: 1,
-      DonGia: 0
-    });
 
-    setOpenDialog(true);
-  };
-
-  const handleOpenEdit = (row) => {
-    setMode("edit");
-    setDvForm(row);
-    setOpenDialog(true);
-  };
 
 
   const columns = [
@@ -156,15 +324,20 @@ function HoaDon() {
     },
   ];
   const columns2 = [
-    { id: "index2", label: "STT", width: 10 },
-    { id: "MonAn.TenMonAn", label: "Mon an", width: 150 },
-    { id: "SLMonAn", label: "Số lượng", width: 30 },
-    { id: "DonGiaMonAn", label: "Đơn giá", width: 50 },
+    { id: "index", label: "STT", width: 5 },
     {
-      id: "ThanhTienMonAn",
+      id: "TenMonAn",
+      label: "Món ăn",
+      width: 150,
+      render: (row) => row?.MonAn?.TenMonAn || "Không rõ", width: 150
+    },
+    { id: "SoLuong", label: "Số lượng", width: 30 },    
+    { id: "DonGia", label: "Đơn giá", width: 50 },
+    {
+      id: "ThanhTien",
       label: "Thành tiền",
       width: 50,
-      render: (row) => row.DonGiaMonAn && row.SLMonAn ? row.DonGiaMonAn * row.SLMonAn : null
+      render: (row) => row.DonGia && row.SoLuong ? row.DonGia * row.SoLuong : null
     },
     {
       id: "actions",
@@ -180,19 +353,25 @@ function HoaDon() {
   useEffect(() => {
     async function fetchData() {
       try {
-        // 1. Lấy toàn bộ danh sách chi tiết dịch vụ trong phiếu
         const dsChiTietDichVu = await getAllCTDichVuByPDTId(soPhieuDatTiec);
         console.log('✅ Danh sách chi tiết dịch vụ:', dsChiTietDichVu);
         setForm({
           ...form,
-          // dsMonAn: dsChiTietDichVu.dsMonAn || [],
           dsDichVu: dsChiTietDichVu || []
         });
+
+        const dsThucDon = await CTDatBanCotroller.getAllByPhieuDatTiecId(soPhieuDatTiec);
+        console.log('✅ Danh sách món ăn:', dsThucDon);
+        setForm((prev) => ({
+          ...prev,
+          dsMonAn: dsThucDon || [],
+        }));
+
         if (isViewMode) {
           console.log('vao read');
           setForm({
             ...initData,
-            dsDichVu: dsChiTietDichVu || []  // Gộp vào
+            // dsDichVu: dsChiTietDichVu || []  
           });
 
         } else if (isWriteMode) {
@@ -205,7 +384,8 @@ function HoaDon() {
             SoHoaDon: `HD${randomNum}`,
             SoLuongBanDaDung: initData.SoLuongBan,
             NgayThanhToan: new Date().toISOString(),
-            dsDichVu: dsChiTietDichVu || []  // Gán danh sách dịch vụ lấy được vào form luôn
+            dsDichVu: dsChiTietDichVu || [],
+            dsMonAn: dsThucDon || [],
           };
           setForm(newForm);
 
@@ -246,60 +426,8 @@ function HoaDon() {
     <div className={styles.hoadonBox}>
 
       <div className={`${styles.hoadonLeft} ${styles.dashedBorder}`}>
-        <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-          <DialogTitle>{mode === 'add' ? 'Thêm Dịch Vụ' : 'Chỉnh Sửa Dịch Vụ'}</DialogTitle>
-          <DialogContent>
-            <TextField
-              margin="dense"
-              label="Tên dịch vụ"
-              fullWidth
-              value={dvForm.DichVu?.TenDichVu || ''}
-              onChange={(e) =>
-                setDvForm({
-                  ...dvForm,
-                  DichVu: { ...dvForm.DichVu, TenDichVu: e.target.value }
-                })
-              }
-            />
-
-            <TextField
-              margin="dense"
-              label="Số lượng"
-              type="number"
-              fullWidth
-              value={dvForm.SoLuong}
-              onChange={(e) => setDvForm({ ...dvForm, SoLuong: parseInt(e.target.value) })}
-            />
-            <TextField
-              margin="dense"
-              label="Đơn giá"
-              type="number"
-              fullWidth
-              value={dvForm.DonGia}
-              onChange={(e) => setDvForm({ ...dvForm, DonGia: parseInt(e.target.value) })}
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenDialog(false)}>Huỷ</Button>
-            <Button
-              onClick={() => {
-                if (mode === 'add') handleAdd(dvForm);
-                else handleEdit(dvForm);
-              }}
-            >
-              Lưu
-            </Button>
-          </DialogActions>
-        </Dialog>
 
 
-        {/* <MuiModal open={openModal}>
-  <Select value={selectedMon} onChange={handleChange}>
-    {listMonAn.map(mon => (
-      <MenuItem value={mon.id}>{mon.tenMon} - {mon.gia}đ</MenuItem>
-    ))}
-  </Select>
-</MuiModal> */}
 
         <div style={{ flex: 1 }}>
           <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '100px' }}>Chú rể:</p>
@@ -357,31 +485,41 @@ function HoaDon() {
               </div> : null}
 
           </div>
-          {console.log('form la: ')}
-          {console.log(form.dsDichVu)}
+          {/* {console.log('form la: ')}
+          {console.log(form.dsDichVu)} */}
           {Array.isArray(form.dsDichVu) && form.dsDichVu.length > 0 ? (
-            <div style={{ maxHeight: '400px', overflow: 'auto', border: '1px solid rgba(224, 224, 224, 1)' }}>
-              <CustomTable
-                data={form.dsDichVu}
-                columns={columns}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+            <div>
 
-              />
+              <div style={{ maxHeight: '600px', overflow: 'auto', border: '1px solid rgba(224, 224, 224, 1)' }}>
+                <CustomTable
+                  data={form.dsDichVu}
+                  columns={columns}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+
+                />
+
+
+              </div>
+              <AddButton onClick={handleOpenDialog} text="Thêm dịch vụ" />
             </div>
+
           ) : (
             <p>Không có dữ liệu dich vu.</p>
           )}
 
           {form.dsMonAn.length > 0 ? (
-            <div style={{ maxHeight: '195px', overflow: 'auto', border: '1px solid rgba(224, 224, 224, 1)', marginTop: '30px' }}>
-              <CustomTable
-                data={form.dsMonAn}
-                columns={columns2}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
+            <div>
+              <div style={{ maxHeight: '600px', overflow: 'auto', border: '1px solid rgba(224, 224, 224, 1)', marginTop: '30px' }}>
+                <CustomTable
+                  data={form.dsMonAn}
+                  columns={columns2}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
 
-              />
+                />
+              </div>
+              <AddButton onClick={handleOpenDialog} text="Thêm món ăn" />
             </div>
           ) : (
             <p>Không có dữ liệu món ăn.</p>
@@ -390,6 +528,27 @@ function HoaDon() {
 
         </div>
 
+        <DichVuDialog
+          open={isDialogOpen}
+          onClose={handleCloseEditDialog}
+          onSave={handleSaveCT_DichVu}
+          title={mode === "edit" ? "Chỉnh sửa dịch vụ" : "Thêm dịch vụ"}
+          initialData={selectedDichVu}
+          mode={mode}
+        />
+        <DanhSachDichVuDialog
+          open={openDichVuDialog}
+          title='Chọn dịch vụ để thêm'
+          onClose={handleCloseDialog}
+          onSelect={handleChonDichVu}
+        />
+        <DeleteDialog
+          open={isDeleteDialogOpen}
+          onClose={handleCloseDeleteDialog}
+          onDelete={acceptDelete}
+          title="Xác nhận xóa dịch vụ"
+          content={`Bạn có chắc chắn muốn xóa dịch vụ "${selectedDichVu?.TenDichVu}"?`}
+        />
       </div>
     </div>
   );

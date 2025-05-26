@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './header.css';
 import CancelButton from '../../components/Cancelbutton';
-import SaveAndPrintButton from '../../components/Saveandprintbutton';
+//import SaveAndPrintButton from '../../components/Saveandprintbutton';
 import {
   AppBar,
   Toolbar,
@@ -90,7 +90,7 @@ const Header = () => {
         {/* Actions */}
         <Box sx={{ display: 'flex', justifyContent: 'end', gap: 2, }}>
           <CancelButton onClick={() => { }} textCancel='Sign In' />
-          <SaveAndPrintButton onClick={() => { }} text='Sign Up' sx={{ color: "white" }} />
+          {/* <SaveAndPrintButton onClick={() => { }} text='Sign Up' sx={{ color: "white" }} /> */}
         </Box>
       </Toolbar>
     </AppBar>
