@@ -22,7 +22,6 @@ module.exports.index = async (req, res) => {
       attributes: ['SoLuong', 'DonGia'],
       raw: true
     });
-
     const dsMonAn = await Ct_DatBan.findAll({
       where: { SoPhieuDatTiec: id },
       include: [{
@@ -33,11 +32,17 @@ module.exports.index = async (req, res) => {
       raw: true
     });
 
-    const result = hoadon.map(hd => ({
-      ...hd.toJSON(),
+    const result = hoadon.map(hd => {
+    const json = hd.toJSON();
+    return {
+      ...json,
       dsDichVu,
       dsMonAn
-    }));
+    };
+  });
+
+
+console.log(result[0].dsDichVu)
 
     res.json(result);
   } catch (error) {
@@ -48,10 +53,10 @@ module.exports.index = async (req, res) => {
 
 // POST http://localhost:25053/api/danhsachtiec/hoadon/create
 module.exports.create = async (req, res) => {
-
  try {
 
   const {SoPhieuDatTiec, SoHoaDon, SoLuongBanDaDung} = req.body;
+  console.log(SoPhieuDatTiec + ' ' + SoHoaDon + ' ' + SoLuongBanDaDung)
       const dsDichVu = await Ct_DichVu.findAll({
       include: [{
         model: DichVu,
@@ -129,7 +134,6 @@ hoadon.TienDatCoc = tienDatCoc
   res.status(200).json(hoadon);
 
  } catch (error) {
-
-  res.status(500).json({ message: "Lỗi ở tạo HOADON", error: error.message });
+  console.error(error)
  }
 }
