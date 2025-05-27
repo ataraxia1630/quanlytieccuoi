@@ -15,37 +15,29 @@ function DatDichVu() {
   //mock data
   const mockItems = [
     {
-      TenDichVu: 'Dịch vụ 1',
-      DonGia: '500,000',
-      TinhTrang: 'AVAILABLE',
-
+      "MaDV": "DV004",
+      "TenDV": "Quay phim & Chụp ảnh",
+      "DonGia": 2000000.00,
+      "TrangThai": "Ngừng cung cấp"
     },
     {
-      TenDichVu: 'Dịch vụ 2',
-      DonGia: '600,000',
-      TinhTrang: 'AVAILABLE',
-
+      "MaDV": "DV006",
+      "TenDV": "Rượu mừng",
+      "DonGia": 20000000.00,
+      "TrangThai": "Tạm dừng"
     },
     {
-      TenDichVu: 'Dịch vụ 3',
-      DonGia: '700,000',
-      TinhTrang: 'AVAILABLE',
-
+      "MaDV": "DV007",
+      "TenDV": "Thuê MC",
+      "DonGia": 500000.00,
+      "TrangThai": "Có sẵn"
     },
     {
-      TenDichVu: 'Dịch vụ 4',
-      DonGia: '800,000',
-      TinhTrang: 'AVAILABLE',
-
-    },
-    {
-      TenDichVu: 'Dịch vụ 5',
-      DonGia: '900,000',
-      TinhTrang: 'AVAILABLE',
-
-    },
-
-    // Add more items as needed
+      "MaDV": "DV008",
+      "TenDV": "Cổng cưới",
+      "DonGia": 1000000.00,
+      "TrangThai": "Có sẵn"
+    }
   ];
 
   useEffect(() => {

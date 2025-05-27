@@ -11,7 +11,6 @@ import DanhSachMonAn from '../pages/DanhSachMonAn';
 import DanhSachDichVu from '../pages/DanhSachDichVu';
 import DanhSachCa from '../pages/DanhSachCa';
 
-import DatSanhTiec from '../pages/DatSanhTiec';
 import DatMonAn from '../pages/DatMonAn';
 import DatDichVu from '../pages/DatDichVu';
 import ThongTinTiecCuoi from '../pages/ThongTinTiecCuoi';
@@ -31,7 +30,6 @@ export default function MainRoutes() {
         <Route path="/DashBoard" element={<DashBoard />}>
           <Route path="DatTiecCuoi" element={<DatTiecCuoi />} >
             <Route path="ThongTinTiecCuoi" element={<ThongTinTiecCuoi />} />
-            <Route path="DatSanhTiec" element={<DatSanhTiec />} />
             <Route path="DatMonAn" element={<DatMonAn />} />
             <Route path="DatDichVu" element={<DatDichVu />} />
           </Route>

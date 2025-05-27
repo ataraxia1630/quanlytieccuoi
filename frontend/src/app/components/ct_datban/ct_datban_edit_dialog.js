@@ -54,6 +54,7 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
                 DonGia: ctdatban.DonGia || 0,
                 GhiChu: ctdatban.GhiChu,
             });
+            console.log("ctdatban", ctdatban);
 
             validateNumberField("SoLuong", ctdatban.SoLuong);
             validateNumberField("DonGia", ctdatban.DonGia);
@@ -146,13 +147,14 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
                             value={formData.TenMonAn}
                             onChange={handleChange}
                             fullWidth
+                            disabled={!!ctdatban}
                         />
 
                         <FormTextField
                             label="Số lượng"
                             name="SoLuong"
                             value={formData.SoLuong}
-                            onChange={(newValue) => handleChange({ target: { name: "SoLuong", value: newValue } })}
+                            onChange={handleChange}
                             format="number"
                             error={!!errors.SoLuong}
                             helperText={errors.SoLuong}
@@ -162,7 +164,7 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
                             label="DonGia"
                             name="DonGia"
                             value={formData.DonGia}
-                            onChange={(newValue) => handleChange({ target: { name: "DonGia", value: newValue } })}
+                            onChange={handleChange}
                             format="number"
                             error={!!errors.DonGia}
                             helperText={errors.DonGia}

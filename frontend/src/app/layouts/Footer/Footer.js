@@ -10,7 +10,7 @@ import {
 
 const Footer = () => {
   return (
-    <Box sx={{ bgcolor: '#fdf6ec', borderTop: '2px solid #ccc', width: '100vw' }}>
+    <Box sx={{ bgcolor: '#fdf6ec', borderTop: '2px solid #ccc', width: '100vw', zIndex: 10, }}>
       <Grid container spacing={4} justifyContent="space-between">
         {/* Save the Date Calendar */}
         <Grid item xs={12} md={3} ml={6} sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>

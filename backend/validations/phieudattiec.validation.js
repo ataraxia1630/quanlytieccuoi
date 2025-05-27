@@ -41,11 +41,6 @@ const phieuDatTiecValidation = {
     ],
 
     createPhieuDatTiec: [
-        body("SoPhieuDatTiec")
-            .notEmpty()
-            .withMessage("Số phiếu đặt tiệc không được để trống.")
-            .matches(/^PDT\d{3}$/)
-            .withMessage("Số phiếu đặt tiệc phải có định dạng PDTxxx (x là chữ số)."),
         body("TenChuRe")
             .trim()
             .notEmpty()

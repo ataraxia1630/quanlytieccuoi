@@ -55,13 +55,14 @@ p {
 }
 
 .selection-container {
-  width: 90vw;
+  width: 86vw;
   display: flex;
   column-gap: 3rem;
   row-gap: 8rem;
   flex-wrap: wrap;
   padding-bottom: 3rem;
-  margin-left: auto;
+  padding-top: 3rem;
+  margin-left: 3.5rem;
 }
 
 

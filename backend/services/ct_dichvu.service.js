@@ -110,7 +110,7 @@ const CTDichVuService = {
             return true;
         } catch (error) {
             if (error.name === 'ApiError') throw error;
-            throw new ApiError(500, 'Lỗi khi cập nhật chi tiết dịch vụ  ${phieuDatTiecId}: ' + error.message);
+            throw new ApiError(500, `Lỗi khi cập nhật chi tiết dịch vụ  ${phieuDatTiecId}: ` + error.message);
         }
     },
 
@@ -129,7 +129,7 @@ const CTDichVuService = {
             await ct.destroy();
             return true;
         } catch (error) {
-            throw new ApiError(500, 'Lỗi khi xóa chi tiết dịch vụ ${phieuDatTiecId}: ' + error.message);
+            throw new ApiError(500, `Lỗi khi xóa chi tiết dịch vụ ${phieuDatTiecId}: ` + error.message);
         }
     }
 }

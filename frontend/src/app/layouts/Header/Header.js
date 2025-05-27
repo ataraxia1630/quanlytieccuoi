@@ -45,6 +45,7 @@ const Header = () => {
 
   return (
     <AppBar position="sticky" elevation={0} sx={{
+      zIndex: 10,
       padding: '10px 0px 10px 0px ',
       color: 'rgb(41, 41, 41)',
       backgroundColor: 'white',
