@@ -13,7 +13,7 @@ const createMonAnValidation = [
     .notEmpty()
     .withMessage('Đơn giá là bắt buộc')
     .toFloat()
-    .isFloat({ min: 0, max: 9999999 })
+    .isFloat({ min: 0, max: 99999999 })
     .withMessage('Đơn giá phải là số và >= 0'),
 
   check('TinhTrang')
@@ -31,7 +31,7 @@ const updateMonAnValidation = [
   check('DonGia')
     .optional()
     .toFloat()
-    .isFloat({ min: 0 })
+    .isFloat({ min: 0, max: 99999999 })
     .withMessage('Đơn giá phải là số và >= 0'),
 
   check('TinhTrang')
