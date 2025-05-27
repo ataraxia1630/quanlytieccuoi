@@ -14,9 +14,7 @@ const DanhSachDichVuDialog = ({
   initialData = null,
   mode = "add",
 }) => {
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [sl, setSL] = useState("");
+ 
   const [errors, setErrors] = useState({});
 
   const [danhSachDichVu, setDanhSachDichVu] = useState([]);

@@ -1,11 +1,11 @@
 import { Dialog, DialogContent, DialogTitle, Button, List, ListItem, ListItemText, Divider, Box } from "@mui/material";
 import { useEffect, useState } from "react";
-import DichVuService from "../../service/dichvu.service";
+import MonAnService from "../../service/monan.service";
 import DialogTitleCustom from "../Dialogtitlecustom";
 import FormTextField from "../Formtextfield";
 import DialogButtons from "../Dialogbutton";
 
-const DanhSachDichVuDialog = ({
+const DanhSachMonAnDialog = ({
   open,
   onClose,
   onSave,
@@ -14,23 +14,37 @@ const DanhSachDichVuDialog = ({
   initialData = null,
   mode = "add",
 }) => {
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [sl, setSL] = useState("");
+ 
   const [errors, setErrors] = useState({});
 
-  const [danhSachDichVu, setDanhSachDichVu] = useState([]);
+  const [thucDon, setThucDon] = useState([]);
 
   useEffect(() => {
-    if (open) {
-      DichVuService.getAllDichVu()
-        .then((data) => setDanhSachDichVu(data))
-        .catch((err) => console.error(err));
-    }
-  }, [open]);
+  if (open) {
+    const fetchData = async () => {
+      try {
+        const kq = await MonAnService.getAll();
+        console.log("Dữ liệu từ API:", kq);
 
-  const handleSelect = (dichVu) => {
-    onSelect(dichVu);
+        // Kiểm tra nếu kq.data là array
+        if (Array.isArray(kq.data)) {
+          setThucDon(kq.data);
+        } else {
+          setThucDon([]); // fallback nếu không phải mảng
+          console.error("Dữ liệu trả về không phải array:", kq.data);
+        }
+      } catch (error) {
+        console.error("Lỗi khi gọi MonAnService.getAll():", error);
+        setThucDon([]); // fallback nếu lỗi
+      }
+    };
+
+    fetchData();
+  }
+}, [open]);
+
+  const handleSelect = (monan) => {
+    onSelect(monan);
     onClose();
   };
 
@@ -76,25 +90,16 @@ const DanhSachDichVuDialog = ({
         <Box display="flex" flexDirection="column" gap={3.5}>
         
           <List>
-          {danhSachDichVu.map((dv) => (
-            <ListItem button key={dv.MaDichVu} onClick={() => handleSelect(dv)}>
-              <ListItemText primary={dv.TenDichVu} secondary={`Giá: ${dv.DonGia}`} />
+          {thucDon.map((ma) => (
+            <ListItem button key={ma.MaMonAn} onClick={() => handleSelect(ma)}>
+              <ListItemText primary={ma.TenMonAn} secondary={`Giá: ${ma.DonGia}`} />
             </ListItem>
           ))}
         </List>
         </Box>
-
-        {/* <Box mt={4.5}>
-          <DialogButtons
-            textCancel="Hủy"
-            text="Lưu"
-            onCancel={handleCancel}
-            onAction={handleSave}
-          />
-        </Box> */}
       </DialogContent>
     </Dialog>
   );
 };
 
-export default DanhSachDichVuDialog;
+export default DanhSachMonAnDialog;

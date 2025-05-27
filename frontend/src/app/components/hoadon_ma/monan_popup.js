@@ -5,7 +5,7 @@ import FormTextField from "../Formtextfield";
 import DialogButtons from "../Dialogbutton";
 
 
-const DichVuDialog = ({
+const MonAnDialog = ({
   open,
   onClose,
   onSave,
@@ -20,11 +20,11 @@ const DichVuDialog = ({
 
   useEffect(() => {
     if (open) {
+        setPrice(initialData.DonGia || "");
+      
       if (mode === "edit" && initialData) {
-        setPrice(initialData.DonGia?.toString() || "");
         setSL(initialData.SoLuong || "");
       } else {
-        setPrice("");
         setSL("");
       }
       setErrors({});
@@ -33,13 +33,11 @@ const DichVuDialog = ({
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!price.trim()) {
       newErrors.price = "Giá không được để trống";
     } else if (isNaN(price) || Number(price) < 0) {
       newErrors.price = "Giá phải là số không âm";
     }
-
     if (!sl) {
       newErrors.sl = "Vui lòng chọn số lượng!";
     }
@@ -86,11 +84,12 @@ const DichVuDialog = ({
 
       <DialogContent sx={{ pt: 4.5, px: 5, pb: 3.5 }}>
         <Box display="flex" flexDirection="column" gap={3.5}>
-        {initialData?.DichVu?.TenDichVu && (
+        {initialData?.MonAn?.TenMonAn && (
           <strong style={{ fontSize: '16px', color: '#063F5C' }}>
-            {initialData.DichVu.TenDichVu}
+            {initialData.MonAn.TenMonAn}
           </strong>
         )}
+
           <FormTextField
             label="Giá"
             type="number"
@@ -107,7 +106,6 @@ const DichVuDialog = ({
               step: 1000,
             }}
           />
-
           <FormTextField
             label="Số lượng"
             type="number"
@@ -133,4 +131,4 @@ const DichVuDialog = ({
   );
 };
 
-export default DichVuDialog;
+export default MonAnDialog;

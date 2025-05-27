@@ -1,31 +1,32 @@
 .hoadonBox {
   display: flex;
   width: 1230px;
-  height: 838px;
+  height: 700px;
   flex-shrink: 0;
   border-radius: 5px;
   background: #063F5C;
+  margin-left: 30px;
 }
 
 .ctHoadon {
   color: #FFF;
-  padding-left: 200px;
+  padding-left: 150px;
   font-size: 48px;
   font-style: normal;
   font-weight: 400;
   line-height: normal;
   color: #FFF;
   margin: 0 0;
-  margin-top: 20px;
+  margin-top: 10px;
 
 }
 
 .hoadonLeft {
   width: 293px;
-  height: 838px;
+  height: 700px;
   border-right: 1px dashed white;
   margin-left: 19px;
-  
+
 }
 
 .dashedBorder {
@@ -37,17 +38,23 @@
 
 .hoadonRight {
   margin-left: 43px;
-  width: 800px;
-  height: 838px;
+  width: calc(100% - 293px - 59px);
+  height: 700px;
   display: flex;
   flex-direction: column;
+
+  overflow-y: auto;      /* Cho phép cuộn dọc */
+  padding-right: 16px;   /* Tạo khoảng cách cho scrollbar */
+  box-sizing: border-box;
+  padding-bottom: 50px;
 }
 
+
 .row {
-  margin-top: 37px;
+  margin-top: 20px;
   display: flex;
   gap: 91px;
-  margin-bottom: 40px;
+  margin-bottom: 15px;
 }
 
 
@@ -56,8 +63,7 @@
   align-items: center;
   gap: 9px;
   color: #FFF;
-  font-family: "Libre Bodoni";
-  font-size: 20px;
+  font-size: 18px;
   font-style: normal;
   font-weight: 500;
   line-height: normal;
@@ -65,7 +71,6 @@
 
 .hoadonName {
   color: #FFD66D;
-  font-family: "Josefin Slab";
   font-size: 20px;
   font-style: normal;
   font-weight: 700;
@@ -75,6 +80,36 @@
 .inf {
   display: flex;
   flex-direction: column;
-  justify-content:end;
+  justify-content: end;
   margin-top: auto;
 }
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .printableHoaDon, .printableHoaDon * {
+    visibility: visible !important;
+  }
+
+  .printableHoaDon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+    background: white;
+  }
+
+  .noPrint {
+    display: none !important;
+  }
+
+  /* 5. Bỏ scrollbar nếu có */
+  .printableHoaDon {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+}
+

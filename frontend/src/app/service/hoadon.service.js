@@ -9,10 +9,8 @@ export const getHoaDon = async (id) => {
     }
     const data = await res.json();
     
-    // Nếu là mảng => lấy phần tử đầu tiên
-    if (Array.isArray(data)) return data[0];
+    if (Array.isArray(data)) return data[data.length - 1]; 
 
-    // Nếu là object => trả thẳng về
     return data;
   } catch (error) {
     console.error("Lỗi khi gọi API hóa đơn:", error);
@@ -21,7 +19,7 @@ export const getHoaDon = async (id) => {
 };
 
 
-export const createHoaDon = async (id, data) => {
+export const createHoaDon = async (data) => {
  try {
   const res = await fetch(`${API_URL}/hoadon/create`, {
    method: "POST",

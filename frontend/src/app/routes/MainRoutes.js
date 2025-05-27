@@ -20,13 +20,15 @@ import DatDichVu from '../pages/DatDichVu';
 import ThongTinTiecCuoi from '../pages/ThongTinTiecCuoi';
 
 import Home from '../pages/Home';
-
+import Header from '../layouts/Header';
+import Footer from '../layouts/Footer';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 export default function MainRoutes() {
   return (
     <BrowserRouter>
-      <Header />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="*" element={<PageNotFound />} />
@@ -53,6 +55,7 @@ export default function MainRoutes() {
         </Route>
       </Routes>
       <Footer />
+       <ToastContainer />
     </BrowserRouter>
   );
 }

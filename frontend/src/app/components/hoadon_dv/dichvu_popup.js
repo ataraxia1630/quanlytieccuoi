@@ -20,11 +20,11 @@ const DichVuDialog = ({
 
   useEffect(() => {
     if (open) {
+      setPrice(initialData.DonGia?.toString() || "");
+
       if (mode === "edit" && initialData) {
-        setPrice(initialData.DonGia?.toString() || "");
         setSL(initialData.SoLuong || "");
       } else {
-        setPrice("");
         setSL("");
       }
       setErrors({});

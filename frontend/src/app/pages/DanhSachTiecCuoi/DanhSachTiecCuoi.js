@@ -7,9 +7,11 @@ import Rangeinput from '../../components/Rangeinput';
 import StatusRadio from '../../components/Statusradio';
 import FilterButton from '../../components/Filterbutton';
 import { getDanhSach, postDanhSach } from '../../service/danhsachtiec.service';
-import { createHoaDon, getHoaDon } from '../../service/hoadon.service';
+import { getHoaDon } from '../../service/hoadon.service';
 import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
 import { useNavigate } from "react-router-dom";
+import sanhService from '../../service/sanh.service';
+import DateRangePicker from '../../components/danhsachtiec/daterange';
 
 function DanhSachTiecCuoi() {
   const navigate = useNavigate();
@@ -31,8 +33,15 @@ function DanhSachTiecCuoi() {
     setLoading(true);
     try {
       const result = await getDanhSach();
-      const dsSanh = result.map(item => item.MaSanh);
-      setSanh(dsSanh);
+      const dsSanh = await sanhService.getAllSanh();
+
+      dsSanh.map(item => {
+        if (item.TenSanh) {
+          setSanh(prev => [...prev, item.TenSanh]);
+        }
+      });
+      console.log("Danh sách sảnh:", dsSanh);
+
       setData(result);
     } catch (error) {
       console.error("Lỗi lấy danh sách:", error);
@@ -46,53 +55,60 @@ function DanhSachTiecCuoi() {
   }, []);
 
   const handleSearch = async () => {
-  setLoading(true);
-  try {
-    if (!searchText.trim()) {
-      await fetchData(); // Nếu ô tìm kiếm trống, lấy lại danh sách ban đầu
-      return;
+    setLoading(true);
+    try {
+      if (!searchText.trim()) {
+        await fetchData();
+        return;
+      }
+
+      const payload = { ten: searchText.trim() };
+      const result = await postDanhSach(payload);
+      setData(result);
+    } catch (error) {
+      console.error("Lỗi tìm kiếm:", error);
+    } finally {
+      setLoading(false);
     }
-
-    const payload = { ten: searchText.trim() };
-    const result = await postDanhSach(payload);
-    setData(result);
-  } catch (error) {
-    console.error("Lỗi tìm kiếm:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
-const handleSubmit = async () => {
-  setLoading(true);
-  try {
-    const {
-      tuBan,
-      denBan,
-      sanh,
-      tuNgay,
-      denNgay,
-      trangThai
-    } = form;
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const {
+        tuBan,
+        denBan,
+        sanh,
+        tuNgay,
+        denNgay,
+        trangThai
+      } = form;
 
-    const payload = {};
+      const payload = {};
 
-    if (tuBan !== "") payload.tuBan = parseInt(tuBan);
-    if (denBan !== "") payload.denBan = parseInt(denBan);
-    if (sanh !== "") payload.sanh = sanh;
-    if (tuNgay !== "") payload.tuNgay = new Date(tuNgay).toISOString();
-    if (denNgay !== "") payload.denNgay = new Date(denNgay).toISOString();
-    if (trangThai !== "") payload.trangThai = trangThai;
+      if (tuBan !== "") payload.tuBan = parseInt(tuBan);
+      if (denBan !== "") payload.denBan = parseInt(denBan);
+      if (sanh !== "") payload.sanh = sanh;
+      if (tuNgay !== "") payload.tuNgay = new Date(tuNgay).toISOString();
+      if (denNgay !== "") payload.denNgay = new Date(denNgay).toISOString();
+      if (trangThai !== "") {
+        if (trangThai === "true") {
+          payload.trangThai = true;
+        }
+        else if (trangThai === "false") {
+          payload.trangThai = false;
+        }
+      }
 
-    const result = await postDanhSach(payload);
-    setData(result);
-  } catch (error) {
-    console.error("Lỗi lọc dữ liệu:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+      const result = await postDanhSach(payload);
+      setData(result);
+    } catch (error) {
+      console.error("Lỗi lọc dữ liệu:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   const columns = [
@@ -122,11 +138,12 @@ const handleSubmit = async () => {
           onClick={async () => {
             try {
               const hoaDon = await getHoaDon(row.SoPhieuDatTiec);
-              
-              if (hoaDon && hoaDon.length > 0) {
+              console.log("Hóa đơn:", hoaDon);
+              if (hoaDon) {
                 navigate('/DashBoard/HoaDon', {
                   state: {
-                    soHoaDon: hoaDon[0].SoHoaDon,
+                    soHoaDon: hoaDon.SoHoaDon,
+                    soPhieuDatTiec: row.SoPhieuDatTiec,
                     data: hoaDon,
                     chuRe: row.TenChuRe,
                     coDau: row.TenCoDau,
@@ -167,7 +184,7 @@ const handleSubmit = async () => {
   const options1 = sanh.map(MaSanh => ({ label: MaSanh, value: MaSanh }));
 
   return (
-    <div className="danhsachtieccuoi-page">
+    <div className="danhsachtieccuoi">
       <p className='title'>Danh sách tiệc cưới</p>
 
       <div className='box-search'>
@@ -206,14 +223,15 @@ const handleSubmit = async () => {
           </div>
 
           <div className='ngay-box'>
-            <Rangeinput
-              label="Ngày"
-              width={56}
-              fromValue={form.tuNgay}
-              toValue={form.denNgay}
-              onFromChange={(v) => setForm({ ...form, tuNgay: v })}
-              onToChange={(v) => setForm({ ...form, denNgay: v })}
-            />
+            <DateRangePicker
+            label="Ngày"
+            fromDate={form.tuNgay}
+            toDate={form.denNgay}
+            onFromChange={(v) => setForm({ ...form, tuNgay: v })}
+            onToChange={(v) => setForm({ ...form, denNgay: v })}
+          />
+
+
           </div>
 
           <StatusRadio
@@ -222,6 +240,7 @@ const handleSubmit = async () => {
             onChange={(val) => setForm({ ...form, trangThai: val })}
             options={options}
           />
+
         </div>
       </div>
 

@@ -44,9 +44,10 @@ if (ten) {
       [Op.between]: [tuBan, denBan],
     };
   }
-  if(trangThai) {
-   where.trangthai = trangThai
-  }
+  if (typeof trangThai === 'boolean') {
+    console.log("trangThai", trangThai);
+  where.trangthai = trangThai;
+}
 
   const danhSach = await PhieuDatTiec.findAll({ where });
   res.json(danhSach);
