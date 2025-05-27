@@ -104,14 +104,17 @@ const LoaiSanhService = {
         },
       });
       if (existing) {
-        throw new ApiError(400, 'Thêm mới thất bại!\nLoại sảnh đã tồn tại.');
+        throw new ApiError(
+          400,
+          `Loại sảnh "${data.TenLoaiSanh}" đã tồn tại trong hệ thống.`
+        );
       }
 
       const latest = await LoaiSanhService.getLatestLoaiSanh();
-      let newMaLoaiSanh = 'LS00000001';
+      let newMaLoaiSanh = 'LS001';
       if (latest && latest.MaLoaiSanh) {
         const number = parseInt(latest.MaLoaiSanh.replace('LS', '')) || 0;
-        newMaLoaiSanh = 'LS' + (number + 1).toString().padStart(8, '0');
+        newMaLoaiSanh = 'LS' + (number + 1).toString().padStart(3, '0');
       }
 
       return await LoaiSanh.create({
@@ -120,7 +123,10 @@ const LoaiSanhService = {
       });
     } catch (error) {
       console.log(error);
-      throw new ApiError(500, 'Thêm mới thất bại\nLỗi server.');
+      throw new ApiError(
+        500,
+        'Tạo loại sảnh mới thất bại! Vui lòng thử lại sau.'
+      );
     }
   },
 
@@ -135,9 +141,27 @@ const LoaiSanhService = {
           'Cập nhật thất bại!\nKhông tìm thấy loại sảnh này trong CSDL!'
         );
       }
+
+      if (data.TenLoaiSanh && data.TenLoaiSanh !== loaisanh.TenLoaiSanh) {
+        const existing = await LoaiSanh.findOne({
+          where: {
+            TenLoaiSanh: data.TenLoaiSanh,
+            id: { [Op.ne]: id },
+          },
+        });
+        if (existing) {
+          throw new ApiError(
+            400,
+            `Loại sảnh "${data.TenLoaiSanh}" đã tồn tại trong hệ thống.`
+          );
+        }
+      }
       return await loaisanh.update(data);
     } catch (error) {
-      throw new ApiError(500, 'Xóa thất bại!\nLỗi server!');
+      throw new ApiError(
+        500,
+        'Cập nhật loại sảnh thất bại! Vui lòng thử lại sau.'
+      );
     }
   },
 
@@ -160,10 +184,10 @@ const LoaiSanhService = {
       ) {
         throw new ApiError(
           409,
-          'Xóa thất bại!\nLoại sảnh đang được sử dụng ở nơi khác (ràng buộc khóa ngoại).'
+          'Xóa thất bại!\nLoại sảnh đã hoặc đang được sử dụng.'
         );
       }
-      throw new ApiError(500, 'Xóa thất bại!\nLỗi server!');
+      throw new ApiError(500, 'Xóa thất bại! Vui lòng thử lại sau.');
     }
   },
 
