@@ -54,7 +54,7 @@ const DishColumns = [
   },
   {
     id: 'TinhTrang',
-    label: 'Tình Trạng',
+    label: 'Tình trạng',
     sortable: false,
     width: 150,
     render: (row) => statusMapToFrontend[row.TinhTrang] || row.TinhTrang,

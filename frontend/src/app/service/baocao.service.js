@@ -1,4 +1,4 @@
-const baseURL = 'http://localhost:25053/api/baocao';
+const baseURL = '/api/baocao';
 
 const BaoCaoThangService = {
   getMonthlyReport: async (month, year) => {
