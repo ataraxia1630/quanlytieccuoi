@@ -1,15 +1,8 @@
-/* CSS cho DanhSachTiecCuoi */
-.danhsachtieccuoi {
-    margin: 0 100px;
-
-}
-
 .box {
     height: 198px;
     flex-shrink: 0;
     background: #F5F5F5;
     margin-bottom: 28px;
-
 }
 
 .box-search {
@@ -32,12 +25,13 @@
 }
 
 .apply {
-    width: 103.835px;
     height: 51.26px;
     flex-shrink: 0;
     fill: #FFF;
     stroke-width: 2px;
     stroke: var(--Primary-Color, #063F5C);
+    display: flex;
+    gap: 5px;
 }
 
 .sanh-box {
@@ -54,17 +48,6 @@
 
 .ngay-box {
     margin-right: 140px;
-}
-
-.title {
-    color: #063F5C;
-    font-family: "Libre Bodoni";
-    font-size: 48px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: normal;
-    margin: 0;
-    top: 41px;
 }
 
 .action {

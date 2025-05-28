@@ -7,18 +7,23 @@ import Rangeinput from '../../components/Rangeinput';
 import StatusRadio from '../../components/Statusradio';
 import FilterButton from '../../components/Filterbutton';
 import { getDanhSach, postDanhSach } from '../../service/danhsachtiec.service';
-import { getHoaDon } from '../../service/hoadon.service';
-import RemoveRedEyeOutlinedIcon from '@mui/icons-material/RemoveRedEyeOutlined';
-import { useNavigate } from "react-router-dom";
 import sanhService from '../../service/sanh.service';
 import DateRangePicker from '../../components/danhsachtiec/daterange';
-
+import { Box, Typography } from '@mui/material';
+import { toast, ToastContainer } from 'react-toastify';
+import DeleteDialog from '../../components/Deletedialog';
+import PhieuDatTiecService from '../../service/phieudattiec.service';
+import Phieucolumns from '../../components/danhsachtiec/phieudattiec_column';
+import { useNavigate } from 'react-router-dom';
 function DanhSachTiecCuoi() {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [sanh, setSanh] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedPhieu, setSelectedPhieu] = useState(null);
   const [form, setForm] = useState({
     tuBan: "",
     denBan: "",
@@ -32,15 +37,15 @@ function DanhSachTiecCuoi() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const result = await getDanhSach();
-      const dsSanh = await sanhService.getAllSanh();
+      const [result, dsSanh] = await Promise.all([
+        getDanhSach(),
+        sanhService.getAllSanh()
+      ]);
 
-      dsSanh.map(item => {
-        if (item.TenSanh) {
-          setSanh(prev => [...prev, item.TenSanh]);
-        }
-      });
-      console.log("Danh sách sảnh:", dsSanh);
+      const sanhList = dsSanh
+        .filter(item => item.TenSanh)
+        .map(item => item.TenSanh);
+      setSanh(sanhList);
 
       setData(result);
     } catch (error) {
@@ -49,7 +54,6 @@ function DanhSachTiecCuoi() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -61,9 +65,7 @@ function DanhSachTiecCuoi() {
         await fetchData();
         return;
       }
-
-      const payload = { ten: searchText.trim() };
-      const result = await postDanhSach(payload);
+      const result = await postDanhSach({ ten: searchText.trim() });
       setData(result);
     } catch (error) {
       console.error("Lỗi tìm kiếm:", error);
@@ -72,34 +74,41 @@ function DanhSachTiecCuoi() {
     }
   };
 
+  const handleFilter = () => {
+    setIsFilterOpen(!isFilterOpen);
+  };
+
+  const handleResetFilter = async () => {
+    setForm({
+      tuBan: "",
+      denBan: "",
+      sanh: "",
+      tuNgay: "",
+      denNgay: "",
+      trangThai: "",
+      ten: ""
+    });
+    setSearchText('');
+  };
+
+  const handleDelete = (phieu) => {
+    setSelectedPhieu(phieu);
+    setIsDeleteDialogOpen(true);
+    console.log("da vao xoa phieu")
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      const {
-        tuBan,
-        denBan,
-        sanh,
-        tuNgay,
-        denNgay,
-        trangThai
-      } = form;
-
+      const { tuBan, denBan, sanh, tuNgay, denNgay, trangThai } = form;
       const payload = {};
 
-      if (tuBan !== "") payload.tuBan = parseInt(tuBan);
-      if (denBan !== "") payload.denBan = parseInt(denBan);
-      if (sanh !== "") payload.sanh = sanh;
-      if (tuNgay !== "") payload.tuNgay = new Date(tuNgay).toISOString();
-      if (denNgay !== "") payload.denNgay = new Date(denNgay).toISOString();
-      if (trangThai !== "") {
-        if (trangThai === "true") {
-          payload.trangThai = true;
-        }
-        else if (trangThai === "false") {
-          payload.trangThai = false;
-        }
-      }
+      if (tuBan) payload.tuBan = parseInt(tuBan);
+      if (denBan) payload.denBan = parseInt(denBan);
+      if (sanh) payload.sanh = sanh;
+      if (tuNgay) payload.tuNgay = new Date(tuNgay).toISOString();
+      if (denNgay) payload.denNgay = new Date(denNgay).toISOString();
+      if (trangThai !== "") payload.trangThai = trangThai === "true";
 
       const result = await postDanhSach(payload);
       setData(result);
@@ -110,146 +119,144 @@ function DanhSachTiecCuoi() {
     }
   };
 
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setSelectedPhieu(null);
+  };
+  const acceptDelete = async () => {
+    try {
+      setLoading(true);
+      const result = await PhieuDatTiecService.deletePhieuDatTiec(selectedPhieu.SoPhieuDatTiec);
+      setIsDeleteDialogOpen(false);
+      setData(prev => prev.filter(p => p.SoPhieuDatTiec !== selectedPhieu.SoPhieuDatTiec));
 
-  const columns = [
-    { id: "index", label: "STT", width: 30 },
-    { id: "TenChuRe", label: "Tên chú rể", sortable: true },
-    { id: "TenCoDau", label: "Tên cô dâu", sortable: true },
-    { id: "MaSanh", label: "Sảnh" },
-    { id: "SoLuongBan", label: "Số lượng bàn", sortable: true },
-    {
-      id: "NgayDaiTiec", label: "Ngày", sortable: true,
-      render: (row) => new Date(row.NgayDaiTiec).toISOString().split('T')[0]
-    },
-    {
-      id: "gio", label: "Giờ", sortable: true,
-      render: (row) => {
-        const hour = new Date(row.NgayDaiTiec).getHours().toString().padStart(2, '0');
-        const minute = new Date(row.NgayDaiTiec).getMinutes().toString().padStart(2, '0');
-        const formattedTime = `${hour}:${minute}`; // Ví dụ: "14:05"
-        return formattedTime;
-      }
-    },
-    {
-      id: "actions", label: "Thao tác", width: 200,
-      render: (row) => (
-        <div
-          className='action'
-          onClick={async () => {
-            try {
-              const hoaDon = await getHoaDon(row.SoPhieuDatTiec);
-              console.log("Hóa đơn:", hoaDon);
-              if (hoaDon) {
-                navigate('/DashBoard/HoaDon', {
-                  state: {
-                    soHoaDon: hoaDon.SoHoaDon,
-                    soPhieuDatTiec: row.SoPhieuDatTiec,
-                    data: hoaDon,
-                    chuRe: row.TenChuRe,
-                    coDau: row.TenCoDau,
-                    tienCoc: row.TienDatCoc,
-                    ngayDaiTiec: row.NgayDaiTiec
-                  }
-                });
-              } else {
-                navigate('/DashBoard/HoaDon', {
-                  state: {
-                    soPhieuDatTiec: row.SoPhieuDatTiec,
-                    data: row,
-                    chuRe: row.TenChuRe,
-                    coDau: row.TenCoDau,
-                    tienCoc: row.TienDatCoc,
-                    ngayDaiTiec: row.NgayDaiTiec
-                  }
-                });
-              }
-            } catch (error) {
-              console.error("Lỗi xem hóa đơn:", error);
-            }
-          }}
-        >
-          <RemoveRedEyeOutlinedIcon />
-          <a style={{ cursor: "pointer" }}>Xem hóa đơn</a>
-        </div>
-      )
+      const toastByStatus = {
+        "soft-deleted": toast.info,
+        "already-soft-deleted": toast.warning,
+        deleted: toast.success,
+      };
+
+      (toastByStatus[result.status] || toast.success)(result.message);
+
+      setSelectedPhieu(null);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
-  ];
-
+  };
   const options = [
     { label: "Tất cả", value: "" },
-    { label: "Đã huỷ", value: false },
-    { label: "Bình thường", value: true },
+    { label: "Đã huỷ", value: "false" },
+    { label: "Bình thường", value: "true" },
   ];
 
   const options1 = sanh.map(MaSanh => ({ label: MaSanh, value: MaSanh }));
+  const phieuData = Phieucolumns(navigate)
 
   return (
-    <div className="danhsachtieccuoi">
-      <p className='title'>Danh sách tiệc cưới</p>
+    <Box sx={{ p: 3 }}>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
 
-      <div className='box-search'>
+      <Typography
+        variant="h4"
+        sx={{ fontWeight: "bold", color: "#063F5C", mb: 4 }}
+      >
+        Danh sách tiệc cưới
+      </Typography>
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "20px",
+          mb: 3,
+        }}
+      >
         <Searchbar
           placeholder='Tìm tên cô dâu hoặc chú rể...'
           value={searchText}
           onChange={setSearchText}
           onSearch={handleSearch}
         />
-      </div>
+        <Box sx={{ display: "flex", gap: "17px", justifyContent: "flex-end" }}>
+          <FilterButton onClick={handleFilter} text="Filter" />
+        </Box>
+      </Box>
+      {isFilterOpen &&
+        <div className='box'>
+          <div className='content'>
+            <div className='sanh-box'>
+              <Dropdown
+                className="sanh"
+                label="Sảnh"
+                value={form.sanh}
+                onChange={(value) => setForm({ ...form, sanh: value })}
+                width={150}
+                options={options1}
+              />
 
-      <div className='box'>
-        <div className='content'>
-          <div className='sanh-box'>
-            <Dropdown
-              className="sanh"
-              label="Sảnh"
-              onChange={(value) => setForm({ ...form, sanh: value })}
-              width={150}
-              options={options1}
-            />
-            <div className="apply">
-              <FilterButton text='Apply' onClick={handleSubmit} />
+              <div className="apply">
+                <FilterButton text='Apply' onClick={handleSubmit} />
+                <FilterButton text='Reset' onClick={handleResetFilter} />
+              </div>
+
             </div>
-          </div>
 
-          <div className='ban-box'>
-            <Rangeinput
-              label="Số lượng bàn"
-              width={56}
-              fromValue={form.tuBan}
-              toValue={form.denBan}
-              onFromChange={(v) => setForm({ ...form, tuBan: v })}
-              onToChange={(v) => setForm({ ...form, denBan: v })}
+            <div className='ban-box'>
+              <Rangeinput
+                label="Số lượng bàn"
+                width={56}
+                fromValue={form.tuBan}
+                toValue={form.denBan}
+                onFromChange={(v) => setForm({ ...form, tuBan: v })}
+                onToChange={(v) => setForm({ ...form, denBan: v })}
+              />
+            </div>
+
+            <div className='ngay-box'>
+              <DateRangePicker
+                label="Ngày"
+                fromDate={form.tuNgay}
+                toDate={form.denNgay}
+                onFromChange={(v) => setForm({ ...form, tuNgay: v })}
+                onToChange={(v) => setForm({ ...form, denNgay: v })}
+              />
+            </div>
+
+            <StatusRadio
+              label="Tình trạng"
+              value={form.trangThai}
+              onChange={(val) => setForm({ ...form, trangThai: val })}
+              options={options}
             />
+
+            
           </div>
-
-          <div className='ngay-box'>
-            <DateRangePicker
-            label="Ngày"
-            fromDate={form.tuNgay}
-            toDate={form.denNgay}
-            onFromChange={(v) => setForm({ ...form, tuNgay: v })}
-            onToChange={(v) => setForm({ ...form, denNgay: v })}
-          />
-
-
-          </div>
-
-          <StatusRadio
-            label="Tình trạng"
-            value={form.trangThai}
-            onChange={(val) => setForm({ ...form, trangThai: val })}
-            options={options}
-          />
-
         </div>
-      </div>
-
-      {loading ? (
-        <p style={{ padding: 24 }}>Đang tải dữ liệu...</p>
-      ) : (
-        <CustomTable data={data} columns={columns} />
-      )}
-    </div>
+      }
+      <DeleteDialog
+              open={isDeleteDialogOpen}
+              onClose={handleCloseDeleteDialog}
+              onDelete={acceptDelete}
+              title="Xác nhận xóa phiếu đặt tiệc"
+              content={`Bạn có chắc chắn muốn xoá phiếu đặt tiệc này?`}
+            />
+      {
+        loading ? (
+          <p style={{ padding: 24 }}>Đang tải dữ liệu...</p>
+        ) : (
+          <CustomTable
+            data={data}
+            columns={phieuData}
+            onDelete={handleDelete}
+          />
+          
+        )
+      }
+    </Box>
   );
 }
 

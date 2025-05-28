@@ -42,8 +42,6 @@ function HoaDon() {
 
   const handleOpenMADialog = () => setOpenMonAnDialog(true);
   const handleCloseMADialog = () => setOpenMonAnDialog(false);
-
-
   const [form, setForm] = useState({
     SoPhieuDatTiec: '',
     SoHoaDon: '',
@@ -59,10 +57,6 @@ function HoaDon() {
     dsMonAn: [],
 
   });
-
-
-  const [searchTerm, setSearchTerm] = useState("");
-
   const [isDVDialogOpen, setIsDVDialogOpen] = useState(false);
   const [isMADialogOpen, setIsMADialogOpen] = useState(false);
 
@@ -224,7 +218,7 @@ function HoaDon() {
 
         setForm(prev => ({ ...prev, dsDichVu: normalized }));
 
-        toast.success("Chỉnh sửa dịch vụ trong hoá đơn thành công");
+        toast.success("Dịch vụ đã được cập nhật!");
       } else {
 
         const isExist = form.dsDichVu.some(
@@ -248,7 +242,7 @@ function HoaDon() {
         }));
 
         setForm(prev => ({ ...prev, dsDichVu: normalized }));
-        toast.success("Thêm dịch vụ vào hoá đơn thành công");
+        toast.success("Dịch vụ đã được thêm vào hoá đơn!");
       }
 
       setIsDVDialogOpen(false);
@@ -282,7 +276,7 @@ function HoaDon() {
 
         setForm(prev => ({ ...prev, dsMonAn: normalized }));
 
-        toast.success("Chỉnh sửa món ăn trong hoá đơn thành công");
+        toast.success("Món ăn đã được cập nhật!");
       } else {
         const isExist = form.dsMonAn.some(
           (ma) => ma.MaMonAn === selectedMonAn.MaMonAn
@@ -304,7 +298,7 @@ function HoaDon() {
           }
         }));
         setForm(prev => ({ ...prev, dsMonAn: normalized }));
-        toast.success("Thêm món ăn vào hoá đơn thành công");
+        toast.success("Món ăn đã được thêm vào hoá đơn!");
       }
 
       setIsMADialogOpen(false);
@@ -326,13 +320,7 @@ function HoaDon() {
         ...prev,
         dsDichVu: newList,
       }));
-      const toastByStatus = {
-        "soft-deleted": toast.info,
-        "already-soft-deleted": toast.warning,
-        deleted: toast.success,
-      };
-
-      (toastByStatus[result.status] || toast.success)(result.message);
+      toast.success('Đã xoá dịch vụ khỏi hoá đơn!')
 
       setIsDeleteDVDialogOpen(false);
       setSelectedDichVu(null);
@@ -353,13 +341,7 @@ function HoaDon() {
         ...prev,
         dsMonAn: newList,
       }));
-      const toastByStatus = {
-        "soft-deleted": toast.info,
-        "already-soft-deleted": toast.warning,
-        deleted: toast.success,
-      };
-
-      (toastByStatus[result.status] || toast.success)(result.message);
+      toast.success('Đã xoá món ăn khỏi hoá đơn!')
 
       setIsDeleteMADialogOpen(false);
       setSelectedMonAn(null);
@@ -457,8 +439,6 @@ function HoaDon() {
           dsDichVu: normalizedDichVu,
           dsMonAn: normalizedMonAn,
         }));
-
-
         if (isViewMode) {
           console.log('vao read');
           setForm({
@@ -541,8 +521,6 @@ function HoaDon() {
     <div className={`${styles.hoadonBox} ${styles.printableHoaDon}`}>
 
       <div className={`${styles.hoadonLeft} ${styles.dashedBorder}`}>
-
-
 
         <div style={{ flex: 1 }}>
           <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '80px' }}>Chú rể:</p>
