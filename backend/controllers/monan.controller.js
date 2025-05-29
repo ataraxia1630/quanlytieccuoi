@@ -28,7 +28,7 @@ const MonAnController = {
         ],
         price: {
           min: parseInt(req.query.minPrice) || 0,
-          max: parseInt(req.query.maxPrice) || 10000000,
+          max: parseInt(req.query.maxPrice) || 99999999,
         },
       };
 

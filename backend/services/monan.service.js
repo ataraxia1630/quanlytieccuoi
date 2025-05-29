@@ -142,26 +142,12 @@ const MonAnService = {
           `Món ăn "${data.TenMonAn}" đã tồn tại trong hệ thống.`
         );
 
-      let newMaMonAn = 'MA00000001';
+      let newMaMonAn = 'MA001';
       const latestMonAn = await MonAnService.getLatestMonAn();
-      console.log('Latest MonAn:', latestMonAn);
       if (latestMonAn && latestMonAn.MaMonAn) {
-        let latestNumber = parseInt(latestMonAn.MaMonAn.replace('MA', '')) || 0;
-        let newNumber = latestNumber + 1;
-        newMaMonAn = `MA${newNumber.toString().padStart(8, '0')}`;
+        const number = parseInt(latestMonAn.MaMonAn.replace('MA', '')) || 0;
+        newMaMonAn = 'MA' + (number + 1).toString().padStart(3, '0');
       }
-
-      let existingMaMonAn = await MonAn.findOne({
-        where: { MaMonAn: newMaMonAn },
-      });
-      while (existingMaMonAn) {
-        const currentNumber = parseInt(newMaMonAn.replace('MA', '')) || 0;
-        newMaMonAn = `MA${(currentNumber + 1).toString().padStart(8, '0')}`;
-        existingMaMonAn = await MonAn.findOne({
-          where: { MaMonAn: newMaMonAn },
-        });
-      }
-      console.log('New MaMonAn:', newMaMonAn);
 
       let imageUrl = null;
       if (file && file.buffer) {
