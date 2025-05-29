@@ -32,7 +32,7 @@ const PhieuDatTiecService = {
                 data: rows,
             };
         } catch (error) {
-            throw new ApiError(500, "Không thể lấy danh sách phiếu đặt tiệc");
+            throw new ApiError(500, "Lỗi khi lấy danh sách phiếu đặt tiệc");
         }
     },
 
@@ -111,10 +111,10 @@ const PhieuDatTiecService = {
                     { model: Ct_DatBan },
                 ],
             });
-
+            if (!phieudattiec) throw new ApiError(404, 'Không tìm thấy phiếu đặt tiệc');
             return phieudattiec;
         } catch (error) {
-            throw new ApiError(500, 'Không tìm thấy phiếu đặt tiệc');
+            throw new ApiError(500, 'Lỗi khi lấy phiếu đặt tiệc');
         }
     },
 

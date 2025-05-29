@@ -1,12 +1,12 @@
 import React, { useState, useContext, useEffect, useRef, useMemo, useCallback } from 'react';
-import { Button, Box, IconButton, Typography, Grid, Card, CardMedia } from '@mui/material';
+import { Box, IconButton, Typography, Grid } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import KeyboardDoubleArrowDown from '@mui/icons-material/KeyboardDoubleArrowDown';
 import './ThongTinTiecCuoi.css';
 import FormTextField from '../../components/Formtextfield';
 import Cancelbutton from '../../components/Cancelbutton';
-import SaveAndPrintButton from '../../components/Saveandprintbutton';
+import SaveAndPrintButton from '../../components/Someactionbutton';
 import { StepContext } from '../DatTiecCuoi/DatTiecCuoi';
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import PhieuDatTiecService from '../../service/phieudattiec.service';
@@ -15,8 +15,9 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import TagButton from '../../components/Tagbutton';
+import HallCard from '../../components/Hallcard';
 import { format } from 'date-fns';
+import sanhService from '../../service/sanh.service';
 
 const initialState = {
   MaSanh: null,
@@ -31,65 +32,10 @@ const initialState = {
   NgayDatTiec: null,
   TrangThai: 1,
 };
-const HallCard = ({ hall, shifts, index, onClick }) => {
-  const [chosingShift, setChoosingShift] = useState(null)
-  const handleSave = () => {
-    if (!chosingShift) {
-      alert("Vui lòng chọn một ca trước khi đặt sảnh!");
-      return;
-    }
-    onClick({ target: { name: "sanhCa", value: { MaSanh: hall.MaSanh, MaCa: chosingShift } } });
-    setChoosingShift(null);
-  }
-  return (
-    <Card className='hall-card' sx={{ display: 'flex', flexDirection: 'column', gap: 2 }} >
-      <div className='hall-card-header'>
-        <Typography sx={{ fontSize: '1.5rem', fontWeight: 'Bold', marginBottom: 0 }}>{hall.TenSanh}</Typography>
-        <TagButton>
-          {hall.LoaiSanh}</TagButton>
-      </div>
-      <Typography sx={{ fontSize: '1rem', fontWeight: 'Bold', marginBottom: 0 }}>Số lượng bàn tối đa: {hall.SoLuongBanToiDa}</Typography>
-      <CardMedia
-        component="img"
-        height="192"
-        image={hall.HinhAnh}
-        alt={`introduction-hall-${index}`}
-        sx={{ objectFit: 'cover' }}
-        className='hall-img-show'
-      />
-      <div>
-        {hall.Ca.map((ca) => (
-          <TagButton
-            key={ca.MaCa}
-            sx={{ background: ca.TinhTrang === 'Đang trống' ? '#063F5C' : '#DFDFDF', marginRight: 1, marginBottom: 1 }}
-            onClick={() => setChoosingShift(ca.MaCa)}
-            disabled={!(ca.TinhTrang === "Đang trống")}
-          >
-            {(shifts.find(shift => shift.MaCa === ca.MaCa) || {}).TenCa || ""}
-          </TagButton>
-        ))}
-      </div>
 
-      <Typography sx={{ fontSize: '1rem', fontWeight: 'Bold', height: '10vh', overflowY: 'auto', overflowX: 'hidden' }}>Ghi chú: {hall.GhiChu}</Typography>
-      <Button
-        onClick={() => handleSave()}
-        variant="contained"
-        size="small"
-        sx={{
-          bgcolor: 'orange',
-          '&:hover': { bgcolor: 'darkorange' },
-          borderRadius: '999px',
-          textTransform: 'none',
-          paddingX: 3,
-        }}
-      >
-        Đặt sảnh
-      </Button>
-
-    </Card>
-  );
-}
 const ThongTinTiecCuoi = () => {
+
+  //thong tin cơ bản 
   const { validatePhoneNumberField, validateNumberField, validateTimeField } = useValidation();
   const [currentPDT, setCurrentPDT] = useState(null)
   const [errors, setErrors] = useState({
@@ -104,7 +50,7 @@ const ThongTinTiecCuoi = () => {
   const [phieuDatTiec, setPhieuDatTiec] = useState(initialState)
 
 
-  //sảnh
+  //sảnh/ca
   const [halls, setHalls] = useState([]);
   const [shifts, setshifts] = useState([]);
   const sectionRef = useRef(null);
@@ -112,10 +58,6 @@ const ThongTinTiecCuoi = () => {
   const { handleNav } = useContext(StepContext);
 
 
-  // Hàm xử lý khi nhấn nút
-  const handleScroll = () => {
-    sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
   //introduction
   const introductionHalls = useMemo(() => [
     {
@@ -134,6 +76,7 @@ const ThongTinTiecCuoi = () => {
       imageUrl: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image-2_sc6ztt.png',
     },
   ], []);
+
   // Mock data
   const mockItems = useMemo(() => [
     {
@@ -290,27 +233,20 @@ const ThongTinTiecCuoi = () => {
       GioKetThuc: "04:00:00"
     }
   ], []);
-  //set data
-  useEffect(() => {
-    setHalls(mockItems.map((item) => ({
-      MaSanh: item.MaSanh,
-      TenSanh: item.TenSanh,
-      LoaiSanh: item.LoaiSanh,
-      SoLuongBanToiDa: item.SoLuongBanToiDa,
-      HinhAnh: item.HinhAnh,
-      Ca: item.Ca,
-      GhiChu: item.GhiChu,
-    })));
-    setshifts(caMockItems.map((item) => ({
-      MaCa: item.MaCa,
-      TenCa: item.TenCa,
-      GioBatDau: item.GioBatDau,
-      GioKetThuc: item.GioKetThuc
-    })));
 
-  }, [mockItems, caMockItems]);
 
-  console.log("pdt: ", phieuDatTiec)
+
+  //định dạng lại ngày 
+  const pdtReFormat = useMemo(() => {
+    return {
+      ...phieuDatTiec,
+      NgayDaiTiec: phieuDatTiec.NgayDaiTiec ? format(new Date(phieuDatTiec.NgayDaiTiec), "yyyy-MM-dd'T'HH:mm:ss") : null,
+      NgayDatTiec: phieuDatTiec.NgayDatTiec ? format(new Date(phieuDatTiec.NgayDatTiec), "yyyy-MM-dd'T'HH:mm:ss") : null,
+      TrangThai: phieuDatTiec.NgayDatTiec ? 1 : 2
+    };
+  }, [phieuDatTiec]);
+
+
   // Tìm ca tương ứng dựa trên MaCa
   const caInfo = useMemo(() => {
     return shifts.find(ca => ca.MaCa === phieuDatTiec.MaCa) || { TenCa: "", ThoiGianBatDau: "", ThoiGianKetThuc: "" };
@@ -323,7 +259,7 @@ const ThongTinTiecCuoi = () => {
 
 
   //Phiếu đặt tiệc
-  // lưu thông tin vào phieuDatTieec
+  // lưu thông tin thay đổi vào phieuDatTiec
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -360,94 +296,114 @@ const ThongTinTiecCuoi = () => {
 
   };
 
+  // Hàm xử lý khi nhấn nút cuộn
+  const handleScroll = () => {
+    sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  // fetch data sảnh từ db
+  const fetchValidServices = useCallback(async () => {
+    try {
+      await toast.promise(
+        DichVuService.searchDichVu({ TinhTrang: "Có sẵn" }),
+        {
+          loading: "Đang xử lý...",
+          success: "Tải dữ liệu dịch vụ thành công!",
+          error: (err) => "Lỗi: " + err.message,
+        }
+      ).then((data) => setServices(data)); // set dữ liệu nếu thành công
+    } catch (error) {
+      toast.error(error.message || "lỗi khi tải dịch vụ");
+    }
+  }, []);
+
+
   // fetch data phiếu đặt tiêc neeys đang tiến hành đặt tiệc
   const fetchCurrentPhieuDatTiec = useCallback(async (id) => {
-    await toast.promise(
-      PhieuDatTiecService.getPhieuDatTiecById(id),
-      {
-        loading: "Đang xử lý...",
-        success: "Tải dữ liệu thành công!",
-        error: (err) => "Lỗi: " + err.message,
-      }
-    ).then((data) => {
-      let newData = Object.fromEntries(
-        Object.entries(data).filter(([key]) => key in initialState)
-      );
-      newData = {
-        ...newData,
-        NgayDaiTiec: new Date(newData.NgayDaiTiec),
-        NgayDatTiec: new Date(newData.NgayDatTiec)
-      };
-      console.log("phieudattiec fetch data: ", newData)
-      setPhieuDatTiec(newData);
-    }); // set dữ liệu nếu thành công
+    try {
+      await toast.promise(
+        PhieuDatTiecService.getPhieuDatTiecById(id),
+        {
+          loading: "Đang xử lý...",
+          success: "Tải dữ liệu thành công!",
+          error: (err) => "Lỗi: " + err.message,
+        }
+      ).then((data) => {
+        // Lọc dữ liệu để chỉ lấy các trường có trong initialState
+        let newData = Object.fromEntries(
+          Object.entries(data).filter(([key]) => key in initialState)
+        );
+        newData = {
+          ...newData,
+          NgayDaiTiec: new Date(newData.NgayDaiTiec),
+          NgayDatTiec: new Date(newData.NgayDatTiec)
+        };
+        console.log("phieudattiec fetch data: ", newData)
+        setPhieuDatTiec(newData);
+      }); // set dữ liệu nếu thành công
+
+    } catch (error) {
+      toast.error(`${error.message || 'Không thể tải dữ liệu phiếu đặt tiệc!'}`);
+    }
 
   }, []);
-  // Lấy currentPDT từ localStorage chỉ 1 lần
-  useEffect(() => {
-    // setPhieuDatTiec(initialState);
-    localStorage.setItem("currentPDT", 'PDT006');
 
-    const pdt = localStorage.getItem("currentPDT");
-    if (pdt !== null && pdt !== undefined && pdt !== "" && pdt !== "null") {
-      setCurrentPDT(pdt)
-      fetchCurrentPhieuDatTiec(pdt);
-    }
-  }, [fetchCurrentPhieuDatTiec]);
 
-  //định dạng lại ngày 
-  const pdtReFormat = useMemo(() => {
-    return {
-      ...phieuDatTiec,
-      NgayDaiTiec: phieuDatTiec.NgayDaiTiec ? format(new Date(phieuDatTiec.NgayDaiTiec), "yyyy-MM-dd'T'HH:mm:ss") : null,
-      NgayDatTiec: phieuDatTiec.NgayDatTiec ? format(new Date(phieuDatTiec.NgayDatTiec), "yyyy-MM-dd'T'HH:mm:ss") : null,
-      TrangThai: phieuDatTiec.NgayDatTiec ? 1 : 2
-    };
-  }, [phieuDatTiec.NgayDaiTiec, phieuDatTiec.NgayDatTiec, phieuDatTiec.TrangThai]);
   // tạo data phiếu đặt tiệc
   const createCurrentPhieuDatTiec = useCallback(async (id) => {
-    console.log("đafa: ", pdtReFormat());
-    const data = await toast.promise(
 
-      PhieuDatTiecService.createPhieuDatTiec(pdtReFormat()),
-      {
-        loading: "Đang xử lý...",
-        success: "khởi tạo dữ liệu thành công!",
-        error: (err) => "Lỗi: " + err.message,
-      }
-    );
-    setPhieuDatTiec(data) // set dữ liệu nếu thành công
-    setCurrentPDT(data.SoPhieuDatTiec);
-    localStorage.setItem("currentPDT", data.data.SoPhieuDatTiec)
+    try {
+      const data = await toast.promise(
+
+        PhieuDatTiecService.createPhieuDatTiec(pdtReFormat()),
+        {
+          loading: "Đang xử lý...",
+          success: "khởi tạo dữ liệu thành công!",
+          error: (err) => "Lỗi: " + err.message,
+        }
+      );
+      setPhieuDatTiec(data) // set dữ liệu nếu thành công
+      setCurrentPDT(data.SoPhieuDatTiec);
+      localStorage.setItem("currentPDT", data.data.SoPhieuDatTiec)
+    } catch (error) {
+      toast.error(`Lỗi: ${error.message || 'Không thể tạo mới phiếu dặt tiệc!'}`);
+    }
 
   }, [pdtReFormat]);
 
   // cập nhật data phiếu đặt tiêc nếu đang tiến hành đặt tiệc
   const updateCurrentPhieuDatTiec = useCallback(async (id) => {
-    console.log("pdtqưq: ", id)
-    await toast.promise(
-      PhieuDatTiecService.updatePhieuDatTiec(id, pdtReFormat()),
-      {
-        loading: "Đang xử lý...",
-        success: "cập nhật dữ liệu thành công!",
-        error: (err) => "Lỗi: " + err.message,
-      }
-    ).then((data) => setPhieuDatTiec(data)); // set dữ liệu nếu thành công
+    try {
+      await toast.promise(
+        PhieuDatTiecService.updatePhieuDatTiec(id, pdtReFormat()),
+        {
+          loading: "Đang xử lý...",
+          success: "cập nhật dữ liệu thành công!",
+          error: (err) => "Lỗi: " + err.message,
+        }
+      ).then((data) => setPhieuDatTiec(data));
+    } catch (error) {
+      toast.error(`Lỗi: ${error.message || 'Không thể cập nhật phiếu đặt tiệc!'}`);
+    }
   }, [pdtReFormat]);
 
   // hủy data phiếu đặt tiêc nếu đang tiến hành đặt tiệc
   const removeCurrentPhieuDatTiec = useCallback(async (id) => {
-    await toast.promise(
-      PhieuDatTiecService.deletePhieuDatTiec(id),
-      {
-        loading: "Đang xử lý...",
-        success: "Hủy đặt tiệc cưới thành công!",
-        error: (err) => "Lỗi: " + err.message,
-      }
-    )
-    setCurrentPDT(null);
-    setPhieuDatTiec(initialState);
-    localStorage.setItem("currentPDT", null);
+    try {
+      await toast.promise(
+        PhieuDatTiecService.deletePhieuDatTiec(id),
+        {
+          loading: "Đang xử lý...",
+          success: "Hủy đặt tiệc cưới thành công!",
+          error: (err) => "Lỗi: " + err.message,
+        }
+      )
+      setCurrentPDT(null);
+      setPhieuDatTiec(initialState);
+      localStorage.setItem("currentPDT", null);
+    } catch (error) {
+      toast.error(`Lỗi: ${error.message || 'Không thể xóa phiếu đặt tiệc!'}`);
+    }
   }, []);
 
 
@@ -455,7 +411,7 @@ const ThongTinTiecCuoi = () => {
     return Object.values(errors).some(error => error !== "");
   };
 
-  const handleSave = useCallback(() => {
+  const handleSave = () => {
     if (!currentPDT || currentPDT === "") {
       if ((!phieuDatTiec.TenChuRe || !phieuDatTiec.TenCoDau || !phieuDatTiec.SDT
         || !phieuDatTiec.SoLuongBan || !phieuDatTiec.NgayDaiTiec || !phieuDatTiec.NgayDatTiec)
@@ -473,14 +429,48 @@ const ThongTinTiecCuoi = () => {
       createCurrentPhieuDatTiec(phieuDatTiec);
     }
     else
-      console.log("currrrr: ", currentPDT)
-    updateCurrentPhieuDatTiec(currentPDT)
+
+      updateCurrentPhieuDatTiec(currentPDT)
 
 
     handleNav()
 
-  }, [currentPDT, createCurrentPhieuDatTiec, updateCurrentPhieuDatTiec]);
+  };
 
+
+  //set data
+  useEffect(() => {
+    setHalls(mockItems.map((item) => ({
+      MaSanh: item.MaSanh,
+      TenSanh: item.TenSanh,
+      LoaiSanh: item.LoaiSanh,
+      SoLuongBanToiDa: item.SoLuongBanToiDa,
+      HinhAnh: item.HinhAnh,
+      Ca: item.Ca,
+      GhiChu: item.GhiChu,
+    })));
+    setshifts(caMockItems.map((item) => ({
+      MaCa: item.MaCa,
+      TenCa: item.TenCa,
+      GioBatDau: item.GioBatDau,
+      GioKetThuc: item.GioKetThuc
+    })));
+
+  }, [mockItems, caMockItems]);
+
+  // Lấy currentPDT từ localStorage 
+  useEffect(() => {
+    // setPhieuDatTiec(initialState);
+    //localStorage.setItem("currentPDT", null);
+
+    const pdt = localStorage.getItem("currentPDT");
+    if (pdt !== "" && pdt !== "null") {
+      setCurrentPDT(pdt)
+      fetchCurrentPhieuDatTiec(pdt);
+    }
+
+  }, [fetchCurrentPhieuDatTiec]);
+  console.log("curentPDT: ", localStorage.getItem("currentPDT"))
 
   return (
     <div className="page">

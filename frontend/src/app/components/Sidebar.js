@@ -187,7 +187,7 @@ const Sidebar = () => {
       onMouseLeave={() => setIsOpen(false)}
     >
       <List sx={{ padding: 0, paddingTop: 10 }}>
-        {menuItems.map((item, index) => (
+        {menuItems.map((item) => (
           <ListItem
             component="button"
             key={item.text}
@@ -212,7 +212,7 @@ const Sidebar = () => {
                 justifyContent: 'center',
                 '& svg': {
                   transition: 'transform 0.1s ease-in-out',
-                  transform: location.pathname === `/DashBoard/${item.path}` ? 'scale(1.2)' : 'scale(0.9)',
+                  transform: location.pathname.startsWith(`/DashBoard/${item.path}`) ? 'scale(1.2)' : 'scale(0.9)',
                 },
               }}
             >

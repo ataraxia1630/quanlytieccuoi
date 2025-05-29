@@ -33,7 +33,7 @@ const CTDatBanService = {
                     { model: MonAn, attributes: ['TenMonAn'] },
                 ],
             });
-
+            if (!ct) throw new ApiError(404, 'Không tìm thấy chi tiết đặt bàn');
             return ct;
         } catch (error) {
             throw new ApiError(500, 'Không tìm thấy chi tiết đặt bàn');

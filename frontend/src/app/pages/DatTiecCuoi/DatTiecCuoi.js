@@ -75,7 +75,7 @@ const DatTiecCuoi = () => {
         <div className='stepper-container'>
           <CustomStepper activeStep={activeStep} sx={{ mb: 4, width: '100%', px: 15 }}>
             {steps.map((step, index) => (
-              <Step key={step.label} style={{ cursor: "pointer" }} onClick={() => { if (localStorage.getItem("currentPDT")) handleNav(index) }}>
+              <Step key={step.label} style={{ cursor: "pointer" }} onClick={() => { if (localStorage.getItem("currentPDT" !== "null")) { handleNav(index) } }}>
                 <StepLabel>{step.label}</StepLabel>
               </Step>
             ))}
