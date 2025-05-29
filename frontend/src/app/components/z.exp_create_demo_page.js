@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Box, Typography } from "@mui/material";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import SearchBar from "../../components/Searchbar";
 import FilterButton from "../../components/Filterbutton";
 import AddButton from "../../components/Addbutton";
@@ -7,58 +10,64 @@ import CustomTable from "../../components/Customtable";
 import FilterPanel from "../../components/z.exp_create_filter_panel";
 import EditDishDialog from "../../components/z.exp_create_pop_up";
 import defaultColumns from "../../components/z.exp_create_column";
+import DeleteDialog from "../../components/z.exp_create_dialog_delete";
 
 function DanhSachDichVu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [mode, setMode] = useState("add");
 
   const handleSearch = () => {
-    // Gọi hàm khi người dùng tìm kiếm
-    console.log("Searching for:", searchTerm);
+    toast.info(`Đang tìm kiếm: ${searchTerm}`);
   };
 
   const handleAdd = () => {
-    // Gọi hàm khi người dùng nhấn nút thêm
-    setOpenDialog(true);
-    console.log("Add button clicked");
     setMode("add");
+    setIsEditDialogOpen(true);
+    toast.success("Thêm món ăn mới");
   };
 
   const handleFilter = () => {
-    // Mở hoặc đóng bảng lọc khi người dùng nhấn nút lọc
     setIsFilterOpen(!isFilterOpen);
   };
 
   const handleApplyFilter = () => {
-    // Gọi hàm khi người dùng áp dụng bộ lọc
-    console.log("Applied filters");
+    toast.success("Đã áp dụng bộ lọc");
   };
 
   const handleEdit = () => {
-    // Gọi hàm khi người dùng nhấn nút chỉnh sửa trong bảng
-    console.log("Edit row");
-    setOpenDialog(true);
     setMode("edit");
-  };
-  const handleDelete = () => {
-    // Gọi hàm khi người dùng nhấn nút xóa trong bảng
-    console.log("Delete row");
+    setIsEditDialogOpen(true);
+    toast.info("Chỉnh sửa món ăn");
   };
 
-  const handleCloseDialog = () => {
-    // Đóng pop up khi người dùng nhấn nút hủy
-    setOpenDialog(false);
+  const handleDelete = () => {
+    setIsDeleteDialogOpen(true);
+    toast.warn("Bạn sắp xóa món ăn này");
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    toast.info("Đã hủy xóa");
+  };
+
+  const handleCloseEditDialog = () => {
+    setIsEditDialogOpen(false);
+    toast.info("Đã đóng chỉnh sửa");
   };
 
   const handleSaveDish = () => {
-    // Gọi hàm khi người dùng nhấn nút lưu trong pop up
-    console.log("Saved dish");
-    setOpenDialog(false);
+    toast.success(mode === "edit" ? "Đã lưu chỉnh sửa" : "Đã thêm món ăn");
+    setIsEditDialogOpen(false);
   };
 
-  // Dữ liệu mẫu cho bảng, thay thế bằng dữ liệu từ API
+  const acceptDelete = () => {
+    toast.success("Đã xóa thành công");
+    setIsDeleteDialogOpen(false);
+  };
+
   const sampleData = [
     {
       id: "M001",
@@ -86,7 +95,8 @@ function DanhSachDichVu() {
 
   return (
     <Box sx={{ p: 3 }}>
-      {/* Tiêu đề */}
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+
       <Typography
         variant="h4"
         sx={{ fontWeight: "bold", color: "#063F5C", mb: 4 }}
@@ -94,7 +104,6 @@ function DanhSachDichVu() {
         Danh sách tiệc cưới
       </Typography>
 
-      {/* Thanh tìm kiếm và nút thêm */}
       <Box
         sx={{
           display: "flex",
@@ -102,28 +111,24 @@ function DanhSachDichVu() {
           alignItems: "center",
           flexWrap: "wrap",
           gap: "20px",
-          mb: 3, // margin bottom
+          mb: 3,
         }}
       >
         <SearchBar
           value={searchTerm}
           onChange={setSearchTerm}
           onSearch={handleSearch}
-          placeholder="Tìm tên hoặc mã dịch vụ ..." // Nội dung trong ô tìm kiếm
+          placeholder="Tìm tên hoặc mã dịch vụ ..."
         />
 
         <Box sx={{ display: "flex", gap: "17px", justifyContent: "flex-end" }}>
-          {/* Nút lọc ngang thanh tìm kiếm */}
           <FilterButton onClick={handleFilter} text="Filter" />
-
-          {/* Nút thêm ngang thanh tìm kiếm */}
           <AddButton onClick={handleAdd} text="Thêm" />
         </Box>
       </Box>
 
       <FilterPanel isOpen={isFilterOpen} onApply={handleApplyFilter} />
 
-      {/* Bảng hiển thị danh sách */}
       <CustomTable
         data={sampleData}
         columns={defaultColumns}
@@ -131,12 +136,18 @@ function DanhSachDichVu() {
         onDelete={handleDelete}
       />
 
-      {/* Pop up thêm hoặc chỉnh sửa món ăn */}
       <EditDishDialog
-        open={openDialog}
-        onClose={handleCloseDialog}
+        open={isEditDialogOpen}
+        onClose={handleCloseEditDialog}
         onSave={handleSaveDish}
-        title={mode === "edit" ? "Chỉnh sửa món ăn" : "Thêm món ăn"} // Tiêu đề của pop up
+        title={mode === "edit" ? "Chỉnh sửa món ăn" : "Thêm món ăn"}
+      />
+
+      <DeleteDialog
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onDelete={acceptDelete}
+        title={"Xác nhận xóa"}
       />
     </Box>
   );

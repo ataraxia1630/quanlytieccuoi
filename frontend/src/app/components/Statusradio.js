@@ -29,7 +29,15 @@ const StatusRadio = ({
           <FormControlLabel
             key={option.value}
             value={option.value}
-            control={<Radio />}
+            control={
+              <Radio
+                sx={{
+                  "&.Mui-checked": {
+                    color: "#063F5C",
+                  },
+                }}
+              />
+            }
             label={option.label}
           />
         ))}

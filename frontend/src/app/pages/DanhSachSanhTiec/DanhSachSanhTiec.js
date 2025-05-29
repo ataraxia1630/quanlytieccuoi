@@ -10,11 +10,13 @@ import defaultColumns from "../../components/sanh/sanh_default_column";
 import sanhService from "../../service/sanh.service";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import DeleteDialog from "../../components/Deletedialog";
 
 function DanhSachSanh() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [mode, setMode] = useState("add");
   const [sanhs, setSanhs] = useState([]);
   const [sanhToEdit, setSanhToEdit] = useState(null);
@@ -74,45 +76,32 @@ function DanhSachSanh() {
     setMode("edit");
   };
 
-  const handleDelete = (maSanh) => {
-    console.log("Deleting sanh with maSanh:", maSanh);
-    const confirmDelete = () => {
-      toast(
-        ({ closeToast }) => (
-          <div>
-            <p>Bạn có chắc chắn muốn xóa sảnh này?</p>
-            <button
-              className="bg-blue-500 text-white px-2 py-1 mr-2 rounded"
-              onClick={async () => {
-                closeToast();
-                try {
-                  toast.info("Đang xử lý …");
-                  await sanhService.deleteSanh(maSanh.MaSanh);
-                  await fetchSanhs();
-                  toast.success("Xóa thành công!");
-                } catch (error) {
-                  if (error.message.includes("Không tìm thấy sảnh")) {
-                    toast.warn("Không tìm thấy sảnh!");
-                  } else {
-                    toast.error("Xóa thất bại! Vui lòng thử lại.");
-                  }
-                }
-              }}
-            >
-              Có
-            </button>
-            <button
-              className="bg-gray-500 text-white px-2 py-1 rounded"
-              onClick={closeToast}
-            >
-              Không
-            </button>
-          </div>
-        ),
-        { autoClose: false }
-      );
-    };
-    confirmDelete();
+  const handleDelete = (sanh) => {
+    console.log("Deleting sanh with maSanh:", sanh.MaSanh);
+    setSanhToEdit(sanh); // Set the sanh to delete
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setSanhToEdit(null); // Clear the sanh to delete
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      toast.info("Đang xử lý …");
+      await sanhService.deleteSanh(sanhToEdit.MaSanh);
+      await fetchSanhs();
+      toast.success("Xóa thành công!");
+      setIsDeleteDialogOpen(false);
+      setSanhToEdit(null);
+    } catch (error) {
+      if (error.message.includes("Không tìm thấy sảnh")) {
+        toast.warn("Không tìm thấy sảnh!");
+      } else {
+        toast.error("Xóa thất bại! Vui lòng thử lại.");
+      }
+    }
   };
 
   const handleCloseDialog = () => {
@@ -188,7 +177,6 @@ function DanhSachSanh() {
       <FilterPanel
         isOpen={isFilterOpen}
         onApply={handleApplyFilter}
-      //options={{ maLoaiSanh: ["LS001", "LS002", "LS003"] }}
       />
 
       <CustomTable
@@ -204,6 +192,13 @@ function DanhSachSanh() {
         onSave={handleSaveSanh}
         sanh={sanhToEdit}
         title={mode === "edit" ? "Chỉnh sửa sảnh" : "Thêm sảnh"}
+      />
+
+      <DeleteDialog
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onDelete={handleConfirmDelete}
+        title="Xác nhận xóa sảnh"
       />
     </Box>
   );

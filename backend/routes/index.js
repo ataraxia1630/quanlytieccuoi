@@ -5,6 +5,7 @@ const imageRouter = require('./image.route.js');
 const monanRoutes = require('./monan.route');
 const baocaoRoutes = require('./baocao.route');
 const loaisanhRoutes = require('./loaisanh.route.js');
+const dichvuRoutes = require('./dichvu.route.js');
 const phieuDatTiecRoutes = require('./phieudattiec.route.js');
 const ctDatBanRoutes = require('./ct_datban.route.js');
 const ctDichVuRoutes = require('./ct_dichvu.route.js');
@@ -17,6 +18,7 @@ function route(app) {
   app.use('/api/monan', monanRoutes);
   app.use('/api/baocao', baocaoRoutes);
   app.use('/api/loaisanh', loaisanhRoutes);
+  app.use('/api/dichvu', dichvuRoutes);
   app.use('/api/phieudattiec', phieuDatTiecRoutes);
   app.use('/api/ct-datban', ctDatBanRoutes);
   app.use('/api/ct-dichvu', ctDichVuRoutes);

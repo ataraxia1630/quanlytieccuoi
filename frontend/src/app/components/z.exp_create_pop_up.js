@@ -142,7 +142,7 @@ const EditDishDialog = ({ open, onClose, onSave, title }) => {
             textCancel={"Hủy"}
             text={"Lưu"}
             onCancel={onClose}
-            onSave={onSave}
+            onAction={onSave}
           />
         </Box>
       </DialogContent>
