@@ -119,7 +119,7 @@ function DanhSachCa() {
     try {
       console.log("handleSaveCa received caData:", caData);
 
-      if (!caData.MaCa || !caData.TenCa || !caData.GioBatDau || !caData.GioKetThuc) {
+      if (!caData.TenCa || !caData.GioBatDau || !caData.GioKetThuc) {
         toast.warn("Vui lòng nhập đầy đủ thông tin!");
         return;
       }
