@@ -82,6 +82,20 @@ const LoaiSanhService = {
     }
   },
 
+  getLatestLoaiSanh: async () => {
+    try {
+      const loaisanh = await LoaiSanh.findOne({
+        order: [['MaLoaiSanh', 'DESC']],
+      });
+      return loaisanh || null;
+    } catch (error) {
+      throw new ApiError(
+        500,
+        'Lấy thông tin loại sảnh mới nhất thất bại! Vui lòng thử lại sau.'
+      );
+    }
+  },
+
   createLoaiSanh: async (data) => {
     try {
       const existing = await LoaiSanh.findOne({
@@ -90,11 +104,29 @@ const LoaiSanhService = {
         },
       });
       if (existing) {
-        throw new ApiError(400, 'Thêm mới thất bại!\nLoại sảnh đã tồn tại.');
+        throw new ApiError(
+          400,
+          `Loại sảnh "${data.TenLoaiSanh}" đã tồn tại trong hệ thống.`
+        );
       }
-      return await LoaiSanh.create(data);
+
+      const latest = await LoaiSanhService.getLatestLoaiSanh();
+      let newMaLoaiSanh = 'LS001';
+      if (latest && latest.MaLoaiSanh) {
+        const number = parseInt(latest.MaLoaiSanh.replace('LS', '')) || 0;
+        newMaLoaiSanh = 'LS' + (number + 1).toString().padStart(3, '0');
+      }
+
+      return await LoaiSanh.create({
+        ...data,
+        MaLoaiSanh: newMaLoaiSanh,
+      });
     } catch (error) {
-      throw new ApiError(500, 'Thêm mới thất bại\nLỗi server.');
+      console.log(error);
+      throw new ApiError(
+        500,
+        'Tạo loại sảnh mới thất bại! Vui lòng thử lại sau.'
+      );
     }
   },
 
@@ -109,9 +141,27 @@ const LoaiSanhService = {
           'Cập nhật thất bại!\nKhông tìm thấy loại sảnh này trong CSDL!'
         );
       }
+
+      if (data.TenLoaiSanh && data.TenLoaiSanh !== loaisanh.TenLoaiSanh) {
+        const existing = await LoaiSanh.findOne({
+          where: {
+            TenLoaiSanh: data.TenLoaiSanh,
+            id: { [Op.ne]: id },
+          },
+        });
+        if (existing) {
+          throw new ApiError(
+            400,
+            `Loại sảnh "${data.TenLoaiSanh}" đã tồn tại trong hệ thống.`
+          );
+        }
+      }
       return await loaisanh.update(data);
     } catch (error) {
-      throw new ApiError(500, 'Xóa thất bại!\nLỗi server!');
+      throw new ApiError(
+        500,
+        'Cập nhật loại sảnh thất bại! Vui lòng thử lại sau.'
+      );
     }
   },
 
@@ -128,7 +178,16 @@ const LoaiSanhService = {
         );
       await loaisanh.destroy();
     } catch (error) {
-      throw new ApiError(500, 'Xóa thất bại!\nLỗi server!');
+      if (
+        error.name === 'SequelizeForeignKeyConstraintError' ||
+        (error.parent && error.parent.code === '23503')
+      ) {
+        throw new ApiError(
+          409,
+          'Xóa thất bại!\nLoại sảnh đã hoặc đang được sử dụng.'
+        );
+      }
+      throw new ApiError(500, 'Xóa thất bại! Vui lòng thử lại sau.');
     }
   },
 

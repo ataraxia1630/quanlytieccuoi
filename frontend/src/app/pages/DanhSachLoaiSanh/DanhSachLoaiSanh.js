@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import './DanhSachMonAn.css';
+import './DanhSachLoaiSanh.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { Box, Typography, CircularProgress } from '@mui/material';
@@ -9,26 +9,25 @@ import SearchBar from '../../components/Searchbar';
 import FilterButton from '../../components/Filterbutton';
 import AddButton from '../../components/Addbutton';
 import CustomTable from '../../components/Customtable';
-import DishFilterPanel from '../../components/monan/monan_filter_panel';
-import EditDishPopUp from '../../components/monan/monan_edit_popup';
-import DishColumns from '../../components/monan/monan_column';
+import HallTypeFilterPanel from '../../components/loaisanh/loaisanh_filter_panel';
+import EditHallTypePopUp from '../../components/loaisanh/loaisanh_edit_popup';
+import HallTypeColumns from '../../components/loaisanh/loaisanh_column';
 import DeleteDialog from '../../components/Deletedialog';
 
-import MonAnService from '../../service/monan.service';
+import LoaiSanhService from '../../service/loaisanh.service';
 
-export default function DanhSachMonAn() {
+export default function DanhSachLoaiSanh() {
   //#region declaration
   const [searchTerm, setSearchTerm] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [mode, setMode] = useState('add');
-  const [dishData, setDishData] = useState([]);
+  const [hallTypeData, setHallTypeData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [filters, setFilters] = useState({
-    status: [],
-    priceMin: '',
-    priceMax: '',
+    priceMin: 0,
+    priceMax: 10000000,
   });
   const [loading, setLoading] = useState(false);
   //#endregion
@@ -37,17 +36,18 @@ export default function DanhSachMonAn() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const result = await MonAnService.getAll(
-        filters.status,
+      const result = await LoaiSanhService.getAll(
         searchTerm,
         filters.priceMin,
         filters.priceMax
       );
       console.log(result.data);
-      setDishData(result.data || []);
+      setHallTypeData(result.data || []);
     } catch (error) {
       console.log('Error fetching sanhs:', error.message);
-      toast.error(`Lỗi: ${error.message || 'Không thể tải danh sách món ăn!'}`);
+      toast.error(
+        `Lỗi: ${error.message || 'Không thể tải danh sách loại sảnh!'}`
+      );
     } finally {
       setLoading(false);
     }
@@ -74,7 +74,7 @@ export default function DanhSachMonAn() {
   };
 
   const handleResetFilter = () => {
-    setFilters({ status: [], priceMin: '', priceMax: '' });
+    setFilters({ priceMin: 0, priceMax: 10000000 });
     setSearchTerm('');
     toast.success('Đã reset bộ lọc');
   };
@@ -83,14 +83,14 @@ export default function DanhSachMonAn() {
     setMode('add');
     setSelectedRow(null);
     setIsEditDialogOpen(true);
-    toast.success('Bắt đầu thêm món ăn mới');
+    toast.success('Bắt đầu thêm loại sảnh mới');
   };
 
   const handleEdit = async (row) => {
     setMode('edit');
     setSelectedRow(row);
     setIsEditDialogOpen(true);
-    toast.info(`Đang chỉnh sửa món ăn: ${row.TenMonAn}`);
+    toast.info(`Đang chỉnh sửa loại sảnh: ${row.TenLoaiSanh}`);
   };
 
   const handleCloseEditDialog = () => {
@@ -104,52 +104,57 @@ export default function DanhSachMonAn() {
   const handleDelete = async (row) => {
     setIsDeleteDialogOpen(true);
     setSelectedRow(row);
-    toast.warn(`Bạn sắp xóa món ăn: ${row.TenMonAn}`);
+    toast.warn(`Bạn sắp xóa loại sảnh: ${row.TenLoaiSanh}`);
   };
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
     setSelectedRow(null);
-    toast.info('Đã hủy xóa món ăn');
+    toast.info('Đã hủy xóa loại sảnh');
   };
 
-  const handleSaveDish = async (data, file) => {
+  const handleSaveHallType = async (data) => {
     try {
-      const monanData = {
-        TenMonAn: data.name,
-        DonGia: Number(data.price),
-        TinhTrang: data.status,
+      const loaisanhData = {
+        TenLoaiSanh: data.name,
+        DonGiaBanToiThieu: Number(data.price),
       };
-      console.log(monanData);
+      console.log(loaisanhData);
       toast.info('Đang xử lý yêu cầu ...');
 
       if (mode === 'edit' && selectedRow) {
-        await MonAnService.update(selectedRow.MaMonAn, monanData, file);
-        toast.success(`Cập nhật món ăn "${monanData.TenMonAn}" thành công!`);
+        await LoaiSanhService.update(selectedRow.MaLoaiSanh, loaisanhData);
+        toast.success(
+          `Cập nhật loại sảnh "${loaisanhData.TenLoaiSanh}" thành công!`
+        );
       } else {
-        await MonAnService.createNew(monanData, file);
-        toast.success(`Thêm món ăn "${monanData.TenMonAn}" thành công!`);
+        await LoaiSanhService.createNew(loaisanhData);
+        toast.success(
+          `Thêm loại sảnh "${loaisanhData.TenLoaiSanh}" thành công!`
+        );
       }
 
       setIsEditDialogOpen(false);
       setSelectedRow(null);
       fetchData();
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể lưu món ăn!'}`);
+      toast.error(`Lỗi: ${error.message || 'Không thể lưu loại sảnh!'}`);
     }
   };
 
   const acceptDelete = async () => {
     try {
-      const result = await MonAnService.delete(selectedRow.MaMonAn);
-      result.message
-        ? toast.info(result.message)
-        : toast.success(`Đã xóa món ăn "${selectedRow.TenMonAn}" thành công!`);
+      await LoaiSanhService.delete(selectedRow.MaLoaiSanh);
+      toast.success(
+        `Đã xóa loại sảnh "${selectedRow.TenLoaiSanh}" thành công!`
+      );
       setIsDeleteDialogOpen(false);
       setSelectedRow(null);
       fetchData();
     } catch (error) {
-      toast.error(`Xóa thất bại: ${error.message || 'Không thể xóa món ăn!'}`);
+      toast.error(
+        `Xóa thất bại: ${error.message || 'Không thể xóa loại sảnh!'}`
+      );
     }
   };
 
@@ -163,7 +168,7 @@ export default function DanhSachMonAn() {
         variant="h4"
         sx={{ fontWeight: 'bold', color: '#063F5C', mb: 4 }}
       >
-        Danh sách món ăn
+        Danh sách loại sảnh
       </Typography>
       <Box
         sx={{
@@ -179,7 +184,7 @@ export default function DanhSachMonAn() {
           value={searchTerm}
           onChange={setSearchTerm}
           onSearch={handleSearch}
-          placeholder="Tìm tên hoặc mã món ăn ..."
+          placeholder="Tìm tên hoặc mã loại sảnh ..."
         />
 
         <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
@@ -188,7 +193,7 @@ export default function DanhSachMonAn() {
         </Box>
       </Box>
 
-      <DishFilterPanel
+      <HallTypeFilterPanel
         isOpen={isFilterOpen}
         onApply={handleApplyFilter}
         onReset={handleResetFilter}
@@ -201,18 +206,18 @@ export default function DanhSachMonAn() {
         </Box>
       ) : (
         <CustomTable
-          data={dishData}
-          columns={DishColumns}
+          data={hallTypeData}
+          columns={HallTypeColumns}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
       )}
 
-      <EditDishPopUp
+      <EditHallTypePopUp
         open={isEditDialogOpen}
         onClose={handleCloseEditDialog}
-        onSave={handleSaveDish}
-        title={mode === 'edit' ? 'Chỉnh sửa món ăn' : 'Thêm món ăn'}
+        onSave={handleSaveHallType}
+        title={mode === 'edit' ? 'Chỉnh sửa loại sảnh' : 'Thêm loại sảnh'}
         editData={selectedRow}
         mode={mode}
       />

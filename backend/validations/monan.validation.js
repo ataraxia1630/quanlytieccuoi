@@ -3,12 +3,6 @@ const { check } = require('express-validator');
 const VALID_STATUS = ['AVAILABLE', 'UNAVAILABLE', 'NO_LONGER_AVAILABLE'];
 
 const createMonAnValidation = [
-  check('MaMonAn')
-    .notEmpty()
-    .withMessage('Mã món ăn là bắt buộc')
-    .isLength({ max: 10 })
-    .withMessage('Mã món ăn tối đa 10 ký tự'),
-
   check('TenMonAn')
     .notEmpty()
     .withMessage('Tên món ăn là bắt buộc')
@@ -18,7 +12,8 @@ const createMonAnValidation = [
   check('DonGia')
     .notEmpty()
     .withMessage('Đơn giá là bắt buộc')
-    .isFloat({ min: 0, max: 9999999 })
+    .toFloat()
+    .isFloat({ min: 0, max: 99999999 })
     .withMessage('Đơn giá phải là số và >= 0'),
 
   check('TinhTrang')
@@ -35,7 +30,8 @@ const updateMonAnValidation = [
 
   check('DonGia')
     .optional()
-    .isFloat({ min: 0 })
+    .toFloat()
+    .isFloat({ min: 0, max: 99999999 })
     .withMessage('Đơn giá phải là số và >= 0'),
 
   check('TinhTrang')
