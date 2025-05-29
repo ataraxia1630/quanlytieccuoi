@@ -15,6 +15,15 @@ if (process.env.NODE_ENV === "development") {
   console.log(
     `Connecting to database: ${config.database} and admin: ${config.username}`
   );
+  console.log("Môi trường dev nè");
+}
+
+if (process.env.NODE_ENV === "test") {
+  console.log("Môi trường test nè");
+}
+
+if (process.env.NODE_ENV === "production") {
+  console.log("Môi trường production nè");
 }
 
 const sequelize = new Sequelize({

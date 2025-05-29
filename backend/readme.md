@@ -30,5 +30,6 @@ Rollback: sequelize db:migrate:undo
 
 ```
 npm run start:dev (cho môi trường development)
+npm run start:test (cho môi trường test)
 npm run start:prod (cho môi trường production)
 ```
