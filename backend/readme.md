@@ -26,10 +26,37 @@ Chạy migration: npx sequelize-cli db:migrate
 Rollback: sequelize db:migrate:undo
 ```
 
-## Hướng dẫn sử dụng
+## Hướng dẫn sử dụng và chạy migration
+
+### Môi trường dev
 
 ```
-npm run start:dev (cho môi trường development)
+npm run start:dev
+migrate:dev (chạy tất cả file sequelize chưa được chạy)
+migrate:undo:all:dev (xóa tất cả bảng đã được tạo)
+seed:dev (chạy tất cả file seed)
+seed:undo:dev (xóa tất cả dữ liệu seed)
+db:reset:dev (thực hiện db:drop + db:create + db:migrate + db:seed:all)
+```
+
+### Môi trường test
+
+```
 npm run start:test (cho môi trường test)
-npm run start:prod (cho môi trường production)
+migrate:test
+migrate:undo:all:test
+seed:test
+seed:undo:test
+db:reset:test
+```
+
+### Môi trường production
+
+```
+npm run start:prod hoặc npm start
+migrate:prod
+migrate:undo:all:test
+seed:prod
+seed:undo:prod
+db:reset:prod
 ```
