@@ -1,12 +1,11 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Header from '../layouts/Header';
-import Footer from '../layouts/Footer';
 import PageNotFound from '../layouts/PageNotFound';
 import DashBoard from '../layouts/DashBoard';
 
-import DatTiecCuoi from '../pages/DatTiecCuoi';
-import DanhSachTiecCuoi from '../pages/DanhSachTiecCuoi';
+import DatTiecCuoi from '../pages/DatTiecCuoi'; 
+import DanhSachTiecCuoi from '../pages/DanhSachTiecCuoi'; 
+import HoaDon from '../pages/HoaDon/HoaDon';
 import DanhSachSanhTiec from '../pages/DanhSachSanhTiec';
 import DanhSachMonAn from '../pages/DanhSachMonAn';
 import DanhSachDichVu from '../pages/DanhSachDichVu';
@@ -21,12 +20,11 @@ import DatDichVu from '../pages/DatDichVu';
 import ThongTinTiecCuoi from '../pages/ThongTinTiecCuoi';
 
 import Home from '../pages/Home';
+import Header from '../layouts/Header';
+import Footer from '../layouts/Footer';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-// Thêm console.log ngay sau khi import để debug
-console.log('Header =', Header);
-console.log(' Home =', Home);
-console.log('PageNotFound =', PageNotFound);
-console.log('DashBoard =', DashBoard);
 
 export default function MainRoutes() {
   return (
@@ -48,8 +46,9 @@ export default function MainRoutes() {
           </Route>
           <Route path="DanhSachTiecCuoi" element={<DanhSachTiecCuoi />} />
           <Route path="DanhSachSanhTiec" element={<DanhSachSanhTiec />} />
-          <Route path="DanhSachMonAn" element={<DanhSachMonAn />} />
-          <Route path="DanhSachDichVu" element={<DanhSachDichVu />} />
+          <Route path="HoaDon" element={<HoaDon /> }/>
+          <Route path="DanhSachMonAn" element={<DanhSachMonAn />} /> 
+          <Route path="DanhSachDichVu" element={<DanhSachDichVu />} /> 
           <Route path="DanhSachCa" element={<DanhSachCa />} />
           <Route path="DanhSachLoaiSanh" element={<DanhSachLoaiSanh />} />
 

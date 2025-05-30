@@ -1,0 +1,74 @@
+:root {
+  --main-color: #063F5C
+}
+
+html {
+  font-size: 16px;
+  width: 1440px;
+  height: 100%;
+}
+
+body {
+  font-family: "Inconsolata", monospace;
+  color: #2d2c2c;
+  width: 100%;
+  font-weight: 400;
+  font-size: 1.2rem;
+  font-variation-settings: "wdth" 87.5;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: "noto-serif", serif;
+  font-optical-sizing: auto;
+  color: #151515;
+  font-weight: 400;
+  margin: 0;
+  padding: 0;
+
+}
+
+h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variation-settings: "wdth" 100;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variation-settings: "wdth" 87.5;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 500;
+  font-variation-settings: "wdth" 75;
+}
+
+p {
+  font-size: 1rem;
+}
+
+.selection-container {
+  width: 90vw;
+  display: flex;
+  column-gap: 3rem;
+  row-gap: 8rem;
+  flex-wrap: wrap;
+  padding-bottom: 3rem;
+  margin-left: auto;
+}
+
+
+/*container cho các page*/
+.page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
