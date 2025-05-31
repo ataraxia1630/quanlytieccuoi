@@ -39,12 +39,32 @@ const getSanhById = async (maSanh) => {
     }
 };
 
-const createSanh = async ({ MaSanh, MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, GhiChu }) => {
+const generateMaSanh = async () => {
+    try {
+        const lastSanh = await Sanh.findOne({
+            order: [['MaSanh', 'DESC']]
+        });
+
+        let nextId = 1;
+        if (lastSanh) {
+            const lastId = parseInt(lastSanh.MaSanh.replace('S', ''), 10);
+            nextId = lastId + 1;
+        }
+
+        return `S${nextId.toString().padStart(3, '0')}`; // e.g., S001, S002
+    } catch (error) {
+        throw new ApiError(500, 'Lỗi khi tạo mã sảnh: ' + error.message);
+    }
+};
+
+const createSanh = async ({ MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, GhiChu }) => {
     try {
         const loaiSanh = await LoaiSanh.findByPk(MaLoaiSanh);
         if (!loaiSanh) {
             throw new ApiError(400, 'Mã loại sảnh không tồn tại');
         }
+
+        const MaSanh = await generateMaSanh(); // Auto-generate MaSanh
 
         let imageUrl = null;
         if (fileBuffer) {

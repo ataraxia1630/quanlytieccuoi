@@ -10,7 +10,6 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
 const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
   const [formData, setFormData] = useState({
-    MaCa: ca?.MaCa || "",
     TenCa: ca?.TenCa || "",
     GioBatDau: ca?.GioBatDau ? new Date(`1970-01-01T${ca.GioBatDau}`) : null,
     GioKetThuc: ca?.GioKetThuc ? new Date(`1970-01-01T${ca.GioKetThuc}`) : null,
@@ -55,7 +54,6 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
       const gioKetThuc = parseTimeToDate(ca.GioKetThuc) || new Date("1970-01-01T23:59:59");
 
       setFormData({
-        MaCa: ca.MaCa || "",
         TenCa: ca.TenCa || "",
         GioBatDau: gioBatDau,
         GioKetThuc: gioKetThuc,
@@ -65,7 +63,6 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
       validateTimeField("GioKetThuc", gioKetThuc);
     } else {
       setFormData({
-        MaCa: "",
         TenCa: "",
         GioBatDau: null,
         GioKetThuc: null,
@@ -88,8 +85,8 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
   };
 
   const handleSave = async () => {
-    const { MaCa, TenCa, GioBatDau, GioKetThuc } = formData;
-    if (!MaCa || !TenCa || !GioBatDau || !GioKetThuc) {
+    const { TenCa, GioBatDau, GioKetThuc } = formData;
+    if (!TenCa || !GioBatDau || !GioKetThuc) {
       toast.warn("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
@@ -100,7 +97,6 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
     }
 
     const formattedData = {
-      MaCa,
       TenCa,
       GioBatDau: GioBatDau.toTimeString().slice(0, 8),
       GioKetThuc: GioKetThuc.toTimeString().slice(0, 8),
@@ -131,15 +127,6 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
       <DialogContent sx={{ pt: 4, px: 3.5, pb: 3 }}>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <Box display="flex" flexDirection="column" gap={3.5}>
-            <FormTextField
-              label="Mã ca"
-              name="MaCa"
-              value={formData.MaCa}
-              onChange={handleChange}
-              fullWidth
-              disabled={!!ca}
-            />
-
             <FormTextField
               label="Tên ca"
               name="TenCa"
@@ -190,8 +177,8 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
           <DialogButtons
             textCancel={"Hủy"}
             text={"Lưu"}
-            onCancel={onClose}
             onAction={handleSave}
+            onCancel={onClose}
           />
         </Box>
       </DialogContent>

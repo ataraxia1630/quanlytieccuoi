@@ -1,4 +1,4 @@
-const baseURL = 'http://localhost:25053/api/monan';
+const baseURL = '/api/monan';
 
 const MonAnService = {
   getAll: async (

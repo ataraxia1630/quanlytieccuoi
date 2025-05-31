@@ -2,12 +2,6 @@ const { check } = require('express-validator');
 
 // Validation cho việc tạo mới sảnh
 const sanhValidation = [
-  check('MaSanh')
-    .isLength({ max: 10 })
-    .withMessage('Mã sảnh tối đa 10 ký tự')
-    .notEmpty()
-    .withMessage('Mã sảnh là bắt buộc'),
-
   check('MaLoaiSanh')
     .isLength({ max: 10 })
     .withMessage('Mã loại sảnh tối đa 10 ký tự')
@@ -105,11 +99,6 @@ const searchAndFilterValidation = [
 
 // Validation cho việc tải lên hình ảnh (yêu cầu mã sảnh)
 const uploadImageValidation = [
-  check('maSanh')
-    .isLength({ max: 10 })
-    .withMessage('Mã sảnh tối đa 10 ký tự')
-    .notEmpty()
-    .withMessage('Mã sảnh là bắt buộc'),
 ];
 
 module.exports = {

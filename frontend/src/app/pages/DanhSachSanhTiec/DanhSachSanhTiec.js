@@ -27,10 +27,10 @@ function DanhSachSanh() {
 
   const fetchSanhs = async () => {
     try {
-      toast.info("Đang xử lý …");
+      //toast.info("Đang xử lý …");
       const data = await sanhService.getAllSanh();
       setSanhs(data);
-      toast.success("Tải danh sách sảnh thành công!");
+      //toast.success("Tải danh sách sảnh thành công!");
     } catch (error) {
       console.error("Error fetching sanhs:", error.message);
       toast.error("Có lỗi xảy ra: " + error.message);
@@ -114,7 +114,7 @@ function DanhSachSanh() {
       console.log("handleSaveSanh received sanhData:", sanhData);
       console.log("HinhAnh in handleSaveSanh:", sanhData.HinhAnh, "instanceof File:", sanhData.HinhAnh instanceof File);
 
-      if (!sanhData.MaSanh || !sanhData.TenSanh || !sanhData.MaLoaiSanh || !sanhData.SoLuongBanToiDa) {
+      if (!sanhData.TenSanh || !sanhData.MaLoaiSanh || !sanhData.SoLuongBanToiDa) {
         toast.warn("Vui lòng nhập đầy đủ thông tin!");
         return;
       }

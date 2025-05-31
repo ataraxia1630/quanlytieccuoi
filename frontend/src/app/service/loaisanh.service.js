@@ -1,4 +1,4 @@
-const baseURL = 'http://localhost:25053/api/loaisanh';
+const baseURL = '/api/loaisanh';
 
 const LoaiSanhService = {
   getAll: async (search = '', priceMin = 0, priceMax = 10000000) => {

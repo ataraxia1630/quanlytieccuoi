@@ -27,10 +27,10 @@ function DanhSachCa() {
 
   const fetchCas = async () => {
     try {
-      toast.info("Đang xử lý …");
+      //toast.info("Đang xử lý …");
       const data = await caService.getAllCa();
       setCas(data);
-      toast.success("Tải danh sách ca thành công!");
+      //toast.success("Tải danh sách ca thành công!");
     } catch (error) {
       console.error("Error fetching cas:", error.message);
       toast.error("Có lỗi xảy ra: " + error.message);
@@ -119,7 +119,7 @@ function DanhSachCa() {
     try {
       console.log("handleSaveCa received caData:", caData);
 
-      if (!caData.MaCa || !caData.TenCa || !caData.GioBatDau || !caData.GioKetThuc) {
+      if (!caData.TenCa || !caData.GioBatDau || !caData.GioKetThuc) {
         toast.warn("Vui lòng nhập đầy đủ thông tin!");
         return;
       }

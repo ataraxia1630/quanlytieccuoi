@@ -25,8 +25,28 @@ const getCaById = async (maCa) => {
     }
 };
 
-const createCa = async ({ MaCa, TenCa, GioBatDau, GioKetThuc }) => {
+const generateMaCa = async () => {
     try {
+        const lastCa = await Ca.findOne({
+            order: [['MaCa', 'DESC']]
+        });
+
+        let nextId = 1;
+        if (lastCa) {
+            const lastId = parseInt(lastCa.MaCa.replace('CA', ''), 10);
+            nextId = lastId + 1;
+        }
+
+        return `CA${nextId.toString().padStart(3, '0')}`; // e.g., CA001, CA002
+    } catch (error) {
+        throw new ApiError(500, 'Lỗi khi tạo mã ca: ' + error.message);
+    }
+};
+
+const createCa = async ({ TenCa, GioBatDau, GioKetThuc }) => {
+    try {
+        const MaCa = await generateMaCa(); // Auto-generate MaCa
+
         return await Ca.create({
             MaCa,
             TenCa,

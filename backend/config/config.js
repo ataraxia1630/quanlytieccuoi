@@ -1,4 +1,4 @@
-require('dotenv').config();
+require('dotenv').config()
 
 const commonConfig = {
   username: process.env.DB_USERNAME,
@@ -12,15 +12,19 @@ const commonConfig = {
       rejectUnauthorized: false,
     },
   },
-};
+}
 
 module.exports = {
   development: {
     ...commonConfig,
     database: process.env.DB_NAME,
   },
+  test: {
+    ...commonConfig,
+    database: process.env.DB_NAME + '_test',
+  },
   production: {
     ...commonConfig,
-    database: process.env.DB_NAME + "_prod",
+    database: process.env.DB_NAME + '_prod',
   },
-};
+}
