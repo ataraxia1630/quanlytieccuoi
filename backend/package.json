@@ -4,13 +4,31 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+
     "start:dev": "cross-env NODE_ENV=development nodemon --inspect server.js",
     "start:test": "cross-env NODE_ENV=test nodemon --inspect server.js",
     "start:prod": "cross-env NODE_ENV=production node server.js",
     "start": "cross-env NODE_ENV=production node server.js",
-    "migrate": "npx sequelize-cli db:migrate",
-    "migrate:undo": "npx sequelize-cli db:migrate:undo",
-    "migrate:undo:all": "npx sequelize-cli db:migrate:undo:all"
+
+    "migrate:dev": "cross-env NODE_ENV=development npx sequelize-cli db:migrate",
+    "migrate:test": "cross-env NODE_ENV=test npx sequelize-cli db:migrate",
+    "migrate:prod": "cross-env NODE_ENV=production npx sequelize-cli db:migrate",
+
+    "migrate:undo:all:dev": "cross-env NODE_ENV=development npx sequelize-cli db:migrate:undo:all",
+    "migrate:undo:all:test": "cross-env NODE_ENV=test npx sequelize-cli db:migrate:undo:all",
+    "migrate:undo:all:prod": "cross-env NODE_ENV=production npx sequelize-cli db:migrate:undo:all",
+
+    "seed:dev": "cross-env NODE_ENV=development npx sequelize-cli db:seed:all",
+    "seed:test": "cross-env NODE_ENV=test npx sequelize-cli db:seed:all",
+    "seed:prod": "cross-env NODE_ENV=production npx sequelize-cli db:seed:all",
+
+    "seed:undo:dev": "cross-env NODE_ENV=development npx sequelize-cli db:seed:undo:all",
+    "seed:undo:test": "cross-env NODE_ENV=test npx sequelize-cli db:seed:undo:all",
+    "seed:undo:prod": "cross-env NODE_ENV=production npx sequelize-cli db:seed:undo:all",
+
+    "db:reset:dev": "cross-env NODE_ENV=development npx sequelize-cli db:drop && cross-env NODE_ENV=development npx sequelize-cli db:create && cross-env NODE_ENV=development npx sequelize-cli db:migrate && cross-env NODE_ENV=development npx sequelize-cli db:seed:all",
+    "db:reset:test": "cross-env NODE_ENV=test npx sequelize-cli db:drop && cross-env NODE_ENV=test npx sequelize-cli db:create && cross-env NODE_ENV=test npx sequelize-cli db:migrate && cross-env NODE_ENV=test npx sequelize-cli db:seed:all",
+    "db:reset:prod": "cross-env NODE_ENV=production npx sequelize-cli db:drop && cross-env NODE_ENV=production npx sequelize-cli db:create && cross-env NODE_ENV=production npx sequelize-cli db:migrate && cross-env NODE_ENV=production npx sequelize-cli db:seed:all"
   },
   "author": "",
   "license": "ISC",
