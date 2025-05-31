@@ -55,12 +55,12 @@ function DatMonAn() {
         MonAnService.getAvailableMonAn(),
         {
           loading: "Đang xử lý...",
-          success: "Tải dữ liệu dịch vụ thành công!",
+          success: "Tải dữ liệu món ăn thành công!",
           error: (err) => "Lỗi: " + err.message,
         }
       ).then((data) => setFoods(data.data)); // set dữ liệu nếu thành công
     } catch (error) {
-      toast.error(error.message || "lỗi khi tải dịch vụ");
+      toast.error(error.message || "lỗi khi tải món ăn");
     }
   }, []);
 
@@ -190,12 +190,14 @@ function DatMonAn() {
   // Lấy currentPDT từ localStorage 
   useEffect(() => {
     const pdt = localStorage.getItem("currentPDT");
-    if (!pdt || pdt === "") {
+
+    if (!pdt) {
       console.error("không lấy được phiếu đặt tiệc hiện tại");
+      handleNav(0)
     } else {
       setCurrentPDT(pdt);
     }
-  }, []);
+  }, [handleNav]);
 
 
   // Gọi fetchReservedFoods mỗi khi currentPDT hoặc fetchReservedFoods thay đổi

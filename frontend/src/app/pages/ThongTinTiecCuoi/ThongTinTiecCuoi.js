@@ -302,20 +302,20 @@ const ThongTinTiecCuoi = () => {
   };
 
   // fetch data sảnh từ db
-  const fetchValidServices = useCallback(async () => {
-    try {
-      await toast.promise(
-        DichVuService.searchDichVu({ TinhTrang: "Có sẵn" }),
-        {
-          loading: "Đang xử lý...",
-          success: "Tải dữ liệu dịch vụ thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      ).then((data) => setServices(data)); // set dữ liệu nếu thành công
-    } catch (error) {
-      toast.error(error.message || "lỗi khi tải dịch vụ");
-    }
-  }, []);
+  // const fetchValidServices = useCallback(async () => {
+  //   try {
+  //     await toast.promise(
+  //       DichVuService.searchDichVu({ TinhTrang: "Có sẵn" }),
+  //       {
+  //         loading: "Đang xử lý...",
+  //         success: "Tải dữ liệu dịch vụ thành công!",
+  //         error: (err) => "Lỗi: " + err.message,
+  //       }
+  //     ).then((data) => setServices(data)); // set dữ liệu nếu thành công
+  //   } catch (error) {
+  //     toast.error(error.message || "lỗi khi tải dịch vụ");
+  //   }
+  // }, []);
 
 
   // fetch data phiếu đặt tiêc neeys đang tiến hành đặt tiệc
@@ -464,7 +464,7 @@ const ThongTinTiecCuoi = () => {
     //localStorage.setItem("currentPDT", null);
 
     const pdt = localStorage.getItem("currentPDT");
-    if (pdt !== "" && pdt !== "null") {
+    if (pdt) {
       setCurrentPDT(pdt)
       fetchCurrentPhieuDatTiec(pdt);
     }

@@ -192,12 +192,13 @@ function DatDichVu() {
   // Lấy currentPDT từ localStorage 
   useEffect(() => {
     const pdt = localStorage.getItem("currentPDT");
-    if (!pdt || pdt === "") {
+    if (!pdt) {
       console.error("không lấy được phiếu đặt tiệc hiện tại");
+      handleNav(0);
     } else {
       setCurrentPDT(pdt);
     }
-  }, []);
+  }, [handleNav]);
 
 
   // Gọi fetchReservedServices mỗi khi currentPDT hoặc fetchReservedServices thay đổi
