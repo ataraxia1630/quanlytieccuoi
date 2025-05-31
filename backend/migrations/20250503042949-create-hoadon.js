@@ -29,23 +29,23 @@ module.exports = {
         allowNull: false,
       },
       TongTienDichVu: {
-        type: Sequelize.DECIMAL(15, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienMonAn: {
-        type: Sequelize.DECIMAL(15, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienHoaDon: {
-        type: Sequelize.DECIMAL(15, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienPhat: {
-        type: Sequelize.DECIMAL(15, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: true,
       },
       TienConLai: {
-        type: Sequelize.DECIMAL(15, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
     });
