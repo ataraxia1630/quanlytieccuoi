@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       SoLuongBanToiDa: {
-        type: DataTypes.SMALLINT,
+        type: DataTypes.TINYINT.UNSIGNED,
         allowNull: false,
       },
       HinhAnh: {
