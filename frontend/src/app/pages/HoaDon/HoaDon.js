@@ -449,12 +449,12 @@ function HoaDon() {
 
         } else {
           console.log('vao create');
-          const randomNum = Math.floor(100000 + Math.random() * 900000);
-
+          const randomNum = Math.floor(Math.random() * 1000); // 0 - 999
+          const randomNumStr = randomNum.toString().padStart(3, '0');
           const newForm = {
             ...form,
             SoPhieuDatTiec: initData.SoPhieuDatTiec || '',
-            SoHoaDon: `HD${randomNum}`,
+            SoHoaDon: `HD${randomNumStr}`,
             SoLuongBanDaDung: initData.SoLuongBan,
             NgayThanhToan: new Date().toISOString(),
             dsDichVu: dsChiTietDichVu || [],
