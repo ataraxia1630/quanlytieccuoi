@@ -187,7 +187,7 @@ const MonAnService = {
         const existing = await MonAn.findOne({
           where: {
             TenMonAn: data.TenMonAn,
-            id: { [Op.ne]: id },
+            MaMonAn: { [Op.ne]: id },
           },
         });
         if (existing) {
