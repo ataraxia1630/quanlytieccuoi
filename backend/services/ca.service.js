@@ -37,7 +37,7 @@ const generateMaCa = async () => {
             nextId = lastId + 1;
         }
 
-        return `CA${nextId.toString().padStart(2, '0')}`; // e.g., CA01, CA02
+        return `CA${nextId.toString().padStart(3, '0')}`; // e.g., CA001, CA002
     } catch (error) {
         throw new ApiError(500, 'Lỗi khi tạo mã ca: ' + error.message);
     }

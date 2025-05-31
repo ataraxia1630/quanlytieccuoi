@@ -5,7 +5,7 @@ const CancelButton = ({ textCancel, onClick }) => (
     onClick={onClick}
     variant="outlined"
     sx={{
-      width: "100px",
+      width: "120px",
       height: "40px",
       borderColor: "#063F5C",
       textTransform: "none",

@@ -23,23 +23,23 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       TongTienDichVu: {
-        type: DataTypes.DECIMAL(15, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienMonAn: {
-        type: DataTypes.DECIMAL(15, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienHoaDon: {
-        type: DataTypes.DECIMAL(15, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienPhat: {
-        type: DataTypes.DECIMAL(15, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: true,
       },
       TienConLai: {
-        type: DataTypes.DECIMAL(15, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
       },
     },

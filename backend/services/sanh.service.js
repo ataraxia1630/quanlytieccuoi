@@ -33,7 +33,7 @@ const getSanhById = async (maSanh) => {
         const sanh = await Sanh.findByPk(maSanh, {
             include: [{ model: LoaiSanh, attributes: ['MaLoaiSanh', 'TenLoaiSanh'] }]
         });
-        return sanh;
+        return sanh;    
     } catch (error) {
         throw new ApiError(500, 'Lỗi khi lấy thông tin sảnh: ' + error.message);
     }
@@ -47,11 +47,11 @@ const generateMaSanh = async () => {
 
         let nextId = 1;
         if (lastSanh) {
-            const lastId = parseInt(lastSanh.MaSanh.replace('SANH', ''), 10);
+            const lastId = parseInt(lastSanh.MaSanh.replace('S', ''), 10);
             nextId = lastId + 1;
         }
 
-        return `SANH${nextId.toString().padStart(2, '0')}`; // e.g., SANH01, SANH02
+        return `S${nextId.toString().padStart(3, '0')}`; // e.g., S001, S002
     } catch (error) {
         throw new ApiError(500, 'Lỗi khi tạo mã sảnh: ' + error.message);
     }
@@ -80,10 +80,10 @@ const createSanh = async ({ MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, Gh
             HinhAnh: imageUrl,
             GhiChu
         });
-    } catch (error) {
-        if (error.name === 'ApiError') throw error;
-        throw new ApiError(500, 'Lỗi khi thêm sảnh: ' + error.message);
-    }
+        } catch (error) {
+            if (error.name === 'ApiError') throw error;
+            throw new ApiError(500, 'Lỗi khi thêm sảnh: ' + error.message);
+        }
 };
 
 const updateSanh = async (maSanh, { MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, GhiChu }) => {

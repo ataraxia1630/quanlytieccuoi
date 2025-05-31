@@ -1,1 +1,68 @@
 /* CSS cho ThongTinTiecCuoi */
+.BookingCount-container {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    height: 100px;
+
+}
+
+.BookingCount-container span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5rem;
+
+}
+
+.thongtintieccuoi-page {
+    width: 100%;
+    height: 100vh;
+}
+
+.form-section {
+    flex: 1;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.form-grid {
+    margin-bottom: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr 1fr;
+    gap: 16px;
+}
+
+.table-selection {
+    display: grid;
+    grid-template-columns: 3fr 3fr 1fr;
+    align-items: center;
+}
+
+
+.image-section {
+    position: fixed;
+    z-index: -1;
+    right: 20px;
+    top: 86px;
+    bottom: 0;
+    width: 30%;
+    height: 95vh;
+    background-image: url('https://res.cloudinary.com/digpe9tmq/image/upload/v1747636596/snapedit_1743606062866_hhdcnh.png');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-text {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 16px;
+    border-radius: 16px;
+    text-align: center;
+}
