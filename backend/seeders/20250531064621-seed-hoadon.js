@@ -57,12 +57,12 @@ module.exports = {
 
     for (const phieu of phieuDatTiecIds) {
       const phieuInfo = phieuInfoMap[phieu]
-      if (!phieuInfo) continue 
+      if (!phieuInfo) continue
 
-      // Tính NgayThanhToan (NgayDaiTiec đến 30 ngày sau)
+      // Tính NgayThanhToan (NgayDaiTiec đến 27 ngày sau)
       const ngayThanhToan = new Date(
         phieuInfo.ngayDaiTiec.getTime() +
-          Math.floor(Math.random() * 31) * 24 * 60 * 60 * 1000
+          Math.floor(Math.random() * 28) * 24 * 60 * 60 * 1000
       )
 
       // Tính SoLuongBanDaDung (90%–100% của SoLuongBan)
@@ -72,9 +72,7 @@ module.exports = {
       )
 
       // Tính TongTienMonAn và TongTienDichVu
-      const tongTienMonAn = parseInt(
-        (tongTienMonAnMap[phieu] || 0).toFixed(2)
-      )
+      const tongTienMonAn = parseInt((tongTienMonAnMap[phieu] || 0).toFixed(2))
       const tongTienDichVu = parseInt(
         (tongTienDichVuMap[phieu] || 0).toFixed(2)
       )
@@ -89,7 +87,7 @@ module.exports = {
         (tongTienMonAn + tongTienDichVu).toFixed(2)
       )
 
-      // Tính TongTienPhat (1% mỗi ngày trễ sau 7 ngày)
+      // Tính TongTienPhat (1% mỗi ngày trễ kể từ NgayHetHan)
       const ngayHetHan = new Date(
         phieuInfo.ngayDaiTiec.getTime() + 7 * 24 * 60 * 60 * 1000
       )
@@ -98,9 +96,7 @@ module.exports = {
         0
       )
       const tongTienPhat =
-        soNgayTre > 0
-          ? parseInt((tongTienHoaDonBase * 0.01 * soNgayTre).toFixed(2))
-          : null
+        soNgayTre > 0 ? Math.round(tongTienHoaDonBase * 0.01 * soNgayTre) : 0
 
       // Tính TongTienHoaDon (bao gồm phạt)
       const tongTienHoaDon = parseInt(
