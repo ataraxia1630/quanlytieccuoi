@@ -20,10 +20,8 @@ backend/
 ## Hướng dẫn làm việc mới migration
 
 ```
-Tạo migration cho mỗi lần thay đổi csdl: npx sequelize-cli migration:generate --name <tênfile>
-Thêm migration cho khóa ngoại: npx sequelize-cli migration:generate --name add-foreign-key-to-posts
-Chạy migration: npx sequelize-cli db:migrate
-Rollback: sequelize db:migrate:undo
+Tạo migration: npx sequelize-cli migration:generate --name <tênfile>
+Tạo seed: npx sequelize-cli seed:generate --name <tênfile>
 ```
 
 ## Hướng dẫn sử dụng và chạy migration
@@ -32,31 +30,31 @@ Rollback: sequelize db:migrate:undo
 
 ```
 npm run start:dev
-migrate:dev (chạy tất cả file sequelize chưa được chạy)
-migrate:undo:all:dev (xóa tất cả bảng đã được tạo)
-seed:dev (chạy tất cả file seed)
-seed:undo:dev (xóa tất cả dữ liệu seed)
-db:reset:dev (thực hiện db:drop + db:create + db:migrate + db:seed:all)
+npm run migrate:dev (chạy tất cả file sequelize chưa được chạy)
+npm run migrate:undo:all:dev (xóa tất cả bảng đã được tạo)
+npm run seed:dev (chạy tất cả file seed)
+npm run seed:undo:dev (xóa tất cả dữ liệu seed)
+npm run db:reset:dev (thực hiện db:drop + db:create + db:migrate + db:seed:all)
 ```
 
 ### Môi trường test
 
 ```
-npm run start:test (cho môi trường test)
-migrate:test
-migrate:undo:all:test
-seed:test
-seed:undo:test
-db:reset:test
+npm run start:test
+npm run migrate:test
+npm run migrate:undo:all:test
+npm run seed:test
+npm run seed:undo:test
+npm run db:reset:test
 ```
 
 ### Môi trường production
 
 ```
 npm run start:prod hoặc npm start
-migrate:prod
-migrate:undo:all:test
-seed:prod
-seed:undo:prod
-db:reset:prod
+npm run migrate:prod
+npm run migrate:undo:all:prod
+npm run seed:prod
+npm run seed:undo:prod
+npm run db:reset:prod
 ```
