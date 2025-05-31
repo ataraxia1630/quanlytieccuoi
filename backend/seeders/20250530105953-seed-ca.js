@@ -7,27 +7,15 @@ module.exports = {
       [
         {
           MaCa: 'CA001',
-          TenCa: 'Sáng',
-          GioBatDau: '07:00:00',
-          GioKetThuc: '11:00:00',
+          TenCa: 'Trưa',
+          GioBatDau: '7:30:00',
+          GioKetThuc: '14:00:00',
         },
         {
           MaCa: 'CA002',
-          TenCa: 'Trưa',
-          GioBatDau: '11:30:00',
-          GioKetThuc: '15:00:00',
-        },
-        {
-          MaCa: 'CA003',
-          TenCa: 'Chiều',
-          GioBatDau: '15:30:00',
-          GioKetThuc: '19:00:00',
-        },
-        {
-          MaCa: 'CA004',
           TenCa: 'Tối',
-          GioBatDau: '19:30:00',
-          GioKetThuc: '23:00:00',
+          GioBatDau: '15:30:00',
+          GioKetThuc: '22:00:00',
         },
       ],
       {}

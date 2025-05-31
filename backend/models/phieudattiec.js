@@ -31,15 +31,15 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       TienDatCoc: {
-        type: DataTypes.DECIMAL(10, 2),
+        type: DataTypes.DECIMAL(15, 2),
         allowNull: false,
       },
       SoLuongBan: {
-        type: DataTypes.TINYINT,
+        type: DataTypes.TINYINT.UNSIGNED,
         allowNull: false,
       },
       SoBanDuTru: {
-        type: DataTypes.TINYINT,
+        type: DataTypes.TINYINT.UNSIGNED,
         allowNull: true,
       },
       NgayDatTiec: {

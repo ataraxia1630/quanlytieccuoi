@@ -61,7 +61,7 @@ module.exports = {
         },
         {
           MaDichVu: 'DV010',
-          TenDichVu: 'Trang điểm cô dâu',
+          TenDichVu: 'Trang điểm, làm tóc cô dâu',
           DonGia: 4000000.0,
           TinhTrang: 'Ngừng cung cấp',
         },
@@ -73,7 +73,7 @@ module.exports = {
         },
         {
           MaDichVu: 'DV012',
-          TenDichVu: 'Làm tóc cô dâu',
+          TenDichVu: 'Âm thanh ánh sáng',
           DonGia: 1500000.0,
           TinhTrang: 'Có sẵn',
         },
@@ -94,6 +94,36 @@ module.exports = {
           TenDichVu: 'Tiệc ngọt khai tiệc',
           DonGia: 6000000.0,
           TinhTrang: 'Có sẵn',
+        },
+        {
+          MaDichVu: 'DV016',
+          TenDichVu: 'Trang trí bàn tiệc theo chủ đề',
+          DonGia: 3800000.0,
+          TinhTrang: 'Có sẵn',
+        },
+        {
+          MaDichVu: 'DV017',
+          TenDichVu: 'Photobooth chụp ảnh khách mời',
+          DonGia: 2500000.0,
+          TinhTrang: 'Tạm dừng',
+        },
+        {
+          MaDichVu: 'DV018',
+          TenDichVu: 'Thuê xe đưa rước khách',
+          DonGia: 5000000.0,
+          TinhTrang: 'Có sẵn',
+        },
+        {
+          MaDichVu: 'DV019',
+          TenDichVu: 'Trang trí không gian lối đi',
+          DonGia: 3200000.0,
+          TinhTrang: 'Có sẵn',
+        },
+        {
+          MaDichVu: 'DV020',
+          TenDichVu: 'Nhóm múa khai tiệc',
+          DonGia: 4500000.0,
+          TinhTrang: 'Ngừng cung cấp',
         },
       ],
       {}

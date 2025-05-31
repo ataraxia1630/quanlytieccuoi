@@ -21,7 +21,7 @@ module.exports = {
         allowNull: false,
       },
       SoLuongBanToiDa: {
-        type: Sequelize.TINYINT,
+        type: Sequelize.TINYINT.UNSIGNED,
         allowNull: false,
       },
       GhiChu: {

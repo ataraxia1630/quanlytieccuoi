@@ -9,24 +9,29 @@ const { AVAILABLE, UNAVAILABLE, NO_LONGER_AVAILABLE } = {
 const foodData = [
   {
     TenMonAn: 'Cá hồi tẩm bột chiên giòn dùng với gỏi xoài Thái',
-    HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656529/xdmdlys7hpgv6ju2kiie.jpg',
+    HinhAnh:
+      'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656529/xdmdlys7hpgv6ju2kiie.jpg',
   },
   {
     TenMonAn: 'Tôm cuộn khoai môn chiên giòn sốt tartar',
-    HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656585/mzys6codztqyytdqgaby.jpg',
+    HinhAnh:
+      'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656585/mzys6codztqyytdqgaby.jpg',
   },
   {
     TenMonAn: 'Salad củ hũ dừa và tôm càng sốt cay',
-    HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656642/zee7gqfa02dingybbwvn.jpg',
+    HinhAnh:
+      'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656642/zee7gqfa02dingybbwvn.jpg',
   },
   {
     TenMonAn:
       'Cánh gà nướng sốt BBQ dùng vời salad - Ba rọi cuộn nấm sốt phô mai',
-    HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656693/oyrzmspm12i7py3iu1o7.jpg',
+    HinhAnh:
+      'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656693/oyrzmspm12i7py3iu1o7.jpg',
   },
   {
     TenMonAn: 'Củ sen bách hoa sốt chua ngọt',
-    HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656759/s7ebahivpg8h8ntpsbj9.jpg',
+    HinhAnh:
+      'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656759/s7ebahivpg8h8ntpsbj9.jpg',
   },
   {
     TenMonAn: 'Mực xuyên tiêu sốt tamarind',
@@ -190,7 +195,7 @@ const getRandomTinhTrang = () => {
 }
 
 const getRandomDonGia = () => {
-  return parseFloat((Math.random() * (370000 - 110000) + 110000).toFixed(2))
+  return parseInt(Math.random() * (600000 - 200000) + 200000).toFixed(2)
 }
 
 module.exports = {
