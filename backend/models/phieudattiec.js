@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       TienDatCoc: {
-        type: DataTypes.DECIMAL(15, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
       },
       SoLuongBan: {

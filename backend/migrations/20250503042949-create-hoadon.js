@@ -42,7 +42,7 @@ module.exports = {
       },
       TongTienPhat: {
         type: Sequelize.DECIMAL(18, 2),
-        allowNull: true,
+        allowNull: false,
       },
       TienConLai: {
         type: Sequelize.DECIMAL(18, 2),

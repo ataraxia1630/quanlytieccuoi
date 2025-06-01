@@ -36,7 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       TongTienPhat: {
         type: DataTypes.DECIMAL(18, 2),
-        allowNull: true,
+        allowNull: false,
       },
       TienConLai: {
         type: DataTypes.DECIMAL(18, 2),
