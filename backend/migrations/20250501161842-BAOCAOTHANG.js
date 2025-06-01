@@ -21,7 +21,7 @@ module.exports = {
         allowNull: false,
       },
       TongDoanhThu: {
-        type: Sequelize.DECIMAL(12, 2),
+        type: Sequelize.DECIMAL(15, 2),
         allowNull: false,
       },
     });
