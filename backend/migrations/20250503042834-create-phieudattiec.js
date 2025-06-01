@@ -42,7 +42,7 @@ module.exports = {
         onDelete: "CASCADE",
       },
       TienDatCoc: {
-        type: Sequelize.DECIMAL(15, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       SoLuongBan: {
