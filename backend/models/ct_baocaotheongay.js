@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       DoanhThu: {
-        type: DataTypes.DECIMAL(10, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
       },
       TiLe: {

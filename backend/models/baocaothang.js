@@ -17,7 +17,7 @@ module.exports = (sequelize, DataTypes) => {
      allowNull: false,
    },
    TongDoanhThu: {
-     type: DataTypes.DECIMAL(12, 2),
+     type: DataTypes.DECIMAL(18, 2),
      allowNull: false,
    }
  }, {

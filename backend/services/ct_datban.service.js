@@ -13,13 +13,15 @@ const CTDatBanService = {
             }
             return await Ct_DatBan.findAll({
                 where: { SoPhieuDatTiec: pdtId },
+                include: [
+                    { model: MonAn, attributes: ['TenMonAn'] }
+                ],
             });
 
         } catch (error) {
             throw new ApiError(500, "Không thể lấy danh sách đặt bàn theo phiếu đặt tiệc : ${pdtId}");
         }
     },
-
 
     getCTDatBanById: async (phieuDatTiecId, monAnId) => {
         try {

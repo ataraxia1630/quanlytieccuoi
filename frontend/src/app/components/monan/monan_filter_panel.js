@@ -1,4 +1,4 @@
-import { Box, Collapse, Paper } from '@mui/material';
+import { Box, Collapse, Paper, Typography } from '@mui/material';
 import RangeInputs from '../Rangeinput';
 import FilterButton from '../Filterbutton';
 import StatusCheckbox from '../Statuscheckbx';
@@ -9,14 +9,14 @@ import {
 } from '../../pages/DanhSachMonAn/statusMapping';
 
 const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
-  const [priceFrom, setPriceFrom] = useState(0);
+  const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
   const [status, setStatus] = useState(filters.status || []);
   const [errors, setErrors] = useState({ priceFrom: '', priceTo: '' });
 
   // Đồng bộ với filters từ props
   useEffect(() => {
-    setPriceFrom(filters.priceMin || 0);
+    setPriceFrom(filters.priceMin || '');
     setPriceTo(filters.priceMax || '');
     setStatus(filters.status || []);
     setErrors({ priceFrom: '', priceTo: '' });
@@ -47,13 +47,18 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   };
 
   const handleApply = () => {
-    if (validate()) {
-      onApply({
-        status: status.map((s) => statusMapToBackend[s] || s),
-        priceMin: priceFrom ? Number(priceFrom) : 0,
-        priceMax: priceTo ? Number(priceTo) : 10000000,
-      });
+    const isValid = validate();
+    if (!isValid) {
+      console.log('Validate thất bại:', errors);
+      return;
     }
+
+    let newFilters = {};
+    if (status.length > 0) newFilters.status = status;
+    if (priceFrom) newFilters.priceMin = priceFrom;
+    if (priceTo) newFilters.priceMax = priceTo;
+
+    onApply(newFilters);
   };
 
   const handleReset = () => {
@@ -77,38 +82,66 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
       >
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
           {/* Range input cho Khoảng giá */}
-          <RangeInputs
-            width="90px"
-            label="Giá"
-            fromValue={priceFrom}
-            toValue={priceTo}
-            onFromChange={(value) => {
-              setPriceFrom(value);
-              setErrors({ ...errors, priceFrom: '' });
-            }}
-            onToChange={(value) => {
-              setPriceTo(value);
-              setErrors({ ...errors, priceTo: '' });
-            }}
-            errorFrom={errors.priceFrom}
-            errorTo={errors.priceTo}
-          />
+          <Box sx={{ display: 'block' }}>
+            <RangeInputs
+              width="90px"
+              label="Giá"
+              fromValue={priceFrom}
+              toValue={priceTo}
+              onFromChange={(value) => {
+                setPriceFrom(value);
+                setErrors({ ...errors, priceFrom: '' });
+              }}
+              onToChange={(value) => {
+                setPriceTo(value);
+                setErrors({ ...errors, priceTo: '' });
+              }}
+              errorFrom={errors.priceFrom}
+              errorTo={errors.priceTo}
+            />
+            {errors.priceFrom && (
+              <Typography color="error" variant="caption" sx={{ mt: 1 }}>
+                {errors.priceFrom}
+              </Typography>
+            )}
+
+            {errors.priceTo && (
+              <Typography color="error" variant="caption" sx={{ mt: 1 }}>
+                {errors.priceTo}
+              </Typography>
+            )}
+          </Box>
 
           {/* Checkbox cho Trạng thái */}
           <Box sx={{ display: 'block' }}>
             <StatusCheckbox
               label="Trạng thái"
               value={status}
-              onChange={setStatus}
+              onChange={(value) => {
+                setStatus(value);
+                setErrors({ ...errors, status: '' });
+              }}
               row={false}
               options={statusOptions}
             />
+            {errors.status && (
+              <Typography color="error" variant="caption" sx={{ mt: 1 }}>
+                {errors.status}
+              </Typography>
+            )}
           </Box>
         </Box>
 
         {/* Nút áp dụng lọc */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-          <FilterButton text="Reset" onClick={handleReset} />
+        <Box
+          sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}
+        >
+          <FilterButton
+            text="Reset"
+            onClick={handleReset}
+            colorVariant="reset"
+          />
+
           <FilterButton text="Apply" onClick={handleApply} />
         </Box>
       </Paper>

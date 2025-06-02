@@ -1,62 +1,108 @@
-import axios from 'axios';
-import { handleApiError } from './phieudattiec.service'
-
-const api = axios.create({
-    baseURL: '/api/ct-dichvu',
-});
+const API_BASE_URL = 'http://localhost:3000/api'; // thay bằng địa chỉ backend thật sự nếu khác
 
 
-const getAllByPhieuDatTiecId = async (pdtId) => {
-    try {
-        const response = await api.get(`/${pdtId}`);
-        return response.data;
-    } catch (error) {
-        handleApiError(error);
+// export const getAllDichVu = async (soPhieuDatTiec) => {
+//   try {
+//     const response = await fetch(`http://localhost:3000/api/ct-dichvu/${soPhieuDatTiec}`);
+    
+//     if (!response.ok) {
+//       throw new Error('Không thể lấy dữ liệu từ server');
+//     }
+
+//     const data = await response.json();
+//     return data;
+//   } catch (error) {
+//     console.error('Lỗi khi gọi API getAllDichVu:', error);
+//     throw error;
+//   }
+// };
+// export const getChiTietDichVu = async (soPhieuDatTiec, maDichVu) => {
+//   try {
+//     const response = await fetch(`http://localhost:3000/api/ct-dichvu/${soPhieuDatTiec}/${maDichVu}`);
+    
+//     if (!response.ok) {
+//       throw new Error('Lỗi khi lấy danh sách chi tiết dịch vụ');
+//     }
+
+//     const data = await response.json();
+//     return data; // data là mảng các chi tiết dịch vụ
+//   } catch (error) {
+//     console.error('Lỗi API:', error);
+//     throw error;
+//   }
+// };
+// frontend/services/ctDichVuService.js
+
+export const getAllCTDichVuByPDTId = async (soPhieuDatTiec) => {
+  try {
+    const response = await fetch(`http://localhost:3000/api/ct-dichvu/${soPhieuDatTiec}`);
+    if (!response.ok) {
+      throw new Error('Không thể lấy danh sách chi tiết dịch vụ');
     }
+    const data = await response.json();
+    return data; 
+  } catch (error) {
+    console.error('Lỗi khi gọi API:', error);
+    throw error;
+  }
 };
 
-const getById = async (pdtId, dichVuId) => {
-    try {
-        const response = await api.get(`/${pdtId}/${dichVuId}`);
-        return response.data;
-    } catch (error) {
-        handleApiError(error);
+export const getAllChiTietDichVu = async (soPhieuDatTiec, maDichVu = null) => {
+  try {
+    const url = maDichVu
+      ? `http://localhost:3000/api/ct-dichvu/${soPhieuDatTiec}/${maDichVu}`
+      : `http://localhost:3000/api/ct-dichvu/${soPhieuDatTiec}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error('Không thể lấy dữ liệu từ server');
     }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Lỗi khi gọi API chi tiết dịch vụ:', error);
+    throw error;
+  }
 };
 
-const create = async (data) => {
-    try {
-        const response = await api.post('/', data);
-        return response.data;
-    } catch (error) {
-        handleApiError(error);
-    }
-};
 
-const update = async (pdtId, dichVuId, data) => {
-    try {
-        const response = await api.put(`/${pdtId}/${dichVuId}`, data);
-        return response.data;
-    } catch (error) {
-        handleApiError(error);
-    }
-};
 
-const remove = async (pdtId, dichVuId) => {
-    try {
-        const response = await api.delete(`/${pdtId}/${dichVuId}`);
-        return response.data;
-    } catch (error) {
-        handleApiError(error);
-    }
-};
+// Thêm chi tiết dịch vụ
+export async function createCTDichVu(data) {
+  const response = await fetch(`${API_BASE_URL}/ct-dichvu`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
 
-const ctDichVuService = {
-    getAllByPhieuDatTiecId,
-    getById,
-    create,
-    update,
-    remove,
-};
+  if (!response.ok) throw new Error('Không thể tạo chi tiết dịch vụ');
+  return await response.json();
+}
 
-export default ctDichVuService;
+// Cập nhật chi tiết dịch vụ
+export async function updateCTDichVu(maDichVu, soPhieuDatTiec, data) {
+  const response = await fetch(`${API_BASE_URL}/ct-dichvu/${soPhieuDatTiec}/${maDichVu}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+
+  if (!response.ok) throw new Error('Không thể cập nhật chi tiết dịch vụ');
+  return await response.json();
+}
+
+// Xoá chi tiết dịch vụ
+export async function deleteCTDichVu(maDichVu, soPhieuDatTiec) {
+  const response = await fetch(`${API_BASE_URL}/ct-dichvu/${soPhieuDatTiec}/${maDichVu}`, {
+    method: 'DELETE'
+  });
+
+  if (!response.ok) throw new Error('Không thể xoá chi tiết dịch vụ');
+  return await response.json();
+}

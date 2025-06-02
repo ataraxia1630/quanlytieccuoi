@@ -33,7 +33,7 @@ const DichVuColumn = [
   },
   {
     id: "TinhTrang",
-    label: "Tình Trạng",
+    label: "Tình trạng",
     sortable: false,
     width: 150,
   },

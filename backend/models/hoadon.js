@@ -19,27 +19,27 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       SoLuongBanDaDung: {
-        type: DataTypes.TINYINT,
+        type: DataTypes.TINYINT.UNSIGNED,
         allowNull: false,
       },
       TongTienDichVu: {
-        type: DataTypes.DECIMAL(10, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienMonAn: {
-        type: DataTypes.DECIMAL(10, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienHoaDon: {
-        type: DataTypes.DECIMAL(10, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienPhat: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: true,
+        type: DataTypes.DECIMAL(18, 2),
+        allowNull: false,
       },
       TienConLai: {
-        type: DataTypes.DECIMAL(10, 2),
+        type: DataTypes.DECIMAL(18, 2),
         allowNull: false,
       },
     },

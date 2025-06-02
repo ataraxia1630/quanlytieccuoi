@@ -18,7 +18,7 @@ const MonAnController = {
   getAllMonAn: async (req, res, next) => {
     try {
       const page = parseInt(req.query.page) || 1;
-      const limit = parseInt(req.query.limit) || 10;
+      const limit = parseInt(req.query.limit) || 100;
 
       const filters = {
         status: req.query.status?.split(',') || [
@@ -28,7 +28,7 @@ const MonAnController = {
         ],
         price: {
           min: parseInt(req.query.minPrice) || 0,
-          max: parseInt(req.query.maxPrice) || 10000000,
+          max: parseInt(req.query.maxPrice) || 99999999,
         },
       };
 

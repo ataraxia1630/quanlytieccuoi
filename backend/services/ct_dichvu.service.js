@@ -4,7 +4,6 @@ const ApiError = require('../utils/apiError');
 
 
 const CTDichVuService = {
-    // Lấy danh sách phiếu đặt tiệc với phân trang và tìm kiếm
     getAllCTDichVuByPDTId: async (pdtId) => {
         try {
             const pdt = await PhieuDatTiec.findByPk(pdtId);
@@ -13,12 +12,16 @@ const CTDichVuService = {
             }
             return await Ct_DichVu.findAll({
                 where: { SoPhieuDatTiec: pdtId },
+                include: [
+                    { model: DichVu, attributes: ['TenDichVu'] }
+                ],
             });
 
         } catch (error) {
-            throw new ApiError(500, "Không thể lấy danh sách dịch vụ theo phiếu đặt tiệc : ${pdtId}");
+            throw new ApiError(500, `Không thể lấy danh sách dịch vụ theo phiếu đặt tiệc : ${pdtId}`);
         }
     },
+
 
 
     getCTDichVuById: async (phieuDatTiecId, dichVuId) => {

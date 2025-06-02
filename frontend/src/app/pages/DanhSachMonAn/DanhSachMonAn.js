@@ -27,8 +27,8 @@ export default function DanhSachMonAn() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [filters, setFilters] = useState({
     status: [],
-    priceMin: 0,
-    priceMax: 10000000,
+    priceMin: '',
+    priceMax: '',
   });
   const [loading, setLoading] = useState(false);
   //#endregion
@@ -74,7 +74,7 @@ export default function DanhSachMonAn() {
   };
 
   const handleResetFilter = () => {
-    setFilters({ status: [], priceMin: 0, priceMax: 10000000 });
+    setFilters({ status: [], priceMin: '', priceMax: '' });
     setSearchTerm('');
     toast.success('Đã reset bộ lọc');
   };
