@@ -32,7 +32,7 @@ const PhieuDatTiecService = {
                 data: rows,
             };
         } catch (error) {
-            throw new ApiError(500, "Không thể lấy danh sách phiếu đặt tiệc");
+            throw new ApiError(500, "Lỗi khi lấy danh sách phiếu đặt tiệc");
         }
     },
 
@@ -105,16 +105,16 @@ const PhieuDatTiecService = {
             const phieudattiec = await PhieuDatTiec.findOne({
                 where: { SoPhieuDatTiec: id },
                 include: [
-                    { model: Sanh, attributes: ['TenSanh'] },
-                    { model: Ca, attributes: ['TenCa'] },
+                    { model: Sanh, attributes: ['MaSanh', 'TenSanh'] },
+                    { model: Ca, attributes: ['MaCa', 'TenCa'] },
                     { model: Ct_DichVu },
                     { model: Ct_DatBan },
                 ],
             });
-
+            if (!phieudattiec) throw new ApiError(404, 'Không tìm thấy phiếu đặt tiệc');
             return phieudattiec;
         } catch (error) {
-            throw new ApiError(500, 'Không tìm thấy phiếu đặt tiệc');
+            throw new ApiError(500, 'Lỗi khi lấy phiếu đặt tiệc');
         }
     },
 
@@ -122,7 +122,6 @@ const PhieuDatTiecService = {
     createPhieuDatTiec: async (data) => {
         try {
             const {
-                SoPhieuDatTiec,
                 MaSanh,
                 TenChuRe,
                 TenCoDau,
@@ -136,21 +135,23 @@ const PhieuDatTiecService = {
                 TrangThai
             } = data;
 
-            const sanh = await Sanh.findByPk(MaSanh);
-            if (!sanh) {
-                throw new ApiError(400, 'Mã sảnh không tồn tại');
+            const latestPhieuDatTiec = await PhieuDatTiec.findOne({
+                order: [['SoPhieuDatTiec', 'DESC']], // Sắp xếp giảm dần để lấy bản ghi lớn nhất
+            });
+
+            let nextNumber = 1;
+            if (latestPhieuDatTiec && latestPhieuDatTiec.SoPhieuDatTiec) {
+                const latestNumber = parseInt(latestPhieuDatTiec.SoPhieuDatTiec.slice(3)); // Lấy số từ PDTxxx
+                nextNumber = latestNumber + 1;
             }
 
-            const ca = await Ca.findByPk(MaCa);
-            if (!ca) {
-                throw new ApiError(400, 'Mã ca không tồn tại');
-            }
-
+            const SoPhieuDatTiec = `PDT${String(nextNumber).padStart(3, '0')}`; // Đảm bảo 3 chữ số (PDT001, PDT002, ...)
             // Kiểm tra trùng SoPhieuDatTiec
             const existingPhieu = await PhieuDatTiec.findOne({ where: { SoPhieuDatTiec } });
             if (existingPhieu) {
                 throw new ApiError('Số phiếu đặt tiệc đã tồn tại');
             }
+
 
             const phieudattiec = await PhieuDatTiec.create({
                 SoPhieuDatTiec,

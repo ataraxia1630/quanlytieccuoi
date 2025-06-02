@@ -66,6 +66,7 @@ function ServiceCard({ srv, onClick }) {
                         textTransform: 'none',
                         paddingX: 3,
                     }}
+                    onClick={() => onClick()}
                 >
                     Thêm
                 </Button>

@@ -4,129 +4,87 @@ import { StepContext } from '../DatTiecCuoi/DatTiecCuoi';
 import Cancelbutton from '../../components/Cancelbutton';
 import FoodCard from '../../components/FoodCard';
 import ctDatBanService from '../../service/ct_datban.service';
+import MonAnService from '../../service/monan.service';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import defaultColumns from '../../components/ct_datban/ct_datban_default_column';
 import EditCTDatBanDialog from '../../components/ct_datban/ct_datban_edit_dialog';
 import CustomTable from "../../components/Customtable";
+import { Typography } from '@mui/material';
 
 
 
 function DatMonAn() {
-  const [foods, setfoods] = useState([]);
+  const [foods, setFoods] = useState([]);
   const [reservedFoods, setReservedFoods] = useState([]);
+  const { handleNav } = useContext(StepContext);
   const [openDialog, setOpenDialog] = useState(false);
   const [currentPDT, setCurrentPDT] = useState(null)
-  const { handleNav } = useContext(StepContext);
   const [ctdatbanToEdit, setCtdatbanToEdit] = useState(null);
-  const [tenMonAnToEdit, SetTenMonAnToEdit] = useState("")
+
   // Mock data
-  const mockItems = useMemo(() => [
-    {
-      "MaMonAn": "DV001",
-      "TenMonAn": "Thịt heo",
-      "DonGia": 10000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MA001",
-      "TenMonAn": "Thịt heo",
-      "DonGia": 10000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MA002",
-      "TenMonAn": "cua hấp bia",
-      "DonGia": 300000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MA003",
-      "TenMonAn": "cua hoàng đế",
-      "DonGia": 4000000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MA007",
-      "TenMonAn": "Salad",
-      "DonGia": 100000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MONAN00001",
-      "TenMonAn": "Salad hoàng đế",
-      "DonGia": 1500000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MONAN00002",
-      "TenMonAn": "Gà súp nấm hương",
-      "DonGia": 90000.0,
-      "HinhAnh": "https://res.cloudinary.com/digpe9tmq/image/upload/v1747506883/xgtffkd0onsoolzthixp.png",
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MONAN00003",
-      "TenMonAn": "Bê om sâm, nấm đông cô (kèm bánh mỳ)",
-      "DonGia": 210000.0,
-      "HinhAnh": "https://res.cloudinary.com/digpe9tmq/image/upload/v1747506677/oxxd53zg4suure6om4lj.png",
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MONAN00005",
-      "TenMonAn": "Cá quả chiên sốt Thái",
-      "DonGia": 120000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MONAN00006",
-      "TenMonAn": "Gà đông tảo rút xương xốt nấm",
-      "DonGia": 1500000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "TEST01",
-      "TenMonAn": "Cơm tấm test",
-      "DonGia": 50000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "TEST02",
-      "TenMonAn": "Cơm tấm test",
-      "DonGia": 50000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
+  // const mockItems = useMemo(() => [
+  //   {
+  //     "MaMonAn": "MA001", // Loại bỏ khoảng trắng
+  //     "TenMonAn": "Thịt heo",
+  //     "DonGia": 10000.0,
+  //     "HinhAnh": null,
+  //     "TrangThai": "AVAILABLE"
+  //   },
+  //   {
+  //     "MaMonAn": "MA002", // Giữ lại một mục duy nhất cho MA002
+  //     "TenMonAn": "Cua hấp bia",
+  //     "DonGia": 300000.0,
+  //     "HinhAnh": null,
+  //     "TrangThai": "AVAILABLE"
+  //   },
+  //   {
+  //     "MaMonAn": "MA003",
+  //     "TenMonAn": "Cua hoàng đế",
+  //     "DonGia": 4000000.0,
+  //     "HinhAnh": null,
+  //     "TrangThai": "AVAILABLE"
+  //   }
+  // ], []);
+
+
+  // fetch data món ăn từ db
+  const fetchValidFoods = useCallback(async () => {
+    try {
+      await toast.promise(
+        MonAnService.getAvailableMonAn(),
+        {
+          loading: "Đang xử lý...",
+          success: "Tải dữ liệu món ăn thành công!",
+          error: (err) => "Lỗi: " + err.message,
+        }
+      ).then((data) => setFoods(data.data)); // set dữ liệu nếu thành công
+    } catch (error) {
+      toast.error(error.message || "lỗi khi tải món ăn");
     }
-  ], []);
+  }, []);
 
-
-
-  // fetchReservedFoods phụ thuộc currentPDT
+  // fetch data chi tiêt đặt bàntừ db
   const fetchReservedFoods = useCallback(async () => {
-    if (!currentPDT || currentPDT === "") {
-      console.error("không lấy được phiếu đặt tiệc hiện tại");
-      return;
-    }
-    await toast.promise(
-      ctDatBanService.getAllByPhieuDatTiecId(currentPDT),
-      {
-        loading: "Đang xử lý...",
-        success: "Tải dữ liệu thành công!",
-        error: (err) => "Lỗi: " + err.message,
+    try {
+      if (!currentPDT || currentPDT === "") {
+        console.error("không lấy được phiếu đặt tiệc hiện tại");
+        return;
       }
-    ).then((data) => setReservedFoods(data)); // set dữ liệu nếu thành công
+      await toast.promise(
+        ctDatBanService.getAllByPhieuDatTiecId(currentPDT),
+        {
+          loading: "Đang xử lý...",
+          success: "Tải dữ liệu thành công!",
+          error: (err) => "Lỗi: " + err.message,
+        }
+      ).then((data) => setReservedFoods(data)); // set dữ liệu nếu thành công
+    } catch (error) {
+      toast.error(error.message || "lỗi khi tải chi tiết đặt bàn");
+    }
   }, [currentPDT]);
 
-  // updateReservedFood dùng currentPDT và reservedFoods (phải để reservedFoods vì nó dùng trong map)
+  // cập nhật chi tiết đặt bàn
   const updateReservedFood = useCallback(async ({ MaMonAn, SoLuong, DonGia, GhiChu }) => {
     try {
       if (!currentPDT || currentPDT === "") {
@@ -145,20 +103,28 @@ function DatMonAn() {
           error: (err) => "Lỗi: " + err.message,
         }
       );
-
+      console.log("return data: ", data)
       const temp = reservedFoods.map(item =>
-        item.MaMonAn === MaMonAn && item.SoPhieuDatTiec === currentPDT ? { ...item, ...data } : item
+        item.MaMonAn === MaMonAn && item.SoPhieuDatTiec === currentPDT ? { ...item, ...data.data } : item
       );
 
       setReservedFoods(temp);
     } catch (err) {
-      console.error("lỗi khi cập nhật chi tiết đặt bàn:", err);
+      toast.error(err.message || "lỗi khi cập nhật chi tiết đặt bàn");
     }
   }, [currentPDT, reservedFoods]);
 
-  // AddReservedFood dùng currentPDT, reservedFoods và updateReservedFood
+  // thêm/cập nhật chi đặt bàn tiêc vào bảng thông tin
   const AddReservedFood = useCallback(async ({ MaMonAn, SoLuong, DonGia, GhiChu }) => {
     try {
+      console.log("current pdt:", currentPDT)
+      console.log("CTDB", {
+        MaMonAn,
+        SoPhieuDatTiec: currentPDT,
+        SoLuong,
+        DonGia,
+        GhiChu,
+      })
       const exists = reservedFoods.some(item => item.MaMonAn === MaMonAn);
       if (exists) {
         updateReservedFood({ MaMonAn, SoLuong, DonGia, GhiChu });
@@ -184,13 +150,13 @@ function DatMonAn() {
         }
       );
 
-      setReservedFoods((preData) => [...preData, data]);
+      setReservedFoods((preData) => [...preData, data.data]);
     } catch (err) {
-      console.error("lỗi khi thêm chi tiết đặt bàn:", err);
+      toast.error(err.message || "lỗi khi thêm chi tiết đặt bàn");
     }
   }, [currentPDT, reservedFoods, updateReservedFood]);
 
-  // RemoveReservedFood dùng currentPDT và reservedFoods
+  // xóa chi tiết đặt bàn
   const RemoveReservedFood = useCallback(async ({ MaMonAn }) => {
     try {
       if (!currentPDT || currentPDT === "") {
@@ -198,66 +164,75 @@ function DatMonAn() {
         return;
       }
       await toast.promise(
-        ctDatBanService.update(currentPDT, MaMonAn),
+        ctDatBanService.remove(currentPDT, MaMonAn),
         {
           loading: "Đang xử lý...",
           success: "xóa thông tin đặt món thành công!",
           error: (err) => "Lỗi: " + err.message,
         }
       );
-
       const temp = reservedFoods.filter(item => !(item.MaMonAn === MaMonAn && item.SoPhieuDatTiec === currentPDT));
       setReservedFoods(temp);
     } catch (err) {
-      console.error("lỗi khi xóa chi tiết đặt bàn:", err);
+      toast.error(err.message || "lỗi khi xóa chi tiết đặt bàn");
     }
   }, [currentPDT, reservedFoods]);
 
 
 
   //hook useEffect 
-  // setfoods khi mockItems thay đổi
+  // fetch data dịch vụ
   useEffect(() => {
-    setfoods(mockItems);
-  }, [mockItems]);
+    fetchValidFoods()
+  }, [fetchValidFoods]);
 
-  // Lấy currentPDT từ localStorage chỉ 1 lần
+
+  // Lấy currentPDT từ localStorage 
   useEffect(() => {
     const pdt = localStorage.getItem("currentPDT");
-    if (!pdt || pdt === "") {
+
+    if (!pdt) {
       console.error("không lấy được phiếu đặt tiệc hiện tại");
+      handleNav(0)
     } else {
       setCurrentPDT(pdt);
     }
-  }, []);
+  }, [handleNav]);
 
-  // Cập nhật tenMonAnToEdit khi ctdatbanToEdit hoặc foods thay đổi
-  useEffect(() => {
-    if (!ctdatbanToEdit) {
-      SetTenMonAnToEdit("");
-      return;
-    }
-    let tenMonAn = foods.find((item) => item.MaMonAn === ctdatbanToEdit.MaMonAn);
-    if (!tenMonAn) tenMonAn = "";
-    SetTenMonAnToEdit(tenMonAn);
-  }, [ctdatbanToEdit, foods]);
 
   // Gọi fetchReservedFoods mỗi khi currentPDT hoặc fetchReservedFoods thay đổi
   useEffect(() => {
     if (currentPDT) {
+      console.log("current: ", currentPDT)
       fetchReservedFoods();
     }
+    console.log("currrrr: ", currentPDT)
   }, [currentPDT, fetchReservedFoods]);
+
+  const fullReservedFoodsData = useMemo(() => {
+    console.log("ctdatban: ", reservedFoods);
+    console.log("monan: ", foods);
+    return reservedFoods.map((reserv) => {
+      const foodItem = foods.find((item) => item.MaMonAn === reserv.MaMonAn);
+      console.log("fullReservedFoodsData: ", foodItem ? foodItem.TenMonAn : 'Không xác định');
+      return {
+        ...reserv,
+        TenMonAn: (foodItem ? foodItem.TenMonAn : 'Không xác định'), // Giá trị mặc định nếu không tìm thấy
+      };
+
+    });
+  }, [reservedFoods, foods]);
+
 
 
   const handleEdit = (data) => {
     setOpenDialog(true);
     setCtdatbanToEdit(data);
   };
-  const handleSave = (data) => {
+  const handleSave = async (data) => {
     updateReservedFood(data)
   };
-  const handleDelete = (data) => {
+  const handleDelete = async (data) => {
     RemoveReservedFood(data)
   };
   const handleCloseDialog = () => {
@@ -271,19 +246,32 @@ function DatMonAn() {
     <div className="page">
       <ToastContainer />
       <img src="https://res.cloudinary.com/digpe9tmq/image/upload/v1747755620/Frame_104_zhrlod.png" alt="background" className='background-images' />
-      <CustomTable
-        data={reservedFoods}
-        columns={defaultColumns}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+
+      <div style={{ width: "90%" }}>
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: "bold", color: "#063F5C", marginBottom: 4, marginTop: -12 }}
+        >
+          Các món đã đặt
+        </Typography>
+        <CustomTable
+          data={fullReservedFoodsData}
+          columns={defaultColumns}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+      </div>
+
+
       <EditCTDatBanDialog
         open={openDialog}
         onClose={handleCloseDialog}
         onSave={handleSave}
-        ctdatban={{ ...ctdatbanToEdit, TenMonAn: tenMonAnToEdit }}
+        ctdatban={{ ...ctdatbanToEdit }}
         title="Chỉnh sửa chi tiết đặt món"
-      />
+      >
+        <input autoFocus />
+      </EditCTDatBanDialog>
       <div className='selection-container' >
         {foods.map((item, index) => (
           <FoodCard key={index} food={item} onClick={AddReservedFood} />

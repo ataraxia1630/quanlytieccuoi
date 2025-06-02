@@ -36,7 +36,7 @@ const CTDichVuService = {
                     { model: DichVu, attributes: ['TenDichVu'] },
                 ],
             });
-
+            if (!ct) throw new ApiError(404, 'Không tìm thấy chi tiết dịch vụ');
             return ct;
         } catch (error) {
             throw new ApiError(500, 'Không tìm thấy chi tiết dịch vụ');
@@ -113,7 +113,7 @@ const CTDichVuService = {
             return true;
         } catch (error) {
             if (error.name === 'ApiError') throw error;
-            throw new ApiError(500, 'Lỗi khi cập nhật chi tiết dịch vụ  ${phieuDatTiecId}: ' + error.message);
+            throw new ApiError(500, `Lỗi khi cập nhật chi tiết dịch vụ  ${phieuDatTiecId}: ` + error.message);
         }
     },
 
@@ -132,7 +132,7 @@ const CTDichVuService = {
             await ct.destroy();
             return true;
         } catch (error) {
-            throw new ApiError(500, 'Lỗi khi xóa chi tiết dịch vụ ${phieuDatTiecId}: ' + error.message);
+            throw new ApiError(500, `Lỗi khi xóa chi tiết dịch vụ ${phieuDatTiecId}: ` + error.message);
         }
     }
 }

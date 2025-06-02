@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import PageNotFound from '../layouts/PageNotFound';
 import DashBoard from '../layouts/DashBoard';
 
-import DatTiecCuoi from '../pages/DatTiecCuoi'; 
-import DanhSachTiecCuoi from '../pages/DanhSachTiecCuoi'; 
+import DatTiecCuoi from '../pages/DatTiecCuoi';
+import DanhSachTiecCuoi from '../pages/DanhSachTiecCuoi';
 import HoaDon from '../pages/HoaDon/HoaDon';
 import DanhSachSanhTiec from '../pages/DanhSachSanhTiec';
 import DanhSachMonAn from '../pages/DanhSachMonAn';
@@ -40,15 +40,14 @@ export default function MainRoutes() {
           <Route path="DatTiecCuoi" element={<DatTiecCuoi />}>
             <Route index element={<ThongTinTiecCuoi />} />
             <Route path="ThongTinTiecCuoi" element={<ThongTinTiecCuoi />} />
-            <Route path="DatSanhTiec" element={<DatSanhTiec />} />
             <Route path="DatMonAn" element={<DatMonAn />} />
             <Route path="DatDichVu" element={<DatDichVu />} />
           </Route>
           <Route path="DanhSachTiecCuoi" element={<DanhSachTiecCuoi />} />
           <Route path="DanhSachSanhTiec" element={<DanhSachSanhTiec />} />
-          <Route path="HoaDon" element={<HoaDon /> }/>
-          <Route path="DanhSachMonAn" element={<DanhSachMonAn />} /> 
-          <Route path="DanhSachDichVu" element={<DanhSachDichVu />} /> 
+          <Route path="HoaDon" element={<HoaDon />} />
+          <Route path="DanhSachMonAn" element={<DanhSachMonAn />} />
+          <Route path="DanhSachDichVu" element={<DanhSachDichVu />} />
           <Route path="DanhSachCa" element={<DanhSachCa />} />
           <Route path="DanhSachLoaiSanh" element={<DanhSachLoaiSanh />} />
 

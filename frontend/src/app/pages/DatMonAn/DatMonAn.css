@@ -6,7 +6,6 @@
 }
 
 .background-images {
-    width: 80vw;
-    height: 50%;
-    object-fit: fill;
+    height: 100vh;
+    margin-top: 4rem;
 }

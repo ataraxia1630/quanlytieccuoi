@@ -29,6 +29,18 @@ const MonAnService = {
     return result;
   },
 
+  getAvailableMonAn: async () => {
+    let uri = baseURL;
+
+    const res = await fetch(uri);
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.message || 'Không thể lấy danh sách món ăn có sẵn!');
+    }
+    const result = await res.json();
+    return result;
+  },
+
   getById: async (id) => {
     const res = await fetch(`${baseURL}/${id}`);
     if (!res.ok) {

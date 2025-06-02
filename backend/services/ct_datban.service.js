@@ -35,7 +35,7 @@ const CTDatBanService = {
                     { model: MonAn, attributes: ['TenMonAn'] },
                 ],
             });
-
+            if (!ct) throw new ApiError(404, 'Không tìm thấy chi tiết đặt bàn');
             return ct;
         } catch (error) {
             throw new ApiError(500, 'Không tìm thấy chi tiết đặt bàn');
@@ -111,10 +111,10 @@ const CTDatBanService = {
                 GhiChu: GhiChu || ct.GhiChu
             });
 
-            return true;
+            return ct;
         } catch (error) {
             if (error.name === 'ApiError') throw error;
-            throw new ApiError(500, 'Lỗi khi cập nhật chi tiết món ăn  ${phieuDatTiecId}: ' + error.message);
+            throw new ApiError(500, `Lỗi khi cập nhật chi tiết món ăn  ${phieuDatTiecId}: ` + error.message);
         }
     },
 
@@ -133,7 +133,7 @@ const CTDatBanService = {
             await ct.destroy();
             return true;
         } catch (error) {
-            throw new ApiError(500, 'Lỗi khi xóa chi tiết món ăn ${phieuDatTiecId}: ' + error.message);
+            throw new ApiError(500, `Lỗi khi xóa chi tiết món ăn ${phieuDatTiecId}: ` + error.message);
         }
     }
 }

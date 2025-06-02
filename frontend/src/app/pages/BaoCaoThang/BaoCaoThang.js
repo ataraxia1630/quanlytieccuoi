@@ -158,8 +158,7 @@ export default function BaoCaoThang() {
     );
     reportData.forEach((row) => {
       printWindow.document.write(
-        `<tr><td>${row.Ngay}</td><td>${
-          row.SoLuongTiec
+        `<tr><td>${row.Ngay}</td><td>${row.SoLuongTiec
         }</td><td>${row.DoanhThu.toLocaleString(
           'vi-VN'
         )}</td><td>${row.TiLe.toFixed(2)}</td></tr>`

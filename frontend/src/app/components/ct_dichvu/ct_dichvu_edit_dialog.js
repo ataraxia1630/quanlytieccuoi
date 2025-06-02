@@ -8,15 +8,15 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import useValidation from '../../validation/validation';
 
-const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
+
+const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdichvu }) => {
     const { validateNumberField } = useValidation();
     const [formData, setFormData] = useState({
-        MaMonAn: ctdatban?.MaMonAn || "",
-        TenMonAn: ctdatban?.TenMonAn || "",
-        SoPhieuDatTiec: ctdatban?.SoPhieuDatTiec || "",
-        SoLuong: ctdatban?.SoLuong || 1,
-        DonGia: ctdatban?.DonGia || 0,
-        GhiChu: ctdatban?.GhiChu || ""
+        MaDichVu: ctdichvu?.MaDichVu || "",
+        TenDichVu: ctdichvu?.TenDichVu || "",
+        SoPhieuDatTiec: ctdichvu?.SoPhieuDatTiec || "",
+        SoLuong: ctdichvu?.SoLuong || 1,
+        DonGia: ctdichvu?.DonGia || 0
     });
 
     const [errors, setErrors] = useState({
@@ -24,34 +24,35 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
         DonGia: "",
     });
 
+
+
+
     useEffect(() => {
 
-        if (ctdatban) {
+        if (ctdichvu) {
 
             setFormData({
-                MaMonAn: ctdatban.MaMonAn || "",
-                TenMonAn: ctdatban?.TenMonAn || "",
-                SoPhieuDatTiec: ctdatban.SoPhieuDatTiec || "",
-                SoLuong: ctdatban.SoLuong || 1,
-                DonGia: ctdatban.DonGia || 0,
-                GhiChu: ctdatban.GhiChu,
+                MaDichVu: ctdichvu.MaDichVu || "",
+                TenDichVu: ctdichvu?.TenDichVu || "",
+                SoPhieuDatTiec: ctdichvu.SoPhieuDatTiec || "",
+                SoLuong: ctdichvu.SoLuong || 1,
+                DonGia: ctdichvu.DonGia || 0,
             });
-            console.log("ctdatban", ctdatban);
+            console.log("ctdichvu", ctdichvu);
 
-            validateNumberField("SoLuong", ctdatban.SoLuong, setErrors);
-            validateNumberField("DonGia", ctdatban.DonGia, setErrors);
+            validateNumberField("SoLuong", ctdichvu.SoLuong, setErrors);
+            validateNumberField("DonGia", ctdichvu.DonGia, setErrors);
         } else {
             setFormData({
-                MaMonAn: "",
-                TenMonAn: "",
+                MaDichVu: "",
+                TenDichVu: "",
                 SoPhieuDatTiec: "",
                 SoLuong: 0,
-                DonGia: 0,
-                GhiChu: ""
+                DonGia: 0
             });
             setErrors({ SoLuong: "", DonGia: "" });
         }
-    }, [ctdatban, validateNumberField]);
+    }, [ctdichvu, validateNumberField]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -66,18 +67,17 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
     };
 
     const handleSave = async () => {
-        const { MaMonAn, TenMonAn, SoPhieuDatTiec, SoLuong, DonGia, GhiChu } = formData;
-        if (!MaMonAn || !TenMonAn || !SoPhieuDatTiec || !SoLuong || !DonGia) {
+        const { MaDichVu, TenDichVu, SoPhieuDatTiec, SoLuong, DonGia } = formData;
+        if (!MaDichVu || !TenDichVu || !SoPhieuDatTiec || !SoLuong || !DonGia) {
             toast.warn("Vui lòng nhập đầy đủ thông tin!");
             return;
         }
 
         const formattedData = {
-            MaMonAn,
+            MaDichVu,
             SoPhieuDatTiec,
             SoLuong,
-            DonGia,
-            GhiChu
+            DonGia
         };
         onSave(formattedData);
     };
@@ -106,12 +106,12 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <Box display="flex" flexDirection="column" gap={3.5}>
                         <FormTextField
-                            label="Mã Món Ăn"
-                            name="MaMonAn"
-                            value={formData.MaMonAn}
+                            label="Mã Dịch vụ"
+                            name="MaDichVu"
+                            value={formData.MaDichVu}
                             onChange={handleChange}
                             fullWidth
-                            disabled={!!ctdatban}
+                            disabled={!!ctdichvu}
                         />
 
 
@@ -121,15 +121,15 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
                             value={formData.SoPhieuDatTiec}
                             onChange={handleChange}
                             fullWidth
-                            disabled={!!ctdatban}
+                            disabled={!!ctdichvu}
                         />
                         <FormTextField
-                            label="Tên món ăn"
-                            name="TenMonAn"
-                            value={formData.TenMonAn}
+                            label="Tên dịch vụ"
+                            name="TenDichVu"
+                            value={formData.TenDichVu}
                             onChange={handleChange}
                             fullWidth
-                            disabled={!!ctdatban}
+                            disabled={!!ctdichvu}
                         />
 
                         <FormTextField
@@ -150,15 +150,6 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
                             format="number"
                             error={!!errors.DonGia}
                             helperText={errors.DonGia}
-                        />
-                        <FormTextField
-                            label="Ghi chú"
-                            name="GhiChu"
-                            value={formData.GhiChu}
-                            onChange={handleChange}
-                            error={!!errors.DonGia}
-                            helperText={errors.DonGia}
-                            fullWidth
                         />
                     </Box>
                 </LocalizationProvider>
