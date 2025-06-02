@@ -13,7 +13,7 @@ const Footer = () => {
     <Box sx={{ bgcolor: '#fdf6ec', borderTop: '2px solid #ccc', width: '100vw', zIndex: 10, }}>
       <Grid container spacing={4} justifyContent="space-between">
         {/* Save the Date Calendar */}
-        <Grid item xs={12} md={3} ml={6} sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+        <Grid gridColumn={{ xs: 'span 12', md: 'span 3', ml: 'span 6' }} sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
           <img
             src="https://res.cloudinary.com/digpe9tmq/image/upload/v1747706236/Group_84_rdcorn.png"
             alt="Save the Date"
@@ -29,7 +29,7 @@ const Footer = () => {
 
 
         {/* Center Logo */}
-        <Grid item xs={12} md={5} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+        <Grid gridColumn={{ xs: 'span 12', md: 'span 5' }} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
           <Typography variant="h6" sx={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
             LOGO
           </Typography>
@@ -45,7 +45,7 @@ const Footer = () => {
         </Grid>
 
         {/* Contact & Pages */}
-        <Grid item xs={12} md={2} sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
+        <Grid gridColumn={{ xs: 'span 12', md: 'span 2' }} sx={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
           <Typography fontWeight="bold">CONTACT.</Typography>
           <Typography ml={4} fontSize="0.9rem">konichiwa@daphne.com</Typography>
           <Typography ml={4} fontSize="0.9rem">@daphne_nekaichelchalasca</Typography>
@@ -61,7 +61,7 @@ const Footer = () => {
         </Grid>
 
         {/* Wedding Couple Image */}
-        <Grid item xs={12} md={2} sx={{ display: 'flex', position: "relative", justifyContent: 'end', alignItems: 'center', flexDirection: 'column' }}>
+        <Grid gridColumn={{ xs: 'span 12', md: 'span 2' }} sx={{ display: 'flex', position: "relative", justifyContent: 'end', alignItems: 'center', flexDirection: 'column' }}>
           <img
             src="https://res.cloudinary.com/digpe9tmq/image/upload/v1747706237/Group_169_pjxhoz.png"
             alt="Wedding Couple"

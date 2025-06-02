@@ -3,7 +3,7 @@ import './DatDichVu.css';
 import Cancelbutton from '../../components/Cancelbutton';
 import ServiceCard from '../../components/ServiceCard';
 import { StepContext } from '../DatTiecCuoi/DatTiecCuoi';
-import ctDichVuService from '../../service/ct_dichvu.service';
+import { getAllCTDichVuByPDTId, updateCTDichVu, createCTDichVu, deleteCTDichVu } from '../../service/ct_dichvu.service';
 import DichVuService from '../../service/dichvu.service';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -76,7 +76,7 @@ function DatDichVu() {
         return;
       }
       await toast.promise(
-        ctDichVuService.getAllByPhieuDatTiecId(currentPDT),
+        getAllCTDichVuByPDTId(currentPDT),
         {
           loading: "Đang xử lý...",
           success: "Tải dữ liệu thành công!",
@@ -96,7 +96,7 @@ function DatDichVu() {
         return;
       }
       const data = await toast.promise(
-        ctDichVuService.update(currentPDT, MaDichVu, {
+        updateCTDichVu(currentPDT, MaDichVu, {
           SoLuong,
           DonGia,
 
@@ -139,7 +139,7 @@ function DatDichVu() {
         return;
       }
       const data = await toast.promise(
-        ctDichVuService.create({
+        createCTDichVu({
           MaDichVu,
           SoPhieuDatTiec: currentPDT,
           SoLuong,
@@ -167,7 +167,7 @@ function DatDichVu() {
         return;
       }
       await toast.promise(
-        ctDichVuService.remove(currentPDT, MaDichVu),
+        deleteCTDichVu(currentPDT, MaDichVu),
         {
           loading: "Đang xử lý...",
           success: "xóa thông tin đặt dịch vụ thành công!",
@@ -183,22 +183,18 @@ function DatDichVu() {
 
 
 
-  //hook useEffect 
-  // fetch data dịch vụ
-  useEffect(() => {
-    fetchValidServices()
-  }, [fetchValidServices]);
-
   // Lấy currentPDT từ localStorage 
   useEffect(() => {
     const pdt = localStorage.getItem("currentPDT");
-    if (!pdt) {
-      console.error("không lấy được phiếu đặt tiệc hiện tại");
+    if (pdt === "null") {
+      console.error(`không lấy được phiếu đặt tiệc hiện tại:pdt: ${pdt}`);
       handleNav(0);
+      return
     } else {
       setCurrentPDT(pdt);
     }
   }, [handleNav]);
+
 
 
   // Gọi fetchReservedServices mỗi khi currentPDT hoặc fetchReservedServices thay đổi
@@ -208,6 +204,14 @@ function DatDichVu() {
       fetchReservedServices();
     }
   }, [currentPDT, fetchReservedServices]);
+
+  // Gọi fetchValidServices lây dữ liệu dịch vụ
+  useEffect(() => {
+    if (currentPDT) {
+      console.log("current: ", currentPDT)
+      fetchValidServices();
+    }
+  }, [currentPDT, fetchValidServices]);
 
   const fullReservedServicesData = useMemo(() => {
 
@@ -260,7 +264,7 @@ function DatDichVu() {
           variant="h4"
           sx={{ fontWeight: "bold", color: "#063F5C", marginBottom: 4, marginTop: -12 }}
         >
-          Các món đã đặt
+          Dịch vụ đã đặt
         </Typography>
         <CustomTable
           data={fullReservedServicesData}

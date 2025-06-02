@@ -55,22 +55,31 @@ p {
   font-size: 1rem;
 }
 
+
+
 .selection-container {
-  width: 86vw;
-  display: flex;
-  column-gap: 3rem;
-  row-gap: 8rem;
-  flex-wrap: wrap;
-  padding-bottom: 3rem;
-  padding-top: 3rem;
-  margin-left: 3.5rem;
+  width: 95%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  place-items: center;
+  row-gap: 5rem;
+  margin: auto;
+  padding-bottom: 5rem;
 }
 
 
 /*container cho các page*/
 .page {
-  width: 100%;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.container::-webkit-scrollbar {
+  display: none;
+}
+
+.container {
+  scrollbar-width: none;
 }
