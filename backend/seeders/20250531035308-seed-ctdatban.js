@@ -69,17 +69,16 @@ module.exports = {
 
       // Lặp cho đến khi tổng giá món ăn/bàn >= đơn giá tối thiểu
       while (!valid) {
-        const numDishes = Math.floor(Math.random() * 5) + 5 // 5–9 món
+        const numDishes = Math.floor(Math.random() * 5) + 4 // 5–8 món
         const selectedDishes = [...maMonAnIds]
           .sort(() => Math.random() - 0.5)
           .slice(0, numDishes)
-        const portionsPerTable = Math.floor(Math.random() * 5) + 8 // 8–12 phần/bàn
 
         let tongTien = 0
         const tempData = []
 
         for (const maMonAn of selectedDishes) {
-          const soLuong = totalBan * portionsPerTable
+          const soLuong = totalBan
           const donGia = dishUnitPrices[maMonAn]
           const thanhTien = parseInt((soLuong * donGia).toFixed(2))
           tongTien += thanhTien

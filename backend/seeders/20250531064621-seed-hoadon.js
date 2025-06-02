@@ -59,10 +59,10 @@ module.exports = {
       const phieuInfo = phieuInfoMap[phieu]
       if (!phieuInfo) continue
 
-      // Tính NgayThanhToan (NgayDaiTiec đến 27 ngày sau)
+      // Tính NgayThanhToan (NgayDaiTiec đến 20 ngày sau)
       const ngayThanhToan = new Date(
         phieuInfo.ngayDaiTiec.getTime() +
-          Math.floor(Math.random() * 28) * 24 * 60 * 60 * 1000
+          Math.floor(Math.random() * 21) * 24 * 60 * 60 * 1000
       )
 
       // Tính SoLuongBanDaDung (90%–100% của SoLuongBan)
@@ -87,10 +87,8 @@ module.exports = {
         (tongTienMonAn + tongTienDichVu).toFixed(2)
       )
 
-      // Tính TongTienPhat (1% mỗi ngày trễ kể từ NgayHetHan)
-      const ngayHetHan = new Date(
-        phieuInfo.ngayDaiTiec.getTime() + 7 * 24 * 60 * 60 * 1000
-      )
+      // Tính TongTienPhat (1% mỗi ngày trễ kể từ NgayHetHan = NgayDaiTiec)
+      const ngayHetHan = phieuInfo.ngayDaiTiec
       const soNgayTre = Math.max(
         Math.floor((ngayThanhToan - ngayHetHan) / (24 * 60 * 60 * 1000)),
         0
