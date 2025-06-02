@@ -23,29 +23,43 @@ function DatMonAn() {
   const [ctdatbanToEdit, setCtdatbanToEdit] = useState(null);
 
   // Mock data
-  // const mockItems = useMemo(() => [
-  //   {
-  //     "MaMonAn": "MA001", // Loại bỏ khoảng trắng
-  //     "TenMonAn": "Thịt heo",
-  //     "DonGia": 10000.0,
-  //     "HinhAnh": null,
-  //     "TrangThai": "AVAILABLE"
-  //   },
-  //   {
-  //     "MaMonAn": "MA002", // Giữ lại một mục duy nhất cho MA002
-  //     "TenMonAn": "Cua hấp bia",
-  //     "DonGia": 300000.0,
-  //     "HinhAnh": null,
-  //     "TrangThai": "AVAILABLE"
-  //   },
-  //   {
-  //     "MaMonAn": "MA003",
-  //     "TenMonAn": "Cua hoàng đế",
-  //     "DonGia": 4000000.0,
-  //     "HinhAnh": null,
-  //     "TrangThai": "AVAILABLE"
-  //   }
-  // ], []);
+  const mockItems = useMemo(() => [
+    {
+      "MaMonAn": "MA001", // Loại bỏ khoảng trắng
+      "TenMonAn": "Thịtsáasdsa  heo",
+      "DonGia": 10000.0,
+      "HinhAnh": null,
+      "TrangThai": "AVAILABLE"
+    },
+    {
+      "MaMonAn": "MA001", // Loại bỏ khoảng trắng
+      "TenMonAn": "Thịt heo",
+      "DonGia": 10000.0,
+      "HinhAnh": null,
+      "TrangThai": "AVAILABLE"
+    },
+    {
+      "MaMonAn": "MA001", // Loại bỏ khoảng trắng
+      "TenMonAn": "Thịt heo",
+      "DonGia": 10000.0,
+      "HinhAnh": null,
+      "TrangThai": "AVAILABLE"
+    },
+    {
+      "MaMonAn": "MA002", // Giữ lại một mục duy nhất cho MA002
+      "TenMonAn": "Cua hấp bia",
+      "DonGia": 300000.0,
+      "HinhAnh": null,
+      "TrangThai": "AVAILABLE"
+    },
+    {
+      "MaMonAn": "MA003",
+      "TenMonAn": "Cua hoàng đế",
+      "DonGia": 4000000.0,
+      "HinhAnh": null,
+      "TrangThai": "AVAILABLE"
+    }
+  ], []);
 
 
   // fetch data món ăn từ db
@@ -181,24 +195,23 @@ function DatMonAn() {
 
 
   //hook useEffect 
-  // fetch data dịch vụ
-  useEffect(() => {
-    fetchValidFoods()
-  }, [fetchValidFoods]);
-
 
   // Lấy currentPDT từ localStorage 
   useEffect(() => {
     const pdt = localStorage.getItem("currentPDT");
 
-    if (!pdt) {
+    if (pdt === "null") {
       console.error("không lấy được phiếu đặt tiệc hiện tại");
       handleNav(0)
+      return;
     } else {
       setCurrentPDT(pdt);
     }
   }, [handleNav]);
 
+  // useEffect(() => {
+  //   setFoods(mockItems)
+  // }, [])
 
   // Gọi fetchReservedFoods mỗi khi currentPDT hoặc fetchReservedFoods thay đổi
   useEffect(() => {
@@ -208,6 +221,14 @@ function DatMonAn() {
     }
     console.log("currrrr: ", currentPDT)
   }, [currentPDT, fetchReservedFoods]);
+
+  // Gọi fetchValidFoods lây dữ liệu món ăn
+  useEffect(() => {
+    if (currentPDT) {
+      console.log("current: ", currentPDT)
+      fetchValidFoods();
+    }
+  }, [currentPDT, fetchValidFoods]);
 
   const fullReservedFoodsData = useMemo(() => {
     console.log("ctdatban: ", reservedFoods);

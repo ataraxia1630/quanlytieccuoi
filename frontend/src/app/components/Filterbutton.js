@@ -1,7 +1,7 @@
 import { Button, Box } from "@mui/material";
 
 const FilterButton = ({
-  onClick = () => {},
+  onClick = () => { },
   text = "Filter",
   disabled = false,
   colorVariant = "primary",
@@ -35,7 +35,7 @@ const FilterButton = ({
         padding: "2px 12px",
         fontSize: "15px",
         fontWeight: "bold",
-        borderRadius: 0,
+
         ...styles[colorVariant],
       }}
     >

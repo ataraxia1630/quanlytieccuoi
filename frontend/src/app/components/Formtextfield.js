@@ -3,7 +3,7 @@ import { TextField } from "@mui/material";
 const FormTextField = ({ label, value, onChange, ...props }) => (
   <TextField
     label={label}
-    value={value}
+    value={value ? value : ""}
     onChange={onChange}
     fullWidth
     variant="outlined"

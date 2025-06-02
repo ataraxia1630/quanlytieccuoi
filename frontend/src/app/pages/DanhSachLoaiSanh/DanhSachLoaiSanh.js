@@ -162,7 +162,7 @@ export default function DanhSachLoaiSanh() {
 
   //#region ui
   return (
-    <Box>
+    <Box sx={{ px: 3 }}>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <Typography
         variant="h4"

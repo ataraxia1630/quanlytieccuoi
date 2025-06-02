@@ -1,5 +1,4 @@
 .box {
-    height: 198px;
     flex-shrink: 0;
     background: #F5F5F5;
     margin-bottom: 28px;
@@ -11,10 +10,9 @@
 }
 
 .content {
-    margin: 32px 20px;
-    padding-top: 10px;
-    width: 100%;
     display: flex;
+    justify-content: space-between;
+    padding: 20px;
 }
 
 .sanh {
@@ -32,23 +30,17 @@
     stroke: var(--Primary-Color, #063F5C);
     display: flex;
     gap: 5px;
+    margin-top: auto;
 }
 
 .sanh-box {
-    margin-right: 127px;
+
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 
 }
 
-.ban-box {
-    margin-right: 140px;
-}
-
-.ngay-box {
-    margin-right: 140px;
-}
 
 .action {
     display: flex;

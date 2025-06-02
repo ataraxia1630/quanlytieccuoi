@@ -268,6 +268,7 @@ export default function BaoCaoThang() {
           sx={{
             backgroundColor: '#063F5C',
             '&:hover': { backgroundColor: '#045b7a' },
+            height: 56,
           }}
           onClick={handleViewReport}
           disabled={loading}
@@ -276,64 +277,68 @@ export default function BaoCaoThang() {
         </Button>
       </Box>
 
-      {reportData.length > 0 && (
-        <Box sx={{ justifyContent: 'center' }}>
-          <Typography sx={{ mt: 2 }}>
-            Ngày lập báo cáo: {formattedDate}
-          </Typography>
-          <Typography sx={{ mt: 2 }}>
-            Tổng doanh thu: {totalDoanhThu.toLocaleString('vi-VN')} VNĐ
-          </Typography>
-          <Typography sx={{ mt: 2 }}>
-            Tổng tiệc cưới: {totalTiecCuoi}
-          </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '20px',
-              mb: 2,
-            }}
-          >
-            <Button
-              variant="contained"
+      {
+        reportData.length > 0 && (
+          <Box sx={{ justifyContent: 'center' }}>
+            <Typography sx={{ mt: 2 }}>
+              Ngày lập báo cáo: {formattedDate}
+            </Typography>
+            <Typography sx={{ mt: 2 }}>
+              Tổng doanh thu: {totalDoanhThu.toLocaleString('vi-VN')} VNĐ
+            </Typography>
+            <Typography sx={{ mt: 2 }}>
+              Tổng tiệc cưới: {totalTiecCuoi}
+            </Typography>
+            <Box
               sx={{
-                backgroundColor: '#063F5C',
-                '&:hover': { backgroundColor: '#045b7a' },
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '20px',
+                mb: 2,
               }}
-              onClick={handleExportReport}
             >
-              Xuất báo cáo
-            </Button>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: '#063F5C',
-                '&:hover': { backgroundColor: '#045b7a' },
-              }}
-              onClick={handlePrintReport}
-            >
-              In báo cáo
-            </Button>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: '#063F5C',
+                  '&:hover': { backgroundColor: '#045b7a' },
+                }}
+                onClick={handleExportReport}
+              >
+                Xuất báo cáo
+              </Button>
+              <Button
+                variant="contained"
+                sx={{
+                  backgroundColor: '#063F5C',
+                  '&:hover': { backgroundColor: '#045b7a' },
+                }}
+                onClick={handlePrintReport}
+              >
+                In báo cáo
+              </Button>
+            </Box>
+            <canvas
+              ref={chartRef}
+              width="600"
+              height="300"
+              style={{ margin: '50px', display: 'block' }}
+            />
+            <Box sx={{ position: 'relative', mb: 2 }}>
+              <CustomTable data={reportData} columns={ReportColumns} />
+            </Box>
           </Box>
-          <canvas
-            ref={chartRef}
-            width="600"
-            height="300"
-            style={{ margin: '50px', display: 'block' }}
-          />
-          <Box sx={{ position: 'relative', mb: 2 }}>
-            <CustomTable data={reportData} columns={ReportColumns} />
-          </Box>
-        </Box>
-      )}
+        )
+      }
 
-      {loading && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
-    </Box>
+      {
+        loading && (
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+            <CircularProgress />
+          </Box>
+        )
+      }
+    </Box >
   );
   //#endregion
 }

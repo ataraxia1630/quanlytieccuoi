@@ -13,8 +13,9 @@ import DanhSachCa from '../pages/DanhSachCa';
 import DanhSachLoaiSanh from '../pages/DanhSachLoaiSanh';
 
 import BaoCaoThang from '../pages/BaoCaoThang';
+import BangThamSo from '../pages/BangThamSo';
 
-import DatSanhTiec from '../pages/DatSanhTiec';
+
 import DatMonAn from '../pages/DatMonAn';
 import DatDichVu from '../pages/DatDichVu';
 import ThongTinTiecCuoi from '../pages/ThongTinTiecCuoi';
@@ -22,7 +23,7 @@ import ThongTinTiecCuoi from '../pages/ThongTinTiecCuoi';
 import Home from '../pages/Home';
 import Header from '../layouts/Header';
 import Footer from '../layouts/Footer';
-import { ToastContainer } from 'react-toastify';
+
 import 'react-toastify/dist/ReactToastify.css';
 
 
@@ -51,6 +52,7 @@ export default function MainRoutes() {
           <Route path="DanhSachCa" element={<DanhSachCa />} />
           <Route path="DanhSachLoaiSanh" element={<DanhSachLoaiSanh />} />
 
+          <Route path="BangThamSo" element={<BangThamSo />} />
           <Route path="BaoCaoThang" element={<BaoCaoThang />} />
         </Route>
       </Routes>

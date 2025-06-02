@@ -4,11 +4,13 @@ import { styled } from '@mui/material/styles';
 
 
 const TagButton = styled(Button)({
-    paddingLeft: '25px',
-    paddingRight: '25px',
+    flex: '0 0 auto',
+    paddingLeft: '20px',
+    paddingRight: '20px',
     background: '#063F5C',
     borderRadius: '100px',
     color: 'white',
+    fontSize: '0.8rem',
     outlineOffset: '-1px',
     justifyContent: 'center',
     alignItems: 'center',
@@ -29,7 +31,7 @@ const HallCard = ({ hall, shifts, index, onClick }) => {
         setChoosingShift(null);
     }
     return (
-        <Card sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '25vw', border: 'none', mt: 'auto', boxShadow: 'none', height: '70vh' }} >
+        <Card sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '85%', border: 'none', mt: 'auto', boxShadow: 'none' }} >
             <Box sx={{
                 fontSize: '3rem',
                 display: 'flex',
@@ -51,7 +53,13 @@ const HallCard = ({ hall, shifts, index, onClick }) => {
                 sx={{ objectFit: 'cover' }}
                 className='hall-img-show'
             />
-            <div>
+            <div className='container'
+                style={{
+                    display: 'flex',
+                    overflowX: 'auto',
+                    paddingright: '10px',
+                    gap: '10px',
+                }}>
                 {hall.Ca.map((ca) => (
                     <TagButton
                         key={ca.MaCa}
@@ -64,7 +72,7 @@ const HallCard = ({ hall, shifts, index, onClick }) => {
                 ))}
             </div>
 
-            <Typography sx={{ fontSize: '1rem', fontWeight: 'Bold', height: '12vh', overflowY: 'auto', overflowX: 'hidden' }}>Ghi chú: {hall.GhiChu}</Typography>
+            <Typography sx={{ fontSize: '1rem', fontWeight: 'Bold', height: '75px', overflowY: 'auto', overflowX: 'hidden' }}>Ghi chú: {hall.GhiChu}</Typography>
             <Button
                 onClick={() => handleSave()}
                 variant="contained"
@@ -74,8 +82,8 @@ const HallCard = ({ hall, shifts, index, onClick }) => {
                     '&:hover': { bgcolor: 'darkorange' },
                     borderRadius: '999px',
                     textTransform: 'none',
-                    paddingX: 3,
-                    mt: 'auto'
+                    marginBottom: '10px',
+
                 }}
             >
                 Đặt sảnh

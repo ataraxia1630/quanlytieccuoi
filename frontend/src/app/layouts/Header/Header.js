@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './header.css';
+import './Header.css';
 import CancelButton from '../../components/Cancelbutton';
 import {
   AppBar,

@@ -390,14 +390,16 @@ const ThongTinTiecCuoi = () => {
   // hủy data phiếu đặt tiêc nếu đang tiến hành đặt tiệc
   const removeCurrentPhieuDatTiec = useCallback(async (id) => {
     try {
-      await toast.promise(
-        PhieuDatTiecService.deletePhieuDatTiec(id),
-        {
-          loading: "Đang xử lý...",
-          success: "Hủy đặt tiệc cưới thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      )
+      if (currentPDT) {
+        await toast.promise(
+          PhieuDatTiecService.deletePhieuDatTiec(id),
+          {
+            loading: "Đang xử lý...",
+            success: "Hủy đặt tiệc cưới thành công!",
+            error: (err) => "Lỗi: " + err.message,
+          }
+        )
+      }
       setCurrentPDT(null);
       setPhieuDatTiec(initialState);
       localStorage.setItem("currentPDT", null);
@@ -464,18 +466,21 @@ const ThongTinTiecCuoi = () => {
     //localStorage.setItem("currentPDT", null);
 
     const pdt = localStorage.getItem("currentPDT");
-    if (pdt) {
-      setCurrentPDT(pdt)
+    console.log("currentPDT: ", pdt === "null")
+    if (pdt !== "null") {
+      setCurrentPDT(pdt);
       fetchCurrentPhieuDatTiec(pdt);
+    }
+    else {
+      setCurrentPDT(null);
     }
 
   }, [fetchCurrentPhieuDatTiec]);
-  console.log("curentPDT: ", localStorage.getItem("currentPDT"))
 
   return (
     <div className="page">
       <ToastContainer />
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '90%' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Box className="form-section">
           <Box className="form-grid">
             <FormTextField label="Tên chú rể"
@@ -523,7 +528,7 @@ const ThongTinTiecCuoi = () => {
                 onChange={(newValue) => handleChange({ target: { name: "NgayDatTiec", value: newValue } })}
                 format="dd-MM-yyyy HH:mm:ss"
                 ampm={false}
-                renderInput={(params) => (
+                textField={(params) => (
                   <FormTextField
                     {...params}
                     fullWidth
@@ -540,7 +545,7 @@ const ThongTinTiecCuoi = () => {
                 onChange={(newValue) => handleChange({ target: { name: "NgayDaiTiec", value: newValue } })}
                 format="dd-MM-yyyy HH:mm:ss"
                 ampm={false}
-                renderInput={(params) => (
+                textField={(params) => (
                   <FormTextField
                     {...params}
                     fullWidth
@@ -554,9 +559,10 @@ const ThongTinTiecCuoi = () => {
           <FormTextField
             label="Thông tin sảnh"
             name="MaSanh"
-            defaultValue={phieuDatTiec.MaSanh ? `Mã sảnh: ${phieuDatTiec.MaSanh}, tên sảnh: ${sanhInfo.TenSanh}, loại sảnh: ${sanhInfo.LoaiSanh}, Số lượng bàn tối đa: ${sanhInfo.SoLuongBanToiDa}` : ""}
+            value={phieuDatTiec.MaSanh ? `Mã sảnh: ${phieuDatTiec.MaSanh}, tên sảnh: ${sanhInfo.TenSanh}, loại sảnh: ${sanhInfo.LoaiSanh}, Số lượng bàn tối đa: ${sanhInfo.SoLuongBanToiDa}` : ""}
             error={!!errors.MaSanh}
             helperText={errors.MaSanh}
+            InputLabelProps={{ shrink: true }}
             disabled
           />
           <FormTextField
@@ -565,8 +571,12 @@ const ThongTinTiecCuoi = () => {
             value={phieuDatTiec.MaCa ? `${phieuDatTiec.MaCa}, ${caInfo.GioBatDau} - ${caInfo.GioKetThuc}` : ""}
             error={!!errors.TienDatCoc}
             helperText={errors.TienDatCoc}
+            InputLabelProps={{ shrink: true }}
             disabled
           />
+
+
+
           {/* Table Selection */}
           <Box className="table-selection">
             <div className="BookingCount-container" style={{ paddingTop: 20 }}  >

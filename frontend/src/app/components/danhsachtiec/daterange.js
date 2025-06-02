@@ -43,7 +43,7 @@ const DateRangePicker = ({ label, fromDate, toDate, onFromChange, onToChange }) 
               },
             }}
           />
-          <Box sx={{ width: "10px", borderTop: "1.2px solid #ccc" }} />
+          <Box sx={{ width: "10px", borderTop: "1.2px solid #ccc", mb: 1.5 }} />
           <DatePicker
             label="Đến"
             value={toDate ? dayjs(toDate) : null}
