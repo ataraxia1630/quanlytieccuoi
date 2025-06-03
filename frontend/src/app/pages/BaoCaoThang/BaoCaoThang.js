@@ -30,68 +30,20 @@ export default function BaoCaoThang() {
   });
   //#endregion
 
-  //#region mock data
-  const mockReportData = {
-    baocao: {
-      MaBC: 'BCT052025',
-      Thang: 5,
-      Nam: 2025,
-      NgayLap: new Date().toISOString(),
-      TongDoanhThu: 250000000, // Tổng doanh thu từ dữ liệu chi tiết
-      Ct_BaoCaoTheoNgays: [
-        { Ngay: '01/05/2025', SoLuongTiec: 5, DoanhThu: 55000000, TiLe: 20.0 },
-        { Ngay: '02/05/2025', SoLuongTiec: 3, DoanhThu: 30000000, TiLe: 12.0 },
-        { Ngay: '03/05/2025', SoLuongTiec: 4, DoanhThu: 48000000, TiLe: 16.0 },
-        { Ngay: '04/05/2025', SoLuongTiec: 2, DoanhThu: 20000000, TiLe: 8.0 },
-        { Ngay: '05/05/2025', SoLuongTiec: 6, DoanhThu: 60000000, TiLe: 24.0 },
-        { Ngay: '06/05/2025', SoLuongTiec: 1, DoanhThu: 10000000, TiLe: 4.0 },
-        { Ngay: '07/05/2025', SoLuongTiec: 3, DoanhThu: 31000000, TiLe: 12.0 },
-        { Ngay: '08/05/2025', SoLuongTiec: 2, DoanhThu: 20000000, TiLe: 8.0 },
-        { Ngay: '09/05/2025', SoLuongTiec: 4, DoanhThu: 40000000, TiLe: 16.0 },
-        { Ngay: '10/05/2025', SoLuongTiec: 3, DoanhThu: 37000000, TiLe: 12.0 },
-        { Ngay: '11/05/2025', SoLuongTiec: 5, DoanhThu: 50000000, TiLe: 20.0 },
-        { Ngay: '12/05/2025', SoLuongTiec: 2, DoanhThu: 20000000, TiLe: 8.0 },
-        { Ngay: '13/05/2025', SoLuongTiec: 3, DoanhThu: 30000000, TiLe: 12.0 },
-        { Ngay: '14/05/2025', SoLuongTiec: 4, DoanhThu: 42500000, TiLe: 16.0 },
-        { Ngay: '15/05/2025', SoLuongTiec: 1, DoanhThu: 10000000, TiLe: 4.0 },
-      ],
-    },
-  };
-  //#endregion
-
   //#region func handler
   const fetchReport = async () => {
     setLoading(true);
     //------------- the real one -------------
-    // try {
-    //   const result = await BaoCaoThangService.getMonthlyReport(month, year);
-    //   const baocao = result.baocao || {};
-    //   const ctData = baocao.Ct_BaoCaoTheoNgays || [];
-    //   setReportData(ctData);
-    //   setTotalDoanhThu(baocao.TongDoanhThu || 0);
-    //   setTotalTiecCuoi(ctData.reduce((sum, item) => sum + item.SoLuongTiec, 0));
-    //   toast.success('Lấy báo cáo thành công!');
-    //   drawChart(ctData);
-    // } catch (error) {
-    //   console.log('Error fetching report:', error.message);
-    //   toast.error(`Lỗi: ${error.message || 'Không thể tải báo cáo!'}`);
-    // } finally {
-    //   setLoading(false);
-    // }
-
-    //---------------mock - test---------------
     try {
-      // Giả lập delay API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const baocao = mockReportData.baocao;
+      const result = await BaoCaoThangService.getMonthlyReport(month, year);
+      const baocao = result.baocao || {};
       const ctData = baocao.Ct_BaoCaoTheoNgays || [];
       setReportData(ctData);
       setTotalDoanhThu(baocao.TongDoanhThu || 0);
       setTotalTiecCuoi(ctData.reduce((sum, item) => sum + item.SoLuongTiec, 0));
-      toast.success('Lấy báo cáo thành công (dữ liệu giả lập)!');
-      drawChart(ctData);
+      toast.success('Lấy báo cáo thành công!');
     } catch (error) {
-      console.log('Error fetching mock report:', error.message);
+      console.log('Error fetching report:', error.message);
       toast.error(`Lỗi: ${error.message || 'Không thể tải báo cáo!'}`);
     } finally {
       setLoading(false);
@@ -105,12 +57,19 @@ export default function BaoCaoThang() {
     const monthNum = Number(month);
     const yearNum = Number(year);
 
+    const today = new Date();
+    const thisMonth = today.getMonth();
+    const thisYear = today.getFullYear();
+
     if (!month || isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
       tempErrors.month = 'Tháng phải là số từ 1 đến 12';
       isValid = false;
+    } else if (yearNum === thisYear && monthNum > thisMonth) {
+      tempErrors.month = 'Tháng phải nhỏ hơn hoặc bằng tháng hiện tại';
+      isValid = false;
     }
-    if (!year || isNaN(yearNum) || yearNum < 2000 || yearNum > 2100) {
-      tempErrors.year = 'Năm phải là số từ 2000 đến 2100';
+    if (!year || isNaN(yearNum) || yearNum < 2000 || yearNum > thisYear) {
+      tempErrors.year = `Năm phải là số từ 2000 đến ${thisYear}`;
       isValid = false;
     }
 
@@ -143,12 +102,28 @@ export default function BaoCaoThang() {
       return;
     }
     const printWindow = window.open('', '', 'height=600,width=800');
-    printWindow.document.write('<html><head><title>Báo cáo tháng</title>');
     printWindow.document.write(
-      '<style>table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #ddd; padding: 8px; text-align: left; } th { background-color: #f2f2f2; }</style>'
+      `<html><head><title>Báo cáo doanh thu tháng ${
+        month < 10 ? '0' + month : month
+      } / ${year} </title>`
+    );
+    printWindow.document.write(
+      '<style>' +
+        'body { text-align: center; font-family: Arial, sans-serif; }' +
+        'h1 { text-align: center; }' +
+        'p { text-align: center; margin: 10px 0; }' +
+        'table { border-collapse: collapse; width: 80%; margin: 0 auto; }' + // Căn giữa bảng với chiều rộng 80%
+        'th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }' +
+        'th { background-color: #f2f2f2; text-align: center; }' + // Căn giữa tiêu đề cột
+        'td { text-align: center; }' + // Căn phải dữ liệu trong ô để dễ đọc số
+        '</style>'
     );
     printWindow.document.write('</head><body>');
-    printWindow.document.write(`<h1>Báo cáo tháng ${month}/${year}</h1>`);
+    printWindow.document.write(
+      `<h1>Báo cáo doanh thu tháng ${
+        month < 10 ? '0' + month : month
+      } / ${year}</h1>`
+    );
     printWindow.document.write(
       `<p>Tổng doanh thu: ${totalDoanhThu.toLocaleString('vi-VN')} VNĐ</p>`
     );
@@ -157,11 +132,25 @@ export default function BaoCaoThang() {
       '<table><tr><th>Ngày</th><th>Số lượng tiệc cưới</th><th>Doanh thu (VNĐ)</th><th>Tỷ lệ (%)</th></tr>'
     );
     reportData.forEach((row) => {
+      // Format ngày từ YYYY-MM-DDTHH:mm:ss.SSSZ thành DD/MM/YYYY
+      let formattedDate = row.Ngay;
+      const dateParts = row.Ngay.split('-');
+      if (dateParts.length === 3) {
+        const day = dateParts[2].split('T')[0]; // Lấy ngày, loại bỏ phần thời gian
+        formattedDate = `${day}/${dateParts[1]}/${dateParts[0]}`; // Định dạng thành DD/MM/YYYY
+      }
+
+      // Format doanh thu
+      const formattedDoanhThu = row.DoanhThu
+        ? new Intl.NumberFormat('vi-VN').format(row.DoanhThu)
+        : '0';
+
       printWindow.document.write(
-        `<tr><td>${row.Ngay}</td><td>${row.SoLuongTiec
-        }</td><td>${row.DoanhThu.toLocaleString(
-          'vi-VN'
-        )}</td><td>${row.TiLe.toFixed(2)}</td></tr>`
+        `<tr><td>${formattedDate}</td><td>${
+          row.SoLuongTiec
+        }</td><td>${formattedDoanhThu}</td><td>${parseFloat(row.TiLe).toFixed(
+          2
+        )}</td></tr>`
       );
     });
     printWindow.document.write('</table>');
@@ -169,7 +158,6 @@ export default function BaoCaoThang() {
     printWindow.document.close();
     printWindow.print();
   };
-
   const drawChart = (data) => {
     if (!chartRef.current || data.length === 0) return;
 
@@ -182,7 +170,14 @@ export default function BaoCaoThang() {
     chartInstance.current = new Chart(ctx, {
       type: 'bar',
       data: {
-        labels: data.map((row) => row.Ngay),
+        labels: data.map((row) => {
+          const dateParts = row.Ngay.split('-');
+          if (dateParts.length === 3) {
+            const day = dateParts[2].split('T')[0];
+            return `${day}/${dateParts[1]}/${dateParts[0]}`;
+          }
+          return row.Ngay;
+        }),
         datasets: [
           {
             label: 'Doanh thu (VNĐ)',
@@ -223,12 +218,16 @@ export default function BaoCaoThang() {
 
   //#region useEffect
   useEffect(() => {
+    if (reportData.length > 0) {
+      drawChart(reportData);
+    }
+
     return () => {
       if (chartInstance.current) {
         chartInstance.current.destroy();
       }
     };
-  }, []);
+  }, [reportData]);
 
   //#endregion
 
@@ -277,68 +276,65 @@ export default function BaoCaoThang() {
         </Button>
       </Box>
 
-      {
-        reportData.length > 0 && (
-          <Box sx={{ justifyContent: 'center' }}>
-            <Typography sx={{ mt: 2 }}>
-              Ngày lập báo cáo: {formattedDate}
-            </Typography>
-            <Typography sx={{ mt: 2 }}>
-              Tổng doanh thu: {totalDoanhThu.toLocaleString('vi-VN')} VNĐ
-            </Typography>
-            <Typography sx={{ mt: 2 }}>
-              Tổng tiệc cưới: {totalTiecCuoi}
-            </Typography>
-            <Box
+      {reportData.length > 0 && (
+        <Box sx={{ justifyContent: 'center' }}>
+          <Typography sx={{ mt: 2 }}>
+            Ngày lập báo cáo: {formattedDate}
+          </Typography>
+          <Typography sx={{ mt: 2 }}>
+            Tổng doanh thu: {parseFloat(totalDoanhThu).toLocaleString('vi-VN')}{' '}
+            VNĐ
+          </Typography>
+          <Typography sx={{ mt: 2 }}>
+            Tổng tiệc cưới: {totalTiecCuoi}
+          </Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '20px',
+              mb: 2,
+            }}
+          >
+            <Button
+              variant="contained"
               sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '20px',
-                mb: 2,
+                backgroundColor: '#063F5C',
+                '&:hover': { backgroundColor: '#045b7a' },
               }}
+              onClick={handleExportReport}
             >
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: '#063F5C',
-                  '&:hover': { backgroundColor: '#045b7a' },
-                }}
-                onClick={handleExportReport}
-              >
-                Xuất báo cáo
-              </Button>
-              <Button
-                variant="contained"
-                sx={{
-                  backgroundColor: '#063F5C',
-                  '&:hover': { backgroundColor: '#045b7a' },
-                }}
-                onClick={handlePrintReport}
-              >
-                In báo cáo
-              </Button>
-            </Box>
-            <canvas
-              ref={chartRef}
-              width="600"
-              height="300"
-              style={{ margin: '50px', display: 'block' }}
-            />
-            <Box sx={{ position: 'relative', mb: 2 }}>
-              <CustomTable data={reportData} columns={ReportColumns} />
-            </Box>
+              Xuất báo cáo
+            </Button>
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: '#063F5C',
+                '&:hover': { backgroundColor: '#045b7a' },
+              }}
+              onClick={handlePrintReport}
+            >
+              In báo cáo
+            </Button>
           </Box>
-        )
-      }
+          <canvas
+            ref={chartRef}
+            width="600"
+            height="300"
+            style={{ margin: '50px', display: 'block' }}
+          />
+          <Box sx={{ position: 'relative', mb: 2 }}>
+            <CustomTable data={reportData} columns={ReportColumns} />
+          </Box>
+        </Box>
+      )}
 
-      {
-        loading && (
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-            <CircularProgress />
-          </Box>
-        )
-      }
-    </Box >
+      {loading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress />
+        </Box>
+      )}
+    </Box>
   );
   //#endregion
 }

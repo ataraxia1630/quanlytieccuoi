@@ -166,7 +166,9 @@ const MonAnService = {
       if (error instanceof ApiError) throw error;
       throw new ApiError(
         500,
-        'Tạo món ăn mới thất bại! Vui lòng thử lại sau.' + error.message
+        `Tạo món ăn mới thất bại!\n ${
+          'Lỗi: ' + error.message || 'Vui lòng thử lại sau.'
+        }`
       );
     }
   },
@@ -206,10 +208,15 @@ const MonAnService = {
 
       return await monan.update(updateData);
     } catch (error) {
-      throw new ApiError(
-        500,
-        'Cập nhật món ăn thất bại! Vui lòng thử lại sau.'
-      );
+      if (error instanceof ApiError) {
+        throw error;
+      } else
+        throw new ApiError(
+          500,
+          `Cập nhật món ăn thất bại!\n ${
+            'Lỗi: ' + error.message || 'Vui lòng thử lại sau.'
+          }`
+        );
     }
   },
 
