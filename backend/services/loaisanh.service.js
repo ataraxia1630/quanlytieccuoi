@@ -125,7 +125,7 @@ const LoaiSanhService = {
       console.log(error);
       throw new ApiError(
         500,
-        'Tạo loại sảnh mới thất bại! Vui lòng thử lại sau.'
+        error.message || 'Tạo loại sảnh mới thất bại! Vui lòng thử lại sau.'
       );
     }
   },
@@ -146,7 +146,7 @@ const LoaiSanhService = {
         const existing = await LoaiSanh.findOne({
           where: {
             TenLoaiSanh: data.TenLoaiSanh,
-            id: { [Op.ne]: id },
+            MaLoaiSanh: { [Op.ne]: id },
           },
         });
         if (existing) {
@@ -160,7 +160,7 @@ const LoaiSanhService = {
     } catch (error) {
       throw new ApiError(
         500,
-        'Cập nhật loại sảnh thất bại! Vui lòng thử lại sau.'
+        error.message || 'Cập nhật loại sảnh thất bại! Vui lòng thử lại sau.'
       );
     }
   },
@@ -187,7 +187,10 @@ const LoaiSanhService = {
           'Xóa thất bại!\nLoại sảnh đã hoặc đang được sử dụng.'
         );
       }
-      throw new ApiError(500, 'Xóa thất bại! Vui lòng thử lại sau.');
+      throw new ApiError(
+        500,
+        error.message || 'Xóa thất bại! Vui lòng thử lại sau.'
+      );
     }
   },
 
