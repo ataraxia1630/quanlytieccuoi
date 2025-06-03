@@ -80,8 +80,8 @@ const phieuDatTiecValidation = {
         body("MaCa")
             .notEmpty()
             .withMessage("Mã ca không được để trống.")
-            .matches(/^CA\d{2}$/)
-            .withMessage("Mã ca phải có định dạng CAxx (x là chữ số)."),
+            .matches(/^CA\d{3}$/)
+            .withMessage("Mã ca phải có định dạng CAxxx (x là chữ số)."),
         body("TienDatCoc")
             .notEmpty()
             .withMessage("Tiền đặt cọc không được để trống.")
@@ -103,8 +103,8 @@ const phieuDatTiecValidation = {
         body("MaSanh")
             .notEmpty()
             .withMessage("Mã sảnh không được để trống.")
-            .matches(/^SANH\d{2}$/)
-            .withMessage("Mã sảnh phải có định dạngSANHxx(x là chữ số)."),
+            .matches(/^S\d{3}$/)
+            .withMessage("Mã sảnh phải có định dạng Sxxx(x là chữ số)."),
 
     ],
 
@@ -138,8 +138,8 @@ const phieuDatTiecValidation = {
             .withMessage("Ngày đãi tiệc không đúng định dạng."),
         body("MaCa")
             .optional({ nullable: true })
-            .matches(/^CA\d{2}$/)
-            .withMessage("Mã ca phải có định dạng CAxx (x là chữ số)."),
+            .matches(/^CA\d{3}$/)
+            .withMessage("Mã ca phải có định dạng CAxxx (x là chữ số)."),
         body("TienDatCoc")
             .optional({ nullable: true })
             .isFloat({ min: 0 })
@@ -166,8 +166,8 @@ const phieuDatTiecValidation = {
             ),
         body("MaSanh")
             .optional({ nullable: true })
-            .matches(/^SANH\d{2}$/)
-            .withMessage("Mã sảnh phải có định dạngSANHxx(x là chữ số)."),
+            .matches(/^S\d{3}$/)
+            .withMessage("Mã sảnh phải có định dạng Sxxx(x là chữ số)."),
 
     ],
 

@@ -9,7 +9,7 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import useValidation from '../../validation/validation';
 
 
-const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdichvu }) => {
+const EditCTDichVuDialog = ({ open, onClose, onSave, title, ctdichvu }) => {
     const { validateNumberField } = useValidation();
     const [formData, setFormData] = useState({
         MaDichVu: ctdichvu?.MaDichVu || "",
@@ -60,7 +60,7 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdichvu }) => {
         if (name === "SoLuong" || name === "DonGia") {
 
             setFormData({ ...formData, [name]: value });
-            validateNumberField(name, value);
+            validateNumberField(name, value, setErrors);
         } else {
             setFormData({ ...formData, [name]: value });
         }
@@ -159,7 +159,7 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdichvu }) => {
                         textCancel={"Hủy"}
                         text={"Lưu"}
                         onCancel={onClose}
-                        onSave={handleSave}
+                        onAction={handleSave}
                     />
                 </Box>
             </DialogContent>
@@ -167,4 +167,4 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdichvu }) => {
     );
 };
 
-export default EditCTDatBanDialog;
+export default EditCTDichVuDialog;

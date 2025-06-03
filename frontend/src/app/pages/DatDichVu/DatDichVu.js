@@ -7,10 +7,11 @@ import { getAllCTDichVuByPDTId, updateCTDichVu, createCTDichVu, deleteCTDichVu }
 import DichVuService from '../../service/dichvu.service';
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import defaultColumns from '../../components/ct_datban/ct_datban_default_column';
+import defaultColumns from '../../components/ct_dichvu/ct_dichvu_default_column';
 import CustomTable from "../../components/Customtable";
 import { Typography, Box } from '@mui/material';
 import EditCTDichVuDialog from "../../components/ct_dichvu/ct_dichvu_edit_dialog";
+import DeleteDialog from '../../components/Deletedialog';
 
 
 
@@ -20,9 +21,10 @@ function DatDichVu() {
   const [reservedServices, setReservedServices] = useState([]);
   const { handleNav } = useContext(StepContext);
   const [openDialog, setOpenDialog] = useState(false);
-  const [currentPDT, setCurrentPDT] = useState(null)
+  const [currentPDT, setCurrentPDT] = useState(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [ctdichvuToEdit, setCtdichvuToEdit] = useState(null);
-
+  console.log("DatDichVu: currentPDT:", reservedServices);
   //mock data         
   // const mockItems = useMemo(() => [
   //   {
@@ -54,14 +56,14 @@ function DatDichVu() {
   // fetch data dịch vụ từ db
   const fetchValidServices = useCallback(async () => {
     try {
-      await toast.promise(
-        DichVuService.searchDichVu({ TinhTrang: "Có sẵn" }),
-        {
-          loading: "Đang xử lý...",
-          success: "Tải dữ liệu dịch vụ thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      ).then((data) => setServices(data)); // set dữ liệu nếu thành công
+      const data = await DichVuService.searchDichVu({ TinhTrang: "Có sẵn" });
+      //   {
+      //     loading: "Đang xử lý...",
+      //     success: "Tải dữ liệu dịch vụ thành công!",
+      //     error: (err) => "Lỗi: " + err.message,
+      //   }
+      // ).then((data) => 
+      setServices(data); // set dữ liệu nếu thành công
     } catch (error) {
       toast.error(error.message || "lỗi khi tải dịch vụ");
     }
@@ -75,14 +77,8 @@ function DatDichVu() {
         console.error("không lấy được phiếu đặt tiệc hiện tại");
         return;
       }
-      await toast.promise(
-        getAllCTDichVuByPDTId(currentPDT),
-        {
-          loading: "Đang xử lý...",
-          success: "Tải dữ liệu thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      ).then((data) => setReservedServices(data)); // set dữ liệu nếu thành công
+      const data = await getAllCTDichVuByPDTId(currentPDT);
+      setReservedServices(data); // set dữ liệu nếu thành công
     } catch (error) {
       toast.error(error.message || "lỗi khi tải chi tiết dịch vụ");
     }
@@ -95,24 +91,18 @@ function DatDichVu() {
         console.error("không lấy được phiếu đặt tiệc hiện tại");
         return;
       }
-      const data = await toast.promise(
-        updateCTDichVu(currentPDT, MaDichVu, {
-          SoLuong,
-          DonGia,
+      const data = await updateCTDichVu(MaDichVu, currentPDT, {
+        SoLuong,
+        DonGia,
 
-        }),
-        {
-          loading: "Đang xử lý...",
-          success: "cập nhật thông tin đặt dịch vụ thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      );
+      });
       console.log("return data: ", data)
       const temp = reservedServices.map(item =>
         item.MaDichVu === MaDichVu && item.SoPhieuDatTiec === currentPDT ? { ...item, ...data.data } : item
       );
 
       setReservedServices(temp);
+      toast.success("cập nhật chi tiết dịch vụ thành công!")
     } catch (err) {
       toast.error(err.message || "lỗi khi cập nhật chi tiết dịch vụ");
     }
@@ -121,13 +111,6 @@ function DatDichVu() {
   // thêm/cập nhật chi tiết dịch vụ vào bảng thông tin
   const AddReservedService = useCallback(async ({ MaDichVu, SoLuong, DonGia }) => {
     try {
-      console.log("current pdt:", currentPDT)
-      console.log("CTDV", {
-        MaDichVu,
-        SoPhieuDatTiec: currentPDT,
-        SoLuong,
-        DonGia
-      })
       const exists = reservedServices.some(item => item.MaDichVu === MaDichVu);
       if (exists) {
         updateReservedService({ MaDichVu, SoLuong, DonGia });
@@ -138,22 +121,16 @@ function DatDichVu() {
         console.error("không lấy được phiếu đặt tiệc hiện tại");
         return;
       }
-      const data = await toast.promise(
-        createCTDichVu({
-          MaDichVu,
-          SoPhieuDatTiec: currentPDT,
-          SoLuong,
-          DonGia,
+      const data = await createCTDichVu({
+        MaDichVu,
+        SoPhieuDatTiec: currentPDT,
+        SoLuong,
+        DonGia,
 
-        }),
-        {
-          loading: "Đang xử lý...",
-          success: "Đặt món ăn thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      );
+      });
 
       setReservedServices((preData) => [...preData, data.data]);
+      toast.success("Đặt dịch vụ thành công!")
     } catch (err) {
       toast.error(err.message || "lỗi khi thêm chi tiết dịch vụ");
     }
@@ -166,16 +143,10 @@ function DatDichVu() {
         console.error("không lấy được phiếu đặt tiệc hiện tại");
         return;
       }
-      await toast.promise(
-        deleteCTDichVu(currentPDT, MaDichVu),
-        {
-          loading: "Đang xử lý...",
-          success: "xóa thông tin đặt dịch vụ thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      );
+      await deleteCTDichVu(MaDichVu, currentPDT);
       const temp = reservedServices.filter(item => !(item.MaDichVu === MaDichVu && item.SoPhieuDatTiec === currentPDT));
       setReservedServices(temp);
+      toast.success("Xóa chi tiết dịch vụ thành công!")
     } catch (err) {
       toast.error(err.message || "lỗi khi xóa chi tiết dịch vụ");
     }
@@ -225,6 +196,7 @@ function DatDichVu() {
     });
   }, [reservedServices, services]);
 
+  console.log("reserva", fullReservedServicesData)
 
 
   const handleEdit = (data) => {
@@ -232,16 +204,28 @@ function DatDichVu() {
     setCtdichvuToEdit(data);
   };
   const handleSave = async (data) => {
-    updateReservedService(data)
+    setOpenDialog(false)
+    await updateReservedService(data);
+    setCtdichvuToEdit(null);
   };
   const handleDelete = async (data) => {
-    RemoveReservedService(data)
+    setIsDeleteDialogOpen(true);
+    setCtdichvuToEdit(data);
   };
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setCtdichvuToEdit(null);
   }
-
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setCtdichvuToEdit(null);
+    toast.info('Đã hủy xóa chi tiết dịch vụ');
+  };
+  const acceptDelete = async () => {
+    setIsDeleteDialogOpen(false);
+    RemoveReservedService(ctdichvuToEdit);
+    setCtdichvuToEdit(null);
+  };
 
   return (
     <div className="page">
@@ -274,12 +258,18 @@ function DatDichVu() {
         />
       </div>
 
+      <DeleteDialog
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onDelete={acceptDelete}
+        title={'Xác nhận xóa'}
+      />
 
       <EditCTDichVuDialog
         open={openDialog}
         onClose={handleCloseDialog}
         onSave={handleSave}
-        ctdatban={{ ...ctdichvuToEdit }}
+        ctdichvu={{ ...ctdichvuToEdit }}
         title="Chỉnh sửa chi tiết dịch vụ"
       >
         <input autoFocus />

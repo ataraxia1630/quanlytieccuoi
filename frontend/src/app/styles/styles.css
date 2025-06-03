@@ -58,13 +58,13 @@ p {
 
 
 .selection-container {
-  width: 95%;
+  width: 90%;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   place-items: center;
   row-gap: 5rem;
   margin: auto;
-  padding-bottom: 5rem;
+  padding: 2rem 0;
 }
 
 

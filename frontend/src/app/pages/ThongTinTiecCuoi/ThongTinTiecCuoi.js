@@ -80,120 +80,120 @@ const ThongTinTiecCuoi = () => {
   // Mock data
   const mockItems = useMemo(() => [
     {
-      MaSanh: "SANH01",
+      MaSanh: "S002",
       TenSanh: 'Sảnh A',
       LoaiSanh: 'Sảnh nhỏ',
       SoLuongBanToiDa: 100,
       HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
       Ca: [
         {
-          MaCa: 'CA01',
+          MaCa: 'CA001',
           TinhTrang: 'Đang trống',
 
         },
         {
-          MaCa: 'CA02',
+          MaCa: 'CA002',
           TinhTrang: 'Đã đặt',
         },
       ],
       GhiChu: 'Sảnh có nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
     }, {
-      MaSanh: "SANH02",
+      MaSanh: "S002",
       TenSanh: 'Sảnh B',
       LoaiSanh: 'Sảnh nhỏ',
       SoLuongBanToiDa: 100,
       HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
       Ca: [
         {
-          MaCa: 'CA01',
+          MaCa: 'CA001',
           TinhTrang: 'Đang trống',
         },
         {
-          MaCa: 'CA02',
+          MaCa: 'CA002',
           TinhTrang: 'Đã đặt',
         },
         {
-          MaCa: 'CA03',
+          MaCa: 'CA003',
           TinhTrang: 'Đang trống',
         },
         {
-          MaCa: 'CA04',
+          MaCa: 'CA004',
           TinhTrang: 'Đã đặt',
         },
       ],
       GhiChu: 'Sảnh cótr dfghjkdsf ghjkkjhgfd ghjklkjhgfd ghjklkj hgfdgh jklkj hgfdsf ghjkjvchjk jhgjk hsjok pdfoljksh jiokij khjgkj nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
     },
     {
-      MaSanh: "SANH03",
+      MaSanh: "S003",
       TenSanh: 'Sảnh C',
       LoaiSanh: 'Sảnh lớn',
       SoLuongBanToiDa: 100,
       HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
       Ca: [
         {
-          MaCa: 'CA01',
+          MaCa: 'CA001',
           TinhTrang: 'Đang trống',
         },
         {
-          MaCa: 'CA02',
+          MaCa: 'CA002',
           TinhTrang: 'Đã đặt',
         },
       ],
       GhiChu: 'Sảnh có nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
     },
     {
-      MaSanh: "SANH04",
+      MaSanh: "S004",
       TenSanh: 'Sảnh D',
       LoaiSanh: 'Sảnh trung',
       SoLuongBanToiDa: 100,
       HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
       Ca: [
         {
-          MaCa: 'CA01',
+          MaCa: 'CA001',
           TinhTrang: 'Đang trống',
         },
         {
-          MaCa: 'CA02',
+          MaCa: 'CA002',
           TinhTrang: 'Đã đặt',
         },
         {
-          MaCa: 'CA03',
+          MaCa: 'CA003',
           TinhTrang: 'Đã đặt',
         },
       ],
       GhiChu: 'Sảnh có nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
     },
     {
-      MaSanh: "SANH05",
+      MaSanh: "S005",
       TenSanh: 'Sảnh E',
       LoaiSanh: 'Sảnh lớn',
       SoLuongBanToiDa: 100,
       HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
       Ca: [
         {
-          MaCa: 'CA01',
+          MaCa: 'CA001',
           TinhTrang: 'Đang trống',
         },
         {
-          MaCa: 'CA02',
+          MaCa: 'CA002',
           TinhTrang: 'Đã đặt',
         },
       ],
       GhiChu: 'Sảnh có nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
     },
     {
-      MaSanh: "SANH06",
+      MaSanh: "S006",
       TenSanh: 'Sảnh F',
       LoaiSanh: 'Sảnh trung',
       SoLuongBanToiDa: 100,
       HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
       Ca: [
         {
-          MaCa: 'CA01',
+          MaCa: 'CA001',
           TinhTrang: 'Đang trống',
         },
         {
-          MaCa: 'CA02',
+          MaCa: 'CA002',
           TinhTrang: 'Đã đặt',
         },
       ],
@@ -203,31 +203,31 @@ const ThongTinTiecCuoi = () => {
 
   const caMockItems = useMemo(() => [
     {
-      MaCa: 'CA01',
+      MaCa: 'CA001',
       TenCa: 'Ca tối',
       GioBatDau: "11:00:00",
       GioKetThuc: "04:00:00"
     },
     {
-      MaCa: 'CA02',
+      MaCa: 'CA002',
       TenCa: 'Ca tối',
       GioBatDau: "11:00:00",
       GioKetThuc: "04:00:00"
     },
     {
-      MaCa: 'CA03',
+      MaCa: 'CA003',
       TenCa: 'Ca tối',
       GioBatDau: "11:00:00",
       GioKetThuc: "04:00:00"
     },
     {
-      MaCa: 'CA04',
+      MaCa: 'CA004',
       TenCa: 'Ca tối',
       GioBatDau: "11:00:00",
       GioKetThuc: "04:00:00"
     },
     {
-      MaCa: 'CA05',
+      MaCa: 'CA005',
       TenCa: 'Ca tối',
       GioBatDau: "11:00:00",
       GioKetThuc: "04:00:00"
@@ -321,26 +321,19 @@ const ThongTinTiecCuoi = () => {
   // fetch data phiếu đặt tiêc neeys đang tiến hành đặt tiệc
   const fetchCurrentPhieuDatTiec = useCallback(async (id) => {
     try {
-      await toast.promise(
-        PhieuDatTiecService.getPhieuDatTiecById(id),
-        {
-          loading: "Đang xử lý...",
-          success: "Tải dữ liệu thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      ).then((data) => {
-        // Lọc dữ liệu để chỉ lấy các trường có trong initialState
-        let newData = Object.fromEntries(
-          Object.entries(data).filter(([key]) => key in initialState)
-        );
-        newData = {
-          ...newData,
-          NgayDaiTiec: new Date(newData.NgayDaiTiec),
-          NgayDatTiec: new Date(newData.NgayDatTiec)
-        };
-        console.log("phieudattiec fetch data: ", newData)
-        setPhieuDatTiec(newData);
-      }); // set dữ liệu nếu thành công
+      const data = await PhieuDatTiecService.getPhieuDatTiecById(id);
+
+      // Lọc dữ liệu để chỉ lấy các trường có trong initialState
+      let newData = Object.fromEntries(
+        Object.entries(data).filter(([key]) => key in initialState)
+      );
+      newData = {
+        ...newData,
+        NgayDaiTiec: new Date(newData.NgayDaiTiec),
+        NgayDatTiec: new Date(newData.NgayDatTiec)
+      };
+      console.log("phieudattiec fetch data: ", newData)
+      setPhieuDatTiec(newData);
 
     } catch (error) {
       toast.error(`${error.message || 'Không thể tải dữ liệu phiếu đặt tiệc!'}`);
@@ -353,15 +346,13 @@ const ThongTinTiecCuoi = () => {
   const createCurrentPhieuDatTiec = useCallback(async (id) => {
 
     try {
-      const data = await toast.promise(
-
-        PhieuDatTiecService.createPhieuDatTiec(pdtReFormat()),
-        {
-          loading: "Đang xử lý...",
-          success: "khởi tạo dữ liệu thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      );
+      const data = await PhieuDatTiecService.createPhieuDatTiec(pdtReFormat);
+      //   {
+      //     loading: "Đang xử lý...",
+      //     success: "khởi tạo dữ liệu thành công!",
+      //     error: (err) => "Lỗi: " + err.message,
+      //   }
+      // );
       setPhieuDatTiec(data) // set dữ liệu nếu thành công
       setCurrentPDT(data.SoPhieuDatTiec);
       localStorage.setItem("currentPDT", data.data.SoPhieuDatTiec)
@@ -374,14 +365,14 @@ const ThongTinTiecCuoi = () => {
   // cập nhật data phiếu đặt tiêc nếu đang tiến hành đặt tiệc
   const updateCurrentPhieuDatTiec = useCallback(async (id) => {
     try {
-      await toast.promise(
-        PhieuDatTiecService.updatePhieuDatTiec(id, pdtReFormat()),
-        {
-          loading: "Đang xử lý...",
-          success: "cập nhật dữ liệu thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      ).then((data) => setPhieuDatTiec(data));
+      const data = await PhieuDatTiecService.updatePhieuDatTiec(id, pdtReFormat);
+      //   {
+      //     loading: "Đang xử lý...",
+      //     success: "cập nhật dữ liệu thành công!",
+      //     error: (err) => "Lỗi: " + err.message,
+      //   }
+      // ).then((data) => 
+      setPhieuDatTiec(data);
     } catch (error) {
       toast.error(`Lỗi: ${error.message || 'Không thể cập nhật phiếu đặt tiệc!'}`);
     }
@@ -391,14 +382,13 @@ const ThongTinTiecCuoi = () => {
   const removeCurrentPhieuDatTiec = useCallback(async (id) => {
     try {
       if (currentPDT) {
-        await toast.promise(
-          PhieuDatTiecService.deletePhieuDatTiec(id),
-          {
-            loading: "Đang xử lý...",
-            success: "Hủy đặt tiệc cưới thành công!",
-            error: (err) => "Lỗi: " + err.message,
-          }
-        )
+        await PhieuDatTiecService.deletePhieuDatTiec(id)
+        //   {
+        //     loading: "Đang xử lý...",
+        //     success: "Hủy đặt tiệc cưới thành công!",
+        //     error: (err) => "Lỗi: " + err.message,
+        //   }
+        // )
       }
       setCurrentPDT(null);
       setPhieuDatTiec(initialState);
@@ -466,7 +456,7 @@ const ThongTinTiecCuoi = () => {
     //localStorage.setItem("currentPDT", null);
 
     const pdt = localStorage.getItem("currentPDT");
-    console.log("currentPDT: ", pdt === "null")
+    console.log("currentPDT: ", pdt)
     if (pdt !== "null") {
       setCurrentPDT(pdt);
       fetchCurrentPhieuDatTiec(pdt);

@@ -19,7 +19,7 @@ function ServiceCard({ srv, onClick }) {
     return (
         <Card
             sx={{
-                width: '25vw',
+                width: '85%',
                 p: 2,
                 borderRadius: 2,
                 backgroundColor: '#fffaf0', // gần giống nền ảnh
@@ -66,7 +66,7 @@ function ServiceCard({ srv, onClick }) {
                         textTransform: 'none',
                         paddingX: 3,
                     }}
-                    onClick={() => onClick()}
+                    onClick={() => onClick({ ...srv, SoLuong: quantity })}
                 >
                     Thêm
                 </Button>
