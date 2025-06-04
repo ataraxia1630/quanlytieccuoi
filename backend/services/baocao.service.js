@@ -62,7 +62,10 @@ const BaoCaoService = {
         where: { Thang: month, Nam: year },
         include: [{ model: Ct_BaoCaoTheoNgay }],
       });
-
+      const totalTiecCuoi = baocao.Ct_BaoCaoTheoNgays.reduce(
+        (sum, item) => sum + item.SoLuongTiec,
+        0
+      );
       if (!baocao) throw new ApiError(404, 'Không tìm thấy báo cáo');
 
       const doc = new PDFDocument({ margin: 50 });
@@ -100,7 +103,7 @@ const BaoCaoService = {
         )} VNĐ`,
         { align: 'center' }
       );
-      doc.text(`Tổng số tiệc cưới: ${baocao.Ct_BaoCaoTheoNgays.length}`, {
+      doc.text(`Tổng số tiệc cưới: ${totalTiecCuoi}`, {
         align: 'center',
       });
       doc.moveDown(1.5);
@@ -112,10 +115,11 @@ const BaoCaoService = {
       doc.moveDown(0.5);
 
       // Tạo bảng
-      const tableTop = doc.y + 10;
+      let tableTop = doc.y + 10;
       const rowHeight = 25;
       const colWidths = [100, 130, 130, 80];
       const startX = (doc.page.width - colWidths.reduce((a, b) => a + b)) / 2;
+      const pageHeight = doc.page.height - doc.page.margins.bottom;
 
       const drawRow = (y, row, isHeader = false) => {
         const cellAlign = 'center';
@@ -143,27 +147,45 @@ const BaoCaoService = {
         });
       };
 
-      // Vẽ tiêu đề bảng
+      // Vẽ tiêu đề bảng lần đầu
       drawRow(
         tableTop,
         ['Ngày', 'Số lượng tiệc cưới', 'Doanh thu (VNĐ)', 'Tỷ lệ (%)'],
         true
       );
 
-      // Vẽ dữ liệu
+      // Vẽ dữ liệu với kiểm tra phân trang
+      let y = tableTop + rowHeight;
       baocao.Ct_BaoCaoTheoNgays.forEach((ct, idx) => {
-        const y = tableTop + rowHeight * (idx + 1);
+        // Kiểm tra nếu y vượt quá chiều cao trang
+        if (y + rowHeight > pageHeight) {
+          doc.addPage();
+          tableTop = doc.y + 10;
+          y = tableTop;
+          // Vẽ lại tiêu đề bảng trên trang mới
+          drawRow(
+            tableTop,
+            ['Ngày', 'Số lượng tiệc cưới', 'Doanh thu (VNĐ)', 'Tỷ lệ (%)'],
+            true
+          );
+          y += rowHeight;
+        }
+
         drawRow(y, [
           ct.Ngay.toLocaleDateString('vi-VN'),
           ct.SoLuongTiec.toString(),
           new Intl.NumberFormat('vi-VN').format(ct.DoanhThu),
           parseFloat(ct.TiLe).toFixed(2),
         ]);
+        y += rowHeight;
       });
 
       doc.end();
     } catch (error) {
-      throw new ApiError(500, 'Xuất báo cáo thất bại!');
+      console.error('Lỗi khi xuất báo cáo:', error); // Ghi log thay vì throw
+      if (!res.headersSent) {
+        res.status(500).json({ message: 'Xuất báo cáo thất bại!' });
+      }
     }
   },
 };
