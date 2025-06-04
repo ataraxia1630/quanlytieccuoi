@@ -17,7 +17,7 @@ module.exports = {
     }
 
     const caRecords = await Ca.findAll({
-      attributes: ['MaCa'],
+      attributes: ['MaCa', 'GioBatDau', 'GioKetThuc'],
       raw: true,
     });
 
@@ -30,7 +30,15 @@ module.exports = {
       acc[sanh.MaSanh] = Math.min(sanh.SoLuongBanToiDa, 255); // Giới hạn SoLuongBanToiDa <= 255
       return acc;
     }, {});
+
     const maCaIds = caRecords.map((ca) => ca.MaCa);
+    const caTimeMap = caRecords.reduce((acc, ca) => {
+      acc[ca.MaCa] = {
+        start: ca.GioBatDau,
+        end: ca.GioKetThuc,
+      };
+      return acc;
+    }, {});
 
     const getRandomName = (isMale) => {
       const maleNames = [
@@ -91,6 +99,53 @@ module.exports = {
       );
     };
 
+    // Hàm chuyển đổi giờ dạng "HH:mm:ss" thành phút để so sánh
+    const timeToMinutes = (timeStr) => {
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+
+    const getRandomTimeForCa = (maCa) => {
+      const { start, end } = caTimeMap[maCa];
+      const startMinutes = timeToMinutes(start);
+      const endMinutes = timeToMinutes(end);
+
+      const validMinutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+
+      // Random giờ và phút trong khoảng của ca
+      let randomMinutes =
+        Math.floor(Math.random() * (endMinutes - startMinutes)) + startMinutes;
+      const randomHour = Math.floor(randomMinutes / 60);
+      const minuteIndex = Math.floor(Math.random() * validMinutes.length);
+      const randomMinute = validMinutes[minuteIndex];
+
+      const totalRandomMinutes = randomHour * 60 + randomMinute;
+      if (
+        totalRandomMinutes < startMinutes ||
+        totalRandomMinutes > endMinutes
+      ) {
+        // Nếu vượt quá, điều chỉnh về giá trị gần nhất hợp lệ
+        const adjustedMinutes = Math.min(
+          Math.max(totalRandomMinutes, startMinutes),
+          endMinutes
+        );
+        const adjustedHour = Math.floor(adjustedMinutes / 60);
+        const adjustedMinute = validMinutes.reduce((prev, curr) =>
+          Math.abs(curr - (adjustedMinutes % 60)) <
+          Math.abs(prev - (adjustedMinutes % 60))
+            ? curr
+            : prev
+        );
+        return `${adjustedHour.toString().padStart(2, '0')}:${adjustedMinute
+          .toString()
+          .padStart(2, '0')}:00`;
+      }
+
+      return `${randomHour.toString().padStart(2, '0')}:${randomMinute
+        .toString()
+        .padStart(2, '0')}:00`;
+    };
+
     // Hàm kiểm tra trùng lịch tổ chức tiệc
     const isScheduleConflict = (existingPhieu, newPhieu) => {
       const existingDate = new Date(existingPhieu.NgayDaiTiec).setHours(
@@ -125,12 +180,18 @@ module.exports = {
         const maxDaiTiec = new Date(
           ngayDatTiec.getTime() + 30 * 24 * 60 * 60 * 1000
         );
-        const ngayDaiTiec = getRandomDate(
+        const ngayDaiTiecDate = getRandomDate(
           minDaiTiec,
           maxDaiTiec > endDate ? endDate : maxDaiTiec
         );
         const maSanh = maSanhIds[Math.floor(Math.random() * maSanhIds.length)];
         const maCa = maCaIds[Math.floor(Math.random() * maCaIds.length)];
+        const timeForCa = getRandomTimeForCa(maCa);
+
+        // Kết hợp ngày và giờ cho NgayDaiTiec
+        const [hours, minutes, seconds] = timeForCa.split(':').map(Number);
+        const ngayDaiTiec = new Date(ngayDaiTiecDate);
+        ngayDaiTiec.setHours(hours, minutes, seconds, 0);
 
         phieu = {
           SoPhieuDatTiec: `PDT${i.toString().padStart(3, '0')}`,
@@ -147,7 +208,14 @@ module.exports = {
       }
 
       if (!validSchedule) {
-        phieu.NgayDaiTiec = getRandomDate(startDate, endDate);
+        const maCa = maCaIds[Math.floor(Math.random() * maCaIds.length)];
+        const ngayDaiTiecDate = getRandomDate(startDate, endDate);
+        const timeForCa = getRandomTimeForCa(maCa);
+        const [hours, minutes, seconds] = timeForCa.split(':').map(Number);
+        const ngayDaiTiec = new Date(ngayDaiTiecDate);
+        ngayDaiTiec.setHours(hours, minutes, seconds, 0);
+        phieu.NgayDaiTiec = ngayDaiTiec;
+        phieu.MaCa = maCa;
       }
 
       const maSanh = phieu.MaSanh;
@@ -179,8 +247,8 @@ module.exports = {
         NgayDaiTiec: phieu.NgayDaiTiec,
         MaCa: phieu.MaCa,
         TienDatCoc: parseInt(
-          (Math.random() * (9000000 - 7000000) + 7000000).toFixed(2)
-        ), // 3M–6M
+          (Math.random() * (7000000 - 5000000) + 5000000).toFixed(2)
+        ), // 5M–7M
         SoLuongBan: soLuongBan,
         SoBanDuTru: soBanDuTru,
         NgayDatTiec: phieu.NgayDatTiec,
