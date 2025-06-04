@@ -22,7 +22,10 @@ const CTBCService = {
           },
         ],
         attributes: [
-          [sequelize.col('PhieuDatTiec.NgayDaiTiec'), 'Ngay'],
+          [
+            sequelize.fn('DATE', sequelize.col('PhieuDatTiec.NgayDaiTiec')),
+            'Ngay',
+          ],
           [
             sequelize.fn('COUNT', sequelize.col('PhieuDatTiec.SoPhieuDatTiec')),
             'SoLuongTiec',
@@ -46,8 +49,15 @@ const CTBCService = {
           ],
         },
 
-        group: ['NgayDaiTiec'],
-        order: [['NgayDaiTiec', 'ASC']],
+        group: [
+          sequelize.fn('DATE', sequelize.col('PhieuDatTiec.NgayDaiTiec')),
+        ],
+        order: [
+          [
+            sequelize.fn('DATE', sequelize.col('PhieuDatTiec.NgayDaiTiec')),
+            'ASC',
+          ],
+        ],
         raw: true,
       });
 

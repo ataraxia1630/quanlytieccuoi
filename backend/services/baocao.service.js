@@ -46,7 +46,9 @@ const BaoCaoService = {
         await BC.save();
       }
 
-      return { BC, CTBCs };
+      // Chuẩn hóa dữ liệu trả về
+      BC.dataValues.Ct_BaoCaoTheoNgays = CTBCs; // Thêm CTBCs vào BC
+      return BC; // Trả về BC giống như existing
     } catch (error) {
       throw new ApiError(500, 'Lỗi server' + error.message);
     }
