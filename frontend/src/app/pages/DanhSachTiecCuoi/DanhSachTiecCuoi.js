@@ -15,6 +15,7 @@ import DeleteDialog from '../../components/Deletedialog';
 import PhieuDatTiecService from '../../service/phieudattiec.service';
 import Phieucolumns from '../../components/danhsachtiec/phieudattiec_column';
 import { useNavigate } from 'react-router-dom';
+import useValidation from '../../validation/validation';
 function DanhSachTiecCuoi() {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -24,6 +25,7 @@ function DanhSachTiecCuoi() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedPhieu, setSelectedPhieu] = useState(null);
+  const [errors, setErrors] = useState({});
   const [form, setForm] = useState({
     tuBan: "",
     denBan: "",
@@ -33,6 +35,7 @@ function DanhSachTiecCuoi() {
     trangThai: "",
     ten: ""
   });
+  const { validateNumberField, validateTimeField } = useValidation();
 
   const fetchData = async () => {
     setLoading(true);
@@ -54,6 +57,7 @@ function DanhSachTiecCuoi() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -89,6 +93,7 @@ function DanhSachTiecCuoi() {
       ten: ""
     });
     setSearchText('');
+    setErrors({});
   };
 
   const handleDelete = (phieu) => {
@@ -98,17 +103,49 @@ function DanhSachTiecCuoi() {
   };
 
   const handleSubmit = async () => {
+    const { tuBan, denBan, tuNgay, denNgay } = form;
+
+    const newErrors = {};
+
+    // Validate và ghi lỗi vào biến tạm
+    if (isNaN(Number(tuBan)) || Number(tuBan) < 0) {
+      newErrors.tuBan = "Nhập số nguyên dương!";
+    }
+
+    if (isNaN(Number(denBan)) || Number(denBan) < 0) {
+      newErrors.tuBan = "Nhập số nguyên dương!";
+    }
+
+    const tuNgayDate = tuNgay ? new Date(tuNgay) : null;
+    const denNgayDate = denNgay ? new Date(denNgay) : null;
+
+    if (tuNgayDate && (isNaN(tuNgayDate) || tuNgayDate.getHours() > 23)) {
+      newErrors.tuNgay = "Giờ phải trong khoảng 00:00:00 - 23:59:59";
+    }
+
+    if (denNgayDate && (isNaN(denNgayDate) || denNgayDate.getHours() > 23)) {
+      newErrors.denNgay = "Giờ phải trong khoảng 00:00:00 - 23:59:59";
+    }
+
+    // Cập nhật state lỗi
+    setErrors(newErrors);
+
+    // Kiểm tra lỗi
+    if (Object.values(newErrors).some((error) => error)) {
+      console.warn("Dữ liệu không hợp lệ:", newErrors);
+      return;
+    }
+
+    // Gửi dữ liệu nếu không có lỗi
     setLoading(true);
     try {
-      const { tuBan, denBan, sanh, tuNgay, denNgay, trangThai } = form;
       const payload = {};
-
       if (tuBan) payload.tuBan = parseInt(tuBan);
       if (denBan) payload.denBan = parseInt(denBan);
-      if (sanh) payload.sanh = sanh;
+      if (form.sanh) payload.sanh = form.sanh;
       if (tuNgay) payload.tuNgay = new Date(tuNgay).toISOString();
       if (denNgay) payload.denNgay = new Date(denNgay).toISOString();
-      if (trangThai !== "") payload.trangThai = trangThai === "true";
+      if (form.trangThai !== "") payload.trangThai = form.trangThai === "true";
 
       const result = await postDanhSach(payload);
       setData(result);
@@ -118,6 +155,7 @@ function DanhSachTiecCuoi() {
       setLoading(false);
     }
   };
+
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
@@ -203,17 +241,23 @@ function DanhSachTiecCuoi() {
             </div>
 
             <div className='ban-box'>
-              <Rangeinput
-                label="Số lượng bàn"
-                width={56}
-                fromValue={form.tuBan}
-                toValue={form.denBan}
-                onFromChange={(v) => setForm({ ...form, tuBan: v })}
-                onToChange={(v) => setForm({ ...form, denBan: v })}
-              />
+              <div className='ban-box'>
+                <Rangeinput
+                  label="Số lượng bàn"
+                  width={56}
+                  fromValue={form.tuBan}
+                  toValue={form.denBan}
+                  onFromChange={(v) => setForm({ ...form, tuBan: v })}
+                  onToChange={(v) => setForm({ ...form, denBan: v })}
+                />
+                {errors.tuBan && <div className="error">{errors.tuBan}</div>}
+                {errors.denBan && <div className="error">{errors.denBan}</div>}
+              </div>
+
             </div>
 
             <div className='ngay-box'>
+              <div className='ngay-box'>
               <DateRangePicker
                 label="Ngày"
                 fromDate={form.tuNgay}
@@ -221,6 +265,10 @@ function DanhSachTiecCuoi() {
                 onFromChange={(v) => setForm({ ...form, tuNgay: v })}
                 onToChange={(v) => setForm({ ...form, denNgay: v })}
               />
+              {errors.tuNgay && <div className="error">{errors.tuNgay}</div>}
+              {errors.denNgay && <div className="error">{errors.denNgay}</div>}
+            </div>
+
             </div>
 
             <StatusRadio

@@ -1,1 +1,0 @@
-# QUẢN LÝ TIỆC CƯỚI

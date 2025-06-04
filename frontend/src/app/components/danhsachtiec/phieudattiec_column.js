@@ -77,7 +77,7 @@ const Phieucolumns = (navigate ) =>
             }
         },
         {
-            id: "gio", label: "Giờ", sortable: true,
+            id: "gio", label: "Giờ", 
             render: (row) => {
                 const date = new Date(row.NgayDaiTiec);
                 return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;

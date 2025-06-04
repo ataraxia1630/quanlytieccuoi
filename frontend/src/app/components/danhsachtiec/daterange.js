@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -28,21 +28,24 @@ const DateRangePicker = ({ label, fromDate, toDate, onFromChange, onToChange }) 
           </Typography>
         )}
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-          <DatePicker
-            label="Từ"
-            value={fromDate ? dayjs(fromDate) : null}
-            onChange={(newValue) =>
-              onFromChange(newValue ? newValue.toISOString() : "")
-            }
-            format="DD/MM/YYYY"
-            slotProps={{
-              textField: {
-                variant: "outlined",
-                size: "small",
-                sx: inputStyle,
-              },
-            }}
-          />
+         <DatePicker
+          label="Từ"
+          value={fromDate ? dayjs(fromDate) : null}
+          onChange={(newValue) =>
+            onFromChange(newValue ? newValue.toISOString() : "")
+          }
+          format="DD/MM/YYYY"
+          slotProps={{
+            textField: {
+              variant: "outlined",
+              size: "small",
+              sx: inputStyle,
+              onKeyDown: (e) => e.preventDefault(), 
+            },
+          }}
+        />
+
+
           <Box sx={{ width: "10px", borderTop: "1.2px solid #ccc", mb: 1.5 }} />
           <DatePicker
             label="Đến"
@@ -56,6 +59,7 @@ const DateRangePicker = ({ label, fromDate, toDate, onFromChange, onToChange }) 
                 variant: "outlined",
                 size: "small",
                 sx: inputStyle,
+                onKeyDown: (e) => e.preventDefault(), 
               },
             }}
           />
