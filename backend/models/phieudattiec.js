@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       TrangThai: {
-        type: DataTypes.BOOLEAN,
+        type: DataTypes.STRING(50),
         defaultValue: true,
       },
     },

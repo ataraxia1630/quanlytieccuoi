@@ -41,7 +41,7 @@ module.exports = {
       );
     }
 
-    // Tạo map phiếu: SoPhieuDatTiec → tổng bàn + giá tối thiểu/bàn
+    // Tạo map phiếu: SoPhieuDatTiec → tổng bàn + giá bàn tối thiểu
     const phieuInfoMap = phieuDatTiecRecords.reduce((acc, record) => {
       const totalBan = record.SoLuongBan + (record.SoBanDuTru || 0);
       const minPrice = parseInt(
@@ -55,48 +55,55 @@ module.exports = {
       return acc;
     }, {});
 
-    const phieuDatTiecIds = Object.keys(phieuInfoMap);
     const maMonAnIds = monAnRecords.map((m) => m.MaMonAn);
+
+    if (maMonAnIds.length < 7) {
+      throw new Error(
+        `Bảng MONAN chỉ có ${maMonAnIds.length} món, cần ít nhất 7 món để chọn 4–7 món khác nhau.`
+      );
+    }
 
     const data = [];
 
-    for (const phieu of phieuDatTiecIds) {
-      const { totalBan, minPricePerTable } = phieuInfoMap[phieu];
+    for (const phieu of phieuDatTiecRecords) {
+      const soPhieuDatTiec = phieu.SoPhieuDatTiec;
+      const { totalBan, minPricePerTable } = phieuInfoMap[soPhieuDatTiec];
+
+      if (totalBan === 0) continue;
 
       let valid = false;
       let dishDetails = [];
-      let avgPerTable = 0;
 
-      // Lặp cho đến khi tổng giá món ăn/bàn >= đơn giá tối thiểu
       while (!valid) {
-        const numDishes = Math.floor(Math.random() * 5) + 4; // 5–8 món
+        const numDishes = Math.floor(Math.random() * 4) + 4; // 4–7 món
+
         const selectedDishes = [...maMonAnIds]
           .sort(() => Math.random() - 0.5)
           .slice(0, numDishes);
 
-        let tongTien = 0;
+        let tongDonGiaMon = 0;
         const tempData = [];
 
         for (const maMonAn of selectedDishes) {
           const soLuong = totalBan;
-          const donGia = dishUnitPrices[maMonAn];
-          const thanhTien = parseInt((soLuong * donGia).toFixed(2));
-          tongTien += thanhTien;
+          const donGiaMon = dishUnitPrices[maMonAn];
+          const donGia = parseInt((soLuong * donGiaMon).toFixed(2));
 
           tempData.push({
             MaMonAn: maMonAn,
-            SoPhieuDatTiec: phieu,
+            SoPhieuDatTiec: soPhieuDatTiec,
             SoLuong: soLuong,
-            DonGia: thanhTien,
-            GhiChu:
-              Math.random() > 0.7
-                ? `Ghi chú cho món ${maMonAn} trong ${phieu}`
-                : null,
+            DonGia: donGia,
           });
+
+          tongDonGiaMon += donGiaMon;
         }
 
-        avgPerTable = tongTien / totalBan;
-        if (avgPerTable >= minPricePerTable) {
+        if (
+          tongDonGiaMon >= minPricePerTable &&
+          tempData.length >= 4 &&
+          tempData.length <= 7
+        ) {
           valid = true;
           dishDetails = tempData;
         }

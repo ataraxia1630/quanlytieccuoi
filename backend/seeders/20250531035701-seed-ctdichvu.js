@@ -33,26 +33,26 @@ module.exports = {
     }, {});
 
     const data = [];
-    const phieuDatTiecIds = Array.from(
-      { length: 300 },
-      (_, i) => `PDT${(i + 1).toString().padStart(3, '0')}`
-    );
     const maDichVuIds = dichVuRecords.map((dichVu) => dichVu.MaDichVu);
 
-    for (const phieu of phieuDatTiecIds) {
-      // Chọn ngẫu nhiên 0–10 dịch vụ
-      const numServices = Math.floor(Math.random() * 11); // 0–10
+    for (const phieu of phieuDatTiecRecords) {
+      const soPhieuDatTiec = phieu.SoPhieuDatTiec;
+
+      // Random 0-9 dịch vụ
+      const numServices = Math.floor(Math.random() * 10);
       const selectedServices = maDichVuIds
         .sort(() => Math.random() - 0.5)
-        .slice(0, numServices);
+        .slice(0, Math.min(numServices, maDichVuIds.length));
 
       for (const maDichVu of selectedServices) {
-        const soLuong = Math.floor(Math.random() * 5) + 1; // 1–3
-        const donGia = soLuong * dichVuUnitPrices[maDichVu];
+        const soLuong = Math.floor(Math.random() * 3) + 1; // 1–3
+        const donGia = parseInt(
+          (soLuong * dichVuUnitPrices[maDichVu]).toFixed(2)
+        );
 
         data.push({
           MaDichVu: maDichVu,
-          SoPhieuDatTiec: phieu,
+          SoPhieuDatTiec: soPhieuDatTiec,
           SoLuong: soLuong,
           DonGia: donGia,
         });
