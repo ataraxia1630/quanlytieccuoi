@@ -42,8 +42,6 @@ module.exports.index = async (req, res) => {
     });
 
 
-    console.log(result[0].dsDichVu)
-
     res.json(result);
   } catch (error) {
     res.status(500).json({ message: "Lỗi server", error: error.message });
