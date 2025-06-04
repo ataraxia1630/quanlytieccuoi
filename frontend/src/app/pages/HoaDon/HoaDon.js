@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import styles from './HoaDon.module.css';
 import { createHoaDon, getHoaDon } from '../../service/hoadon.service';
 import { useLocation } from 'react-router-dom';
-import { Button, MenuItem, Select, TextField } from '@mui/material';
+import { Button, TextField } from '@mui/material';
 import CustomTable from '../../components/Customtable';
 import ActionButtons from '../../components/Actionbuttons';
 import AddButton from '../../components/Addbutton';
@@ -540,7 +540,7 @@ function HoaDon() {
         {isViewMode ?
           <div>
             <p className={styles.hoadonText} style={{ marginTop: '50px' }}>Tổng tiền dịch vụ: {form.TongTienDichVu ?? 0}</p>
-            <p className={styles.hoadonText}>Tổng tiền món ăn: {form.TongTienMonAn ?? 0}</p>
+            <p className={styles.hoadonText}>Tổng tiền bàn: {form.TongTienMonAn ?? 0}</p>
             <p className={styles.hoadonText}>Tổng tiền hoá đơn: {form.TongTienHoaDon}</p>
             <p className={styles.hoadonText}>Tiền đặt cọc: {tienCoc}</p>
             <p className={styles.hoadonText}>Tiền phạt: {form.TongTienPhat}</p>
@@ -657,7 +657,7 @@ function HoaDon() {
           {!isViewMode && <AddButton onClick={handleOpenDVDialog} text="Thêm dịch vụ" />}
 
 
-          {form.dsMonAn.length > 0 ? (
+          {/* {form.dsMonAn.length > 0 ? (
             <div>
               <div style={{ border: '1px solid rgba(224, 224, 224, 1)', marginTop: '30px' }}>
                 <CustomTable
@@ -672,7 +672,7 @@ function HoaDon() {
           ) : (
             <p style={{ color: 'white' }}>Không có dữ liệu món ăn.</p>
           )}
-          {!isViewMode && <AddButton onClick={handleOpenMADialog} text="Thêm món ăn" />}
+          {!isViewMode && <AddButton onClick={handleOpenMADialog} text="Thêm món ăn" />} */}
 
         </div>
 
@@ -691,20 +691,20 @@ function HoaDon() {
           onSelect={handleChonDichVu}
         />
 
-        <MonAnDialog
+        {/* <MonAnDialog
           open={isMADialogOpen}
           onClose={handleCloseMAEditDialog}
           onSave={handleSaveCT_MonAn}
           title={mode === "edit" ? "Chỉnh sửa món ăn" : "Thêm món ăn"}
           initialData={selectedMonAn}
           mode={mode}
-        />
-        <DanhSachMonAnDialog
+        /> */}
+        {/* <DanhSachMonAnDialog
           open={openMonAnDialog}
           title='Chọn món ăn để thêm'
           onClose={handleCloseMADialog}
           onSelect={handleChonMonAn}
-        />
+        /> */}
         <DeleteDialog
           open={isDeleteDVDialogOpen}
           onClose={handleCloseDVDeleteDialog}
@@ -712,13 +712,13 @@ function HoaDon() {
           title="Xác nhận xóa dịch vụ"
           content={`Bạn có chắc chắn muốn xóa dịch vụ "${selectedDichVu?.TenDichVu}"?`}
         />
-        <DeleteDialog
+        {/* <DeleteDialog
           open={isDeleteMADialogOpen}
           onClose={handleCloseMADeleteDialog}
           onDelete={acceptDeleteMA}
           title="Xác nhận xóa món ăn"
           content={`Bạn có chắc chắn muốn xóa món ăn "${selectedMonAn?.TenMonAn}"?`}
-        />
+        /> */}
       </div>
     </div>
   );
