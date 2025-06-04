@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -127,10 +127,23 @@ module.exports = {
         },
       ],
       {}
-    )
+    );
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('DICHVU', null, {})
+    const maDichVuList = Array.from(
+      { length: 20 },
+      (_, i) => `DV${(i + 1).toString().padStart(3, '0')}`
+    );
+
+    await queryInterface.bulkDelete(
+      'DICHVU',
+      {
+        MaDichVu: {
+          [Sequelize.Op.in]: maDichVuList,
+        },
+      },
+      {}
+    );
   },
-}
+};

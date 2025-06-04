@@ -58,7 +58,7 @@ module.exports = {
         allowNull: false,
       },
       TrangThai: {
-        type: Sequelize.BOOLEAN,
+        type: Sequelize.STRING(50),
         defaultValue: true,
       },
     });

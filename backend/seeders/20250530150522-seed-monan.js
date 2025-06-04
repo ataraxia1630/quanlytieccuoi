@@ -195,8 +195,8 @@ const getRandomTinhTrang = () => {
 };
 
 const getRandomDonGia = () => {
-  const min = 110000;
-  const max = 450000;
+  const min = 500000;
+  const max = 900000;
   const step = 1000;
 
   const range = Math.floor((max - min) / step) + 1;
@@ -218,6 +218,19 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('MONAN', null, {});
+    const maMonAnList = Array.from(
+      { length: 40 }, // Cập nhật lại khi seed nhiều món ăn hơn
+      (_, i) => `MA${String(i + 1).padStart(3, '0')}`
+    );
+
+    await queryInterface.bulkDelete(
+      'MONAN',
+      {
+        MaMonAn: {
+          [Sequelize.Op.in]: maMonAnList,
+        },
+      },
+      {}
+    );
   },
 };

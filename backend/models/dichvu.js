@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
    },
    TinhTrang: {
      type: DataTypes.STRING(100),
-     allowNull: true,
+     allowNull: false,
    }
  }, {
    tableName: 'DICHVU',
