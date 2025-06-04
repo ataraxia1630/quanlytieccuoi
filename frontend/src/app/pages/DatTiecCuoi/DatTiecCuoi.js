@@ -16,7 +16,6 @@ const DatTiecCuoi = () => {
 
 
   const steps = useMemo(() => [{ label: 'Đặt tiệc cưới', path: '/DashBoard/DatTiecCuoi/ThongTinTiecCuoi' },
-  { label: 'Đặt sảnh', path: '/DashBoard/DatTiecCuoi/DatSanhTiec' },
   { label: 'Đặt món ăn', path: '/DashBoard/DatTiecCuoi/DatMonAn' },
   { label: 'Dịch vụ bổ sung', path: '/DashBoard/DatTiecCuoi/DatDichVu' },
   ], []);
@@ -52,6 +51,16 @@ const DatTiecCuoi = () => {
 
   const handleNav = (step = -1) => {
     const nextStep = step === -1 ? activeStep + 1 : step;
+    let path;
+
+    if (nextStep === activeStep || nextStep < -1) return;
+    if (nextStep >= steps.length) {
+      nextStep = 0;
+      path = "/DashBoard/DanhSachTiecCuoi";
+    }
+    else {
+      path = steps[nextStep].path;
+    }
     localStorage.setItem("currentStep", nextStep);
     setActiveStep(nextStep);
     navigate(steps[nextStep].path);
@@ -64,18 +73,22 @@ const DatTiecCuoi = () => {
     if (isNaN(savedStep)) {
       savedStep = 0
     }
+    if (savedStep >= steps.length) {
+      savedStep = steps.length - 1; // Đặt lại về bước đầu tiên nếu không hợp lệ
+      localStorage.setItem("currentStep", savedStep);
+    }
     setActiveStep(savedStep);
     navigate(steps[savedStep].path);
 
   }, [navigate, steps]);
   return (
     <StepContext.Provider value={{ handleNav }}>
-      <Box sx={{ flex: 1, display: 'flex', width: '100vw', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <Box sx={{ flex: 1, display: 'flex', px: 3, flexDirection: 'column', justifyContent: 'space-between' }}>
         {/* Stepper */}
         <div className='stepper-container'>
           <CustomStepper activeStep={activeStep} sx={{ mb: 4, width: '100%', px: 15 }}>
             {steps.map((step, index) => (
-              <Step key={step.label} style={{ cursor: "pointer" }} onClick={() => { if (index < activeStep) handleNav(index) }}>
+              <Step key={step.label} style={{ cursor: "pointer" }} onClick={() => { if (localStorage.getItem("currentPDT") !== "null") { handleNav(index) } }}>
                 <StepLabel>{step.label}</StepLabel>
               </Step>
             ))}

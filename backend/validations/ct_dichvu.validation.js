@@ -11,6 +11,7 @@ const ctDichVuValidation = {
       .matches(/^PDT\d{3}$/)
       .withMessage("Số phiếu đặt tiệc phải có định dạng PDTxxx (x là chữ số)."),
   ],
+
   getCTDichVuById: [
     param("maDichVu")
       .trim()

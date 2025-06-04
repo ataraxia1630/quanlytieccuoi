@@ -198,10 +198,7 @@ function DanhSachTiecCuoi() {
                 options={options1}
               />
 
-              <div className="apply">
-                <FilterButton text='Apply' onClick={handleSubmit} />
-                <FilterButton text='Reset' onClick={handleResetFilter} />
-              </div>
+
 
             </div>
 
@@ -232,18 +229,22 @@ function DanhSachTiecCuoi() {
               onChange={(val) => setForm({ ...form, trangThai: val })}
               options={options}
             />
+            <div className="apply" >
+              <FilterButton text='Apply' onClick={handleSubmit} />
+              <FilterButton text='Reset' onClick={handleResetFilter} />
+            </div>
 
-            
+
           </div>
         </div>
       }
       <DeleteDialog
-              open={isDeleteDialogOpen}
-              onClose={handleCloseDeleteDialog}
-              onDelete={acceptDelete}
-              title="Xác nhận xóa phiếu đặt tiệc"
-              content={`Bạn có chắc chắn muốn xoá phiếu đặt tiệc này?`}
-            />
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onDelete={acceptDelete}
+        title="Xác nhận xóa phiếu đặt tiệc"
+        content={`Bạn có chắc chắn muốn xoá phiếu đặt tiệc này?`}
+      />
       {
         loading ? (
           <p style={{ padding: 24 }}>Đang tải dữ liệu...</p>
@@ -253,7 +254,7 @@ function DanhSachTiecCuoi() {
             columns={phieuData}
             onDelete={handleDelete}
           />
-          
+
         )
       }
     </Box>

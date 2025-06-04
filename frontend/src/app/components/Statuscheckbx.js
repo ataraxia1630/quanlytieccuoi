@@ -42,7 +42,11 @@ const StatusCheckbox = ({
                 }}
               />
             }
-            label={option.label}
+            label={
+              <Typography sx={{ mb: 0 }}>
+                {option.label}
+              </Typography>
+            }
           />
         ))}
       </Box>

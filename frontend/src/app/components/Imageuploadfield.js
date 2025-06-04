@@ -35,6 +35,7 @@ const ImageUploadField = ({ imagePath, onClear, onSelect }) => (
           </IconButton>
         ),
         sx: {
+          margin: "auto",
           bgcolor: "white",
           height: "55px",
           borderRadius: "0 4px 4px 0",

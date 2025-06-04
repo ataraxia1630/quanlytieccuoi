@@ -33,7 +33,7 @@ const getSanhById = async (maSanh) => {
         const sanh = await Sanh.findByPk(maSanh, {
             include: [{ model: LoaiSanh, attributes: ['MaLoaiSanh', 'TenLoaiSanh'] }]
         });
-        return sanh;    
+        return sanh;
     } catch (error) {
         throw new ApiError(500, 'Lỗi khi lấy thông tin sảnh: ' + error.message);
     }
@@ -80,10 +80,10 @@ const createSanh = async ({ MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, Gh
             HinhAnh: imageUrl,
             GhiChu
         });
-        } catch (error) {
-            if (error.name === 'ApiError') throw error;
-            throw new ApiError(500, 'Lỗi khi thêm sảnh: ' + error.message);
-        }
+    } catch (error) {
+        if (error.name === 'ApiError') throw error;
+        throw new ApiError(500, 'Lỗi khi thêm sảnh: ' + error.message);
+    }
 };
 
 const updateSanh = async (maSanh, { MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, GhiChu }) => {
@@ -148,33 +148,34 @@ const deleteSanh = async (maSanh) => {
 };
 
 const searchAndFilterSanh = async ({ maSanh, tenSanh, maLoaiSanh, minSoLuongBan, maxSoLuongBan, sortBy, sortOrder }) => {
-  try {
-    const where = {};
-    if (maSanh || tenSanh) {
-      where[Op.or] = [];
-      if (maSanh) where[Op.or].push({ MaSanh: { [Op.like]: `%${maSanh}%` } });
-      if (tenSanh) where[Op.or].push({ TenSanh: { [Op.like]: `%${tenSanh}%` } });
+    try {
+        const where = {};
+        if (maSanh || tenSanh) {
+            where[Op.or] = [];
+            if (maSanh) where[Op.or].push({ MaSanh: { [Op.like]: `%${maSanh}%` } });
+            if (tenSanh) where[Op.or].push({ TenSanh: { [Op.like]: `%${tenSanh}%` } });
+        }
+        if (maLoaiSanh) where.MaLoaiSanh = maLoaiSanh;
+        if (minSoLuongBan || maxSoLuongBan) {
+            where.SoLuongBanToiDa = {};
+            if (minSoLuongBan) where.SoLuongBanToiDa[Op.gte] = parseInt(minSoLuongBan);
+            if (maxSoLuongBan) where.SoLuongBanToiDa[Op.lte] = parseInt(maxSoLuongBan);
+        }
+
+        const order = sortBy && sortOrder ? [[sortBy, sortOrder]] : [['MaSanh', 'ASC']];
+
+        const sanhs = await Sanh.findAll({
+            where,
+            order,
+            include: [{ model: LoaiSanh, attributes: ['MaLoaiSanh', 'TenLoaiSanh'] }]
+        });
+
+        return sanhs;
+    } catch (error) {
+        throw new ApiError(500, 'Lỗi khi tìm kiếm và lọc sảnh: ' + error.message);
     }
-    if (maLoaiSanh) where.MaLoaiSanh = maLoaiSanh;
-    if (minSoLuongBan || maxSoLuongBan) {
-      where.SoLuongBanToiDa = {};
-      if (minSoLuongBan) where.SoLuongBanToiDa[Op.gte] = parseInt(minSoLuongBan);
-      if (maxSoLuongBan) where.SoLuongBanToiDa[Op.lte] = parseInt(maxSoLuongBan);
-    }
-
-    const order = sortBy && sortOrder ? [[sortBy, sortOrder]] : [['MaSanh', 'ASC']];
-
-    const sanhs = await Sanh.findAll({
-      where,
-      order,
-      include: [{ model: LoaiSanh, attributes: ['MaLoaiSanh', 'TenLoaiSanh'] }]
-    });
-
-    return sanhs;
-  } catch (error) {
-    throw new ApiError(500, 'Lỗi khi tìm kiếm và lọc sảnh: ' + error.message);
-  }
 };
+
 
 const uploadImage = async (maSanh, fileBuffer) => {
     try {

@@ -25,27 +25,27 @@ module.exports = {
         allowNull: false,
       },
       SoLuongBanDaDung: {
-        type: Sequelize.TINYINT,
+        type: Sequelize.TINYINT.UNSIGNED,
         allowNull: false,
       },
       TongTienDichVu: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienMonAn: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienHoaDon: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       TongTienPhat: {
-        type: Sequelize.DECIMAL(10, 2),
-        allowNull: true,
+        type: Sequelize.DECIMAL(18, 2),
+        allowNull: false,
       },
       TienConLai: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
     });

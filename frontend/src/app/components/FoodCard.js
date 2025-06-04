@@ -27,7 +27,7 @@ function FoodCard({ food, onClick }) {
     };
 
     return (
-        <Card sx={{ width: 350, borderRadius: 2, boxShadow: 3 }}>
+        <Card sx={{ width: '85%', borderRadius: 2, boxShadow: 3 }}>
             {/* Ảnh */}
             <CardMedia
                 component="img"
@@ -40,7 +40,12 @@ function FoodCard({ food, onClick }) {
             {/* Tiêu đề & Giá */}
             <CardContent>
                 <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="h6" component="h2">
+                    <Typography variant="h6" component="h2" sx={{
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        maxWidth: '60%',
+                    }}>
                         {food.TenMonAn}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">

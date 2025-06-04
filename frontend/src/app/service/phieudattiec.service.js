@@ -56,7 +56,7 @@ const PhieuDatTiecService = {
     },
 
 
-    updatePhieuDatTiec: async ({ id, data }) => {
+    updatePhieuDatTiec: async (id, data) => {
         try {
             const response = await axios.put(`/api/phieudattiec/${id}`, data);
             return response.data;

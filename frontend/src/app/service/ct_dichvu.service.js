@@ -4,7 +4,7 @@ const API_BASE_URL = 'http://localhost:3000/api'; // thay bằng địa chỉ ba
 // export const getAllDichVu = async (soPhieuDatTiec) => {
 //   try {
 //     const response = await fetch(`http://localhost:3000/api/ct-dichvu/${soPhieuDatTiec}`);
-    
+
 //     if (!response.ok) {
 //       throw new Error('Không thể lấy dữ liệu từ server');
 //     }
@@ -19,7 +19,7 @@ const API_BASE_URL = 'http://localhost:3000/api'; // thay bằng địa chỉ ba
 // export const getChiTietDichVu = async (soPhieuDatTiec, maDichVu) => {
 //   try {
 //     const response = await fetch(`http://localhost:3000/api/ct-dichvu/${soPhieuDatTiec}/${maDichVu}`);
-    
+
 //     if (!response.ok) {
 //       throw new Error('Lỗi khi lấy danh sách chi tiết dịch vụ');
 //     }
@@ -40,7 +40,7 @@ export const getAllCTDichVuByPDTId = async (soPhieuDatTiec) => {
       throw new Error('Không thể lấy danh sách chi tiết dịch vụ');
     }
     const data = await response.json();
-    return data; 
+    return data;
   } catch (error) {
     console.error('Lỗi khi gọi API:', error);
     throw error;

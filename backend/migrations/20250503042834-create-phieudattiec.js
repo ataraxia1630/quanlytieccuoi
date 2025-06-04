@@ -42,15 +42,15 @@ module.exports = {
         onDelete: "CASCADE",
       },
       TienDatCoc: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       SoLuongBan: {
-        type: Sequelize.TINYINT,
+        type: Sequelize.TINYINT.UNSIGNED,
         allowNull: false,
       },
       SoBanDuTru: {
-        type: Sequelize.TINYINT,
+        type: Sequelize.TINYINT.UNSIGNED,
         allowNull: true,
       },
       NgayDatTiec: {

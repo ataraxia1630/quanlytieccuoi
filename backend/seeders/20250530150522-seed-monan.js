@@ -1,32 +1,37 @@
-'use strict'
+'use strict';
 
 const { AVAILABLE, UNAVAILABLE, NO_LONGER_AVAILABLE } = {
   AVAILABLE: 'AVAILABLE',
   UNAVAILABLE: 'UNAVAILABLE',
   NO_LONGER_AVAILABLE: 'NO_LONGER_AVAILABLE',
-}
+};
 
 const foodData = [
   {
     TenMonAn: 'Cá hồi tẩm bột chiên giòn dùng với gỏi xoài Thái',
-    HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656529/xdmdlys7hpgv6ju2kiie.jpg',
+    HinhAnh:
+      'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656529/xdmdlys7hpgv6ju2kiie.jpg',
   },
   {
     TenMonAn: 'Tôm cuộn khoai môn chiên giòn sốt tartar',
-    HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656585/mzys6codztqyytdqgaby.jpg',
+    HinhAnh:
+      'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656585/mzys6codztqyytdqgaby.jpg',
   },
   {
     TenMonAn: 'Salad củ hũ dừa và tôm càng sốt cay',
-    HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656642/zee7gqfa02dingybbwvn.jpg',
+    HinhAnh:
+      'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656642/zee7gqfa02dingybbwvn.jpg',
   },
   {
     TenMonAn:
-      'Cánh gà nướng sốt BBQ dùng vời salad - Ba rọi cuộn nấm sốt phô mai',
-    HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656693/oyrzmspm12i7py3iu1o7.jpg',
+      'Cánh gà nướng sốt BBQ dùng với salad - Ba rọi cuộn nấm sốt phô mai',
+    HinhAnh:
+      'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656693/oyrzmspm12i7py3iu1o7.jpg',
   },
   {
     TenMonAn: 'Củ sen bách hoa sốt chua ngọt',
-    HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656759/s7ebahivpg8h8ntpsbj9.jpg',
+    HinhAnh:
+      'https://res.cloudinary.com/digpe9tmq/image/upload/v1748656759/s7ebahivpg8h8ntpsbj9.jpg',
   },
   {
     TenMonAn: 'Mực xuyên tiêu sốt tamarind',
@@ -38,7 +43,7 @@ const foodData = [
       'https://riversidepalace.vn/resizemultidata/soup-consomme-bo-cau-318.jpg',
   },
   {
-    TenMonAn: 'Phi lê cá tâm đút lò sốt Teriyaki',
+    TenMonAn: 'Phi lê cá tầm đút lò sốt Teriyaki',
     HinhAnh:
       'https://riversidepalace.vn/resizemultidata/phi-le-ca-tam-dut-lo-sot-teriyaki.jpg',
   },
@@ -53,7 +58,7 @@ const foodData = [
       'https://riversidepalace.vn/resizemultidata/chan-be-nuong-rau-cu-ratatoille.jpg',
   },
   {
-    TenMonAn: 'Mỳ Ý sốt cà ri - Bò cuôn phô mai nướng',
+    TenMonAn: 'Mỳ Ý sốt cà ri - Bò cuộn phô mai nướng',
     HinhAnh:
       'https://riversidepalace.vn/resizemultidata/my-y-sot-ca-ri-bo-cuon-pho-mai-nuong.jpg',
   },
@@ -180,18 +185,24 @@ const foodData = [
     HinhAnh:
       'https://res.cloudinary.com/digpe9tmq/image/upload/v1748492703/ufzhn9ey1jeyh7xy2ku3.png',
   },
-]
+];
 
 const getRandomTinhTrang = () => {
-  const rand = Math.random()
-  if (rand < 0.7) return AVAILABLE
-  if (rand < 0.9) return UNAVAILABLE
-  return NO_LONGER_AVAILABLE
-}
+  const rand = Math.random();
+  if (rand < 0.7) return AVAILABLE;
+  if (rand < 0.9) return UNAVAILABLE;
+  return NO_LONGER_AVAILABLE;
+};
 
 const getRandomDonGia = () => {
-  return parseFloat((Math.random() * (370000 - 110000) + 110000).toFixed(2))
-}
+  const min = 110000;
+  const max = 450000;
+  const step = 1000;
+
+  const range = Math.floor((max - min) / step) + 1;
+  const randomStep = Math.floor(Math.random() * range);
+  return min + randomStep * step;
+};
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -201,12 +212,12 @@ module.exports = {
       DonGia: getRandomDonGia(),
       HinhAnh: item.HinhAnh,
       TinhTrang: getRandomTinhTrang(),
-    }))
+    }));
 
-    await queryInterface.bulkInsert('MONAN', seedData, {})
+    await queryInterface.bulkInsert('MONAN', seedData, {});
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('MONAN', null, {})
+    await queryInterface.bulkDelete('MONAN', null, {});
   },
-}
+};

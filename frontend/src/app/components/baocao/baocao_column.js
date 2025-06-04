@@ -1,9 +1,22 @@
 const ReportColumns = [
   {
+    id: 'index',
+    label: 'STT',
+    sortable: false,
+    width: 50,
+  },
+  {
     id: 'Ngay',
     label: 'Ngày',
     sortable: true,
     width: 150,
+    render: (row) => {
+      const dateParts = row.Ngay.split('-');
+      if (dateParts.length === 3) {
+        return `${dateParts[2].split('T')[0]}/${dateParts[1]}/${dateParts[0]}`;
+      }
+      return row.Ngay;
+    },
   },
   {
     id: 'SoLuongTiec',
@@ -23,7 +36,7 @@ const ReportColumns = [
     label: 'Tỷ lệ (%)',
     sortable: true,
     width: 150,
-    render: (row) => (row.TiLe || 0).toFixed(2),
+    render: (row) => (parseFloat(row.TiLe) || 0).toFixed(2),
   },
 ];
 
