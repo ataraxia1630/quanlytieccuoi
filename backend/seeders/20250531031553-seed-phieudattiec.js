@@ -221,9 +221,9 @@ module.exports = {
       const maSanh = phieu.MaSanh;
       const soLuongBanToiDa = soLuongBanToiDaMap[maSanh];
 
-      // Random số lượng bàn đặt trong khoảng 70%–90% của số lượng tối đa
+      // Random số lượng bàn đặt trong khoảng 70%–80% của số lượng tối đa
       const minBan = Math.floor(soLuongBanToiDa * 0.7);
-      const maxBan = Math.floor(soLuongBanToiDa * 0.9);
+      const maxBan = Math.floor(soLuongBanToiDa * 0.8);
       const soLuongBan = Math.min(
         Math.floor(Math.random() * (maxBan - minBan + 1)) + minBan
       );
@@ -233,10 +233,10 @@ module.exports = {
       const soBanDuTru =
         Math.random() > 0.3 && maxDuTru > 0
           ? Math.min(
-              Math.floor(Math.random() * Math.min(5, maxDuTru)) + 1,
+              Math.floor(Math.random() * Math.min(15, maxDuTru)) + 1, // 1- 15 bàn
               255 - soLuongBan
             )
-          : null;
+          : 0;
 
       data.push({
         SoPhieuDatTiec: phieu.SoPhieuDatTiec,
@@ -261,7 +261,20 @@ module.exports = {
     await queryInterface.bulkInsert('PHIEUDATTIEC', data, {});
   },
 
-  async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('PHIEUDATTIEC', null, {});
+  down: async (queryInterface, Sequelize) => {
+    const maPhieuList = Array.from(
+      { length: 300 },
+      (_, i) => `PDT${String(i + 1).padStart(3, '0')}`
+    );
+
+    await queryInterface.bulkDelete(
+      'PHIEUDATTIEC',
+      {
+        SoPhieuDatTiec: {
+          [Sequelize.Op.in]: maPhieuList,
+        },
+      },
+      {}
+    );
   },
 };

@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const sanhData = [
   { TenSanh: 'Sảnh Hồng Ngọc', MaLoaiSanh: 'LS004' },
@@ -17,43 +17,43 @@ const sanhData = [
   { TenSanh: 'Sảnh Ánh Dương', MaLoaiSanh: 'LS001' },
   { TenSanh: 'Sảnh Giai Điệu', MaLoaiSanh: 'LS003' },
   { TenSanh: 'Sảnh Thanh Lịch', MaLoaiSanh: 'LS002' },
-]
+];
 
 // Hàm random bàn tối đa
 const getRandomBanToiDa = (loai) => {
   switch (loai) {
     case 'LS001':
-      return Math.floor(Math.random() * 31) + 50 // 50–80
+      return Math.floor(Math.random() * 31) + 50; // 50–80
     case 'LS002':
-      return Math.floor(Math.random() * 41) + 70 // 70–110
+      return Math.floor(Math.random() * 41) + 70; // 70–110
     case 'LS003':
-      return Math.floor(Math.random() * 41) + 100 // 100–140
+      return Math.floor(Math.random() * 41) + 100; // 100–140
     case 'LS004':
-      return Math.floor(Math.random() * 41) + 130 // 130–170
+      return Math.floor(Math.random() * 41) + 130; // 130–170
     case 'LS005':
-      return Math.min(Math.floor(Math.random() * 51) + 150) // 150–200
+      return Math.min(Math.floor(Math.random() * 51) + 150); // 150–200
     default:
-      return 100
+      return 100;
   }
-}
+};
 
 const imageOptions = [
   // Thêm ảnh vào nếu có
-]
+];
 
 // Tạo shuffle để không bị random ảnh trùng
 const shuffle = (array) => {
-  const arr = [...array]
+  const arr = [...array];
   for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  return arr
-}
+  return arr;
+};
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    const shuffledImages = shuffle(imageOptions)
+    const shuffledImages = shuffle(imageOptions);
 
     const data = sanhData.map((item, index) => ({
       MaSanh: `S${String(index + 1).padStart(3, '0')}`,
@@ -62,12 +62,25 @@ module.exports = {
       SoLuongBanToiDa: getRandomBanToiDa(item.MaLoaiSanh),
       HinhAnh: shuffledImages[index] || null,
       GhiChu: null,
-    }))
+    }));
 
-    await queryInterface.bulkInsert('SANH', data, {})
+    await queryInterface.bulkInsert('SANH', data, {});
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('SANH', null, {})
+    const maSanhList = Array.from(
+      { length: 16 },
+      (_, i) => `S${String(i + 1).padStart(3, '0')}`
+    );
+
+    await queryInterface.bulkDelete(
+      'SANH',
+      {
+        MaSanh: {
+          [Sequelize.Op.in]: maSanhList,
+        },
+      },
+      {}
+    );
   },
-}
+};

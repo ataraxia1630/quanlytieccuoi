@@ -218,6 +218,19 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('MONAN', null, {});
+    const maMonAnList = Array.from(
+      { length: 40 }, // Cập nhật lại khi seed nhiều món ăn hơn
+      (_, i) => `MA${String(i + 1).padStart(3, '0')}`
+    );
+
+    await queryInterface.bulkDelete(
+      'MONAN',
+      {
+        MaMonAn: {
+          [Sequelize.Op.in]: maMonAnList,
+        },
+      },
+      {}
+    );
   },
 };

@@ -123,6 +123,15 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('HOADON', null, {})
+    const maHoaDonList = Array.from(
+      { length: 300 },
+      (_, i) => `HD${String(i + 1).padStart(3, '0')}`
+    );
+
+    await queryInterface.bulkDelete('HOADON', {
+      SoHoaDon: {
+        [Sequelize.Op.in]: maHoaDonList,
+      },
+    });
   },
 }
