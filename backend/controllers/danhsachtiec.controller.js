@@ -41,7 +41,6 @@ module.exports.filter = async (req, res) => {
     };
   }
   if (typeof trangThai === 'boolean') {
-    console.log("trangThai", trangThai);
     where.trangthai = trangThai;
   }
 
@@ -54,7 +53,6 @@ module.exports.filter = async (req, res) => {
       },
     ],
   });
-  console.log(danhSach);
   res.json(danhSach);
 };
 // GET http://localhost:25053/api/danhsachtiec/detail/:id

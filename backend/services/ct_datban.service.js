@@ -19,7 +19,7 @@ const CTDatBanService = {
             });
 
         } catch (error) {
-            throw new ApiError(500, "Không thể lấy danh sách đặt bàn theo phiếu đặt tiệc : ${pdtId}");
+            throw new ApiError(500, `Không thể lấy danh sách đặt bàn theo phiếu đặt tiệc : ${pdtId}`);
         }
     },
 

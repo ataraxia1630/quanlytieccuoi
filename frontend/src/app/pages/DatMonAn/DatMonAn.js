@@ -11,6 +11,8 @@ import defaultColumns from '../../components/ct_datban/ct_datban_default_column'
 import EditCTDatBanDialog from '../../components/ct_datban/ct_datban_edit_dialog';
 import CustomTable from "../../components/Customtable";
 import { Typography } from '@mui/material';
+import DeleteDialog from '../../components/Deletedialog';
+import { set } from 'date-fns';
 
 
 
@@ -21,6 +23,7 @@ function DatMonAn() {
   const [openDialog, setOpenDialog] = useState(false);
   const [currentPDT, setCurrentPDT] = useState(null)
   const [ctdatbanToEdit, setCtdatbanToEdit] = useState(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   // Mock data
   const mockItems = useMemo(() => [
@@ -65,14 +68,8 @@ function DatMonAn() {
   // fetch data món ăn từ db
   const fetchValidFoods = useCallback(async () => {
     try {
-      await toast.promise(
-        MonAnService.getAvailableMonAn(),
-        {
-          loading: "Đang xử lý...",
-          success: "Tải dữ liệu món ăn thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      ).then((data) => setFoods(data.data)); // set dữ liệu nếu thành công
+      const data = await MonAnService.getAvailableMonAn();
+      setFoods(data.data); // set dữ liệu nếu thành công
     } catch (error) {
       toast.error(error.message || "lỗi khi tải món ăn");
     }
@@ -85,14 +82,8 @@ function DatMonAn() {
         console.error("không lấy được phiếu đặt tiệc hiện tại");
         return;
       }
-      await toast.promise(
-        ctDatBanService.getAllByPhieuDatTiecId(currentPDT),
-        {
-          loading: "Đang xử lý...",
-          success: "Tải dữ liệu thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      ).then((data) => setReservedFoods(data)); // set dữ liệu nếu thành công
+      const data = await ctDatBanService.getAllByPhieuDatTiecId(currentPDT);
+      setReservedFoods(data); // set dữ liệu nếu thành công
     } catch (error) {
       toast.error(error.message || "lỗi khi tải chi tiết đặt bàn");
     }
@@ -105,24 +96,17 @@ function DatMonAn() {
         console.error("không lấy được phiếu đặt tiệc hiện tại");
         return;
       }
-      const data = await toast.promise(
-        ctDatBanService.update(currentPDT, MaMonAn, {
-          SoLuong,
-          DonGia,
-          GhiChu,
-        }),
-        {
-          loading: "Đang xử lý...",
-          success: "cập nhật thông tin đặt món thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      );
-      console.log("return data: ", data)
+
+      const data = await ctDatBanService.update(currentPDT, MaMonAn, {
+        SoLuong,
+        DonGia,
+        GhiChu,
+      });
       const temp = reservedFoods.map(item =>
         item.MaMonAn === MaMonAn && item.SoPhieuDatTiec === currentPDT ? { ...item, ...data.data } : item
       );
-
       setReservedFoods(temp);
+      toast.success("cập nhật chi tiết đặt món thành công!")
     } catch (err) {
       toast.error(err.message || "lỗi khi cập nhật chi tiết đặt bàn");
     }
@@ -131,14 +115,6 @@ function DatMonAn() {
   // thêm/cập nhật chi đặt bàn tiêc vào bảng thông tin
   const AddReservedFood = useCallback(async ({ MaMonAn, SoLuong, DonGia, GhiChu }) => {
     try {
-      console.log("current pdt:", currentPDT)
-      console.log("CTDB", {
-        MaMonAn,
-        SoPhieuDatTiec: currentPDT,
-        SoLuong,
-        DonGia,
-        GhiChu,
-      })
       const exists = reservedFoods.some(item => item.MaMonAn === MaMonAn);
       if (exists) {
         updateReservedFood({ MaMonAn, SoLuong, DonGia, GhiChu });
@@ -149,22 +125,16 @@ function DatMonAn() {
         console.error("không lấy được phiếu đặt tiệc hiện tại");
         return;
       }
-      const data = await toast.promise(
-        ctDatBanService.create({
-          MaMonAn,
-          SoPhieuDatTiec: currentPDT,
-          SoLuong,
-          DonGia,
-          GhiChu,
-        }),
-        {
-          loading: "Đang xử lý...",
-          success: "Đặt món ăn thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      );
+      const data = await ctDatBanService.create({
+        MaMonAn,
+        SoPhieuDatTiec: currentPDT,
+        SoLuong,
+        DonGia,
+        GhiChu,
+      });
 
       setReservedFoods((preData) => [...preData, data.data]);
+      toast.success("Đặt món thành công!")
     } catch (err) {
       toast.error(err.message || "lỗi khi thêm chi tiết đặt bàn");
     }
@@ -177,16 +147,10 @@ function DatMonAn() {
         console.error("không lấy được phiếu đặt tiệc hiện tại");
         return;
       }
-      await toast.promise(
-        ctDatBanService.remove(currentPDT, MaMonAn),
-        {
-          loading: "Đang xử lý...",
-          success: "xóa thông tin đặt món thành công!",
-          error: (err) => "Lỗi: " + err.message,
-        }
-      );
+      await ctDatBanService.remove(currentPDT, MaMonAn);
       const temp = reservedFoods.filter(item => !(item.MaMonAn === MaMonAn && item.SoPhieuDatTiec === currentPDT));
       setReservedFoods(temp);
+      toast.success("xóa chi tiết đặt món thành công!")
     } catch (err) {
       toast.error(err.message || "lỗi khi xóa chi tiết đặt bàn");
     }
@@ -251,17 +215,30 @@ function DatMonAn() {
     setCtdatbanToEdit(data);
   };
   const handleSave = async (data) => {
-    updateReservedFood(data)
+    setOpenDialog(false)
+    await updateReservedFood(data);
+    setCtdatbanToEdit(null);
   };
   const handleDelete = async (data) => {
-    RemoveReservedFood(data)
+    setIsDeleteDialogOpen(true);
+    setCtdatbanToEdit(data);
   };
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setCtdatbanToEdit(null);
   }
 
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setCtdatbanToEdit(null);
+    toast.info('Đã hủy xóa chi tiết đặt món');
+  };
 
+  const acceptDelete = async () => {
+    setIsDeleteDialogOpen(false);
+    RemoveReservedFood(ctdatbanToEdit);
+    setCtdatbanToEdit(null);
+  };
 
   return (
     <div className="page">
@@ -282,7 +259,12 @@ function DatMonAn() {
           onDelete={handleDelete}
         />
       </div>
-
+      <DeleteDialog
+        open={isDeleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        onDelete={acceptDelete}
+        title={'Xác nhận xóa'}
+      />
 
       <EditCTDatBanDialog
         open={openDialog}

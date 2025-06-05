@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import useValidation from '../../validation/validation';
+import { set } from "date-fns";
 
 const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
     const { validateNumberField } = useValidation();
@@ -59,7 +60,7 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
         if (name === "SoLuong" || name === "DonGia") {
 
             setFormData({ ...formData, [name]: value });
-            validateNumberField(name, value);
+            validateNumberField(name, value, setErrors);
         } else {
             setFormData({ ...formData, [name]: value });
         }
@@ -79,6 +80,7 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
             DonGia,
             GhiChu
         };
+
         onSave(formattedData);
     };
 
@@ -168,7 +170,7 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
                         textCancel={"Hủy"}
                         text={"Lưu"}
                         onCancel={onClose}
-                        onSave={handleSave}
+                        onAction={handleSave}
                     />
                 </Box>
             </DialogContent>

@@ -9,7 +9,7 @@ const apiClient = axios.create({
 });
 
 const DichVuService = {
-  getAllDichVu: async (limit = 10, offset = 0) => {
+  getAllDichVu: async (limit = 50, offset = 0) => {
     try {
       const response = await apiClient.get("/", { params: { limit, offset } });
       return response.data;
@@ -31,7 +31,7 @@ const DichVuService = {
     }
   },
 
-  getActiveDichVu: async (limit = 10, offset = 0) => {
+  getActiveDichVu: async (limit = 50, offset = 0) => {
     try {
       const response = await apiClient.get("/active", {
         params: { limit, offset },
@@ -45,7 +45,7 @@ const DichVuService = {
     }
   },
 
-  searchDichVu: async (searchParams = {}, limit = 10, offset = 0) => {
+  searchDichVu: async (searchParams = {}, limit = 50, offset = 0) => {
     try {
       const params = { ...searchParams, limit, offset };
       Object.keys(params).forEach((key) => {

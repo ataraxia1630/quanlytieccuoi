@@ -10,7 +10,7 @@ const defaultColumns = [
     },
     {
         id: "TenDichVu",
-        label: "Tên món ăn",
+        label: "Tên Dịch Vụ",
         sortable: true,
         width: 150,
     },
