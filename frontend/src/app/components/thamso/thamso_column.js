@@ -20,7 +20,7 @@ const ThamSoColumn = [
     width: 100,
   },
   {
-    id: 'TenThamSo',
+    id: 'displayName',
     label: 'Tên quy định',
     sortable: true,
     width: 300,
@@ -30,6 +30,15 @@ const ThamSoColumn = [
     label: 'Giá trị',
     sortable: true,
     width: 150,
+    render: (row) => {
+      if (row.TenThamSo === 'TyLePhat') {
+        return `${row.GiaTri}%`;
+      }
+      if (row.TenThamSo === 'ApDungQDPhatThanhToanTre') {
+        return row.GiaTri === 1 ? 'Áp dụng' : 'Không áp dụng';
+      }
+      return `${row.GiaTri}`;
+    },
   },
   {
     id: 'actions',

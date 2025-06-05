@@ -2,6 +2,16 @@ const { ThamSo } = require('../models');
 const { Op } = require('sequelize');
 const ApiError = require('../utils/apiError');
 
+// Chuẩn hóa chuỗi tìm kiếm
+const normalizeString = (str) => {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, '')
+    .trim();
+};
+
 const nameMap = {
   ThoiDiemThanhToanSoVoiNgayDaiTiec:
     'Thời điểm thanh toán so với ngày đãi tiệc',
@@ -18,17 +28,22 @@ const ThamSoService = {
     };
   },
 
-  getAllThamSo: async (limit = 10, offset = 0, search = '') => {
+  getAllThamSo: async (limit = 30, offset = 0, search = '') => {
     try {
+      const normalizedSearch = normalizeString(search);
       const where = search
         ? {
             [Op.or]: [
               { TenThamSo: { [Op.like]: `%${search}%` } },
               {
                 TenThamSo: {
-                  [Op.in]: Object.keys(nameMap).filter((key) =>
-                    nameMap[key].toLowerCase().includes(search.toLowerCase())
-                  ),
+                  [Op.in]: Object.keys(nameMap).filter((key) => {
+                    const displayName = nameMap[key];
+                    return (
+                      normalizeString(displayName).includes(normalizedSearch) ||
+                      normalizeString(key).includes(normalizedSearch)
+                    );
+                  }),
                 },
               },
             ],
