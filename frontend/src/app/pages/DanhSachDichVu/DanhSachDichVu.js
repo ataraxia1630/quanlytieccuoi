@@ -24,7 +24,7 @@ function DanhSachDichVu() {
   const [selectedDichVu, setSelectedDichVu] = useState(null);
   const [currentFilters, setCurrentFilters] = useState({});
   const [pagination, setPagination] = useState({
-    limit: 10,
+    limit: 50,
     offset: 0,
     total: 0,
   });

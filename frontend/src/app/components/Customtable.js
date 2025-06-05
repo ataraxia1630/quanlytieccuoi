@@ -16,7 +16,6 @@ const CustomTable = memo(
   ({
     data = [],
     columns,
-    keyField = "id",
     onEdit = () => {},
     onDelete = () => {},
   }) => {
