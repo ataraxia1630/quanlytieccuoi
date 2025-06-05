@@ -19,9 +19,9 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Quyen.associate = (models) => {
-    Quyen.hasMany(models.PhanQuyen, { foreignKey: 'MaQuyen' });
-    Quyen.belongsToMany(models.Nhom, {
-      through: models.PhanQuyen,
+    Quyen.hasMany(models.PHANQUYEN, { foreignKey: 'MaQuyen' });
+    Quyen.belongsToMany(models.NHOM, {
+      through: models.PHANQUYEN,
       foreignKey: 'MaQuyen',
       otherKey: 'MaNhom',
     });

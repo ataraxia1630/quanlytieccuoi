@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   User.associate = (models) => {
-    User.belongsTo(models.Nhom, { foreignKey: 'MaNhom' });
+    User.belongsTo(models.NHOM, { foreignKey: 'MaNhom' });
   };
 
   User.afterSync(async () => {
