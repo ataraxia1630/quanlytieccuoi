@@ -21,6 +21,11 @@ module.exports = (sequelize, DataTypes) => {
   Nhom.associate = (models) => {
     Nhom.hasMany(models.User, { foreignKey: 'MaNhom' });
     Nhom.hasMany(models.PhanQuyen, { foreignKey: 'MaNhom' });
+    Nhom.belongsToMany(models.Quyen, {
+      through: models.PhanQuyen,
+      foreignKey: 'MaNhom',
+      otherKey: 'MaQuyen',
+    });
   };
 
   // Automatically create default groups

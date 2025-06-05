@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
 
   Quyen.associate = (models) => {
     Quyen.hasMany(models.PhanQuyen, { foreignKey: 'MaQuyen' });
+    Quyen.belongsToMany(models.Nhom, {
+      through: models.PhanQuyen,
+      foreignKey: 'MaQuyen',
+      otherKey: 'MaNhom',
+    });
   };
 
   return Quyen;
