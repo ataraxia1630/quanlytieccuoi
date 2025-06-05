@@ -6,6 +6,7 @@ import { Button, TextField } from '@mui/material';
 import CustomTable from '../../components/Customtable';
 import ActionButtons from '../../components/Actionbuttons';
 import AddButton from '../../components/Addbutton';
+import PhieuDatTiecService from '../../service/phieudattiec.service';
 
 import {
   getAllCTDichVuByPDTId,
@@ -24,7 +25,7 @@ import DanhSachMonAnDialog from '../../components/hoadon_ma/danhsachmonan_popup'
 
 import DichVuService from "../../service/dichvu.service";
 import MonAnService from '../../service/monan.service';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import DeleteDialog from "../../components/Deletedialog";
 import ctDatBanService from '../../service/ct_datban.service';
 import SomeActionButton from '../../components/Someactionbutton';
@@ -203,8 +204,7 @@ function HoaDon() {
       };
 
       if (mode === "edit" && selectedDichVu) {
-        
-        
+
         console.log("vao edit dich vu");
         await updateCTDichVu(selectedDichVu.MaDichVu, soPhieuDatTiec, dichVuData);
         const newList = await getAllCTDichVuByPDTId(soPhieuDatTiec);
@@ -226,9 +226,8 @@ function HoaDon() {
         );
 
         if (isExist) {
-          console.log("Dịch vụ đã được chọn trước đó!");
           toast.error("Dịch vụ đã được chọn trước đó!");
-           setIsDVDialogOpen(false);
+          setIsDVDialogOpen(false);
           return;
         }
         console.log("vao add dich vu");
@@ -284,7 +283,7 @@ function HoaDon() {
 
         if (isExist) {
           toast.error("Món ăn đã được chọn trước đó!");
-           setIsMADialogOpen(false);
+          setIsMADialogOpen(false);
           return;
         }
 
@@ -368,12 +367,12 @@ function HoaDon() {
     {
       id: "TenDichVu",
       label: "Dịch vụ",
-      width: 150,
+      width: 120,
       render: (row) => row?.DichVu?.TenDichVu || "Không rõ"
 
     },
-    { id: "SoLuong", label: "Số lượng", width: 30 },
-    { id: "DonGia", label: "Đơn giá", width: 50 },
+    { id: "SoLuong", label: "Số lượng", width: 40 },
+    { id: "DonGia", label: "Đơn giá", width: 70 },
     {
       id: "ThanhTien",
       label: "Thành tiền",
@@ -487,10 +486,9 @@ function HoaDon() {
         SoHoaDon: form.SoHoaDon,
         SoLuongBanDaDung: form.SoLuongBanDaDung,
       };
-
       const result = await createHoaDon(hoaDonData);
+      PhieuDatTiecService.updatePhieuDatTiec(form.SoPhieuDatTiec, { TrangThai: "Đã thanh toán" });
       if (result) {
-        console.log('✅ Tạo hóa đơn thành công:', result);
         setIsViewMode(true);
         setForm((prevForm) => ({
           ...prevForm,
@@ -499,11 +497,9 @@ function HoaDon() {
 
         toast.success("Tạo hóa đơn thành công");
       } else {
-        console.warn('⚠️ Tạo hóa đơn không thành công');
         toast.error("Tạo hóa đơn không thành công");
       }
     } catch (err) {
-      console.error('❌ Lỗi khi tạo hóa đơn:', err);
       toast.error("Lỗi khi tạo hóa đơn: " + err.message);
     } finally {
       setLoading(false);
@@ -518,7 +514,9 @@ function HoaDon() {
   if (loading) return <p>Đang tải dữ liệu hóa đơn...</p>;
 
   return (
+
     <div className={`${styles.hoadonBox} ${styles.printableHoaDon}`}>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
 
       <div className={`${styles.hoadonLeft} ${styles.dashedBorder}`}>
 
@@ -545,9 +543,9 @@ function HoaDon() {
             <p className={styles.hoadonText}>Tiền đặt cọc: {tienCoc}</p>
             <p className={styles.hoadonText}>Tiền phạt: {form.TongTienPhat}</p>
             {form.TienConLai > 0 ?
-              <p className={styles.hoadonText}>Khách hàng còn thiếu: {form.TienConLai}</p>
+              <p className={styles.hoadonText}>Khách còn thiếu: {form.TienConLai}</p>
               :
-              <p className={styles.hoadonText}>Khách hàng còn dư: {Math.abs(form.TienConLai)}</p>
+              <p className={styles.hoadonText}>Khách còn dư: {Math.abs(form.TienConLai)}</p>
             }
           </div> :
           <div></div>
@@ -634,13 +632,13 @@ function HoaDon() {
                 <p>Đơn giá bàn: {form.DonGiaBan}</p>
               </div> : null}
 
-            
+
 
           </div>
           {Array.isArray(form.dsDichVu) && form.dsDichVu.length > 0 ? (
             <div>
 
-              <div style={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
+              <div className={styles.table} style={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                 <CustomTable
                   sx={{ marginRight: '20px' }}
                   data={form.dsDichVu}
