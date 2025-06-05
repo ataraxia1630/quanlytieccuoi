@@ -53,3 +53,9 @@
 .action:first-child {
     margin-bottom: 10px;
 }
+.error {
+  color: red;
+  font-size: 0.85em;
+  margin-top: 4px;
+  margin-left: 2px;
+}

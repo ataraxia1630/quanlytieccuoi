@@ -40,7 +40,7 @@ module.exports.filter = async (req, res) => {
       [Op.between]: [tuBan, denBan],
     };
   }
-  if (typeof trangThai === 'boolean') {
+  if(trangThai) {
     where.trangthai = trangThai;
   }
 

@@ -95,11 +95,10 @@ const phieuDatTiecValidation = {
             .withMessage("Ngày đặt tiệc không đúng định dạng."),
         body("TrangThai")
             .notEmpty()
+            .withMessage("Trạng thái không được để trống.")
             .trim()
-            .isIn([1, 2])
-            .withMessage(
-                "Trạng thái phải là một trong các giá trị: 1,2."
-            ),
+            .isIn(["Đã thanh toán", "Đã hủy", "Chưa thanh toán"])
+            .withMessage("Trạng thái phải là một trong các giá trị: 'Đã thanh toán', 'Đã hủy', 'Chưa thanh toán'."),
         body("MaSanh")
             .notEmpty()
             .withMessage("Mã sảnh không được để trống.")
@@ -158,12 +157,11 @@ const phieuDatTiecValidation = {
             .isISO8601()
             .withMessage("Ngày đặt tiệc không đúng định dạng."),
         body("TrangThai")
-            .optional()
+            .notEmpty()
+            .withMessage("Trạng thái không được để trống.")
             .trim()
-            .isIn([1, 2])
-            .withMessage(
-                "Trạng thái phải là một trong các giá trị: 1,2."
-            ),
+            .isIn(["Đã thanh toán", "Đã hủy", "Chưa thanh toán"])
+            .withMessage("Trạng thái phải là một trong các giá trị: 'Đã thanh toán', 'Đã hủy', 'Chưa thanh toán'."),
         body("MaSanh")
             .optional({ nullable: true })
             .matches(/^S\d{3}$/)
