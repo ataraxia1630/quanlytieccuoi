@@ -20,11 +20,11 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   PhanQuyen.associate = (models) => {
-    PhanQuyen.belongsTo(models.Nhom, {
+    PhanQuyen.belongsTo(models.NHOM, {
       foreignKey: 'MaNhom',
       onDelete: 'CASCADE',
     });
-    PhanQuyen.belongsTo(models.Quyen, {
+    PhanQuyen.belongsTo(models.QUYEN, {
       foreignKey: 'MaQuyen',
       onDelete: 'CASCADE',
     });
