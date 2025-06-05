@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
@@ -19,10 +19,18 @@ module.exports = {
         },
       ],
       {}
-    )
+    );
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('CA', null, {})
+    await queryInterface.bulkDelete(
+      'CA',
+      {
+        MaCa: {
+          [Sequelize.Op.in]: ['CA001', 'CA002'],
+        },
+      },
+      {}
+    );
   },
-}
+};

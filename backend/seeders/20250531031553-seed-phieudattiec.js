@@ -1,7 +1,6 @@
 'use strict';
 
-const { Sanh } = require('../models');
-const { Ca } = require('../models');
+const { Sanh, Ca } = require('../models');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -27,7 +26,7 @@ module.exports = {
 
     const maSanhIds = sanhRecords.map((sanh) => sanh.MaSanh);
     const soLuongBanToiDaMap = sanhRecords.reduce((acc, sanh) => {
-      acc[sanh.MaSanh] = Math.min(sanh.SoLuongBanToiDa, 255); // Giới hạn SoLuongBanToiDa <= 255
+      acc[sanh.MaSanh] = Math.min(sanh.SoLuongBanToiDa, 255);
       return acc;
     }, {});
 
@@ -112,36 +111,30 @@ module.exports = {
 
       const validMinutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
-      // Random giờ và phút trong khoảng của ca
-      let randomMinutes =
-        Math.floor(Math.random() * (endMinutes - startMinutes)) + startMinutes;
-      const randomHour = Math.floor(randomMinutes / 60);
-      const minuteIndex = Math.floor(Math.random() * validMinutes.length);
-      const randomMinute = validMinutes[minuteIndex];
+      const possibleTimes = [];
 
-      const totalRandomMinutes = randomHour * 60 + randomMinute;
-      if (
-        totalRandomMinutes < startMinutes ||
-        totalRandomMinutes > endMinutes
-      ) {
-        // Nếu vượt quá, điều chỉnh về giá trị gần nhất hợp lệ
-        const adjustedMinutes = Math.min(
-          Math.max(totalRandomMinutes, startMinutes),
-          endMinutes
-        );
-        const adjustedHour = Math.floor(adjustedMinutes / 60);
-        const adjustedMinute = validMinutes.reduce((prev, curr) =>
-          Math.abs(curr - (adjustedMinutes % 60)) <
-          Math.abs(prev - (adjustedMinutes % 60))
-            ? curr
-            : prev
-        );
-        return `${adjustedHour.toString().padStart(2, '0')}:${adjustedMinute
+      for (let minutes = startMinutes; minutes <= endMinutes; minutes++) {
+        const minutePart = minutes % 60;
+        if (validMinutes.includes(minutePart)) {
+          possibleTimes.push(minutes);
+        }
+      }
+
+      if (possibleTimes.length === 0) {
+        const hour = Math.floor(startMinutes / 60);
+        const minute = startMinutes % 60;
+        return `${hour.toString().padStart(2, '0')}:${minute
           .toString()
           .padStart(2, '0')}:00`;
       }
 
-      return `${randomHour.toString().padStart(2, '0')}:${randomMinute
+      const totalRandomMinutes =
+        possibleTimes[Math.floor(Math.random() * possibleTimes.length)];
+
+      const hour = Math.floor(totalRandomMinutes / 60);
+      const minute = totalRandomMinutes % 60;
+
+      return `${hour.toString().padStart(2, '0')}:${minute
         .toString()
         .padStart(2, '0')}:00`;
     };
@@ -158,8 +151,16 @@ module.exports = {
       return (
         existingPhieu.MaSanh === newPhieu.MaSanh &&
         existingPhieu.MaCa === newPhieu.MaCa &&
-        existingDate === newDate
+        existingDate === newDate &&
+        existingPhieu.TrangThai !== 'Đã hủy'
       );
+    };
+
+    const getRandomStatus = () => {
+      const rand = Math.random();
+      if (rand < 0.05) return 'Đã hủy';
+      if (rand < 0.9) return 'Đã thanh toán'; // 85%
+      return 'Chưa thanh toán';
     };
 
     const startDate = new Date('2025-01-01T00:00:00+07:00');
@@ -188,7 +189,6 @@ module.exports = {
         const maCa = maCaIds[Math.floor(Math.random() * maCaIds.length)];
         const timeForCa = getRandomTimeForCa(maCa);
 
-        // Kết hợp ngày và giờ cho NgayDaiTiec
         const [hours, minutes, seconds] = timeForCa.split(':').map(Number);
         const ngayDaiTiec = new Date(ngayDaiTiecDate);
         ngayDaiTiec.setHours(hours, minutes, seconds, 0);
@@ -199,6 +199,7 @@ module.exports = {
           MaCa: maCa,
           NgayDaiTiec: ngayDaiTiec,
           NgayDatTiec: ngayDatTiec,
+          TrangThai: getRandomStatus(),
         };
 
         validSchedule = !usedSchedules.some((existing) =>
@@ -216,14 +217,15 @@ module.exports = {
         ngayDaiTiec.setHours(hours, minutes, seconds, 0);
         phieu.NgayDaiTiec = ngayDaiTiec;
         phieu.MaCa = maCa;
+        phieu.TrangThai = getRandomStatus();
       }
 
       const maSanh = phieu.MaSanh;
       const soLuongBanToiDa = soLuongBanToiDaMap[maSanh];
 
-      // Random số lượng bàn đặt trong khoảng 70%–90% của số lượng tối đa
+      // Random số lượng bàn đặt trong khoảng 70%–80% của số lượng tối đa
       const minBan = Math.floor(soLuongBanToiDa * 0.7);
-      const maxBan = Math.floor(soLuongBanToiDa * 0.9);
+      const maxBan = Math.floor(soLuongBanToiDa * 0.8);
       const soLuongBan = Math.min(
         Math.floor(Math.random() * (maxBan - minBan + 1)) + minBan
       );
@@ -233,10 +235,10 @@ module.exports = {
       const soBanDuTru =
         Math.random() > 0.3 && maxDuTru > 0
           ? Math.min(
-              Math.floor(Math.random() * Math.min(5, maxDuTru)) + 1,
+              Math.floor(Math.random() * Math.min(15, maxDuTru)) + 1, // 1- 15 bàn
               255 - soLuongBan
             )
-          : null;
+          : 0;
 
       data.push({
         SoPhieuDatTiec: phieu.SoPhieuDatTiec,
@@ -252,7 +254,7 @@ module.exports = {
         SoLuongBan: soLuongBan,
         SoBanDuTru: soBanDuTru,
         NgayDatTiec: phieu.NgayDatTiec,
-        TrangThai: Math.random() > 0.2, // 80% true, 20% false
+        TrangThai: phieu.TrangThai,
       });
 
       usedSchedules.push(phieu);
@@ -261,7 +263,20 @@ module.exports = {
     await queryInterface.bulkInsert('PHIEUDATTIEC', data, {});
   },
 
-  async down(queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('PHIEUDATTIEC', null, {});
+  down: async (queryInterface, Sequelize) => {
+    const maPhieuList = Array.from(
+      { length: 300 },
+      (_, i) => `PDT${String(i + 1).padStart(3, '0')}`
+    );
+
+    await queryInterface.bulkDelete(
+      'PHIEUDATTIEC',
+      {
+        SoPhieuDatTiec: {
+          [Sequelize.Op.in]: maPhieuList,
+        },
+      },
+      {}
+    );
   },
 };
