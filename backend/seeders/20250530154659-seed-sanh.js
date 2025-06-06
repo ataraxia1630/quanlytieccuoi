@@ -38,7 +38,22 @@ const getRandomBanToiDa = (loai) => {
 };
 
 const imageOptions = [
-  // Thêm ảnh vào nếu có
+  'https://banquet.vn/wp-content/uploads/2023/12/Sanh-tiec-Silverland.jpg',
+  'https://banquet.vn/wp-content/uploads/2023/12/Sony-8410-copy-1024x683.jpg',
+  'https://banquet.vn/wp-content/uploads/2024/07/tiec-cong-ty-8-1024x1024.jpg',
+  'https://banquet.vn/wp-content/uploads/2023/10/Sony-1042-copy-1024x683.jpg',
+  'https://banquet.vn/wp-content/uploads/2023/10/Sony-0337-1024x683.jpg',
+  'https://banquet.vn/wp-content/uploads/2023/10/sanh_tiec_5-1024x529.jpg',
+  'https://banquet.vn/wp-content/uploads/2023/10/khong-gian-tiec-cong-ty-sang-trong-1024x529.jpg',
+  'https://banquet.vn/wp-content/uploads/2023/10/tiec_doanh_nghiep-1024x529.jpg',
+  'https://banquet.vn/wp-content/uploads/2023/10/tiec-cuoi_1-1024x529.jpg',
+  'https://banquet.vn/wp-content/uploads/2023/10/Sanh_tiec_Ery_3-1-1024x529.jpg',
+  'https://banquet.vn/wp-content/uploads/2023/10/tiec-cong-ty-1024x529.jpg',
+  'https://www.saigon.park.hyattrestaurants.com/uploads/1/1/2/9/112964589/phs-ballroom-wedding-550x400_orig.jpg',
+  'https://www.saigon.park.hyattrestaurants.com/uploads/1/1/2/9/112964589/phs-poolhouse-banquet-550x400_orig.jpg',
+  'https://dp1.diamondplace.vn/wp-content/uploads/2023/04/hinh-sanh-grand-ruby-2-1024x682.jpg',
+  'https://dp1.diamondplace.vn/wp-content/uploads/2024/05/sanh-tiec-cuoi-sapphire-diamond-place-1024x681.webp',
+  'https://tonywedding.vn/wp-content/uploads/2022/12/1a-1536x864.jpg'
 ];
 
 // Tạo shuffle để không bị random ảnh trùng
