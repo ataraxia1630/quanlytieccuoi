@@ -23,7 +23,6 @@ backend/
 Tạo migration: npx sequelize-cli migration:generate --name <tênfile>
 Tạo seed: npx sequelize-cli seed:generate --name <tênfile>
 Xem danh sách migration: npx sequelize-cli db:migrate:status
-
 ```
 
 ## Hướng dẫn sử dụng và chạy migration, seed
