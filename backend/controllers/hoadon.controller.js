@@ -95,7 +95,6 @@ module.exports.create = async (req, res) => {
     const now = new Date();
     const ngayDaiTiec = new Date(phieuDatTiec.NgayDaiTiec);
 
-    console.log("Ngày dai tiệc:", ngayDaiTiec);
     const soNgayTre = Math.floor((now - ngayDaiTiec) / (1000 * 60 * 60 * 24));
     const biPhat = APDUNGPHAT && soNgayTre > THOIDIEMTHANHTOAN;
 
@@ -107,18 +106,14 @@ module.exports.create = async (req, res) => {
     }, 0);
 
     // Tính tiền món ăn
-    const tongTienMonAn = dsMonAn.reduce((tong, dv) => {
-      const sl = Number(dv.SoLuong);
-      const gia = Number(dv.DonGia);
-      return tong + (isNaN(sl) || isNaN(gia) ? 0 : sl * gia);
-    }, 0);
 
     const donGiaBan = dsMonAn.reduce((tong, dv) => {
       const gia = parseFloat(dv.DonGia);
       return tong + (isNaN(gia) ? 0 : gia);
     }, 0);
+    const tongTienBan = donGiaBan*SoLuongBanDaDung;
 
-    const tongTien = tongTienDichVu + tongTienMonAn;
+    const tongTien = tongTienDichVu + tongTienBan;
 
     let tienPhat = 0;
     if (biPhat) {
@@ -136,7 +131,7 @@ module.exports.create = async (req, res) => {
       DonGiaBan: donGiaBan,
       SoLuongBanDaDung,
       TongTienDichVu: tongTienDichVu,
-      TongTienMonAn: tongTienMonAn,
+      TongTienMonAn: tongTienBan,
       TongTienHoaDon: tongTien,
       TongTienPhat: tienPhat,
       TienConLai: tienConLai,
@@ -146,6 +141,7 @@ module.exports.create = async (req, res) => {
     hoadonData.TienDatCoc = tienDatCoc;
 
     return res.status(200).json(hoadonData);
+
   } catch (error) {
     console.error('[ERROR] createHoaDon:', error);
     return res.status(500).json({
