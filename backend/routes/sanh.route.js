@@ -7,6 +7,7 @@ const uploadHandler = require('../middlewares/uploadHandler');
 
 router.get('/', sanhController.getAllSanh);
 router.get('/search', searchAndFilterValidation, validate, sanhController.searchAndFilterSanh);
+router.get('/availability', sanhController.getSanhsAvailabilityByDate);
 router.get('/:maSanh', sanhController.getSanhById);
 router.post('/', uploadHandler.upload.single('image'), sanhValidation, validate, sanhController.createSanh);
 router.put('/:maSanh', uploadHandler.upload.single('image'), sanhUpdateValidation, validate, sanhController.updateSanh);

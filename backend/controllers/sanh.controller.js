@@ -114,6 +114,23 @@ const uploadImage = async (req, res, next) => {
     }
 };
 
+const getSanhsAvailabilityByDate = async (req, res, next) => {
+    try {
+        const { ngayDaiTiec, soLuongBan, soBanDuTru } = req.query;
+        if (!ngayDaiTiec || !soLuongBan) {
+            throw new ApiError(400, 'Vui lòng cung cấp ngày đãi tiệc và số lượng bàn');
+        }
+        const sanhs = await sanhService.getSanhsAvailabilityByDate({
+            ngayDaiTiec,
+            soLuongBan,
+            soBanDuTru
+        });
+        res.json(sanhs);
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getAllSanh,
     getSanhById,
@@ -122,4 +139,5 @@ module.exports = {
     updateSanh,
     deleteSanh,
     uploadImage,
+    getSanhsAvailabilityByDate,
 };

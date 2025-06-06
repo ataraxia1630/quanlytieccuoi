@@ -23,9 +23,10 @@ const defaultColumns = [
   },
   {
     id: "MaLoaiSanh",
-    label: "Mã loại sảnh",
+    label: "Loại sảnh",
     sortable: true,
     width: 150,
+    render: (row) => row.LoaiSanh?.TenLoaiSanh || "Không có",
   },
   {
     id: "SoLuongBanToiDa",

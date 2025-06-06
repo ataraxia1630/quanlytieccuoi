@@ -15,6 +15,8 @@ const extractPublicIdFromUrl = (url) => {
 
 const Sanh = sequelize.models.Sanh;
 const LoaiSanh = sequelize.models.LoaiSanh;
+const PhieuDatTiec = sequelize.models.PhieuDatTiec; 
+const Ca = sequelize.models.Ca;
 
 const getAllSanh = async () => {
     try {
@@ -208,6 +210,89 @@ const uploadImage = async (maSanh, fileBuffer) => {
     }
 };
 
+const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru }) => {
+    try {
+        // Tính tổng số bàn yêu cầu (số bàn ban đầu + số bàn dự trữ)
+        const totalBanRequired = parseInt(soLuongBan) + (parseInt(soBanDuTru) || 0);
+
+        // Lấy tất cả sảnh thỏa điều kiện số lượng bàn
+        const sanhs = await Sanh.findAll({
+            where: {
+                SoLuongBanToiDa: {
+                    [Op.gte]: totalBanRequired // Lọc trước các sảnh có số lượng bàn tối đa >= tổng số bàn yêu cầu
+                }
+            },
+            include: [
+                {
+                    model: LoaiSanh,
+                    attributes: ['MaLoaiSanh', 'TenLoaiSanh']
+                },
+                {
+                    model: PhieuDatTiec,
+                    include: [
+                        {
+                            model: Ca,
+                            attributes: ['MaCa', 'TenCa', 'GioBatDau', 'GioKetThuc']
+                        }
+                    ],
+                    where: {
+                        NgayDaiTiec: {
+                            [Op.between]: [
+                                new Date(ngayDaiTiec).setUTCHours(0, 0, 0, 0), // Bắt đầu ngày UTC
+                                new Date(ngayDaiTiec).setUTCHours(23, 59, 59, 999) // Kết thúc ngày UTC
+                            ]
+                        },
+                        TrangThai: {
+                            [Op.in]: ['Chưa thanh toán', 'Đã thanh toán'] // Chỉ lấy phiếu không trống
+                        }
+                    },
+                    required: false // Left join để lấy cả sảnh không có phiếu
+                }
+            ]
+        });
+
+        // Lấy tất cả các ca một lần trước khi xử lý
+        const allCas = await Ca.findAll();
+
+        // Nếu không có sảnh nào thỏa điều kiện, trả về mảng rỗng
+        if (!sanhs || sanhs.length === 0) {
+            return [];
+        }
+
+        // Lọc và xử lý kết quả theo từng ca
+        const availability = sanhs.map(sanh => {
+            const sanhData = sanh.toJSON();
+            const bookedTickets = sanhData.PhieuDatTiecs || [];
+
+            // Tính tình trạng theo từng ca
+            const caAvailability = {};
+            for (const ca of allCas) {
+                const caBooked = bookedTickets.find(ticket => ticket.MaCa === ca.MaCa);
+                const isAvailable = !caBooked; // Chỉ dựa vào việc có phiếu đặt tiệc hay không
+
+                caAvailability[ca.MaCa] = {
+                    TenCa: ca.TenCa,
+                    TrangThai: isAvailable ? 'Trống' : 'Không trống'
+                };
+            }
+
+            // Thêm thuộc tính TenLoaiSanh và xóa LoaiSanh, PhieuDatTiecs sau khi đã sử dụng
+            sanhData.TenLoaiSanh = sanhData.LoaiSanh ? sanhData.LoaiSanh.TenLoaiSanh : null;
+            delete sanhData.LoaiSanh;
+            delete sanhData.PhieuDatTiecs; // Xóa sau khi đã sử dụng
+
+            return {
+                ...sanhData,
+                CaAvailability: caAvailability
+            };
+        });
+
+        return availability;
+    } catch (error) {
+        throw new ApiError(500, 'Lỗi khi lấy danh sách sảnh khả dụng theo ca: ' + error.message);
+    }
+};
+
 module.exports = {
     getAllSanh,
     getSanhById,
@@ -216,4 +301,5 @@ module.exports = {
     updateSanh,
     deleteSanh,
     uploadImage,
+    getSanhsAvailabilityByDate,
 };
