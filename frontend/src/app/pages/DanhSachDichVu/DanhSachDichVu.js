@@ -24,13 +24,13 @@ function DanhSachDichVu() {
   const [selectedDichVu, setSelectedDichVu] = useState(null);
   const [currentFilters, setCurrentFilters] = useState({});
   const [pagination, setPagination] = useState({
-    limit: 10,
+    limit: 50,
     offset: 0,
     total: 0,
   });
 
   const fetchDichVuList = useCallback(
-    async (filters = {}, limit = 10, offset = 0) => {
+    async (filters = {}, limit = 50, offset = 0) => {
       try {
         setLoading(true);
         let data;

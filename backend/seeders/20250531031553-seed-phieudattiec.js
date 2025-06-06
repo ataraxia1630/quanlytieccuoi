@@ -249,8 +249,8 @@ module.exports = {
         NgayDaiTiec: phieu.NgayDaiTiec,
         MaCa: phieu.MaCa,
         TienDatCoc: parseInt(
-          (Math.random() * (7000000 - 5000000) + 5000000).toFixed(2)
-        ), // 5M–7M
+          (Math.random() * (55000000 - 40000000) + 40000000).toFixed(2)
+        ), // 40M–55M
         SoLuongBan: soLuongBan,
         SoBanDuTru: soBanDuTru,
         NgayDatTiec: phieu.NgayDatTiec,

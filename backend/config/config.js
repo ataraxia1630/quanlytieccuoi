@@ -1,4 +1,4 @@
-require('dotenv').config()
+require('dotenv').config();
 
 const commonConfig = {
   username: process.env.DB_USERNAME,
@@ -6,13 +6,15 @@ const commonConfig = {
   host: process.env.DB_HOST,
   dialect: process.env.DB_DIALECT,
   port: process.env.DB_PORT,
+  timezone: '+07:00',
   dialectOptions: {
+    timezone: '+07:00',
     ssl: {
       require: true,
       rejectUnauthorized: false,
     },
   },
-}
+};
 
 module.exports = {
   development: {
@@ -27,4 +29,4 @@ module.exports = {
     ...commonConfig,
     database: process.env.DB_NAME + '_prod',
   },
-}
+};

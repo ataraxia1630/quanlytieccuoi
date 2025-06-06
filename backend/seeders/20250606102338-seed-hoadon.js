@@ -1,9 +1,14 @@
 'use strict';
 
 const { PhieuDatTiec, Ct_DichVu, Ct_DatBan, MonAn } = require('../models');
+const ThamSoService = require('../services/thamso.service.js');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
+    // Lấy tham số từ ThamSoService
+    const { THOIDIEMTHANHTOAN, TILEPHAT, APDUNGPHAT } =
+      await ThamSoService.getThamSoValues();
+
     const phieuDatTiecRecords = await PhieuDatTiec.findAll({
       attributes: [
         'SoPhieuDatTiec',
@@ -81,10 +86,14 @@ module.exports = {
     for (const phieu of phieuDatTiecRecords) {
       const phieuInfo = phieuInfoMap[phieu.SoPhieuDatTiec];
 
-      // Tính NgayThanhToan (NgayDaiTiec đến 20 ngày sau)
+      // Random ngày thanh toán, 30% trễ hạn
+      const isLate = Math.random() < 0.3;
+      const maxLateDays = 15;
+      const randomDays = isLate
+        ? THOIDIEMTHANHTOAN + Math.floor(Math.random() * maxLateDays) + 1
+        : Math.floor(Math.random() * (THOIDIEMTHANHTOAN + 1));
       const ngayThanhToan = new Date(
-        phieuInfo.ngayDaiTiec.getTime() +
-          Math.floor(Math.random() * 21) * 24 * 60 * 60 * 1000
+        phieuInfo.ngayDaiTiec.getTime() + randomDays * 24 * 60 * 60 * 1000
       );
 
       // Tính SoLuongBanDaDung (90%–100% của tổng SoLuongBan + SoBanDuTru)
@@ -117,18 +126,24 @@ module.exports = {
         (tongTienMonAn + tongTienDichVu).toFixed(2)
       );
 
-      // Tính TongTienPhat (1% mỗi ngày trễ kể từ NgayHetHan = NgayDaiTiec)
-      const ngayHetHan = phieuInfo.ngayDaiTiec;
+      // Tính TongTienPhat (nếu áp dụng phạt)
+      const ngayHetHan = new Date(
+        phieuInfo.ngayDaiTiec.getTime() +
+          THOIDIEMTHANHTOAN * 24 * 60 * 60 * 1000
+      );
       const soNgayTre = Math.max(
         Math.floor((ngayThanhToan - ngayHetHan) / (24 * 60 * 60 * 1000)),
         0
       );
-      const tongTienPhat =
-        soNgayTre > 0 ? Math.round(tongTienHoaDonBase * 0.01 * soNgayTre) : 0;
+      const tongTienPhat = APDUNGPHAT
+        ? parseInt(
+            (tongTienHoaDonBase * (TILEPHAT / 100) * soNgayTre).toFixed(2)
+          )
+        : 0;
 
       // Tính TongTienHoaDon (bao gồm phạt)
       const tongTienHoaDon = parseInt(
-        (tongTienHoaDonBase + (tongTienPhat || 0)).toFixed(2)
+        (tongTienHoaDonBase + tongTienPhat).toFixed(2)
       );
 
       const tienConLai = parseInt(
@@ -158,7 +173,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     const maHoaDonList = Array.from(
-      { length: 300 },
+      { length: 265 }, // Đổi số nếu muốn undo nhiều/ít hóa đơn hơn
       (_, i) => `HD${String(i + 1).padStart(3, '0')}`
     );
 
