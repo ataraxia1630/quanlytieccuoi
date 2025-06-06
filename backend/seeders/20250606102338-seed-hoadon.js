@@ -1,25 +1,13 @@
 'use strict';
 
-const {
-  PhieuDatTiec,
-  Ct_DichVu,
-  Ct_DatBan,
-  MonAn,
-  ThamSo,
-} = require('../models');
+const { PhieuDatTiec, Ct_DichVu, Ct_DatBan, MonAn } = require('../models');
+const ThamSoService = require('../services/thamso.service.js');
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    // Lấy các tham số từ bảng THAMSO
-    const [thoiGianThanhToan, tyLePhat, apDungPhat] = await Promise.all([
-      ThamSo.findByPk('ThoiDiemThanhToanSoVoiNgayDaiTiec'),
-      ThamSo.findByPk('TyLePhat'),
-      ThamSo.findByPk('ApDungQDPhatThanhToanTre'),
-    ]);
-
-    const maxNgayThanhToan = parseInt(thoiGianThanhToan?.GiaTri || 20);
-    const phanTramPhat = parseFloat(tyLePhat?.GiaTri || 1) / 100; // Convert percentage to decimal
-    const coPhat = parseInt(apDungPhat?.GiaTri || 1) === 1;
+    // Lấy tham số từ ThamSoService
+    const { THOIDIEMTHANHTOAN, TILEPHAT, APDUNGPHAT } =
+      await ThamSoService.getThamSoValues();
 
     const phieuDatTiecRecords = await PhieuDatTiec.findAll({
       attributes: [
@@ -102,8 +90,8 @@ module.exports = {
       const isLate = Math.random() < 0.3;
       const maxLateDays = 15;
       const randomDays = isLate
-        ? maxNgayThanhToan + Math.floor(Math.random() * maxLateDays) + 1
-        : Math.floor(Math.random() * (maxNgayThanhToan + 1));
+        ? THOIDIEMTHANHTOAN + Math.floor(Math.random() * maxLateDays) + 1
+        : Math.floor(Math.random() * (THOIDIEMTHANHTOAN + 1));
       const ngayThanhToan = new Date(
         phieuInfo.ngayDaiTiec.getTime() + randomDays * 24 * 60 * 60 * 1000
       );
@@ -140,14 +128,17 @@ module.exports = {
 
       // Tính TongTienPhat (nếu áp dụng phạt)
       const ngayHetHan = new Date(
-        phieuInfo.ngayDaiTiec.getTime() + maxNgayThanhToan * 24 * 60 * 60 * 1000
+        phieuInfo.ngayDaiTiec.getTime() +
+          THOIDIEMTHANHTOAN * 24 * 60 * 60 * 1000
       );
       const soNgayTre = Math.max(
         Math.floor((ngayThanhToan - ngayHetHan) / (24 * 60 * 60 * 1000)),
         0
       );
-      const tongTienPhat = coPhat
-        ? parseInt((tongTienHoaDonBase * phanTramPhat * soNgayTre).toFixed(2))
+      const tongTienPhat = APDUNGPHAT
+        ? parseInt(
+            (tongTienHoaDonBase * (TILEPHAT / 100) * soNgayTre).toFixed(2)
+          )
         : 0;
 
       // Tính TongTienHoaDon (bao gồm phạt)

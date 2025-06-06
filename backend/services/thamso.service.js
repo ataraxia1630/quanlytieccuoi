@@ -84,6 +84,34 @@ const ThamSoService = {
         : new ApiError(500, 'Lỗi khi cập nhật tham số.');
     }
   },
+
+  getThamSoValues: async () => {
+    try {
+      const thamSoList = await ThamSo.findAll();
+      const result = {
+        THOIDIEMTHANHTOAN: 0,
+        TILEPHAT: 0,
+        APDUNGPHAT: true,
+      };
+
+      thamSoList.forEach((thamSo) => {
+        if (thamSo.TenThamSo === 'ThoiDiemThanhToanSoVoiNgayDaiTiec') {
+          result.THOIDIEMTHANHTOAN = parseInt(thamSo.GiaTri, 10);
+        } else if (thamSo.TenThamSo === 'TyLePhat') {
+          result.TILEPHAT = parseInt(thamSo.GiaTri);
+        } else if (thamSo.TenThamSo === 'ApDungQDPhatThanhToanTre') {
+          result.APDUNGPHAT = thamSo.GiaTri === 1;
+        }
+      });
+
+      return result;
+    } catch (err) {
+      console.error('Lỗi trong getThamSoValues:', err);
+      throw err.statusCode
+        ? err
+        : new ApiError(500, 'Lỗi khi lấy giá trị tham số.');
+    }
+  },
 };
 
 module.exports = ThamSoService;

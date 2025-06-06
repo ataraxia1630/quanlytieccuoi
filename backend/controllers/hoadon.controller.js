@@ -1,4 +1,5 @@
-const { HoaDon, PhieuDatTiec, Ct_DichVu, Ct_DatBan, ThamSo, DichVu, MonAn } = require('../models')
+const { HoaDon, PhieuDatTiec, Ct_DichVu, Ct_DatBan, DichVu, MonAn } = require('../models')
+const ThamSoService = require('../services/thamso.service.js')
 
 // GET http://localhost:25053/api/danhsachtiec/hoadon/:id  (id = SoPhieuDatTiec)
 module.exports.index = async (req, res) => {
@@ -78,19 +79,8 @@ module.exports.create = async (req, res) => {
     }
 
     // Lấy tham số hệ thống
-    const thamSo = await ThamSo.findAll();
-    let THOIDIEMTHANHTOAN = 0;
-    let TILEPHAT = 0;
-    let APDUNGPHAT = true;
-
-    thamSo.forEach(item => {
-      if (item.TenThamSo === "ThoiDiemThanhToanSoVoiNgayDaiTiec")
-        THOIDIEMTHANHTOAN = parseInt(item.GiaTri, 10);
-      else if (item.TenThamSo === "TyLePhat")
-        TILEPHAT = parseFloat(item.GiaTri, 1);
-      else if (item.TenThamSo === "ApDungQDPhatThanhToanTre")
-        APDUNGPHAT = item.GiaTri == 1;
-    });
+    const { THOIDIEMTHANHTOAN, TILEPHAT, APDUNGPHAT } =
+      await ThamSoService.getThamSoValues();
 
     const now = new Date();
     const ngayDaiTiec = new Date(phieuDatTiec.NgayDaiTiec);
