@@ -1,4 +1,5 @@
 const { PermissionService } = require('../services/quyen.service');
+const ApiError = require('../utils/apiError');
 
 const checkPermission = (requiredPermission) => {
   return async (req, res, next) => {
