@@ -16,6 +16,7 @@ const dichvuRoutes = require('./dichvu.route.js');
 // phân quyền
 const authRoutes = require('./auth.route.js');
 const userRoutes = require('./user.route.js');
+const groupRoutes = require('./nhom.route.js');
 
 // Hàm gắn các route vào ứng dụng
 function route(app) {
@@ -35,6 +36,7 @@ function route(app) {
 
   app.use('/api/auth', authRoutes);
   app.use('/api/user', userRoutes);
+  app.use('/api/group', groupRoutes);
 }
 
 module.exports = route;
