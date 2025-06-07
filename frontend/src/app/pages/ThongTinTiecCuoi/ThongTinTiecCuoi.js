@@ -308,7 +308,7 @@ const ThongTinTiecCuoi = () => {
   // Lấy currentPDT từ localStorage 
   useEffect(() => {
     // setPhieuDatTiec(initialState);
-    localStorage.setItem("currentPDT", "PDT001");
+    localStorage.setItem("currentPDT", "null");
 
     const pdt = localStorage.getItem("currentPDT");
     console.log("currentPDT: ", pdt)
@@ -508,14 +508,6 @@ const ThongTinTiecCuoi = () => {
 
         </Box>
 
-        {/* Right Section
-        <Box className="image-section">
-          <Box className="image-text">
-            <Typography variant="h4" gutterBottom>Save the Date</Typography>
-            <Typography variant="h6">Family & Love</Typography>
-            <Typography variant="body2">../../2025</Typography>
-          </Box>
-        </Box> */}
       </Box>
 
     </div>
