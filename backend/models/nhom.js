@@ -28,20 +28,5 @@ module.exports = (sequelize, DataTypes) => {
     });
   };
 
-  // Automatically create default groups
-  Nhom.afterSync(async () => {
-    // Create Admin group (G0000)
-    const adminCount = await Nhom.count({ where: { MaNhom: 'G0000' } });
-    if (adminCount === 0) {
-      await Nhom.create({ MaNhom: 'G0000', TenNhom: 'Admin' });
-    }
-
-    // Create Viewer group (G0001)
-    const viewerCount = await Nhom.count({ where: { MaNhom: 'G0001' } });
-    if (viewerCount === 0) {
-      await Nhom.create({ MaNhom: 'G0001', TenNhom: 'Viewer' });
-    }
-  });
-
   return Nhom;
 };
