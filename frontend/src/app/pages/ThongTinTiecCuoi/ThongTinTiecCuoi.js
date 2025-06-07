@@ -34,7 +34,7 @@ const initialState = {
   SoLuongBan: 1,
   SoBanDuTru: 0,
   NgayDatTiec: today,
-  TrangThai: 1,
+  TrangThai: "Chưa thanh toán",
 };
 
 const ThongTinTiecCuoi = () => {
@@ -88,11 +88,9 @@ const ThongTinTiecCuoi = () => {
     return {
       ...phieuDatTiec,
       NgayDaiTiec: phieuDatTiec.NgayDaiTiec ? format(new Date(phieuDatTiec.NgayDaiTiec), "yyyy-MM-dd'T'HH:mm:ss") : null,
-      NgayDatTiec: phieuDatTiec.NgayDatTiec ? format(new Date(phieuDatTiec.NgayDatTiec), "yyyy-MM-dd'T'HH:mm:ss") : null,
-      TrangThai: phieuDatTiec.NgayDatTiec ? 1 : 2
+      NgayDatTiec: phieuDatTiec.NgayDatTiec ? format(new Date(phieuDatTiec.NgayDatTiec), "yyyy-MM-dd'T'HH:mm:ss") : null
     };
   }, [phieuDatTiec]);
-
 
   // Tìm ca tương ứng dựa trên MaCa
   const caInfo = useMemo(() => {
@@ -241,6 +239,8 @@ const ThongTinTiecCuoi = () => {
       setPhieuDatTiec(data) // set dữ liệu nếu thành công
       setCurrentPDT(data.SoPhieuDatTiec);
       localStorage.setItem("currentPDT", data.data.SoPhieuDatTiec)
+
+      handleNav()
     } catch (error) {
       toast.error(`Lỗi: ${error.message || 'Không thể tạo mới phiếu dặt tiệc!'}`);
     }
@@ -251,7 +251,7 @@ const ThongTinTiecCuoi = () => {
   const updateCurrentPhieuDatTiec = useCallback(async (id) => {
     try {
       const data = await PhieuDatTiecService.updatePhieuDatTiec(id, pdtReFormat);
-      setPhieuDatTiec(data);
+      handleNav()
     } catch (error) {
       toast.error(`Lỗi: ${error.message || 'Không thể cập nhật phiếu đặt tiệc!'}`);
     }
@@ -298,7 +298,6 @@ const ThongTinTiecCuoi = () => {
       updateCurrentPhieuDatTiec(currentPDT)
 
 
-    handleNav()
 
   };
   //set full ca data
@@ -309,7 +308,7 @@ const ThongTinTiecCuoi = () => {
   // Lấy currentPDT từ localStorage 
   useEffect(() => {
     // setPhieuDatTiec(initialState);
-    localStorage.setItem("currentPDT", null);
+    localStorage.setItem("currentPDT", "PDT001");
 
     const pdt = localStorage.getItem("currentPDT");
     console.log("currentPDT: ", pdt)
@@ -322,7 +321,7 @@ const ThongTinTiecCuoi = () => {
       setCurrentPDT(null);
     }
     console.log("PDT: ", phieuDatTiec)
-    console.log("PDT reformat: ", pdtReFormat)
+
 
   }, [fetchCurrentPhieuDatTiec]);
 
@@ -332,10 +331,10 @@ const ThongTinTiecCuoi = () => {
     console.log("phieuDatTiec.NgayDaiTiec: ", pdtReFormat.NgayDaiTiec)
     console.log("phieuDatTiec.SoLuongBan: ", phieuDatTiec.SoLuongBan)
     console.log("phieuDatTiec.SoBanDuTru: ", phieuDatTiec.SoBanDuTru)
+
     fetchValidSanhByDate({ ngayDaiTiec: pdtReFormat.NgayDaiTiec.slice(0, 10), soLuongBan: phieuDatTiec.SoLuongBan, soBanDuTru: phieuDatTiec.SoBanDuTru });
 
   }, [fetchFullCa, fetchValidSanhByDate, phieuDatTiec.NgayDaiTiec, phieuDatTiec.SoLuongBan, phieuDatTiec.SoBanDuTru]);
-  console.log("halls: ", halls.slice(0, 1))
 
   return (
     <div className="page">
@@ -417,7 +416,7 @@ const ThongTinTiecCuoi = () => {
           <FormTextField
             label="Thông tin sảnh"
             name="MaSanh"
-            value={phieuDatTiec.MaSanh ? `Mã sảnh: ${phieuDatTiec.MaSanh}, tên sảnh: ${sanhInfo.TenSanh}, loại sảnh: ${sanhInfo.LoaiSanh}, Số lượng bàn tối đa: ${sanhInfo.SoLuongBanToiDa}` : ""}
+            value={phieuDatTiec.MaSanh ? `Mã sảnh: ${phieuDatTiec.MaSanh}, tên sảnh: ${sanhInfo.TenSanh}, loại sảnh: ${sanhInfo.TenLoaiSanh}, Số lượng bàn tối đa: ${sanhInfo.SoLuongBanToiDa}` : ""}
             error={!!errors.MaSanh}
             helperText={errors.MaSanh}
             InputLabelProps={{ shrink: true }}
