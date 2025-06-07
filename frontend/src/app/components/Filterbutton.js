@@ -29,12 +29,14 @@ const FilterButton = ({
       onClick={onClick}
       disabled={disabled}
       sx={{
+        width: "100px",
         height: "45px",
         textTransform: "none",
         borderWidth: "2px",
         padding: "2px 12px",
         fontSize: "15px",
         fontWeight: "bold",
+        borderRadius: "0px",
 
         ...styles[colorVariant],
       }}
