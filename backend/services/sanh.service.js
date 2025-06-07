@@ -15,7 +15,7 @@ const extractPublicIdFromUrl = (url) => {
 
 const Sanh = sequelize.models.Sanh;
 const LoaiSanh = sequelize.models.LoaiSanh;
-const PhieuDatTiec = sequelize.models.PhieuDatTiec; 
+const PhieuDatTiec = sequelize.models.PhieuDatTiec;
 const Ca = sequelize.models.Ca;
 
 const getAllSanh = async () => {
@@ -210,6 +210,7 @@ const uploadImage = async (maSanh, fileBuffer) => {
     }
 };
 
+
 const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru }) => {
     try {
         // Tính tổng số bàn yêu cầu (số bàn ban đầu + số bàn dự trữ)
@@ -238,8 +239,8 @@ const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru 
                     where: {
                         NgayDaiTiec: {
                             [Op.between]: [
-                                new Date(ngayDaiTiec + ' 00:00:00'),
-                                new Date(ngayDaiTiec + ' 23:59:59')
+                                new Date(ngayDaiTiec + 'T00:00:00'),
+                                new Date(ngayDaiTiec + 'T23:59:59')
                             ] // So sánh theo toàn bộ ngày
                         },
                         TrangThai: {
@@ -264,22 +265,21 @@ const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru 
             const sanhData = sanh.toJSON();
             const bookedTickets = sanhData.PhieuDatTiecs || [];
 
-            // Tính tình trạng theo từng ca
-            const caAvailability = {};
-            for (const ca of allCas) {
+            // Tính tình trạng theo từng ca dưới dạng mảng
+            const caAvailability = allCas.map(ca => {
                 const caBooked = bookedTickets.find(ticket => ticket.MaCa === ca.MaCa);
                 const isAvailable = !caBooked; // Chỉ dựa vào việc có phiếu đặt tiệc hay không
 
-                caAvailability[ca.MaCa] = {
-                    TenCa: ca.TenCa,
+                return {
+                    MaCa: ca.MaCa,
                     TrangThai: isAvailable ? 'Trống' : 'Không trống'
                 };
-            }
+            });
 
             // Thêm thuộc tính TenLoaiSanh và xóa LoaiSanh, PhieuDatTiecs sau khi đã sử dụng
             sanhData.TenLoaiSanh = sanhData.LoaiSanh ? sanhData.LoaiSanh.TenLoaiSanh : null;
             delete sanhData.LoaiSanh;
-            delete sanhData.PhieuDatTiecs; // Xóa sau khi đã sử dụng
+            delete sanhData.PhieuDatTiecs;
 
             return {
                 ...sanhData,
@@ -292,6 +292,8 @@ const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru 
         throw new ApiError(500, 'Lỗi khi lấy danh sách sảnh khả dụng theo ca: ' + error.message);
     }
 };
+
+module.exports = { getSanhsAvailabilityByDate };
 
 module.exports = {
     getAllSanh,

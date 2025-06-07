@@ -8,8 +8,10 @@ import FormTextField from '../../components/Formtextfield';
 import Cancelbutton from '../../components/Cancelbutton';
 import SaveAndPrintButton from '../../components/Someactionbutton';
 import { StepContext } from '../DatTiecCuoi/DatTiecCuoi';
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import PhieuDatTiecService from '../../service/phieudattiec.service';
+import caService from '../../service/ca.service';
+import sanhService from '../../service/sanh.service';
 import useValidation from '../../validation/validation';
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -17,26 +19,28 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HallCard from '../../components/Hallcard';
 import { format } from 'date-fns';
-import sanhService from '../../service/sanh.service';
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
 const initialState = {
   MaSanh: null,
   TenChuRe: null,
   TenCoDau: null,
   SDT: null,
-  NgayDaiTiec: null,
+  NgayDaiTiec: today,
   MaCa: null,
   TienDatCoc: 0,
   SoLuongBan: 1,
   SoBanDuTru: 0,
-  NgayDatTiec: null,
+  NgayDatTiec: today,
   TrangThai: 1,
 };
 
 const ThongTinTiecCuoi = () => {
 
   //thong tin cơ bản 
-  const { validatePhoneNumberField, validateNumberField, validateTimeField } = useValidation();
+  const { validateNumberField } = useValidation();
   const [currentPDT, setCurrentPDT] = useState(null)
   const [errors, setErrors] = useState({
     SDT: "",
@@ -77,163 +81,6 @@ const ThongTinTiecCuoi = () => {
     },
   ], []);
 
-  // Mock data
-  const mockItems = useMemo(() => [
-    {
-      MaSanh: "S002",
-      TenSanh: 'Sảnh A',
-      LoaiSanh: 'Sảnh nhỏ',
-      SoLuongBanToiDa: 100,
-      HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
-      Ca: [
-        {
-          MaCa: 'CA001',
-          TinhTrang: 'Đang trống',
-
-        },
-        {
-          MaCa: 'CA002',
-          TinhTrang: 'Đã đặt',
-        },
-      ],
-      GhiChu: 'Sảnh có nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
-    }, {
-      MaSanh: "S002",
-      TenSanh: 'Sảnh B',
-      LoaiSanh: 'Sảnh nhỏ',
-      SoLuongBanToiDa: 100,
-      HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
-      Ca: [
-        {
-          MaCa: 'CA001',
-          TinhTrang: 'Đang trống',
-        },
-        {
-          MaCa: 'CA002',
-          TinhTrang: 'Đã đặt',
-        },
-        {
-          MaCa: 'CA003',
-          TinhTrang: 'Đang trống',
-        },
-        {
-          MaCa: 'CA004',
-          TinhTrang: 'Đã đặt',
-        },
-      ],
-      GhiChu: 'Sảnh cótr dfghjkdsf ghjkkjhgfd ghjklkjhgfd ghjklkj hgfdgh jklkj hgfdsf ghjkjvchjk jhgjk hsjok pdfoljksh jiokij khjgkj nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
-    },
-    {
-      MaSanh: "S003",
-      TenSanh: 'Sảnh C',
-      LoaiSanh: 'Sảnh lớn',
-      SoLuongBanToiDa: 100,
-      HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
-      Ca: [
-        {
-          MaCa: 'CA001',
-          TinhTrang: 'Đang trống',
-        },
-        {
-          MaCa: 'CA002',
-          TinhTrang: 'Đã đặt',
-        },
-      ],
-      GhiChu: 'Sảnh có nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
-    },
-    {
-      MaSanh: "S004",
-      TenSanh: 'Sảnh D',
-      LoaiSanh: 'Sảnh trung',
-      SoLuongBanToiDa: 100,
-      HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
-      Ca: [
-        {
-          MaCa: 'CA001',
-          TinhTrang: 'Đang trống',
-        },
-        {
-          MaCa: 'CA002',
-          TinhTrang: 'Đã đặt',
-        },
-        {
-          MaCa: 'CA003',
-          TinhTrang: 'Đã đặt',
-        },
-      ],
-      GhiChu: 'Sảnh có nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
-    },
-    {
-      MaSanh: "S005",
-      TenSanh: 'Sảnh E',
-      LoaiSanh: 'Sảnh lớn',
-      SoLuongBanToiDa: 100,
-      HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
-      Ca: [
-        {
-          MaCa: 'CA001',
-          TinhTrang: 'Đang trống',
-        },
-        {
-          MaCa: 'CA002',
-          TinhTrang: 'Đã đặt',
-        },
-      ],
-      GhiChu: 'Sảnh có nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
-    },
-    {
-      MaSanh: "S006",
-      TenSanh: 'Sảnh F',
-      LoaiSanh: 'Sảnh trung',
-      SoLuongBanToiDa: 100,
-      HinhAnh: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image_nhlkpt.png',
-      Ca: [
-        {
-          MaCa: 'CA001',
-          TinhTrang: 'Đang trống',
-        },
-        {
-          MaCa: 'CA002',
-          TinhTrang: 'Đã đặt',
-        },
-      ],
-      GhiChu: 'Sảnh có nhiều nội thất sang trong, đắt đỏ cần cẩn thận trong quá trình diễn ra tiệc cưới.',
-    }
-  ], []);
-
-  const caMockItems = useMemo(() => [
-    {
-      MaCa: 'CA001',
-      TenCa: 'Ca tối',
-      GioBatDau: "11:00:00",
-      GioKetThuc: "04:00:00"
-    },
-    {
-      MaCa: 'CA002',
-      TenCa: 'Ca tối',
-      GioBatDau: "11:00:00",
-      GioKetThuc: "04:00:00"
-    },
-    {
-      MaCa: 'CA003',
-      TenCa: 'Ca tối',
-      GioBatDau: "11:00:00",
-      GioKetThuc: "04:00:00"
-    },
-    {
-      MaCa: 'CA004',
-      TenCa: 'Ca tối',
-      GioBatDau: "11:00:00",
-      GioKetThuc: "04:00:00"
-    },
-    {
-      MaCa: 'CA005',
-      TenCa: 'Ca tối',
-      GioBatDau: "11:00:00",
-      GioKetThuc: "04:00:00"
-    }
-  ], []);
-
 
 
   //định dạng lại ngày 
@@ -256,6 +103,43 @@ const ThongTinTiecCuoi = () => {
   const sanhInfo = useMemo(() => {
     return halls.find(sanh => sanh.MaSanh === phieuDatTiec.MaSanh) || { TenSanh: "", LoaiSanh: "", SoLuongBanToiDa: "" };
   }, [phieuDatTiec.MaSanh, halls]);
+
+  //trường phone number
+  const validatePhoneNumberField = useCallback((name, value, setErrors) => {
+    const phoneRegex = /^(0|\+84)[0-9]{9}$/;
+
+    if (!value || !phoneRegex.test(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "Số điện thoại không hợp lệ. ",
+      }));
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "",
+      }));
+    }
+  }, []);
+
+
+  const validateTimeField = useCallback((name, value, setErrors) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const timeStr = value instanceof Date ? value.toTimeString() : (value || "");
+    if (timeStr && value.getTime() < today.getTime()) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: "Ngày không được trước ngày hiện tại!",
+      }));
+    } else if (name === "NgayDaiTiec" && value.getTime() < phieuDatTiec.NgayDatTiec.getTime()
+      || name === "NgayDatTiec" && value.getTime() > phieuDatTiec.NgayDaiTiec.getTime()) {
+      setErrors(prev => ({ ...prev, [name]: "Ngày đặt tiệc không được trước ngày đặt tiệc!" }));
+    }
+    else {
+      setErrors((prev) => ({ ...prev, NgayDaiTiec: "" }));
+      setErrors((prev) => ({ ...prev, NgayDatTiec: "" }));
+    }
+  }, []);
 
 
   //Phiếu đặt tiệc
@@ -282,7 +166,9 @@ const ThongTinTiecCuoi = () => {
     else
       setPhieuDatTiec({ ...phieuDatTiec, [name]: newValue });
     if (name === "NgayDaiTiec" || name === "NgayDatTiec") {
+
       validateTimeField(name, newValue, setErrors);
+
     }
     else if (name === "TienDatCoc" || name === "SoLuongBan") {
       validateNumberField(name, newValue, setErrors);
@@ -301,21 +187,16 @@ const ThongTinTiecCuoi = () => {
     sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // fetch data sảnh từ db
-  // const fetchValidServices = useCallback(async () => {
-  //   try {
-  //     await toast.promise(
-  //       DichVuService.searchDichVu({ TinhTrang: "Có sẵn" }),
-  //       {
-  //         loading: "Đang xử lý...",
-  //         success: "Tải dữ liệu dịch vụ thành công!",
-  //         error: (err) => "Lỗi: " + err.message,
-  //       }
-  //     ).then((data) => setServices(data)); // set dữ liệu nếu thành công
-  //   } catch (error) {
-  //     toast.error(error.message || "lỗi khi tải dịch vụ");
-  //   }
-  // }, []);
+
+  const fetchFullCa = useCallback(async (id) => {
+    try {
+      const data = await caService.getAllCa();
+      setshifts(data);
+    } catch (error) {
+      toast.error(`${error.message || 'Không thể tải dữ liệu ca!'}`);
+    }
+
+  }, []);
 
 
   // fetch data phiếu đặt tiêc neeys đang tiến hành đặt tiệc
@@ -341,18 +222,22 @@ const ThongTinTiecCuoi = () => {
 
   }, []);
 
+  const fetchValidSanhByDate = useCallback(async (queries) => {
+    try {
+      const data = await sanhService.getSanhsAvailabilityByDate(queries);
+      setHalls(data);
+    } catch (error) {
+      toast.error(`${error.message || 'Không thể tải dữ liệu sảnh!'}`);
+    }
+
+  }, []);
+
 
   // tạo data phiếu đặt tiệc
   const createCurrentPhieuDatTiec = useCallback(async (id) => {
 
     try {
       const data = await PhieuDatTiecService.createPhieuDatTiec(pdtReFormat);
-      //   {
-      //     loading: "Đang xử lý...",
-      //     success: "khởi tạo dữ liệu thành công!",
-      //     error: (err) => "Lỗi: " + err.message,
-      //   }
-      // );
       setPhieuDatTiec(data) // set dữ liệu nếu thành công
       setCurrentPDT(data.SoPhieuDatTiec);
       localStorage.setItem("currentPDT", data.data.SoPhieuDatTiec)
@@ -366,12 +251,6 @@ const ThongTinTiecCuoi = () => {
   const updateCurrentPhieuDatTiec = useCallback(async (id) => {
     try {
       const data = await PhieuDatTiecService.updatePhieuDatTiec(id, pdtReFormat);
-      //   {
-      //     loading: "Đang xử lý...",
-      //     success: "cập nhật dữ liệu thành công!",
-      //     error: (err) => "Lỗi: " + err.message,
-      //   }
-      // ).then((data) => 
       setPhieuDatTiec(data);
     } catch (error) {
       toast.error(`Lỗi: ${error.message || 'Không thể cập nhật phiếu đặt tiệc!'}`);
@@ -383,12 +262,6 @@ const ThongTinTiecCuoi = () => {
     try {
       if (currentPDT) {
         await PhieuDatTiecService.deletePhieuDatTiec(id)
-        //   {
-        //     loading: "Đang xử lý...",
-        //     success: "Hủy đặt tiệc cưới thành công!",
-        //     error: (err) => "Lỗi: " + err.message,
-        //   }
-        // )
       }
       setCurrentPDT(null);
       setPhieuDatTiec(initialState);
@@ -428,35 +301,19 @@ const ThongTinTiecCuoi = () => {
     handleNav()
 
   };
-
-
-  //set data
+  //set full ca data
   useEffect(() => {
-    setHalls(mockItems.map((item) => ({
-      MaSanh: item.MaSanh,
-      TenSanh: item.TenSanh,
-      LoaiSanh: item.LoaiSanh,
-      SoLuongBanToiDa: item.SoLuongBanToiDa,
-      HinhAnh: item.HinhAnh,
-      Ca: item.Ca,
-      GhiChu: item.GhiChu,
-    })));
-    setshifts(caMockItems.map((item) => ({
-      MaCa: item.MaCa,
-      TenCa: item.TenCa,
-      GioBatDau: item.GioBatDau,
-      GioKetThuc: item.GioKetThuc
-    })));
-
-  }, [mockItems, caMockItems]);
+    fetchFullCa();
+  }, [fetchFullCa]);
 
   // Lấy currentPDT từ localStorage 
   useEffect(() => {
     // setPhieuDatTiec(initialState);
-    //localStorage.setItem("currentPDT", null);
+    localStorage.setItem("currentPDT", null);
 
     const pdt = localStorage.getItem("currentPDT");
     console.log("currentPDT: ", pdt)
+
     if (pdt !== "null") {
       setCurrentPDT(pdt);
       fetchCurrentPhieuDatTiec(pdt);
@@ -464,8 +321,21 @@ const ThongTinTiecCuoi = () => {
     else {
       setCurrentPDT(null);
     }
+    console.log("PDT: ", phieuDatTiec)
+    console.log("PDT reformat: ", pdtReFormat)
 
   }, [fetchCurrentPhieuDatTiec]);
+
+
+  //set valid sanh data
+  useEffect(() => {
+    console.log("phieuDatTiec.NgayDaiTiec: ", pdtReFormat.NgayDaiTiec)
+    console.log("phieuDatTiec.SoLuongBan: ", phieuDatTiec.SoLuongBan)
+    console.log("phieuDatTiec.SoBanDuTru: ", phieuDatTiec.SoBanDuTru)
+    fetchValidSanhByDate({ ngayDaiTiec: pdtReFormat.NgayDaiTiec.slice(0, 10), soLuongBan: phieuDatTiec.SoLuongBan, soBanDuTru: phieuDatTiec.SoBanDuTru });
+
+  }, [fetchFullCa, fetchValidSanhByDate, phieuDatTiec.NgayDaiTiec, phieuDatTiec.SoLuongBan, phieuDatTiec.SoBanDuTru]);
+  console.log("halls: ", halls.slice(0, 1))
 
   return (
     <div className="page">
@@ -511,38 +381,36 @@ const ThongTinTiecCuoi = () => {
                 shrink: (phieuDatTiec.TienDatCoc >= 0 && phieuDatTiec.TienDatCoc !== "")
               }} />
             <LocalizationProvider dateAdapter={AdapterDateFns}>
-              <DateTimePicker
+              <DatePicker
                 label="Ngày đặt tiệc"
-                name="NgayDatTiec"
                 value={phieuDatTiec.NgayDatTiec}
-                onChange={(newValue) => handleChange({ target: { name: "NgayDatTiec", value: newValue } })}
-                format="dd-MM-yyyy HH:mm:ss"
-                ampm={false}
-                textField={(params) => (
-                  <FormTextField
-                    {...params}
-                    fullWidth
-                    error={!!errors.NgayDatTiec}
-                    helperText={errors.NgayDatTiec}
-                  />
-                )}
+                onChange={(newValue) =>
+                  handleChange({ target: { name: "NgayDatTiec", value: newValue } })
+                }
+                format="dd-MM-yyyy"
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    error: !!errors.NgayDatTiec,
+                    helperText: errors.NgayDatTiec,
+                  },
+                }}
               />
 
-              <DateTimePicker
+              {console.log("errors.NgayDatTiec:", !!errors.NgayDatTiec)}
+              <DatePicker
                 label="Ngày đãi tiệc"
                 name="NgayDaiTiec"
                 value={phieuDatTiec.NgayDaiTiec}
                 onChange={(newValue) => handleChange({ target: { name: "NgayDaiTiec", value: newValue } })}
-                format="dd-MM-yyyy HH:mm:ss"
-                ampm={false}
-                textField={(params) => (
-                  <FormTextField
-                    {...params}
-                    fullWidth
-                    error={!!errors.NgayDaiTiec}
-                    helperText={errors.NgayDaiTiec}
-                  />
-                )}
+                format="dd-MM-yyyy"
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    error: !!errors.NgayDaiTiec,
+                    helperText: errors.NgayDaiTiec,
+                  },
+                }}
               />
             </LocalizationProvider>
           </Box>

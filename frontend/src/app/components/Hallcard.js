@@ -42,15 +42,15 @@ const HallCard = ({ hall, shifts, index, onClick }) => {
             }}>
                 <Typography sx={{ fontSize: '1.5rem', fontWeight: 'Bold', marginBottom: 0 }}>{hall.TenSanh}</Typography>
                 <TagButton>
-                    {hall.LoaiSanh}</TagButton>
+                    {hall.TenLoaiSanh}</TagButton>
             </Box>
             <Typography sx={{ fontSize: '1rem', fontWeight: 'Bold', marginBottom: 0 }}>Số lượng bàn tối đa: {hall.SoLuongBanToiDa}</Typography>
             <CardMedia
                 component="img"
-                height="192"
+
                 image={hall.HinhAnh}
                 alt={`introduction-hall-${index}`}
-                sx={{ objectFit: 'cover' }}
+                sx={{ height: "192px", objectFit: 'cover' }}
                 className='hall-img-show'
             />
             <div className='container'
@@ -60,19 +60,21 @@ const HallCard = ({ hall, shifts, index, onClick }) => {
                     paddingright: '10px',
                     gap: '10px',
                 }}>
-                {hall.Ca.map((ca) => (
+                {hall.CaAvailability.map((ca) => (
                     <TagButton
                         key={ca.MaCa}
-                        sx={{ background: ca.TinhTrang === 'Đang trống' ? '#063F5C' : '#DFDFDF', marginRight: 1, marginBottom: 1 }}
+                        sx={{ background: ca.TrangThai === 'Trống' ? '#063F5C' : '#DFDFDF', marginRight: 1, marginBottom: 1 }}
                         onClick={() => setChoosingShift(ca.MaCa)}
-                        disabled={!(ca.TinhTrang === "Đang trống")}
+                        disabled={!(ca.TrangThai === "Trống")}
                     >
                         {(shifts.find(shift => shift.MaCa === ca.MaCa) || {}).TenCa || ""}
                     </TagButton>
                 ))}
             </div>
 
-            <Typography sx={{ fontSize: '1rem', fontWeight: 'Bold', height: '75px', overflowY: 'auto', overflowX: 'hidden' }}>Ghi chú: {hall.GhiChu}</Typography>
+            <Typography sx={{ fontSize: '1rem', fontWeight: 'Bold', height: '75px', overflowY: 'auto', overflowX: 'hidden' }}>
+                Ghi chú: {(hall.GhiChu === null) ? "Không" : hall.GhiChu}
+            </Typography>
             <Button
                 onClick={() => handleSave()}
                 variant="contained"

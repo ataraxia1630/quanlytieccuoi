@@ -188,11 +188,10 @@ function DatMonAn() {
 
   // Gọi fetchValidFoods lây dữ liệu món ăn
   useEffect(() => {
-    if (currentPDT) {
-      console.log("current: ", currentPDT)
-      fetchValidFoods();
-    }
-  }, [currentPDT, fetchValidFoods]);
+
+    fetchValidFoods();
+
+  }, [fetchValidFoods]);
 
   const fullReservedFoodsData = useMemo(() => {
     console.log("ctdatban: ", reservedFoods);
