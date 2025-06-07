@@ -238,9 +238,9 @@ const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru 
                     where: {
                         NgayDaiTiec: {
                             [Op.between]: [
-                                new Date(ngayDaiTiec).setUTCHours(0, 0, 0, 0), // Bắt đầu ngày UTC
-                                new Date(ngayDaiTiec).setUTCHours(23, 59, 59, 999) // Kết thúc ngày UTC
-                            ]
+                                new Date(ngayDaiTiec + ' 00:00:00'),
+                                new Date(ngayDaiTiec + ' 23:59:59')
+                            ] // So sánh theo toàn bộ ngày
                         },
                         TrangThai: {
                             [Op.in]: ['Chưa thanh toán', 'Đã thanh toán'] // Chỉ lấy phiếu không trống
