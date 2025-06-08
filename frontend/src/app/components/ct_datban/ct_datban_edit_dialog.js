@@ -145,13 +145,14 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
                         />
 
                         <FormTextField
-                            label="DonGia"
+                            label="Dơn giá"
                             name="DonGia"
                             value={formData.DonGia}
                             onChange={handleChange}
                             format="number"
                             error={!!errors.DonGia}
                             helperText={errors.DonGia}
+                            disabled={!!ctdatban}
                         />
                         <FormTextField
                             label="Ghi chú"
