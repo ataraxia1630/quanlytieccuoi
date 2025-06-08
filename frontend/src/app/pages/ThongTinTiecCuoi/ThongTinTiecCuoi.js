@@ -331,8 +331,8 @@ const ThongTinTiecCuoi = () => {
     console.log("phieuDatTiec.NgayDaiTiec: ", pdtReFormat.NgayDaiTiec)
     console.log("phieuDatTiec.SoLuongBan: ", phieuDatTiec.SoLuongBan)
     console.log("phieuDatTiec.SoBanDuTru: ", phieuDatTiec.SoBanDuTru)
-
-    fetchValidSanhByDate({ ngayDaiTiec: pdtReFormat.NgayDaiTiec.slice(0, 10), soLuongBan: phieuDatTiec.SoLuongBan, soBanDuTru: phieuDatTiec.SoBanDuTru });
+    let slban = phieuDatTiec.SoLuongBan == "" ? 0 : phieuDatTiec.SoLuongBan;
+    fetchValidSanhByDate({ ngayDaiTiec: pdtReFormat.NgayDaiTiec.slice(0, 10), soLuongBan: slban, soBanDuTru: phieuDatTiec.SoBanDuTru });
 
   }, [fetchFullCa, fetchValidSanhByDate, phieuDatTiec.NgayDaiTiec, phieuDatTiec.SoLuongBan, phieuDatTiec.SoBanDuTru]);
 
