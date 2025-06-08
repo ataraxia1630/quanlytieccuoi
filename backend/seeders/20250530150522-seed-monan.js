@@ -496,7 +496,7 @@ const getRandomTinhTrang = () => {
 const getRandomDonGia = () => {
   const min = 500000;
   const max = 900000;
-  const step = 1000;
+  const step = 10000;
 
   const range = Math.floor((max - min) / step) + 1;
   const randomStep = Math.floor(Math.random() * range);
