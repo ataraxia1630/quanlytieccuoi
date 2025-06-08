@@ -15,7 +15,6 @@ import DanhSachLoaiSanh from '../pages/DanhSachLoaiSanh';
 import BaoCaoThang from '../pages/BaoCaoThang';
 import BangThamSo from '../pages/BangThamSo';
 
-
 import DatMonAn from '../pages/DatMonAn';
 import DatDichVu from '../pages/DatDichVu';
 import ThongTinTiecCuoi from '../pages/ThongTinTiecCuoi';
@@ -25,13 +24,16 @@ import Header from '../layouts/Header';
 import Footer from '../layouts/Footer';
 
 import 'react-toastify/dist/ReactToastify.css';
-
+import PhanQuyen from '../pages/PhanQuyen';
+import Login from '../pages/Login';
 
 export default function MainRoutes() {
   return (
     <BrowserRouter>
       <Header />
       <Routes>
+        <Route path="/login" element={<Login />} />
+
         <Route path="/" element={<Home />} />
         <Route path="*" element={<PageNotFound />} />
 
@@ -54,6 +56,8 @@ export default function MainRoutes() {
 
           <Route path="BangThamSo" element={<BangThamSo />} />
           <Route path="BaoCaoThang" element={<BaoCaoThang />} />
+
+          <Route path="PhanQuyen" element={<PhanQuyen />} />
         </Route>
       </Routes>
       <Footer />

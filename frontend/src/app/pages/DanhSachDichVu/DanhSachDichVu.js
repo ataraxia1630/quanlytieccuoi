@@ -1,24 +1,25 @@
-import { useState, useEffect, useCallback } from "react";
-import { Box, Typography, CircularProgress } from "@mui/material";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { useState, useEffect, useCallback } from 'react';
+import { Box, Typography, CircularProgress } from '@mui/material';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-import SearchBar from "../../components/Searchbar";
-import FilterButton from "../../components/Filterbutton";
-import AddButton from "../../components/Addbutton";
-import CustomTable from "../../components/Customtable";
-import DeleteDialog from "../../components/Deletedialog";
-import DichVuFilter from "../../components/dichvu/dichvu_filter_panel";
-import DichVuColumn from "../../components/dichvu/dichvu_column";
-import DichVuDialog from "../../components/dichvu/dichvu_popup";
-import DichVuService from "../../service/dichvu.service";
+import SearchBar from '../../components/Searchbar';
+import FilterButton from '../../components/Filterbutton';
+import AddButton from '../../components/Addbutton';
+import ActionDropdown from '../../components/Printandexport';
+import CustomTable from '../../components/Customtable';
+import DeleteDialog from '../../components/Deletedialog';
+import DichVuFilter from '../../components/dichvu/dichvu_filter_panel';
+import DichVuColumn from '../../components/dichvu/dichvu_column';
+import DichVuDialog from '../../components/dichvu/dichvu_popup';
+import DichVuService from '../../service/dichvu.service';
 
 function DanhSachDichVu() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [mode, setMode] = useState("add");
+  const [mode, setMode] = useState('add');
   const [loading, setLoading] = useState(false);
   const [dichVuList, setDichVuList] = useState([]);
   const [selectedDichVu, setSelectedDichVu] = useState(null);
@@ -78,15 +79,15 @@ function DanhSachDichVu() {
     const result = await fetchDichVuList(currentFilters, pagination.limit, 0);
 
     if (result?.length === 0) {
-      toast.warning("Không tìm thấy dịch vụ nào phù hợp.");
-      setSearchTerm("");
+      toast.warning('Không tìm thấy dịch vụ nào phù hợp.');
+      setSearchTerm('');
     } else {
       toast.success(`Đã tìm thấy: ${searchTerm}`);
     }
   };
 
   const handleAdd = () => {
-    setMode("add");
+    setMode('add');
     setSelectedDichVu(null);
     setIsDialogOpen(true);
   };
@@ -100,14 +101,14 @@ function DanhSachDichVu() {
     fetchDichVuList(filterParams, pagination.limit, 0);
 
     if (Object.keys(filterParams).length > 0) {
-      toast.success("Đã áp dụng bộ lọc");
+      toast.success('Đã áp dụng bộ lọc');
     } else {
-      toast.info("Đã reset bộ lọc");
+      toast.info('Đã reset bộ lọc');
     }
   };
 
   const handleEdit = (dichVu) => {
-    setMode("edit");
+    setMode('edit');
     setSelectedDichVu(dichVu);
     setIsDialogOpen(true);
   };
@@ -136,12 +137,12 @@ function DanhSachDichVu() {
         TinhTrang: formData.status,
       };
 
-      if (mode === "edit" && selectedDichVu) {
+      if (mode === 'edit' && selectedDichVu) {
         await DichVuService.updateDichVu(selectedDichVu.MaDichVu, dichVuData);
-        toast.success("Cập nhật dịch vụ thành công");
+        toast.success('Cập nhật dịch vụ thành công');
       } else {
         await DichVuService.createDichVu(dichVuData);
-        toast.success("Thêm dịch vụ thành công");
+        toast.success('Thêm dịch vụ thành công');
       }
 
       setIsDialogOpen(false);
@@ -160,8 +161,8 @@ function DanhSachDichVu() {
       const result = await DichVuService.deleteDichVu(selectedDichVu.MaDichVu);
 
       const toastByStatus = {
-        "soft-deleted": toast.info,
-        "already-soft-deleted": toast.warning,
+        'soft-deleted': toast.info,
+        'already-soft-deleted': toast.warning,
         deleted: toast.success,
       };
 
@@ -177,24 +178,34 @@ function DanhSachDichVu() {
     }
   };
 
+  const handlePrint = () => {
+    console.log('In dữ liệu');
+    // Logic in ở đây
+  };
+
+  const handleExportExcel = () => {
+    console.log('Xuất ra file Excel');
+    // Logic xuất ở đây
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
 
       <Typography
         variant="h4"
-        sx={{ fontWeight: "bold", color: "#063F5C", mb: 4 }}
+        sx={{ fontWeight: 'bold', color: '#063F5C', mb: 4 }}
       >
         Danh sách dịch vụ
       </Typography>
 
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "20px",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '20px',
           mb: 3,
         }}
       >
@@ -205,16 +216,20 @@ function DanhSachDichVu() {
           placeholder="Tìm tên hoặc mã dịch vụ ..."
         />
 
-        <Box sx={{ display: "flex", gap: "17px", justifyContent: "flex-end" }}>
+        <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
           <FilterButton onClick={handleFilter} text="Filter" />
           <AddButton onClick={handleAdd} text="Thêm" />
+          <ActionDropdown
+            onPrint={handlePrint}
+            onExportExcel={handleExportExcel}
+          />
         </Box>
       </Box>
 
       <DichVuFilter isOpen={isFilterOpen} onApply={handleApplyFilter} />
 
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
           <CircularProgress />
         </Box>
       ) : (
@@ -230,7 +245,7 @@ function DanhSachDichVu() {
         open={isDialogOpen}
         onClose={handleCloseEditDialog}
         onSave={handleSaveDichVu}
-        title={mode === "edit" ? "Chỉnh sửa dịch vụ" : "Thêm dịch vụ"}
+        title={mode === 'edit' ? 'Chỉnh sửa dịch vụ' : 'Thêm dịch vụ'}
         initialData={selectedDichVu}
         mode={mode}
       />
