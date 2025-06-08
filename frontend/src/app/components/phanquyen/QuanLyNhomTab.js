@@ -13,20 +13,17 @@ import GroupService from '../../service/nhom.service';
 
 export default function QuanLyNhomTab() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-
   const [groupData, setGroupData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(false);
+
   const fetchData = async () => {
     setLoading(true);
     try {
       const groups = await GroupService.getAll(searchTerm);
-      console.log(groups);
       setGroupData(groups || []);
     } catch (error) {
-      console.log('Error fetching user:', error.message);
       toast.error(`Lỗi: ${error.message || 'Không thể tải danh sách nhóm!'}`);
     } finally {
       setLoading(false);
@@ -38,13 +35,34 @@ export default function QuanLyNhomTab() {
   }, [searchTerm]);
 
   const handleSearch = () => {
-    // toast.info(`Đang tìm kiếm: ${searchTerm}`);
     fetchData();
   };
   const handleAdd = () => {
     setSelectedRow(null);
-    setIsEditDialogOpen(true);
-    toast.success('Bắt đầu thêm người dùng mới');
+    toast.success('Bắt đầu thêm nhóm mới');
+  };
+
+  const handleEdit = (group) => {
+    setSelectedRow(group);
+  };
+
+  const handleDelete = (group) => {
+    setSelectedRow(group);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedRow) return;
+    try {
+      await GroupService.delete(selectedRow.MaNhom);
+      toast.success(`Xóa nhóm ${selectedRow.TenNhom} thành công!`);
+      fetchData();
+    } catch (error) {
+      toast.error(`Lỗi: ${error.message || 'Không thể xóa nhóm!'}`);
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setSelectedRow(null);
+    }
   };
 
   return (
@@ -73,16 +91,29 @@ export default function QuanLyNhomTab() {
       </Box>
 
       {loading ? (
-        <Box sx={{ mt: 4 }}>
+        <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
           <CircularProgress />
         </Box>
       ) : (
         <Box>
           {groupData.map((group, idx) => (
-            <GroupAccordion key={idx} group={group} />
+            <GroupAccordion
+              key={idx}
+              group={group}
+              onDelete={handleDelete}
+              onSave={fetchData}
+            />
           ))}
         </Box>
       )}
+
+      <DeleteDialog
+        open={isDeleteDialogOpen}
+        onClose={() => setIsDeleteDialogOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Xóa Nhóm"
+        content={`Bạn có chắc muốn xóa nhóm ${selectedRow?.TenNhom || ''}?`}
+      />
     </Box>
   );
 }
