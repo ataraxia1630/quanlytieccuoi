@@ -91,16 +91,21 @@ const ThongTinTiecCuoi = () => {
       NgayDatTiec: phieuDatTiec.NgayDatTiec ? format(new Date(phieuDatTiec.NgayDatTiec), "yyyy-MM-dd'T'HH:mm:ss") : null
     };
   }, [phieuDatTiec]);
+  // Tìm sảnh tương ứng dựa trên MaSanh
+  const sanhInfo = useMemo(() => {
+
+    const sanh = halls.find(sanh => sanh.MaSanh === phieuDatTiec.MaSanh) || { MaSanh: null, TenSanh: "", TenLoaiSanh: "", SoLuongBanToiDa: "" };
+    if (sanh.MaSanh === null) {
+      setPhieuDatTiec(prev => ({ ...prev, MaSanh: null, MaCa: null }));
+    }
+    return sanh;
+  }, [phieuDatTiec.MaSanh, halls]);
 
   // Tìm ca tương ứng dựa trên MaCa
   const caInfo = useMemo(() => {
-    return shifts.find(ca => ca.MaCa === phieuDatTiec.MaCa) || { TenCa: "", ThoiGianBatDau: "", ThoiGianKetThuc: "" };
-  }, [phieuDatTiec.MaCa, shifts]);
+    return shifts.find(ca => ca.MaCa === phieuDatTiec.MaCa) || { MaCa: null, TenCa: "", ThoiGianBatDau: "", ThoiGianKetThuc: "" };
+  }, [phieuDatTiec.MaCa, shifts, sanhInfo.MaSanh]);
 
-  // Tìm sảnh tương ứng dựa trên MaSanh
-  const sanhInfo = useMemo(() => {
-    return halls.find(sanh => sanh.MaSanh === phieuDatTiec.MaSanh) || { TenSanh: "", LoaiSanh: "", SoLuongBanToiDa: "" };
-  }, [phieuDatTiec.MaSanh, halls]);
 
   //trường phone number
   const validatePhoneNumberField = useCallback((name, value, setErrors) => {
@@ -170,6 +175,9 @@ const ThongTinTiecCuoi = () => {
     }
     else if (name === "TienDatCoc" || name === "SoLuongBan") {
       validateNumberField(name, newValue, setErrors);
+      if (name === "SoLuongBan" && newValue > sanhInfo.SoLuongBanToiDa) {
+        setErrors(prev => ({ ...prev, SoLuongBan: "Sảnh quá nhỏ so với số lượng bàn yêu cầu" }));
+      }
     }
     else if (name === "SDT") {
       validatePhoneNumberField(name, newValue, setErrors);
@@ -416,7 +424,7 @@ const ThongTinTiecCuoi = () => {
           <FormTextField
             label="Thông tin sảnh"
             name="MaSanh"
-            value={phieuDatTiec.MaSanh ? `Mã sảnh: ${phieuDatTiec.MaSanh}, tên sảnh: ${sanhInfo.TenSanh}, loại sảnh: ${sanhInfo.TenLoaiSanh}, Số lượng bàn tối đa: ${sanhInfo.SoLuongBanToiDa}` : ""}
+            value={sanhInfo.MaSanh ? `Mã sảnh: ${sanhInfo.MaSanh}, tên sảnh: ${sanhInfo.TenSanh}, loại sảnh: ${sanhInfo.TenLoaiSanh}, Số lượng bàn tối đa: ${sanhInfo.SoLuongBanToiDa}` : ""}
             error={!!errors.MaSanh}
             helperText={errors.MaSanh}
             InputLabelProps={{ shrink: true }}
@@ -425,7 +433,7 @@ const ThongTinTiecCuoi = () => {
           <FormTextField
             label="Ca"
             name="MaCa"
-            value={phieuDatTiec.MaCa ? `${phieuDatTiec.MaCa}, ${caInfo.GioBatDau} - ${caInfo.GioKetThuc}` : ""}
+            value={caInfo.MaCa ? `${caInfo.MaCa}, ${caInfo.GioBatDau} - ${caInfo.GioKetThuc}` : ""}
             error={!!errors.TienDatCoc}
             helperText={errors.TienDatCoc}
             InputLabelProps={{ shrink: true }}
