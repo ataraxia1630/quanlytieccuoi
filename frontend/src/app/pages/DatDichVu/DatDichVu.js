@@ -57,12 +57,6 @@ function DatDichVu() {
   const fetchValidServices = useCallback(async () => {
     try {
       const data = await DichVuService.searchDichVu({ TinhTrang: "Có sẵn" });
-      //   {
-      //     loading: "Đang xử lý...",
-      //     success: "Tải dữ liệu dịch vụ thành công!",
-      //     error: (err) => "Lỗi: " + err.message,
-      //   }
-      // ).then((data) => 
       setServices(data); // set dữ liệu nếu thành công
     } catch (error) {
       toast.error(error.message || "lỗi khi tải dịch vụ");
@@ -178,11 +172,8 @@ function DatDichVu() {
 
   // Gọi fetchValidServices lây dữ liệu dịch vụ
   useEffect(() => {
-    if (currentPDT) {
-      console.log("current: ", currentPDT)
-      fetchValidServices();
-    }
-  }, [currentPDT, fetchValidServices]);
+    fetchValidServices();
+  }, [fetchValidServices]);
 
   const fullReservedServicesData = useMemo(() => {
 

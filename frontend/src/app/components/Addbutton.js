@@ -9,6 +9,7 @@ const AddButton = ({ onClick = () => { }, text = "Thêm", disabled = false }) =>
       disabled={disabled}
       startIcon={<AddIcon fontWeight="bold" />}
       sx={{
+        width: "100px",
         height: "45px",
         textTransform: "none",
         backgroundColor: "#063F5C",
@@ -18,7 +19,7 @@ const AddButton = ({ onClick = () => { }, text = "Thêm", disabled = false }) =>
         fontWeight: "bold",
         boxShadow: "none",
         "&:hover": {
-          backgroundColor: "#2f2f2f",
+          backgroundColor: "#052f45",
           boxShadow: "none",
         },
       }}

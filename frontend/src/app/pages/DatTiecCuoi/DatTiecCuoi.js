@@ -50,7 +50,7 @@ const DatTiecCuoi = () => {
   }));
 
   const handleNav = (step = -1) => {
-    const nextStep = step === -1 ? activeStep + 1 : step;
+    let nextStep = step === -1 ? activeStep + 1 : step;
     let path;
 
     if (nextStep === activeStep || nextStep < -1) return;
