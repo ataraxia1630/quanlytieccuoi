@@ -12,6 +12,8 @@ import DeleteDialog from '../../components/Deletedialog';
 import DichVuFilter from '../../components/dichvu/dichvu_filter_panel';
 import DichVuColumn from '../../components/dichvu/dichvu_column';
 import DichVuDialog from '../../components/dichvu/dichvu_popup';
+import exportDichVuToExcel from '../../components/dichvu/dichvu_export_excel';
+import printDichVu from '../../components/dichvu/dichvu_print_data';
 import DichVuService from '../../service/dichvu.service';
 
 function DanhSachDichVu() {
@@ -179,13 +181,17 @@ function DanhSachDichVu() {
   };
 
   const handlePrint = () => {
-    console.log('In dữ liệu');
-    // Logic in ở đây
+    const res = printDichVu(dichVuList);
+    if (!res.success) {
+      toast.error(`Lỗi khi in: ${res.message}`);
+    }
   };
 
-  const handleExportExcel = () => {
-    console.log('Xuất ra file Excel');
-    // Logic xuất ở đây
+  const handleExportExcel = async () => {
+    const res = await exportDichVuToExcel(dichVuList);
+    if (!res.success) {
+      toast.error(`Lỗi khi xuất file: ${res.message}`);
+    }
   };
 
   return (
