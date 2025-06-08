@@ -96,15 +96,15 @@ const ThongTinTiecCuoi = () => {
 
     const sanh = halls.find(sanh => sanh.MaSanh === phieuDatTiec.MaSanh) || { MaSanh: null, TenSanh: "", TenLoaiSanh: "", SoLuongBanToiDa: "" };
     if (sanh.MaSanh === null) {
-      setPhieuDatTiec(prev => ({ ...prev, MaSanh: null, MaCa: null }));
-    }
+      setErrors(prev => ({ ...prev, MaCa: null }))
+    };
     return sanh;
-  }, [phieuDatTiec.MaSanh, halls]);
+  }, [phieuDatTiec.MaSanh, halls, phieuDatTiec.SoLuongBan]);
 
   // Tìm ca tương ứng dựa trên MaCa
   const caInfo = useMemo(() => {
     return shifts.find(ca => ca.MaCa === phieuDatTiec.MaCa) || { MaCa: null, TenCa: "", ThoiGianBatDau: "", ThoiGianKetThuc: "" };
-  }, [phieuDatTiec.MaCa, shifts, sanhInfo.MaSanh]);
+  }, [phieuDatTiec.MaCa, shifts]);
 
 
   //trường phone number
@@ -219,7 +219,7 @@ const ThongTinTiecCuoi = () => {
         NgayDaiTiec: new Date(newData.NgayDaiTiec),
         NgayDatTiec: new Date(newData.NgayDatTiec)
       };
-      console.log("phieudattiec fetch data: ", newData)
+
       setPhieuDatTiec(newData);
 
     } catch (error) {
@@ -311,10 +311,21 @@ const ThongTinTiecCuoi = () => {
     fetchFullCa();
   }, [fetchFullCa]);
 
+
+  //set valid sanh data
+  useEffect(() => {
+
+    let slban = phieuDatTiec.SoLuongBan == "" ? 0 : phieuDatTiec.SoLuongBan;
+    fetchValidSanhByDate({ ngayDaiTiec: pdtReFormat.NgayDaiTiec.slice(0, 10), soLuongBan: slban, soBanDuTru: phieuDatTiec.SoBanDuTru });
+
+  }, [fetchFullCa, fetchValidSanhByDate, phieuDatTiec.NgayDaiTiec, phieuDatTiec.SoLuongBan, phieuDatTiec.SoBanDuTru]);
+
+
+
   // Lấy currentPDT từ localStorage 
   useEffect(() => {
     // setPhieuDatTiec(initialState);
-    localStorage.setItem("currentPDT", "null");
+    localStorage.setItem("currentPDT", "PDT001");
 
     const pdt = localStorage.getItem("currentPDT");
     console.log("currentPDT: ", pdt)
@@ -326,22 +337,15 @@ const ThongTinTiecCuoi = () => {
     else {
       setCurrentPDT(null);
     }
-    console.log("PDT: ", phieuDatTiec)
+
 
 
   }, [fetchCurrentPhieuDatTiec]);
 
 
-  //set valid sanh data
-  useEffect(() => {
-    console.log("phieuDatTiec.NgayDaiTiec: ", pdtReFormat.NgayDaiTiec)
-    console.log("phieuDatTiec.SoLuongBan: ", phieuDatTiec.SoLuongBan)
-    console.log("phieuDatTiec.SoBanDuTru: ", phieuDatTiec.SoBanDuTru)
-    let slban = phieuDatTiec.SoLuongBan == "" ? 0 : phieuDatTiec.SoLuongBan;
-    fetchValidSanhByDate({ ngayDaiTiec: pdtReFormat.NgayDaiTiec.slice(0, 10), soLuongBan: slban, soBanDuTru: phieuDatTiec.SoBanDuTru });
-
-  }, [fetchFullCa, fetchValidSanhByDate, phieuDatTiec.NgayDaiTiec, phieuDatTiec.SoLuongBan, phieuDatTiec.SoBanDuTru]);
-
+  console.log("phieuDatTiec: ", phieuDatTiec);
+  console.log("ca: ", caInfo);
+  console.log("sanh: ", sanhInfo);
   return (
     <div className="page">
       <ToastContainer />
@@ -402,7 +406,7 @@ const ThongTinTiecCuoi = () => {
                 }}
               />
 
-              {console.log("errors.NgayDatTiec:", !!errors.NgayDatTiec)}
+
               <DatePicker
                 label="Ngày đãi tiệc"
                 name="NgayDaiTiec"
