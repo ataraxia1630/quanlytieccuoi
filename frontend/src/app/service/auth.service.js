@@ -16,7 +16,8 @@ const AuthService = {
       const error = await res.text();
       throw new Error(error.message || 'Không thể đăng nhập!');
     }
-    const token = await res.json();
+    const result = await res.json();
+    const token = result.token;
     if (!token) {
       throw new Error('Đăng nhập không thành công!');
     }
