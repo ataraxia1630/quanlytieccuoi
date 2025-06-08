@@ -96,7 +96,7 @@ const ThongTinTiecCuoi = () => {
 
     const sanh = halls.find(sanh => sanh.MaSanh === phieuDatTiec.MaSanh) || { MaSanh: null, TenSanh: "", TenLoaiSanh: "", SoLuongBanToiDa: "" };
     if (sanh.MaSanh === null) {
-      setErrors(prev => ({ ...prev, MaCa: null }))
+      setPhieuDatTiec(prev => ({ ...prev, MaCa: null }))
     };
     return sanh;
   }, [phieuDatTiec.MaSanh, halls, phieuDatTiec.SoLuongBan]);
@@ -175,7 +175,7 @@ const ThongTinTiecCuoi = () => {
     }
     else if (name === "TienDatCoc" || name === "SoLuongBan") {
       validateNumberField(name, newValue, setErrors);
-      if (name === "SoLuongBan" && newValue > sanhInfo.SoLuongBanToiDa) {
+      if (phieuDatTiec.MaSanh && name === "SoLuongBan" && newValue > sanhInfo.SoLuongBanToiDa) {
         setErrors(prev => ({ ...prev, SoLuongBan: "Sảnh quá nhỏ so với số lượng bàn yêu cầu" }));
       }
     }
@@ -287,6 +287,7 @@ const ThongTinTiecCuoi = () => {
       if ((!phieuDatTiec.TenChuRe || !phieuDatTiec.TenCoDau || !phieuDatTiec.SDT
         || !phieuDatTiec.SoLuongBan || !phieuDatTiec.NgayDaiTiec || !phieuDatTiec.NgayDatTiec)
         || !phieuDatTiec.MaCa || !phieuDatTiec.MaSanh || hasErrors()) {
+        console.log("hass err", hasErrors())
         console.log("phieudattiec", phieuDatTiec)
         console.log("lỗi nhập liệu", errors)
         const toastId = "save-error-toast";
@@ -325,7 +326,7 @@ const ThongTinTiecCuoi = () => {
   // Lấy currentPDT từ localStorage 
   useEffect(() => {
     // setPhieuDatTiec(initialState);
-    localStorage.setItem("currentPDT", "PDT001");
+    //localStorage.setItem("currentPDT", null);
 
     const pdt = localStorage.getItem("currentPDT");
     console.log("currentPDT: ", pdt)
