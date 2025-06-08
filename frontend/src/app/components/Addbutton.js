@@ -9,6 +9,7 @@ const AddButton = ({ onClick = () => { }, text = "Thêm", disabled = false }) =>
       disabled={disabled}
       startIcon={<AddIcon fontWeight="bold" />}
       sx={{
+        width: "100px",
         height: "45px",
         textTransform: "none",
         backgroundColor: "#063F5C",

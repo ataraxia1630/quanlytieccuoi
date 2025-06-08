@@ -248,9 +248,10 @@ module.exports = {
         SDT: getRandomSDT(),
         NgayDaiTiec: phieu.NgayDaiTiec,
         MaCa: phieu.MaCa,
-        TienDatCoc: parseInt(
-          (Math.random() * (55000000 - 40000000) + 40000000).toFixed(2)
-        ), // 40M–55M
+        TienDatCoc:
+          Math.floor(
+            (Math.random() * (55000000 - 40000000) + 40000000) / 1000000
+          ) * 1000000, // 40M–55M, step 1M
         SoLuongBan: soLuongBan,
         SoBanDuTru: soBanDuTru,
         NgayDatTiec: phieu.NgayDatTiec,

@@ -96,6 +96,18 @@ const getAllLoaiSanh = async () => {
   return response.json();
 };
 
+const getSanhsAvailabilityByDate = async (queryData) => {
+  const query = new URLSearchParams(queryData).toString();
+  const response = await fetch(`/api/sanh/availability?${query}`);
+  if (!response.ok) {
+    if (response.status === 400)
+      throw new Error('Vui lòng cung cấp ngày đãi tiệc và số lượng bàn');
+    else
+      throw new Error("Failed to filter sanhs");
+  }
+  return response.json();
+};
+
 const sanhService = {
   getAllSanh,
   searchAndFilterSanh,
@@ -105,6 +117,7 @@ const sanhService = {
   deleteSanh,
   uploadImage,
   getAllLoaiSanh,
+  getSanhsAvailabilityByDate,
 };
 
 export default sanhService;

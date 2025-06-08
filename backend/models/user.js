@@ -29,22 +29,5 @@ module.exports = (sequelize, DataTypes) => {
   User.associate = (models) => {
     User.belongsTo(models.NHOM, { foreignKey: 'MaNhom' });
   };
-
-  User.afterSync(async () => {
-    const defaultUsername = process.env.DEFAULT_USERNAME || 'defaultUser';
-    const defaultPassword = process.env.DEFAULT_PASSWORD || 'defaultPass123';
-    const count = await User.count({
-      where: { username: defaultUsername },
-    });
-    if (count === 0) {
-      const hashedPassword = await bcrypt.hash(defaultPassword, 10);
-      await User.create({
-        username: defaultUsername,
-        password: hashedPassword,
-        MaNhom: 'G0000',
-      });
-    }
-  });
-
   return User;
 };

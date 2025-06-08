@@ -185,6 +185,305 @@ const foodData = [
     HinhAnh:
       'https://res.cloudinary.com/digpe9tmq/image/upload/v1748492703/ufzhn9ey1jeyh7xy2ku3.png',
   },
+  {
+    TenMonAn: 'Burger phô mai tan chảy',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/06/burger-with-melted-cheese.jpg',
+  },
+  {
+    TenMonAn: 'Súp mì thịt viên đậm đà',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2024/12/foodiesfeed-2024-12-16-100127.jpg',
+  },
+  {
+    TenMonAn: 'Bánh cheesecake chanh mát lạnh',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2024/12/refreshing-lemon-cheesecake-slice-with-mint-garnish.jpg',
+  },
+  {
+    TenMonAn: 'Cơm rau củ sắc màu cùng trứng ốp la',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/01/colorful-bowl-of-deliciousness-with-fried-egg.png',
+  },
+  {
+    TenMonAn: 'Kem ly socola',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/10/bowl-of-ice-cream-with-chocolate.jpg',
+  },
+  {
+    TenMonAn: 'Sữa dâu tươi',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/04/strawberry-milk-splash.jpg',
+  },
+  {
+    TenMonAn: 'Cánh gà chiên giòn cay nồng',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/08/crispy-spicy-chicken-wings.jpg',
+  },
+  {
+    TenMonAn: 'Bò bít tết nướng ăn kèm rau củ',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/05/freshly-prepared-beef-steak-with-vegetables.jpg',
+  },
+  {
+    TenMonAn: 'Bánh kem matcha tầng phủ cherry và hạnh nhân',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/matcha-layer-cake-with-cherries-and-almonds.webp',
+  },
+  {
+    TenMonAn: 'Salad cá hồi tươi cùng thảo mộc và cam chanh',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/01/fresh-salmon-salad-with-herbs-and-citrus.png',
+  },
+  {
+    TenMonAn: 'Chanh tươi',
+    HinhAnh: 'https://www.foodiesfeed.com/wp-content/uploads/2023/09/limes.jpg',
+  },
+  {
+    TenMonAn: 'Burger phô mai mọng nước',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/05/juicy-cheeseburger.jpg',
+  },
+  {
+    TenMonAn: 'Cà chua mọng nước phủ sương',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/04/fresh-and-juicy-tomatoes-with-water-droplets.png',
+  },
+  {
+    TenMonAn: 'Bò bít tết ăn kèm khoai tây chiên',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/04/steak-with-french-fries-on-a-plate.jpg',
+  },
+  {
+    TenMonAn: 'Bánh pancake rưới mật ong',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/06/pouring-honey-on-pancakes.jpg',
+  },
+  {
+    TenMonAn: 'Sô-cô-la nóng thơm nồng',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/10/hot-chocolate.jpg',
+  },
+  {
+    TenMonAn: 'Đào tươi',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/09/peaches.jpg',
+  },
+  {
+    TenMonAn: 'Thịt xiên nướng',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/grilled-meat-skewers-with-lemon-and-mint.webp',
+  },
+  {
+    TenMonAn: 'Kem ốc quế',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/06/ice-cream-cone-splash.jpg',
+  },
+  {
+    TenMonAn: 'Việt quất',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/05/blueberries-full-frame.jpg',
+  },
+  {
+    TenMonAn: 'Pizza salami',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/05/pizza-salami.jpg',
+  },
+  {
+    TenMonAn: 'Bánh Pavlova phủ trái cây tươi',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2024/12/decadent-pavlova-topped-with-fresh-berries-delight.jpg',
+  },
+  {
+    TenMonAn: 'Bát rau củ cùng trứng và bắp non',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/05/colorful-breakfast-bowl-with-eggs-and-vegetables.webp',
+  },
+  {
+    TenMonAn: 'Tôm xào rau củ cùng cơm trắng',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2024/12/colorful-shrimp-stir-fry-with-broccoli-and-rice.jpg',
+  },
+  {
+    TenMonAn: 'Trứng luộc',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/06/boiled-eggs-on-a-plate.jpg',
+  },
+  {
+    TenMonAn: 'Trái cây cắt lát sắc màu',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/05/heart-shaped-fruit-slices-in-vibrant-colors.webp',
+  },
+  {
+    TenMonAn: 'Cơm xào rau củ',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/05/vibrant-vegetable-rice-stir-fry-delight.webp',
+  },
+  {
+    TenMonAn: 'Bông cải xanh và ớt chuông',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/09/broccoli-and-bell-peppers.jpg',
+  },
+  {
+    TenMonAn: 'Gà sốt bơ đậm đà',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/07/butter-chicken-in-a-pan.jpg',
+  },
+  {
+    TenMonAn: 'Pizza cắt lát',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/12/cutting-pizza.jpg',
+  },
+  {
+    TenMonAn: 'Thịt heo nướng giòn',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/08/grilled-crispy-pork-with-rice.jpg',
+  },
+  {
+    TenMonAn: 'Bánh croissant',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/04/golden-croissants-on-baking-paper.png',
+  },
+  {
+    TenMonAn: 'Cà phê espresso có lớp crema',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/06/coffee-crema.jpg',
+  },
+  {
+    TenMonAn: 'Nước ép trái cây',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/01/colorful-healthy-fruit-juices-and-fresh-ingredients.png',
+  },
+  {
+    TenMonAn: 'Súp cá hồi kem cùng thảo mộc',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/01/creamy-salmon-soup-with-fresh-herbs.png',
+  },
+  {
+    TenMonAn: 'Cà phê',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/10/coffee-book.jpg',
+  },
+  {
+    TenMonAn: 'Nước chanh tươi mát lạnh',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2020/05/suco-de-limao-com-slash.jpg',
+  },
+  {
+    TenMonAn: 'Tôm hấp cùng chanh và bắp ngọt',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/01/flavorful-shrimp-feast-with-lemon-and-corn.png',
+  },
+  {
+    TenMonAn: 'Salad trái cây tươi với bạc hà',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/04/fresh-fruit-salad-with-mint.jpg',
+  },
+  {
+    TenMonAn: 'Bánh cheesecake phủ trái cây',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/05/delicious-cheesecake-with-fresh-berries.webp',
+  },
+  {
+    TenMonAn: 'Rượu vang trắng',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/golden-sunset-with-glass-of-white-wine.webp',
+  },
+  {
+    TenMonAn: 'Bánh kem chanh phủ topping ngọt dịu',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/creamy-key-lime-pie-with-whipped-topping.webp',
+  },
+  {
+    TenMonAn: 'Latte đá',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/iced-latte-with-golden-straw-in-cozy-cafe.webp',
+  },
+  {
+    TenMonAn: 'Cá hồi nướng cùng quinoa và rau củ',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/grilled-salmon-bowl-with-quinoa-and-colorful-veggies.webp',
+  },
+  {
+    TenMonAn: 'Salad trộn',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/fresh-greens-tossed-in-a-vibrant-bowl.webp',
+  },
+  {
+    TenMonAn: 'Kem que dâu',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2024/12/refreshing-strawberry-mint-popsicles-on-ice.jpg',
+  },
+  {
+    TenMonAn: 'Tiramisu',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/05/delicious-tiramisu-dessert-slice-on-elegant-plate.webp',
+  },
+  {
+    TenMonAn: 'Thăn bò áp chảo',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/04/flat-iron-steak-on-a-plate-in-a-restaurant.jpg',
+  },
+  {
+    TenMonAn: 'Đùi gà chiên giòn',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/crispy-fried-chicken-drumstick-in-hot-oil.webp',
+  },
+  {
+    TenMonAn: 'Sữa lắc cookie kem béo',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/01/irresistible-cookie-cream-milkshake-delight.png',
+  },
+  {
+    TenMonAn: 'Gà nướng chanh thảo mộc cùng lá rosemary',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/01/grilled-lemon-herb-chicken-with-fresh-rosemary.png',
+  },
+  {
+    TenMonAn: 'Bánh mì nướng vàng giòn',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/golden-toast-stacked-on-neutral-background.webp',
+  },
+  {
+    TenMonAn: 'Salad gà và bơ',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/04/avocado-chicken-salad.jpg',
+  },
+  {
+    TenMonAn: 'Sushi cuộn sắc màu',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/colorful-sushi-rolls-floating-in-air.webp',
+  },
+  {
+    TenMonAn: 'Mì ramen trứng lòng đào',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/flavorful-ramen-noodles-with-soft-boiled-eggs.webp',
+  },
+  {
+    TenMonAn: ' Cà ri gà với khoai tây và thảo mộc',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2024/12/flavorful-chicken-curry-with-potatoes-and-herbs.jpg',
+  },
+  {
+    TenMonAn: 'Bánh cupcake phủ kem hồng',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/01/delicious-pink-frosted-cupcakes-with-gold-sprinkles.png',
+  },
+  {
+    TenMonAn: 'Salad trái cây tươi',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/05/colorful-fruit-salad-platter-with-fresh-mint.webp',
+  },
+  {
+    TenMonAn: 'Bánh baklava mật ong',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/2023/10/baklava-macro.jpg',
+  },
+  {
+    TenMonAn: 'Dâu tây xoáy',
+    HinhAnh:
+      'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/05/swirling-fresh-strawberries-with-splashing-juice.webp',
+  },
 ];
 
 const getRandomTinhTrang = () => {
@@ -219,7 +518,7 @@ module.exports = {
 
   down: async (queryInterface, Sequelize) => {
     const maMonAnList = Array.from(
-      { length: 40 }, // Cập nhật lại khi seed nhiều món ăn hơn
+      { length: 100 },
       (_, i) => `MA${String(i + 1).padStart(3, '0')}`
     );
 
