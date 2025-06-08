@@ -244,8 +244,6 @@ const ThongTinTiecCuoi = () => {
 
     try {
       const data = await PhieuDatTiecService.createPhieuDatTiec(pdtReFormat);
-      setPhieuDatTiec(data) // set dữ liệu nếu thành công
-      setCurrentPDT(data.SoPhieuDatTiec);
       localStorage.setItem("currentPDT", data.data.SoPhieuDatTiec)
 
       handleNav()
