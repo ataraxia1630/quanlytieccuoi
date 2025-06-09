@@ -21,17 +21,26 @@ const sanhData = [
 
 // Hàm random bàn tối đa
 const getRandomBanToiDa = (loai) => {
+  const getSteppedRandom = (min, max, step) => {
+    const values = [];
+    for (let i = min; i <= max; i += step) {
+      values.push(i);
+    }
+    const randomIndex = Math.floor(Math.random() * values.length);
+    return values[randomIndex];
+  };
+
   switch (loai) {
     case 'LS001':
-      return Math.floor(Math.random() * 31) + 50; // 50–80
+      return getSteppedRandom(50, 80, 5);
     case 'LS002':
-      return Math.floor(Math.random() * 41) + 70; // 70–110
+      return getSteppedRandom(70, 110, 5);
     case 'LS003':
-      return Math.floor(Math.random() * 41) + 100; // 100–140
+      return getSteppedRandom(100, 140, 5);
     case 'LS004':
-      return Math.floor(Math.random() * 41) + 130; // 130–170
+      return getSteppedRandom(130, 170, 5);
     case 'LS005':
-      return Math.min(Math.floor(Math.random() * 51) + 150); // 150–200
+      return getSteppedRandom(150, 200, 5);
     default:
       return 100;
   }
@@ -53,7 +62,7 @@ const imageOptions = [
   'https://www.saigon.park.hyattrestaurants.com/uploads/1/1/2/9/112964589/phs-poolhouse-banquet-550x400_orig.jpg',
   'https://dp1.diamondplace.vn/wp-content/uploads/2023/04/hinh-sanh-grand-ruby-2-1024x682.jpg',
   'https://dp1.diamondplace.vn/wp-content/uploads/2024/05/sanh-tiec-cuoi-sapphire-diamond-place-1024x681.webp',
-  'https://tonywedding.vn/wp-content/uploads/2022/12/1a-1536x864.jpg'
+  'https://tonywedding.vn/wp-content/uploads/2022/12/1a-1536x864.jpg',
 ];
 
 // Tạo shuffle để không bị random ảnh trùng

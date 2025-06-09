@@ -19,11 +19,11 @@ function FoodCard({ food, onClick }) {
     const [note, setNote] = useState(null);
 
     const handleDecrease = () => {
-        setQuantity((prev) => Math.max(1, prev - 10));
+        setQuantity((prev) => Math.max(1, prev - 1));
     };
 
     const handleIncrease = () => {
-        setQuantity((prev) => prev + 10);
+        setQuantity((prev) => prev + 1);
     };
 
     return (

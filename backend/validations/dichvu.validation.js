@@ -77,8 +77,8 @@ const dichVuValidation = {
     query("maDichVu")
       .optional()
       .trim()
-      .matches(/^DV\d{3}$/)
-      .withMessage("Mã dịch vụ phải có định dạng DVxxx (x là chữ số)."),
+      .isLength({ max: 10 })
+      .withMessage("Mã dịch vụ không được vượt quá 10 ký tự."),
 
     query("tenDichVu")
       .optional()

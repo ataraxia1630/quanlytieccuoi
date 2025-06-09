@@ -143,13 +143,14 @@ const EditCTDichVuDialog = ({ open, onClose, onSave, title, ctdichvu }) => {
                         />
 
                         <FormTextField
-                            label="DonGia"
+                            label="Đơn giá"
                             name="DonGia"
                             value={formData.DonGia}
                             onChange={handleChange}
                             format="number"
                             error={!!errors.DonGia}
                             helperText={errors.DonGia}
+                            disabled={!!ctdichvu}
                         />
                     </Box>
                 </LocalizationProvider>
