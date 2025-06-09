@@ -1,16 +1,7 @@
 const { ThamSo } = require('../models');
 const { Op } = require('sequelize');
 const ApiError = require('../utils/apiError');
-
-// Chuẩn hóa chuỗi tìm kiếm
-const normalizeString = (str) => {
-  return str
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/\s+/g, '')
-    .trim();
-};
+const removeDiacritics = require('../utils/string.util');
 
 const nameMap = {
   ThoiDiemThanhToanSoVoiNgayDaiTiec:
@@ -30,18 +21,19 @@ const ThamSoService = {
 
   getAllThamSo: async (limit = 30, offset = 0, search = '') => {
     try {
-      const normalizedSearch = normalizeString(search);
+      const normalizedSearch = removeDiacritics(search);
       const where = search
         ? {
             [Op.or]: [
-              { TenThamSo: { [Op.like]: `%${search}%` } },
+              { TenThamSo: { [Op.like]: `%${search}%` } }, // Sequelize query vẫn giữ nguyên chữ thường/đầy đủ dấu vì DB lưu vậy
               {
                 TenThamSo: {
                   [Op.in]: Object.keys(nameMap).filter((key) => {
                     const displayName = nameMap[key];
                     return (
-                      normalizeString(displayName).includes(normalizedSearch) ||
-                      normalizeString(key).includes(normalizedSearch)
+                      removeDiacritics(displayName).includes(
+                        normalizedSearch
+                      ) || removeDiacritics(key).includes(normalizedSearch)
                     );
                   }),
                 },
@@ -49,6 +41,7 @@ const ThamSoService = {
             ],
           }
         : {};
+
       const thamSoList = await ThamSo.findAll({ where, limit, offset });
       return thamSoList.map((thamSo) => ThamSoService.mapToResponse(thamSo));
     } catch (err) {
