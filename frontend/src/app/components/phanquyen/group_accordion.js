@@ -156,7 +156,15 @@ export default function GroupAccordion({ group = {}, onDelete, onSave }) {
       sx={{ marginBottom: '30px' }}
     >
       <AccordionSummary
-        expandIcon={<ExpandMoreIcon sx={{ color: '#063F5C' }} />}
+        expandIcon={
+          <ExpandMoreIcon
+            sx={{ color: '#063F5C' }}
+            onClick={(e) => {
+              if (expanded) handleCancel();
+              else setExpanded(true);
+            }}
+          />
+        }
       >
         <Box
           sx={{
@@ -175,7 +183,11 @@ export default function GroupAccordion({ group = {}, onDelete, onSave }) {
               variant="outlined"
               sx={{ color: '#063F5C', borderColor: '#063F5C' }}
               onClick={(e) => {
-                setIsEditing(!isEditing);
+                if (expanded) handleCancel();
+                else {
+                  setExpanded(true);
+                  setIsEditing(true);
+                }
               }}
             >
               Sửa
