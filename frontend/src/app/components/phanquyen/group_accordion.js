@@ -127,14 +127,12 @@ export default function GroupAccordion({ group = {}, onDelete, onSave }) {
 
   const handleSave = async () => {
     try {
-      const groupData = {
-        MaNhom: groupCode,
+      const editData = {
         TenNhom: groupName,
-        MaQuyenArray: permissionsState.map((id) => ({
-          MaQuyen: id,
-        })),
+        MaQuyenArray: permissionsState,
       };
-      await GroupService.update(group.MaNhom, groupData);
+      console.log(editData);
+      await GroupService.update(group.MaNhom, editData);
       toast.success(`Cập nhật nhóm ${groupName} thành công!`);
       setIsEditing(false);
       setExpanded(false);

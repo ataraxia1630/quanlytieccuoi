@@ -42,16 +42,14 @@ export default function QuanLyNhomTab() {
     toast.success('Bắt đầu thêm nhóm mới');
   };
 
-  const handleEdit = (group) => {
-    setSelectedRow(group);
-  };
-
   const handleDelete = (group) => {
+    console.log(group);
     setSelectedRow(group);
     setIsDeleteDialogOpen(true);
   };
 
   const handleConfirmDelete = async () => {
+    console.log(selectedRow);
     if (!selectedRow) return;
     try {
       await GroupService.delete(selectedRow.MaNhom);
@@ -110,9 +108,8 @@ export default function QuanLyNhomTab() {
       <DeleteDialog
         open={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
-        onConfirm={handleConfirmDelete}
+        onDelete={handleConfirmDelete}
         title="Xóa Nhóm"
-        content={`Bạn có chắc muốn xóa nhóm ${selectedRow?.TenNhom || ''}?`}
       />
     </Box>
   );
