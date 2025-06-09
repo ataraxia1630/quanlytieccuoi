@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import SearchBar from '../../components/Searchbar';
@@ -12,9 +12,10 @@ import DeleteDialog from '../../components/Deletedialog';
 import DichVuFilter from '../../components/dichvu/dichvu_filter_panel';
 import DichVuColumn from '../../components/dichvu/dichvu_column';
 import DichVuDialog from '../../components/dichvu/dichvu_popup';
+import DichVuService from '../../service/dichvu.service';
 import exportDichVuToExcel from '../../components/dichvu/dichvu_export_excel';
 import printDichVu from '../../components/dichvu/dichvu_print_data';
-import DichVuService from '../../service/dichvu.service';
+import showToast from '../../components/Showtoast';
 
 function DanhSachDichVu() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -33,24 +34,18 @@ function DanhSachDichVu() {
   });
 
   const fetchDichVuList = useCallback(
-    async (filters = {}, limit = 50, offset = 0) => {
+    async (filters = currentFilters, limit = 50, offset = 0) => {
       try {
         setLoading(true);
         let data;
+        const normalizedSearchTerm = searchTerm.trim().replace(/\s+/g, ' ');
 
-        if (Object.keys(filters).length > 0 || searchTerm.trim()) {
-          const trimmedTerm = searchTerm.trim();
-          const searchParams = {
-            ...filters,
-            ...(trimmedTerm &&
-              (() => {
-                if (/^DV\d{3}$/.test(trimmedTerm)) {
-                  return { maDichVu: trimmedTerm };
-                } else {
-                  return { tenDichVu: trimmedTerm };
-                }
-              })()),
-          };
+        const searchParams = {
+          ...filters,
+          ...(normalizedSearchTerm && { searchTerm: normalizedSearchTerm }),
+        };
+
+        if (Object.keys(searchParams).length > 0) {
           data = await DichVuService.searchDichVu(searchParams, limit, offset);
         } else {
           data = await DichVuService.getAllDichVu(limit, offset);
@@ -58,17 +53,20 @@ function DanhSachDichVu() {
 
         setDichVuList(data);
         setPagination((prev) => ({ ...prev, limit, offset }));
-
         return data;
       } catch (error) {
-        toast.error(error.message);
+        showToast(
+          'error',
+          error.message || 'Lỗi khi tìm kiếm dịch vụ',
+          'search-error'
+        );
         setDichVuList([]);
         return [];
       } finally {
         setLoading(false);
       }
     },
-    [searchTerm]
+    [searchTerm, currentFilters]
   );
 
   useEffect(() => {
@@ -76,15 +74,28 @@ function DanhSachDichVu() {
   }, [fetchDichVuList]);
 
   const handleSearch = async () => {
-    toast.info(`Đang tìm kiếm: ${searchTerm}`);
+    const normalizedSearchTerm = searchTerm.trim().replace(/\s+/g, ' ');
 
+    if (!normalizedSearchTerm) {
+      showToast('warning', 'Vui lòng nhập từ khóa tìm kiếm', 'search-empty');
+      return;
+    }
+
+    showToast('info', `Đang tìm kiếm: ${normalizedSearchTerm}`, 'search-start');
     const result = await fetchDichVuList(currentFilters, pagination.limit, 0);
 
     if (result?.length === 0) {
-      toast.warning('Không tìm thấy dịch vụ nào phù hợp.');
-      setSearchTerm('');
+      showToast(
+        'warning',
+        'Không tìm thấy dịch vụ nào phù hợp.',
+        'search-none'
+      );
     } else {
-      toast.success(`Đã tìm thấy: ${searchTerm}`);
+      showToast(
+        'success',
+        `Đã tìm thấy ${result.length} dịch vụ phù hợp`,
+        'search-success'
+      );
     }
   };
 
@@ -103,9 +114,9 @@ function DanhSachDichVu() {
     fetchDichVuList(filterParams, pagination.limit, 0);
 
     if (Object.keys(filterParams).length > 0) {
-      toast.success('Đã áp dụng bộ lọc');
+      showToast('success', 'Đã áp dụng bộ lọc', 'filter-apply');
     } else {
-      toast.info('Đã reset bộ lọc');
+      showToast('info', 'Đã reset bộ lọc', 'filter-clear');
     }
   };
 
@@ -130,7 +141,12 @@ function DanhSachDichVu() {
     setSelectedDichVu(null);
   };
 
-  const handleSaveDichVu = async (formData) => {
+  const handleSaveDichVu = async (formData, errors) => {
+    if (errors) {
+      Object.values(errors).forEach((error) => showToast('error', error));
+      return;
+    }
+
     try {
       setLoading(true);
       const dichVuData = {
@@ -141,17 +157,17 @@ function DanhSachDichVu() {
 
       if (mode === 'edit' && selectedDichVu) {
         await DichVuService.updateDichVu(selectedDichVu.MaDichVu, dichVuData);
-        toast.success('Cập nhật dịch vụ thành công');
+        showToast('success', 'Cập nhật dịch vụ thành công', 'update-success');
       } else {
         await DichVuService.createDichVu(dichVuData);
-        toast.success('Thêm dịch vụ thành công');
+        showToast('success', 'Thêm dịch vụ thành công', 'create-success');
       }
 
       setIsDialogOpen(false);
       setSelectedDichVu(null);
       fetchDichVuList(currentFilters, pagination.limit, pagination.offset);
     } catch (error) {
-      toast.error(error.message);
+      showToast('error', error.message || 'Lỗi khi lưu dịch vụ', 'save-error');
     } finally {
       setLoading(false);
     }
@@ -161,20 +177,23 @@ function DanhSachDichVu() {
     try {
       setLoading(true);
       const result = await DichVuService.deleteDichVu(selectedDichVu.MaDichVu);
-
       const toastByStatus = {
-        'soft-deleted': toast.info,
-        'already-soft-deleted': toast.warning,
-        deleted: toast.success,
+        'soft-deleted': ['info', result.message],
+        'already-soft-deleted': ['warning', result.message],
+        deleted: ['success', result.message],
       };
 
-      (toastByStatus[result.status] || toast.success)(result.message);
+      const [type, msg] = toastByStatus[result.status] || [
+        'success',
+        result.message,
+      ];
+      showToast(type, msg, `delete-${result.status}`);
 
       setIsDeleteDialogOpen(false);
       setSelectedDichVu(null);
       fetchDichVuList(currentFilters, pagination.limit, pagination.offset);
     } catch (error) {
-      toast.error(error.message);
+      showToast('error', error.message, 'delete-error');
     } finally {
       setLoading(false);
     }
@@ -183,14 +202,14 @@ function DanhSachDichVu() {
   const handlePrint = () => {
     const res = printDichVu(dichVuList);
     if (!res.success) {
-      toast.error(`Lỗi khi in: ${res.message}`);
+      showToast('error', `Lỗi khi in: ${res.message}`, 'print-error');
     }
   };
 
   const handleExportExcel = async () => {
     const res = await exportDichVuToExcel(dichVuList);
     if (!res.success) {
-      toast.error(`Lỗi khi xuất file: ${res.message}`);
+      showToast('error', `Lỗi khi xuất file: ${res.message}`, 'excel-error');
     }
   };
 
