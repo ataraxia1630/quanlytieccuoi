@@ -9,6 +9,7 @@ import AddButton from '../Addbutton';
 import DeleteDialog from '../../components/Deletedialog';
 
 import GroupAccordion from './group_accordion';
+import AddGroupPopUp from './group_add_popup';
 import GroupService from '../../service/nhom.service';
 
 export default function QuanLyNhomTab() {
@@ -17,6 +18,7 @@ export default function QuanLyNhomTab() {
   const [groupData, setGroupData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -38,7 +40,7 @@ export default function QuanLyNhomTab() {
     fetchData();
   };
   const handleAdd = () => {
-    setSelectedRow(null);
+    setIsAddDialogOpen(true);
     toast.success('Bắt đầu thêm nhóm mới');
   };
 
@@ -110,6 +112,12 @@ export default function QuanLyNhomTab() {
         onClose={() => setIsDeleteDialogOpen(false)}
         onDelete={handleConfirmDelete}
         title="Xóa Nhóm"
+      />
+
+      <AddGroupPopUp
+        open={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
+        onSave={fetchData}
       />
     </Box>
   );
