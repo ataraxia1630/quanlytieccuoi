@@ -40,8 +40,11 @@ function DanhSachDichVu() {
         let data;
         const normalizedSearchTerm = searchTerm.trim().replace(/\s+/g, ' ');
 
+        // Tạo searchParams mới và loại bỏ searchTerm cũ từ filters
+        const { searchTerm: oldSearchTerm, ...filtersWithoutSearch } = filters;
+
         const searchParams = {
-          ...filters,
+          ...filtersWithoutSearch,
           ...(normalizedSearchTerm && { searchTerm: normalizedSearchTerm }),
         };
 

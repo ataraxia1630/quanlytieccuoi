@@ -2,7 +2,7 @@ const { DichVu } = require('../models');
 const { Ct_DichVu } = require('../models');
 const { Op, Sequelize } = require('sequelize');
 const ApiError = require('../utils/apiError.js');
-const removeDiacritics = require('../utils/string.util.js')
+const removeDiacritics = require('../utils/string.util.js');
 
 const DichVuService = {
   getAllDichVu: async (limit, offset) => {
@@ -148,95 +148,44 @@ const DichVuService = {
         query || {};
       const where = {};
 
-      const normalized = (str) =>
-        str?.trim().replace(/\s+/g, ' ').toLowerCase();
-
       const buildWhereWithTerm = (term) => {
-        const termNormalized = normalized(term);
-        const termWithSpaces = removeDiacritics(termNormalized, true);
-        const termNoSpaces = removeDiacritics(termNormalized, false);
+        const termWithSpaces = removeDiacritics(term, true);
+        const termNoSpaces = removeDiacritics(term, false);
 
         return [
+          Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('MaDichVu')), {
+            [Op.like]: `%${termWithSpaces}%`,
+          }),
+
+          Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('TenDichVu')), {
+            [Op.like]: `%${termWithSpaces}%`,
+          }),
+
           Sequelize.where(
             Sequelize.fn(
               'REPLACE',
-              Sequelize.fn(
-                'TRIM',
-                Sequelize.fn('LOWER', Sequelize.col('MaDichVu'))
-              ),
-              '  ',
-              ' '
-            ),
-            { [Op.like]: `%${termNormalized}%` }
-          ),
-          Sequelize.where(
-            Sequelize.fn(
-              'REPLACE',
-              Sequelize.fn(
-                'TRIM',
-                Sequelize.fn('LOWER', Sequelize.col('TenDichVu'))
-              ),
-              '  ',
-              ' '
-            ),
-            { [Op.like]: `%${termNormalized}%` }
-          ),
-          Sequelize.where(
-            Sequelize.fn(
-              'REPLACE',
-              Sequelize.fn(
-                'TRIM',
-                Sequelize.fn('LOWER', Sequelize.col('TenDichVu'))
-              ),
-              '  ',
-              ' '
-            ),
-            { [Op.like]: `%${termWithSpaces}%` }
-          ),
-          Sequelize.where(
-            Sequelize.fn(
-              'REPLACE',
-              Sequelize.fn(
-                'REPLACE',
-                Sequelize.fn(
-                  'TRIM',
-                  Sequelize.fn('LOWER', Sequelize.col('TenDichVu'))
-                ),
-                ' ',
-                ''
-              ),
-              '  ',
+              Sequelize.fn('LOWER', Sequelize.col('TenDichVu')),
+              ' ',
               ''
             ),
             { [Op.like]: `%${termNoSpaces}%` }
           ),
-          ...(DichVu.rawAttributes.TenDichVuNormalized
-            ? [{ TenDichVuNormalized: { [Op.like]: `%${termNoSpaces}%` } }]
-            : []),
         ];
       };
 
-      const actualSearchTerm = normalized(searchTerm || query.searchTerm);
+      const actualSearchTerm = searchTerm
+        ? removeDiacritics(searchTerm, true)
+        : '';
+
       if (actualSearchTerm) {
         where[Op.or] = buildWhereWithTerm(actualSearchTerm);
-      }
-
-      if (!actualSearchTerm) {
+      } else {
         if (maDichVu?.trim()) {
-          const normalizedMa = normalized(maDichVu);
+          const normalizedMa = removeDiacritics(maDichVu, true);
           where[Op.or] = [
-            Sequelize.where(
-              Sequelize.fn(
-                'REPLACE',
-                Sequelize.fn(
-                  'TRIM',
-                  Sequelize.fn('LOWER', Sequelize.col('MaDichVu'))
-                ),
-                '  ',
-                ' '
-              ),
-              { [Op.like]: `%${normalizedMa}%` }
-            ),
+            Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('MaDichVu')), {
+              [Op.like]: `%${normalizedMa}%`,
+            }),
           ];
         }
 
