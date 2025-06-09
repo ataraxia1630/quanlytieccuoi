@@ -101,6 +101,29 @@ const DeleteIcon = () => (
     />
   </svg>
 );
+const style = {
+  width: { xs: '100%', sm: '300px' },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: '#063F5C',
+    },
+    '&:hover fieldset': {
+      borderColor: '#063F5C',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#063F5C',
+    },
+    '& input': {
+      color: 'black',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: 'black',
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: '#063F5C',
+  },
+};
 
 export default function GroupAccordion({ group = {}, onDelete, onSave }) {
   const [groupName, setGroupName] = useState(group.TenNhom || '');
@@ -214,7 +237,7 @@ export default function GroupAccordion({ group = {}, onDelete, onSave }) {
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
               disabled={!isEditing}
-              sx={{ minWidth: '200px' }}
+              sx={style}
             />
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

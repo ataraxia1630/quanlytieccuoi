@@ -34,7 +34,7 @@ export default function MainRoutes() {
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/signin" element={<Login />} />
 
         <Route path="/" element={<Home />} />
         <Route path="*" element={<PageNotFound />} />
