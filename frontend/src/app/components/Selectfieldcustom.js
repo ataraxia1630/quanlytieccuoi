@@ -1,5 +1,11 @@
-import { MenuItem, Select, FormControl, InputLabel } from "@mui/material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import {
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  FormHelperText,
+} from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 const SelectFieldCustom = ({
   label,
@@ -7,17 +13,21 @@ const SelectFieldCustom = ({
   onChange,
   options,
   menuProps = {},
+  error = false,
+  helperText = '',
+  fullWidth = false,
 }) => {
   return (
     <FormControl
-      fullWidth
+      fullWidth={fullWidth}
       variant="outlined"
+      error={error}
       sx={{
-        "& .MuiInputLabel-root": {
-          color: "black",
+        '& .MuiInputLabel-root': {
+          color: error ? '#d32f2f' : 'black',
         },
-        "& .MuiInputLabel-root.Mui-focused": {
-          color: "#063F5C",
+        '& .MuiInputLabel-root.Mui-focused': {
+          color: error ? '#d32f2f' : '#063F5C',
         },
       }}
     >
@@ -28,16 +38,17 @@ const SelectFieldCustom = ({
         onChange={onChange}
         label={label}
         IconComponent={KeyboardArrowDownIcon}
+        error={error}
         sx={{
-          color: "black",
-          "& .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#063F5C",
+          color: 'black',
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: error ? '#d32f2f' : '#063F5C',
           },
-          "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#063F5C",
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: error ? '#d32f2f' : '#063F5C',
           },
-          "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-            borderColor: "#063F5C",
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: error ? '#d32f2f' : '#063F5C',
           },
         }}
         MenuProps={{
@@ -45,7 +56,7 @@ const SelectFieldCustom = ({
           PaperProps: {
             style: {
               maxHeight: 160,
-              overflowY: "auto",
+              overflowY: 'auto',
             },
           },
           ...menuProps,
@@ -57,6 +68,11 @@ const SelectFieldCustom = ({
           </MenuItem>
         ))}
       </Select>
+      {helperText && (
+        <FormHelperText sx={{ color: error ? '#d32f2f' : 'inherit' }}>
+          {helperText}
+        </FormHelperText>
+      )}
     </FormControl>
   );
 };

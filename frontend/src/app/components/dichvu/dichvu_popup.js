@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { Dialog, DialogContent, Box, Divider } from "@mui/material";
-import DialogTitleCustom from "../Dialogtitlecustom";
-import FormTextField from "../Formtextfield";
-import SelectFieldCustom from "../Selectfieldcustom";
-import DialogButtons from "../Dialogbutton";
+import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, Box, Divider } from '@mui/material';
+import DialogTitleCustom from '../Dialogtitlecustom';
+import FormTextField from '../Formtextfield';
+import SelectFieldCustom from '../Selectfieldcustom';
+import DialogButtons from '../Dialogbutton';
 
-const statusOptions = ["Có sẵn", "Tạm dừng", "Ngừng cung cấp"];
+const statusOptions = ['Có sẵn', 'Tạm dừng', 'Ngừng cung cấp'];
 
 const DichVuDialog = ({
   open,
@@ -13,23 +13,23 @@ const DichVuDialog = ({
   onSave,
   title,
   initialData = null,
-  mode = "add",
+  mode = 'add',
 }) => {
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [status, setStatus] = useState("");
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState('');
+  const [status, setStatus] = useState('');
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (open) {
-      if (mode === "edit" && initialData) {
-        setName(initialData.TenDichVu || "");
-        setPrice(initialData.DonGia?.toString() || "");
-        setStatus(initialData.TinhTrang || "");
+      if (mode === 'edit' && initialData) {
+        setName(initialData.TenDichVu || '');
+        setPrice(initialData.DonGia?.toString() || '');
+        setStatus(initialData.TinhTrang || '');
       } else {
-        setName("");
-        setPrice("");
-        setStatus("");
+        setName('');
+        setPrice('');
+        setStatus('');
       }
       setErrors({});
     }
@@ -39,19 +39,21 @@ const DichVuDialog = ({
     const newErrors = {};
 
     if (!name.trim()) {
-      newErrors.name = "Tên dịch vụ không được để trống";
+      newErrors.name = 'Tên dịch vụ không được để trống';
     } else if (name.trim().length > 100) {
-      newErrors.name = "Tên dịch vụ không được vượt quá 100 ký tự";
+      newErrors.name = 'Tên dịch vụ không được vượt quá 100 ký tự';
     }
 
     if (!price.trim()) {
-      newErrors.price = "Giá không được để trống";
+      newErrors.price = 'Giá không được để trống';
     } else if (isNaN(price) || Number(price) < 0) {
-      newErrors.price = "Giá phải là số không âm";
+      newErrors.price = 'Giá phải là số không âm';
+    } else if (isNaN(price) || Number(price) >= 100000000) {
+      newErrors.price = 'Giá phải nhỏ hơn 100 triệu';
     }
 
     if (!status) {
-      newErrors.status = "Vui lòng chọn tình trạng";
+      newErrors.status = 'Vui lòng chọn tình trạng';
     }
 
     setErrors(newErrors);
@@ -84,15 +86,15 @@ const DichVuDialog = ({
           borderRadius: 3,
           m: 10,
           p: 0,
-          border: "2px solid #063F5C",
-          width: "100%",
-          maxWidth: "430px",
+          border: '2px solid #063F5C',
+          width: '100%',
+          maxWidth: '430px',
         },
       }}
     >
       <DialogTitleCustom title={title} onClose={handleCancel} />
 
-      <Divider sx={{ borderColor: "#063F5C", borderBottomWidth: "1.3px" }} />
+      <Divider sx={{ borderColor: '#063F5C', borderBottomWidth: '1.3px' }} />
 
       <DialogContent sx={{ pt: 4.5, px: 5, pb: 3.5 }}>
         <Box display="flex" flexDirection="column" gap={3.5}>

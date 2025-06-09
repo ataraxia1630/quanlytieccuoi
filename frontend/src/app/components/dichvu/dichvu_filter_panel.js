@@ -1,24 +1,86 @@
-import { useState } from "react";
-import { Box, Collapse, Paper } from "@mui/material";
-import RangeInputs from "../Rangeinput";
-import FilterButton from "../Filterbutton";
-import StatusCheckbox from "../Statuscheckbx";
+import { useState } from 'react';
+import { Box, Collapse, Paper } from '@mui/material';
+import RangeInputs from '../Rangeinput';
+import FilterButton from '../Filterbutton';
+import StatusCheckbox from '../Statuscheckbx';
+import showToast from '../Showtoast';
 
 const DichVuFilter = ({ isOpen, onApply }) => {
-  const [priceFrom, setPriceFrom] = useState("");
-  const [priceTo, setPriceTo] = useState("");
+  const [priceFrom, setPriceFrom] = useState('');
+  const [priceTo, setPriceTo] = useState('');
   const [status, setStatus] = useState([]);
 
+  const isValidPriceInput = (value) => {
+    if (value === '') return true;
+    const regex = /^[0-9]*\.?[0-9]*(e[0-9]+)?$/;
+    return regex.test(value);
+  };
+
+  const parsePrice = (value) => {
+    if (value === '') return null;
+    const parsed = Number(value);
+    return isNaN(parsed) ? null : parsed;
+  };
+
+  const handlePriceFromChange = (value) => {
+    if (isValidPriceInput(value)) {
+      setPriceFrom(value);
+    } else {
+      showToast(
+        'error',
+        'Khoảng giá chỉ được nhập số dương hoặc định dạng số khoa học (VD: 1e6 cho 1 triệu)',
+        'priceFromInvalid'
+      );
+    }
+  };
+
+  const handlePriceToChange = (value) => {
+    if (isValidPriceInput(value)) {
+      setPriceTo(value);
+    } else {
+      showToast(
+        'error',
+        'Khoảng giá chỉ được nhập số dương hoặc định dạng số khoa học (VD: 1e6 cho 1 triệu)',
+        'priceToInvalid'
+      );
+    }
+  };
+
   const handleApply = () => {
+    const parsedPriceFrom = parsePrice(priceFrom);
+    const parsedPriceTo = parsePrice(priceTo);
+
+    if (parsedPriceFrom !== null && parsedPriceFrom < 0) {
+      showToast('error', 'Giá từ không được nhỏ hơn 0', 'priceFromNegative');
+      return;
+    }
+    if (parsedPriceTo !== null && parsedPriceTo < 0) {
+      showToast('error', 'Giá đến không được nhỏ hơn 0', 'priceToNegative');
+      return;
+    }
+
+    if (
+      parsedPriceFrom !== null &&
+      parsedPriceTo !== null &&
+      parsedPriceFrom > parsedPriceTo
+    ) {
+      showToast(
+        'error',
+        'Giá từ phải nhỏ hơn hoặc bằng giá đến',
+        'invalidRange'
+      );
+      return;
+    }
+
     const mappedStatus = status
       .map((s) => {
         switch (s) {
-          case "co_san":
-            return "Có sẵn";
-          case "tam_dung":
-            return "Tạm dừng";
-          case "ngung_cung_cap":
-            return "Ngừng cung cấp";
+          case 'co_san':
+            return 'Có sẵn';
+          case 'tam_dung':
+            return 'Tạm dừng';
+          case 'ngung_cung_cap':
+            return 'Ngừng cung cấp';
           default:
             return null;
         }
@@ -27,14 +89,14 @@ const DichVuFilter = ({ isOpen, onApply }) => {
 
     const filterParams = {};
 
-    if (priceFrom && !isNaN(priceFrom)) {
-      filterParams.giaTu = Number(priceFrom);
+    if (parsedPriceFrom !== null && !isNaN(parsedPriceFrom)) {
+      filterParams.giaTu = parsedPriceFrom;
     }
-    if (priceTo && !isNaN(priceTo)) {
-      filterParams.giaDen = Number(priceTo);
+    if (parsedPriceTo !== null && !isNaN(parsedPriceTo)) {
+      filterParams.giaDen = parsedPriceTo;
     }
 
-    if (mappedStatus.length > 0 && !status.includes("tat_ca")) {
+    if (mappedStatus.length > 0 && !status.includes('tat_ca')) {
       filterParams.tinhTrang = mappedStatus;
     }
 
@@ -42,8 +104,8 @@ const DichVuFilter = ({ isOpen, onApply }) => {
   };
 
   const handleReset = () => {
-    setPriceFrom("");
-    setPriceTo("");
+    setPriceFrom('');
+    setPriceTo('');
     setStatus([]);
     onApply({});
   };
@@ -55,45 +117,44 @@ const DichVuFilter = ({ isOpen, onApply }) => {
         sx={{
           p: 3,
           mb: 5,
-          backgroundColor: "#f5f5f5",
-          borderRadius: "4px",
+          backgroundColor: '#f5f5f5',
+          borderRadius: '4px',
         }}
       >
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: 7 }}>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
           <RangeInputs
             width="130px"
             label="Khoảng giá"
             fromValue={priceFrom}
             toValue={priceTo}
-            onFromChange={setPriceFrom}
-            onToChange={setPriceTo}
+            onFromChange={handlePriceFromChange}
+            onToChange={handlePriceToChange}
           />
 
-          <Box sx={{ display: "block" }}>
+          <Box sx={{ display: 'block' }}>
             <StatusCheckbox
               label="Trạng thái"
               value={status}
               onChange={setStatus}
               row={false}
               options={[
-                { value: "co_san", label: "Có sẵn" },
-                { value: "tam_dung", label: "Tạm dừng" },
-                { value: "ngung_cung_cap", label: "Ngừng cung cấp" },
-                { value: "tat_ca", label: "Tất cả" },
+                { value: 'co_san', label: 'Có sẵn' },
+                { value: 'tam_dung', label: 'Tạm dừng' },
+                { value: 'ngung_cung_cap', label: 'Ngừng cung cấp' },
               ]}
             />
           </Box>
         </Box>
 
         <Box
-          sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}
+          sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}
         >
           <FilterButton
             text="Reset"
             onClick={handleReset}
             colorVariant="reset"
           />
-
+          
           <FilterButton text="Apply" onClick={handleApply} />
         </Box>
       </Paper>
