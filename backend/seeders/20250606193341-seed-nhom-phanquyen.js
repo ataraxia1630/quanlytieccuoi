@@ -75,10 +75,12 @@ module.exports = {
           });
         }
 
-        // G0003 (Quản Lý Sảnh): Quyền liên quan đến sảnh và loại sảnh
+        // G0003 (Quản Lý Sảnh): Quyền liên quan đến sảnh, loại sảnh và ca
         if (
           maNhom === 'G0003' &&
-          (tenQuyen.includes('hall.') || tenQuyen.includes('hallType.'))
+          (tenQuyen.includes('hall.') ||
+            tenQuyen.includes('hallType.') ||
+            tenQuyen.includes('shift.'))
         ) {
           phanQuyenRows.push({
             MaNhom: maNhom,
@@ -143,10 +145,12 @@ module.exports = {
           });
         }
 
-        // G0010 (Quản Lý Sự Kiện): Quyền liên quan đến tiệc cưới và sảnh
+        // G0010 (Quản Lý Sự Kiện): Quyền liên quan đến tiệc cưới, sảnh và ca
         if (
           maNhom === 'G0010' &&
-          (tenQuyen.includes('wedding.') || tenQuyen.includes('hall.'))
+          (tenQuyen.includes('wedding.') ||
+            tenQuyen.includes('hall.') ||
+            tenQuyen.includes('shift.'))
         ) {
           phanQuyenRows.push({
             MaNhom: maNhom,
