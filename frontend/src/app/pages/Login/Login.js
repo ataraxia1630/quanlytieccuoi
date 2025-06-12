@@ -43,6 +43,7 @@ const Login = () => {
       const token = await AuthService.login(username, password);
       localStorage.setItem('accessToken', token);
       const permissions = await QuyenService.getPerOfUser();
+      localStorage.setItem('permissions', JSON.stringify(permissions));
       setPermissions(permissions);
       navigate('/');
     } catch (error) {
