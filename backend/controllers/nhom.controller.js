@@ -32,7 +32,7 @@ const GroupController = {
 
   getAll: async (req, res, next) => {
     try {
-      const groups = await GroupService.getAll();
+      const groups = await GroupService.getAll(req.query.search);
       return res.status(200).json({ groups });
     } catch (error) {
       next(error);

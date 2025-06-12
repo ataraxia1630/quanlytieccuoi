@@ -1,4 +1,5 @@
 const { NHOM, PHANQUYEN, QUYEN, sequelize } = require('../models');
+const { Op } = require('sequelize');
 const ApiError = require('../utils/apiError');
 
 const GroupService = {
@@ -82,9 +83,18 @@ const GroupService = {
     }
   },
 
-  getAll: async () => {
+  getAll: async (search = '') => {
     try {
+      const where = {};
+      if (search) {
+        where[Op.or] = [
+          { TenNhom: { [Op.like]: `%${search.toLowerCase()}%` } },
+          { MaNhom: { [Op.like]: `%${search.toLowerCase()}%` } },
+        ];
+      }
+
       const groups = await NHOM.findAll({
+        where,
         include: {
           model: QUYEN,
           attributes: ['MaQuyen', 'TenQuyen'],
