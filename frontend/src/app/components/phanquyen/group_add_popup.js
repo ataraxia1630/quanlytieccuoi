@@ -14,9 +14,12 @@ import FormTextField from '../Formtextfield';
 import GroupService from '../../service/nhom.service';
 import { toast } from 'react-toastify';
 
-import { permissionGroups } from './permissionGroups';
-
-export default function AddGroupPopUp({ open, onClose, onSave }) {
+export default function AddGroupPopUp({
+  open,
+  onClose,
+  onSave,
+  permissionGroups,
+}) {
   const [groupName, setGroupName] = useState('');
   const [permissionsState, setPermissionsState] = useState([]);
 

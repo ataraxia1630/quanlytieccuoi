@@ -15,8 +15,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import GroupService from '../../service/nhom.service';
 import { toast } from 'react-toastify';
 
-import { permissionGroups } from './permissionGroups';
-
 const EditIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
     <path
@@ -77,7 +75,12 @@ const style = {
   },
 };
 
-export default function GroupAccordion({ group = {}, onDelete, onSave }) {
+export default function GroupAccordion({
+  group = {},
+  onDelete,
+  onSave,
+  permissionGroups,
+}) {
   const [groupName, setGroupName] = useState(group.TenNhom || '');
   const [groupCode, setGroupCode] = useState(group.MaNhom || '');
   const [permissionsState, setPermissionsState] = useState(

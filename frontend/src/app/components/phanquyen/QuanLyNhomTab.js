@@ -11,6 +11,8 @@ import DeleteDialog from '../../components/Deletedialog';
 import GroupAccordion from './group_accordion';
 import AddGroupPopUp from './group_add_popup';
 import GroupService from '../../service/nhom.service';
+import QuyenService from '../../service/quyen.service';
+import { transformPerGroup } from '../../utils/transformPerGroup';
 
 export default function QuanLyNhomTab() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -19,12 +21,17 @@ export default function QuanLyNhomTab() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [permissionGroups, setPermissionsGroup] = useState([]);
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const groups = await GroupService.getAll(searchTerm);
       setGroupData(groups || []);
+      const permissions = await QuyenService.getAll();
+      const tmp = transformPerGroup(permissions);
+      console.log(tmp);
+      setPermissionsGroup(tmp);
     } catch (error) {
       toast.error(`Lỗi: ${error.message || 'Không thể tải danh sách nhóm!'}`);
     } finally {
@@ -102,6 +109,7 @@ export default function QuanLyNhomTab() {
               group={group}
               onDelete={handleDelete}
               onSave={fetchData}
+              permissionGroups={permissionGroups}
             />
           ))}
         </Box>
@@ -118,6 +126,7 @@ export default function QuanLyNhomTab() {
         open={isAddDialogOpen}
         onClose={() => setIsAddDialogOpen(false)}
         onSave={fetchData}
+        permissionGroups={permissionGroups}
       />
     </Box>
   );
