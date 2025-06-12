@@ -6,4 +6,6 @@ const router = Router();
 
 router.get('/', verifyToken, PermissionController.getPerOfUser);
 
+router.get('/all', verifyToken, PermissionController.getAll);
+
 module.exports = router;
