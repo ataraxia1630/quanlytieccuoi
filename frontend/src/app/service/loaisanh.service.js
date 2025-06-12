@@ -34,10 +34,15 @@ const LoaiSanhService = {
   },
 
   createNew: async (data) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const res = await fetch(baseURL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -51,10 +56,15 @@ const LoaiSanhService = {
   },
 
   update: async (id, data) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const res = await fetch(`${baseURL}/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify(data),
     });
@@ -68,10 +78,15 @@ const LoaiSanhService = {
   },
 
   delete: async (id) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const res = await fetch(`${baseURL}/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
     });
 

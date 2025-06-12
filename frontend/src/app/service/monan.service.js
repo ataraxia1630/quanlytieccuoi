@@ -35,7 +35,9 @@ const MonAnService = {
     const res = await fetch(uri);
     if (!res.ok) {
       const error = await res.json();
-      throw new Error(error.message || 'Không thể lấy danh sách món ăn có sẵn!');
+      throw new Error(
+        error.message || 'Không thể lấy danh sách món ăn có sẵn!'
+      );
     }
     const result = await res.json();
     return result;
@@ -52,6 +54,10 @@ const MonAnService = {
   },
 
   createNew: async (data, file) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const formData = new FormData();
     formData.append('TenMonAn', data.TenMonAn);
     formData.append('DonGia', data.DonGia);
@@ -60,6 +66,9 @@ const MonAnService = {
 
     const res = await fetch(baseURL, {
       method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
     });
 
@@ -72,6 +81,10 @@ const MonAnService = {
   },
 
   update: async (id, data, file) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const formData = new FormData();
     formData.append('TenMonAn', data.TenMonAn);
     formData.append('DonGia', data.DonGia);
@@ -80,6 +93,9 @@ const MonAnService = {
 
     const res = await fetch(`${baseURL}/${id}`, {
       method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       body: formData,
     });
 
@@ -92,10 +108,15 @@ const MonAnService = {
   },
 
   delete: async (id) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const res = await fetch(`${baseURL}/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
       },
     });
 
