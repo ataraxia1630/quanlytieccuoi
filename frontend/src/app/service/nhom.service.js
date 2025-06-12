@@ -1,8 +1,11 @@
 const baseURL = '/api/group';
-const token = localStorage.getItem('accessToken');
 
 const GroupService = {
   getAll: async (search = '') => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     let uri = baseURL + '/all';
     const params = new URLSearchParams();
 
@@ -29,6 +32,10 @@ const GroupService = {
   },
 
   createNew: async (data) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const res = await fetch(baseURL, {
       method: 'POST',
       headers: {
@@ -47,6 +54,10 @@ const GroupService = {
   },
 
   update: async (MaNhom, data) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const res = await fetch(`${baseURL}/${MaNhom}`, {
       method: 'PUT',
       headers: {
@@ -65,6 +76,10 @@ const GroupService = {
   },
 
   delete: async (MaNhom) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const res = await fetch(`${baseURL}/${MaNhom}`, {
       method: 'DELETE',
       headers: {

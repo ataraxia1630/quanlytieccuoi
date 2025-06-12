@@ -1,8 +1,11 @@
 const baseURL = '/api/user';
-const token = localStorage.getItem('accessToken');
 
 const UserService = {
   getAll: async (search = '') => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     let uri = baseURL + '/all';
     const params = new URLSearchParams();
 
@@ -34,6 +37,10 @@ const UserService = {
   },
 
   createNew: async (data) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const res = await fetch(baseURL, {
       method: 'POST',
       headers: {
@@ -52,6 +59,10 @@ const UserService = {
   },
 
   update: async (username, data) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const res = await fetch(`${baseURL}/${username}`, {
       method: 'PUT',
       headers: {
@@ -70,6 +81,10 @@ const UserService = {
   },
 
   delete: async (username) => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const res = await fetch(`${baseURL}/${username}`, {
       method: 'DELETE',
       headers: {
