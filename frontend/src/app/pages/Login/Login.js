@@ -6,6 +6,7 @@ import AuthService from '../../service/auth.service';
 import weddingImage from '../../assets/wedding_img.jpg';
 import { usePermission } from '../../../context/PermissionContext';
 import QuyenService from '../../service/quyen.service';
+import { useNavigate } from 'react-router-dom';
 
 const style = {
   width: { xs: '100%', sm: '300px' },
@@ -35,6 +36,7 @@ const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { setPermissions } = usePermission();
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
@@ -42,7 +44,7 @@ const Login = () => {
       localStorage.setItem('accessToken', token);
       const permissions = await QuyenService.getPerOfUser();
       setPermissions(permissions);
-      window.location.href = '/';
+      navigate('/');
     } catch (error) {
       toast(error.message || 'Đăng nhập không thành công!');
     }
