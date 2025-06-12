@@ -4,6 +4,7 @@ import { createTheme } from '@mui/material/styles';
 import { ThemeProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import { PermissionProvider } from './context/PermissionContext';
+import { AuthProvider } from './context/AuthContext';
 
 const theme = createTheme({
   typography: {
@@ -69,11 +70,13 @@ const theme = createTheme({
 
 export default function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <PermissionProvider>
-        <MainRoutes />
-      </PermissionProvider>
-    </ThemeProvider>
+    <AuthProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <PermissionProvider>
+          <MainRoutes />
+        </PermissionProvider>
+      </ThemeProvider>
+    </AuthProvider>
   );
 }
