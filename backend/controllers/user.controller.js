@@ -32,7 +32,7 @@ const UserController = {
 
   getAll: async (req, res, next) => {
     try {
-      const users = await UserService.getAll();
+      const users = await UserService.getAll(req.query.search);
       return res.status(200).json({ users });
     } catch (error) {
       next(error);
