@@ -27,18 +27,27 @@ import 'react-toastify/dist/ReactToastify.css';
 import PhanQuyen from '../pages/PhanQuyen';
 import Login from '../pages/Login';
 
+import ProtectedRoute from './ProtectedRoute';
+
 export default function MainRoutes() {
   return (
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/signin" element={<Login />} />
 
         <Route path="/" element={<Home />} />
         <Route path="*" element={<PageNotFound />} />
 
         {/* Route chứa layout sidebar (DashBoardLayout) */}
-        <Route path="/DashBoard" element={<DashBoard />}>
+        <Route
+          path="/DashBoard"
+          element={
+            <ProtectedRoute>
+              <DashBoard />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<DatTiecCuoi />} />
           <Route path="DatTiecCuoi" element={<DatTiecCuoi />}>
             <Route index element={<ThongTinTiecCuoi />} />

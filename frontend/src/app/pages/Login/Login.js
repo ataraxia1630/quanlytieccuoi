@@ -5,6 +5,30 @@ import 'react-toastify/dist/ReactToastify.css';
 import AuthService from '../../service/auth.service';
 import weddingImage from '../../assets/wedding_img.jpg';
 
+const style = {
+  width: { xs: '100%', sm: '300px' },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: '#063F5C',
+    },
+    '&:hover fieldset': {
+      borderColor: '#063F5C',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#063F5C',
+    },
+    '& input': {
+      color: 'black',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: 'black',
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: '#063F5C',
+  },
+};
+
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -89,11 +113,7 @@ const Login = () => {
               variant="outlined"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              sx={{
-                mb: 2,
-                bgcolor: 'rgba(255, 255, 255, 0.8)',
-                width: { xs: '100%', sm: '300px' },
-              }}
+              sx={style}
             />
             <TextField
               label="Password"
@@ -101,11 +121,7 @@ const Login = () => {
               variant="outlined"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              sx={{
-                mb: 2,
-                bgcolor: 'rgba(255, 255, 255, 0.8)',
-                width: { xs: '100%', sm: '300px' },
-              }}
+              sx={style}
             />
             <Button
               variant="contained"
@@ -116,7 +132,7 @@ const Login = () => {
               }}
               onClick={handleLogin}
             >
-              Login
+              Sign in
             </Button>
           </Grid>
         </Grid>
