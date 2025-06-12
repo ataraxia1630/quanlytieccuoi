@@ -14,7 +14,7 @@ const AuthService = {
       if (!isValidPassword)
         throw new ApiError(400, 'Username hoặc password không đúng!');
       const token = jwt.sign({ username }, SECRET_KEY, {
-        expiresIn: '24h',
+        expiresIn: '4h',
       });
       return token;
     } catch (error) {

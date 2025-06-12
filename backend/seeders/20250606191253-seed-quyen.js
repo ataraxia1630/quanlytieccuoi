@@ -25,6 +25,12 @@ module.exports = {
       'hallType.delete',
       'hallType.create',
 
+      // DS ca
+      'shift.view',
+      'shift.edit',
+      'shift.delete',
+      'shift.create',
+
       // DS món ăn
       'food.view',
       'food.edit',
