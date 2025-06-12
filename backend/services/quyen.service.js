@@ -23,6 +23,17 @@ const PermissionService = {
         : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
     }
   },
+
+  getAll: async () => {
+    try {
+      const permissions = await QUYEN.findAll();
+      return permissions;
+    } catch (error) {
+      throw error instanceof ApiError
+        ? error
+        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+    }
+  },
 };
 
 module.exports = { PermissionService };

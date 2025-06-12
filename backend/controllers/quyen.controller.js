@@ -10,6 +10,15 @@ const PermissionController = {
       next(error);
     }
   },
+
+  getAll: async (req, res, next) => {
+    try {
+      const permissions = await PermissionService.getAll();
+      return res.status(200).json({ permissions });
+    } catch (error) {
+      next(error);
+    }
+  },
 };
 
 module.exports = { PermissionController };
