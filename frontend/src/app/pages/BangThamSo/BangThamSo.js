@@ -9,6 +9,8 @@ import ThamSoColumn from '../../components/thamso/thamso_column';
 import ThamSoService from '../../service/thamso.service';
 import ThamSoDialog from './../../components/thamso/thamso_popup';
 
+import { hasPermission } from '../../utils/hasPermission';
+
 function BangThamSo() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -16,6 +18,8 @@ function BangThamSo() {
   const [selectedThamSo, setSelectedThamSo] = useState(null);
   const [pagination] = useState({ limit: 50, offset: 0 });
   const [loading, setLoading] = useState(false);
+
+  const permissions = localStorage.getItem('permissions');
 
   const fetchThamSoList = useCallback(
     async (search = '') => {
@@ -148,6 +152,7 @@ function BangThamSo() {
             data={thamSoList}
             columns={ThamSoColumn}
             onEdit={handleEdit}
+            disabledEdit={!hasPermission(permissions, 'variable.edit')}
           />
         </Box>
       )}
