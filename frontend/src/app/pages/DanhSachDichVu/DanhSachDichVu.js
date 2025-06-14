@@ -17,6 +17,8 @@ import exportDichVuToExcel from '../../components/dichvu/dichvu_export_excel';
 import printDichVu from '../../components/dichvu/dichvu_print_data';
 import showToast from '../../components/Showtoast';
 
+import { hasPermission } from '../../utils/hasPermission';
+
 function DanhSachDichVu() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -32,6 +34,8 @@ function DanhSachDichVu() {
     offset: 0,
     total: 0,
   });
+
+  const permissions = localStorage.getItem('permissions');
 
   const fetchDichVuList = useCallback(
     async (filters = currentFilters, limit = 50, offset = 0, search = '') => {
@@ -283,7 +287,11 @@ function DanhSachDichVu() {
           }}
         >
           <FilterButton onClick={handleFilter} text="Filter" />
-          <AddButton onClick={handleAdd} text="Thêm" />
+          <AddButton
+            onClick={handleAdd}
+            text="Thêm"
+            disabled={!hasPermission(permissions, 'service.create')}
+          />
           <ActionDropdown
             onPrint={handlePrint}
             onExportExcel={handleExportExcel}
@@ -303,6 +311,8 @@ function DanhSachDichVu() {
           columns={DichVuColumn}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          disabledEdit={!hasPermission(permissions, 'service.edit')}
+          disabledDelete={!hasPermission(permissions, 'service.delete')}
         />
       )}
 
