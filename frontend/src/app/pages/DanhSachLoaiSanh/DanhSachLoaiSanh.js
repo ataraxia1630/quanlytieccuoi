@@ -16,6 +16,8 @@ import DeleteDialog from '../../components/Deletedialog';
 
 import LoaiSanhService from '../../service/loaisanh.service';
 
+import { hasPermission } from '../../utils/hasPermission';
+
 export default function DanhSachLoaiSanh() {
   //#region declaration
   const [searchTerm, setSearchTerm] = useState('');
@@ -30,6 +32,8 @@ export default function DanhSachLoaiSanh() {
     priceMax: 10000000,
   });
   const [loading, setLoading] = useState(false);
+
+  const permissions = localStorage.getItem('permissions');
   //#endregion
 
   //#region useEffect
@@ -189,7 +193,11 @@ export default function DanhSachLoaiSanh() {
 
         <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
           <FilterButton onClick={handleOpenHideFilter} text="Filter" />
-          <AddButton onClick={handleAdd} text="Thêm" />
+          <AddButton
+            onClick={handleAdd}
+            text="Thêm"
+            disabled={!hasPermission(permissions, 'hallType.create')}
+          />
         </Box>
       </Box>
 
@@ -202,7 +210,7 @@ export default function DanhSachLoaiSanh() {
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
+          <CircularProgress sx={{ color: '#063F5C' }} />
         </Box>
       ) : (
         <CustomTable
@@ -210,6 +218,8 @@ export default function DanhSachLoaiSanh() {
           columns={HallTypeColumns}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          disabledEdit={!hasPermission(permissions, 'hallType.edit')}
+          disabledDelete={!hasPermission(permissions, 'hallType.delete')}
         />
       )}
 

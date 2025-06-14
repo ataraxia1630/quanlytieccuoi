@@ -9,7 +9,7 @@ import {
   TableSortLabel,
   Box,
 } from '@mui/material';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { memo } from 'react';
 
 const CustomTable = memo(
@@ -20,19 +20,36 @@ const CustomTable = memo(
     onDelete = () => {},
     serverSideSort = false,
     onSortChange = () => {},
+    disabledEdit = false,
+    disabledDelete = false,
+    // Thêm props để nhận current sort state từ parent component
+    currentSort = null, // format: { field: 'name', order: 'asc' }
   }) => {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState(null);
 
+    // Đồng bộ state với props khi dùng server-side sorting
+    useEffect(() => {
+      if (serverSideSort && currentSort) {
+        setOrderBy(currentSort.field);
+        setOrder(currentSort.order);
+      }
+    }, [serverSideSort, currentSort]);
+
     const handleRequestSort = (property) => {
       let nextOrder = 'asc';
+
+      // Xử lý toggle order
       if (orderBy === property) {
         nextOrder = order === 'asc' ? 'desc' : 'asc';
       }
+
+      // Cập nhật state ngay lập tức để UI responsive
       setOrder(nextOrder);
       setOrderBy(property);
 
       if (serverSideSort) {
+        // Gửi request lên parent component
         onSortChange(property, nextOrder);
       }
     };
@@ -48,7 +65,12 @@ const CustomTable = memo(
     };
 
     const sortedData = useMemo(() => {
-      if (serverSideSort || !order || !orderBy) return data;
+      // Server-side sorting, không sort ở client
+      if (serverSideSort) return data;
+
+      // Client-side sorting
+      if (!order || !orderBy) return data;
+
       return [...data].sort((a, b) => {
         const aValue = getNumericValue(a[orderBy]);
         const bValue = getNumericValue(b[orderBy]);
@@ -64,7 +86,7 @@ const CustomTable = memo(
       if (column.id === 'index') return rowIndex + 1;
       if (column.render) {
         return column.id === 'actions'
-          ? column.render(row, onEdit, onDelete)
+          ? column.render(row, onEdit, onDelete, disabledEdit, disabledDelete)
           : column.render(row);
       }
       return row[column.id];
@@ -104,9 +126,14 @@ const CustomTable = memo(
                             opacity: isSorted ? 1 : 0.4,
                             color: 'white !important',
                             marginLeft: 1,
+                            transition: 'opacity 0.2s ease-in-out',
                           },
                           display: 'inline-flex',
                           alignItems: 'center',
+
+                          '&:hover .MuiTableSortLabel-icon': {
+                            opacity: 0.7,
+                          },
                         }}
                       >
                         {column.label}
@@ -129,7 +156,7 @@ const CustomTable = memo(
           </TableHead>
           <TableBody>
             {sortedData.map((row, rowIndex) => (
-              <TableRow key={row.id}>
+              <TableRow key={row.id || rowIndex}>
                 {columns.map((column, index) => (
                   <TableCell
                     key={column.id}

@@ -460,7 +460,7 @@ const foodData = [
       'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2025/06/flavorful-ramen-noodles-with-soft-boiled-eggs.webp',
   },
   {
-    TenMonAn: ' Cà ri gà với khoai tây và thảo mộc',
+    TenMonAn: 'Cà ri gà với khoai tây và thảo mộc',
     HinhAnh:
       'https://www.foodiesfeed.com/wp-content/uploads/ff-images/2024/12/flavorful-chicken-curry-with-potatoes-and-herbs.jpg',
   },

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -14,11 +14,13 @@ function BangThamSo() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [thamSoList, setThamSoList] = useState([]);
   const [selectedThamSo, setSelectedThamSo] = useState(null);
-  const [pagination] = useState({ limit: 50, offset: 0 }); // Có thể dùng nếu phân trang sau này
+  const [pagination] = useState({ limit: 50, offset: 0 });
+  const [loading, setLoading] = useState(false);
 
   const fetchThamSoList = useCallback(
     async (search = '') => {
       try {
+        setLoading(true);
         const normalizedSearch = search.trim().replace(/\s+/g, ' ');
         const data = await ThamSoService.getAllThamSo(
           pagination.limit,
@@ -31,6 +33,8 @@ function BangThamSo() {
         toast.error(error.message || 'Lỗi khi tải danh sách tham số');
         setThamSoList([]);
         return [];
+      } finally {
+        setLoading(false);
       }
     },
     [pagination.limit, pagination.offset]
@@ -80,6 +84,7 @@ function BangThamSo() {
 
   const handleSaveThamSo = async (formData) => {
     try {
+      setLoading(true);
       await ThamSoService.updateThamSo(formData.TenThamSo, formData.GiaTri);
       const updatedList = thamSoList.map((ts) =>
         ts.TenThamSo === formData.TenThamSo
@@ -92,6 +97,8 @@ function BangThamSo() {
       setSelectedThamSo(null);
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -124,20 +131,26 @@ function BangThamSo() {
         />
       </Box>
 
-      <Box
-        sx={{
-          '& .MuiTableCell-root': {
-            paddingTop: '30px',
-            paddingBottom: '30px',
-          },
-        }}
-      >
-        <CustomTable
-          data={thamSoList}
-          columns={ThamSoColumn}
-          onEdit={handleEdit}
-        />
-      </Box>
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+          <CircularProgress sx={{ color: '#063F5C' }} />
+        </Box>
+      ) : (
+        <Box
+          sx={{
+            '& .MuiTableCell-root': {
+              paddingTop: '30px',
+              paddingBottom: '30px',
+            },
+          }}
+        >
+          <CustomTable
+            data={thamSoList}
+            columns={ThamSoColumn}
+            onEdit={handleEdit}
+          />
+        </Box>
+      )}
 
       <ThamSoDialog
         open={isEditDialogOpen}

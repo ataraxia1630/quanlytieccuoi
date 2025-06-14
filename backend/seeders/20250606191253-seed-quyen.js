@@ -8,40 +8,42 @@ module.exports = {
 
       // Danh sách tiệc cưới
       'wedding.view',
+      'wedding.edit',
       'wedding.delete',
 
       // Thanh toán
       'bill.create',
+      'bill.edit',
 
       // DS sảnh
       'hall.view',
+      'hall.create',
       'hall.edit',
       'hall.delete',
-      'hall.create',
 
       // DS loại sảnh
       'hallType.view',
+      'hallType.create',
       'hallType.edit',
       'hallType.delete',
-      'hallType.create',
 
       // DS ca
       'shift.view',
+      'shift.create',
       'shift.edit',
       'shift.delete',
-      'shift.create',
 
       // DS món ăn
       'food.view',
+      'food.create',
       'food.edit',
       'food.delete',
-      'food.create',
 
       // DS dịch vụ
       'service.view',
+      'service.create',
       'service.edit',
       'service.delete',
-      'service.create',
 
       // DS tham số
       'variable.view',

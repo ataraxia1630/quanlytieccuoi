@@ -16,6 +16,8 @@ import DeleteDialog from '../../components/Deletedialog';
 
 import MonAnService from '../../service/monan.service';
 
+import { hasPermission } from '../../utils/hasPermission';
+
 export default function DanhSachMonAn() {
   //#region declaration
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +36,9 @@ export default function DanhSachMonAn() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [sort, setSort] = useState(null);
+  const [currentSort, setCurrentSort] = useState(null);
+
+  const permissions = localStorage.getItem('permissions');
   //#endregion
 
   //#region useEffect
@@ -77,10 +82,12 @@ export default function DanhSachMonAn() {
   };
 
   const handleSortChange = (property, order) => {
+    setCurrentSort({ field: property, order });
     console.log(property, order);
     if (property === 'TenMonAn') setSort('name_' + order);
     else if (property === 'DonGia') setSort('price_' + order);
     else if (property === 'MaMonAn') setSort('code_' + order);
+    setCurrentPage(1);
   };
 
   const handleOpenHideFilter = () => {
@@ -95,6 +102,9 @@ export default function DanhSachMonAn() {
   const handleResetFilter = () => {
     setFilters({ status: [], priceMin: '', priceMax: '' });
     setSearchTerm('');
+    setCurrentPage(1);
+    setCurrentSort(null);
+    setSort(null);
     toast.success('Đã reset bộ lọc');
   };
 
@@ -203,7 +213,11 @@ export default function DanhSachMonAn() {
 
         <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
           <FilterButton onClick={handleOpenHideFilter} text="Filter" />
-          <AddButton onClick={handleAdd} text="Thêm" />
+          <AddButton
+            onClick={handleAdd}
+            text="Thêm"
+            disabled={!hasPermission(permissions, 'food.create')}
+          />
         </Box>
       </Box>
 
@@ -216,7 +230,7 @@ export default function DanhSachMonAn() {
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
+          <CircularProgress sx={{ color: '#063F5C' }} />
         </Box>
       ) : (
         <Box
@@ -234,6 +248,9 @@ export default function DanhSachMonAn() {
             onDelete={handleDelete}
             serverSideSort={true}
             onSortChange={handleSortChange}
+            currentSort={currentSort}
+            disabledEdit={!hasPermission(permissions, 'food.edit')}
+            disabledDelete={!hasPermission(permissions, 'food.delete')}
           />
           <Pagination
             count={totalPages}
