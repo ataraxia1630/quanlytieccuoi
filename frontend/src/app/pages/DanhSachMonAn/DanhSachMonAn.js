@@ -34,6 +34,7 @@ export default function DanhSachMonAn() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [sort, setSort] = useState(null);
+  const [currentSort, setCurrentSort] = useState(null);
   //#endregion
 
   //#region useEffect
@@ -77,10 +78,12 @@ export default function DanhSachMonAn() {
   };
 
   const handleSortChange = (property, order) => {
+    setCurrentSort({ field: property, order });
     console.log(property, order);
     if (property === 'TenMonAn') setSort('name_' + order);
     else if (property === 'DonGia') setSort('price_' + order);
     else if (property === 'MaMonAn') setSort('code_' + order);
+    setCurrentPage(1);
   };
 
   const handleOpenHideFilter = () => {
@@ -95,6 +98,9 @@ export default function DanhSachMonAn() {
   const handleResetFilter = () => {
     setFilters({ status: [], priceMin: '', priceMax: '' });
     setSearchTerm('');
+    setCurrentPage(1);
+    setCurrentSort(null);
+    setSort(null);
     toast.success('Đã reset bộ lọc');
   };
 
@@ -234,6 +240,7 @@ export default function DanhSachMonAn() {
             onDelete={handleDelete}
             serverSideSort={true}
             onSortChange={handleSortChange}
+            currentSort={currentSort}
           />
           <Pagination
             count={totalPages}
