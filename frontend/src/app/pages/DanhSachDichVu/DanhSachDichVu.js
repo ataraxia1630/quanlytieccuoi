@@ -34,14 +34,16 @@ function DanhSachDichVu() {
   });
 
   const fetchDichVuList = useCallback(
-    async (filters = currentFilters, limit = 50, offset = 0) => {
+    async (filters = currentFilters, limit = 50, offset = 0, search = '') => {
       try {
         setLoading(true);
         let data;
-        const normalizedSearchTerm = searchTerm.trim().replace(/\s+/g, ' ');
+        const normalizedSearchTerm = search.trim().replace(/\s+/g, ' ');
+
+        const { searchTerm: oldSearchTerm, ...filtersWithoutSearch } = filters;
 
         const searchParams = {
-          ...filters,
+          ...filtersWithoutSearch,
           ...(normalizedSearchTerm && { searchTerm: normalizedSearchTerm }),
         };
 
@@ -66,12 +68,12 @@ function DanhSachDichVu() {
         setLoading(false);
       }
     },
-    [searchTerm, currentFilters]
+    [currentFilters]
   );
 
   useEffect(() => {
-    fetchDichVuList();
-  }, [fetchDichVuList]);
+    fetchDichVuList(currentFilters, pagination.limit, pagination.offset, '');
+  }, [fetchDichVuList, currentFilters, pagination.limit, pagination.offset]);
 
   const handleSearch = async () => {
     const normalizedSearchTerm = searchTerm.trim().replace(/\s+/g, ' ');
@@ -82,7 +84,12 @@ function DanhSachDichVu() {
     }
 
     showToast('info', `Đang tìm kiếm: ${normalizedSearchTerm}`, 'search-start');
-    const result = await fetchDichVuList(currentFilters, pagination.limit, 0);
+    const result = await fetchDichVuList(
+      currentFilters,
+      pagination.limit,
+      0,
+      normalizedSearchTerm
+    );
 
     if (result?.length === 0) {
       showToast(
@@ -99,6 +106,17 @@ function DanhSachDichVu() {
     }
   };
 
+  // Hiển thị lại ds dịch vụ sau khi xóa tìm kiếm
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (searchTerm.trim() === '') {
+        fetchDichVuList(currentFilters, pagination.limit, 0, '');
+      }
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [searchTerm, fetchDichVuList, currentFilters, pagination.limit]);
+
   const handleAdd = () => {
     setMode('add');
     setSelectedDichVu(null);
@@ -111,7 +129,7 @@ function DanhSachDichVu() {
 
   const handleApplyFilter = (filterParams) => {
     setCurrentFilters(filterParams);
-    fetchDichVuList(filterParams, pagination.limit, 0);
+    fetchDichVuList(filterParams, pagination.limit, 0, searchTerm);
 
     if (Object.keys(filterParams).length > 0) {
       showToast('success', 'Đã áp dụng bộ lọc', 'filter-apply');
@@ -165,7 +183,12 @@ function DanhSachDichVu() {
 
       setIsDialogOpen(false);
       setSelectedDichVu(null);
-      fetchDichVuList(currentFilters, pagination.limit, pagination.offset);
+      fetchDichVuList(
+        currentFilters,
+        pagination.limit,
+        pagination.offset,
+        searchTerm
+      );
     } catch (error) {
       showToast('error', error.message || 'Lỗi khi lưu dịch vụ', 'save-error');
     } finally {
@@ -191,7 +214,12 @@ function DanhSachDichVu() {
 
       setIsDeleteDialogOpen(false);
       setSelectedDichVu(null);
-      fetchDichVuList(currentFilters, pagination.limit, pagination.offset);
+      fetchDichVuList(
+        currentFilters,
+        pagination.limit,
+        pagination.offset,
+        searchTerm
+      );
     } catch (error) {
       showToast('error', error.message, 'delete-error');
     } finally {

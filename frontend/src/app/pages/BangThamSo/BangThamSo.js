@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Box, Typography } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,21 +14,56 @@ function BangThamSo() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [thamSoList, setThamSoList] = useState([]);
   const [selectedThamSo, setSelectedThamSo] = useState(null);
+  const [pagination] = useState({ limit: 50, offset: 0 }); // Có thể dùng nếu phân trang sau này
+
+  const fetchThamSoList = useCallback(
+    async (search = '') => {
+      try {
+        const normalizedSearch = search.trim().replace(/\s+/g, ' ');
+        const data = await ThamSoService.getAllThamSo(
+          pagination.limit,
+          pagination.offset,
+          normalizedSearch
+        );
+        setThamSoList(data);
+        return data;
+      } catch (error) {
+        toast.error(error.message || 'Lỗi khi tải danh sách tham số');
+        setThamSoList([]);
+        return [];
+      }
+    },
+    [pagination.limit, pagination.offset]
+  );
 
   useEffect(() => {
-    const fetchThamSo = async () => {
-      try {
-        const data = await ThamSoService.getAllThamSo(10, 0, searchTerm);
-        setThamSoList(data);
-      } catch (error) {
-        toast.error(error.message);
-      }
-    };
-    fetchThamSo();
-  }, [searchTerm]);
+    fetchThamSoList();
+  }, [fetchThamSoList]);
 
-  const handleSearch = () => {
-    toast.info(`Đang tìm kiếm: ${searchTerm}`);
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (searchTerm.trim() === '') {
+        fetchThamSoList('');
+      }
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [searchTerm, fetchThamSoList]);
+
+  const handleSearch = async () => {
+    const keyword = searchTerm.trim();
+    if (!keyword) {
+      toast.warning('Vui lòng nhập từ khóa tìm kiếm');
+      return;
+    }
+
+    toast.info(`Đang tìm kiếm: ${keyword}`);
+    const result = await fetchThamSoList(keyword);
+
+    if (result.length === 0) {
+      toast.warning('Không tìm thấy tham số phù hợp');
+    } else {
+      toast.success(`Tìm thấy ${result.length} tham số`);
+    }
   };
 
   const handleEdit = (row) => {
