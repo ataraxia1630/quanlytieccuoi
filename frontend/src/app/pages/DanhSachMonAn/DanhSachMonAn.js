@@ -216,7 +216,7 @@ export default function DanhSachMonAn() {
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
+          <CircularProgress sx={{ color: '#063F5C' }} />
         </Box>
       ) : (
         <Box

@@ -99,7 +99,7 @@ export default function QuanLyNhomTab() {
 
       {loading ? (
         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
-          <CircularProgress />
+          <CircularProgress sx={{ color: '#063F5C' }} />
         </Box>
       ) : (
         <Box>

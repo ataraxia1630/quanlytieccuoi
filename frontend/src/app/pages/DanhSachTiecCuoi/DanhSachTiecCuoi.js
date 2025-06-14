@@ -9,7 +9,7 @@ import FilterButton from '../../components/Filterbutton';
 import { getDanhSach, postDanhSach } from '../../service/danhsachtiec.service';
 import sanhService from '../../service/sanh.service';
 import DateRangePicker from '../../components/danhsachtiec/daterange';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, CircularProgress } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import PhieuDatTiecService from '../../service/phieudattiec.service';
 import Phieucolumns from '../../components/danhsachtiec/phieudattiec_column';
@@ -27,13 +27,13 @@ function DanhSachTiecCuoi() {
   const [selectedPhieu, setSelectedPhieu] = useState(null);
   const [errors, setErrors] = useState({});
   const [form, setForm] = useState({
-    tuBan: "",
-    denBan: "",
-    sanh: "",
-    tuNgay: "",
-    denNgay: "",
-    trangThai: "",
-    ten: ""
+    tuBan: '',
+    denBan: '',
+    sanh: '',
+    tuNgay: '',
+    denNgay: '',
+    trangThai: '',
+    ten: '',
   });
 
   const fetchData = async () => {
@@ -41,17 +41,17 @@ function DanhSachTiecCuoi() {
     try {
       const [result, dsSanh] = await Promise.all([
         getDanhSach(),
-        sanhService.getAllSanh()
+        sanhService.getAllSanh(),
       ]);
 
       const sanhList = dsSanh
-        .filter(item => item.TenSanh)
-        .map(item => item.TenSanh);
+        .filter((item) => item.TenSanh)
+        .map((item) => item.TenSanh);
       setSanh(sanhList);
 
       setData(result);
     } catch (error) {
-      console.error("Lỗi lấy danh sách:", error);
+      console.error('Lỗi lấy danh sách:', error);
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,7 @@ function DanhSachTiecCuoi() {
       const result = await postDanhSach({});
       setData(result);
     } catch (error) {
-      console.error("Lỗi tìm kiếm:", error);
+      console.error('Lỗi tìm kiếm:', error);
     } finally {
       setLoading(false);
     }
@@ -83,13 +83,13 @@ function DanhSachTiecCuoi() {
 
   const handleResetFilter = async () => {
     setForm({
-      tuBan: "",
-      denBan: "",
-      sanh: "",
-      tuNgay: "",
-      denNgay: "",
-      trangThai: "",
-      ten: ""
+      tuBan: '',
+      denBan: '',
+      sanh: '',
+      tuNgay: '',
+      denNgay: '',
+      trangThai: '',
+      ten: '',
     });
     setSearchText('');
     setErrors({});
@@ -108,17 +108,17 @@ function DanhSachTiecCuoi() {
 
     // Validate và ghi lỗi vào biến tạm
     if (isNaN(Number(tuBan)) || Number(tuBan) < 0) {
-      newErrors.tuBan = "Nhập số nguyên dương!";
+      newErrors.tuBan = 'Nhập số nguyên dương!';
     }
 
     if (isNaN(Number(denBan)) || Number(denBan) < 0) {
-      newErrors.tuBan = "Nhập số nguyên dương!";
+      newErrors.tuBan = 'Nhập số nguyên dương!';
     }
     // Cập nhật state lỗi
     setErrors(newErrors);
 
     if (Object.values(newErrors).some((error) => error)) {
-      console.warn("Dữ liệu không hợp lệ:", newErrors);
+      console.warn('Dữ liệu không hợp lệ:', newErrors);
       return;
     }
 
@@ -131,17 +131,16 @@ function DanhSachTiecCuoi() {
       if (form.sanh) payload.sanh = form.sanh;
       if (tuNgay) payload.tuNgay = new Date(tuNgay).toISOString();
       if (denNgay) payload.denNgay = new Date(denNgay).toISOString();
-      if (form.trangThai !== "") payload.trangThai = form.trangThai;
+      if (form.trangThai !== '') payload.trangThai = form.trangThai;
       payload.ten = searchText.trim();
       const result = await postDanhSach(payload);
       setData(result);
     } catch (error) {
-      console.error("Lỗi lọc dữ liệu:", error);
+      console.error('Lỗi lọc dữ liệu:', error);
     } finally {
       setLoading(false);
     }
   };
-
 
   const handleCloseDeleteDialog = () => {
     setIsUpdateDialogOpen(false);
@@ -151,22 +150,25 @@ function DanhSachTiecCuoi() {
     try {
       setLoading(true);
       let newTrangThai = selectedPhieu.TrangThai;
-      console.log("trang thai ne: ", newTrangThai)
+      console.log('trang thai ne: ', newTrangThai);
       if (newTrangThai === 'Đã hủy') {
         newTrangThai = 'Chưa thanh toán';
       } else if (newTrangThai === 'Chưa thanh toán') {
         newTrangThai = 'Đã hủy';
       }
-      console.log("trang thai moi ne: ", newTrangThai)
+      console.log('trang thai moi ne: ', newTrangThai);
 
-      const result = await PhieuDatTiecService.updatePhieuDatTiec(selectedPhieu.SoPhieuDatTiec, { TrangThai: newTrangThai });
+      const result = await PhieuDatTiecService.updatePhieuDatTiec(
+        selectedPhieu.SoPhieuDatTiec,
+        { TrangThai: newTrangThai }
+      );
 
       setIsUpdateDialogOpen(false);
       await handleSubmit();
 
       const toastByStatus = {
-        "soft-deleted": toast.info,
-        "already-soft-deleted": toast.warning,
+        'soft-deleted': toast.info,
+        'already-soft-deleted': toast.warning,
         deleted: toast.success,
       };
 
@@ -180,14 +182,14 @@ function DanhSachTiecCuoi() {
     }
   };
   const options = [
-    { label: "Tất cả", value: "" },
-    { label: "Đã hủy", value: 'Đã hủy' },
-    { label: "Đã thanh toán", value: 'Đã thanh toán' },
-    { label: "Chưa thanh toán", value: 'Chưa thanh toán' }
+    { label: 'Tất cả', value: '' },
+    { label: 'Đã hủy', value: 'Đã hủy' },
+    { label: 'Đã thanh toán', value: 'Đã thanh toán' },
+    { label: 'Chưa thanh toán', value: 'Chưa thanh toán' },
   ];
 
-  const options1 = sanh.map(MaSanh => ({ label: MaSanh, value: MaSanh }));
-  const phieuData = Phieucolumns(navigate)
+  const options1 = sanh.map((MaSanh) => ({ label: MaSanh, value: MaSanh }));
+  const phieuData = Phieucolumns(navigate);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -195,35 +197,35 @@ function DanhSachTiecCuoi() {
 
       <Typography
         variant="h4"
-        sx={{ fontWeight: "bold", color: "#063F5C", mb: 4 }}
+        sx={{ fontWeight: 'bold', color: '#063F5C', mb: 4 }}
       >
         Danh sách tiệc cưới
       </Typography>
 
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "20px",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '20px',
           mb: 3,
         }}
       >
         <Searchbar
-          placeholder='Tìm tên cô dâu hoặc chú rể...'
+          placeholder="Tìm tên cô dâu hoặc chú rể..."
           value={searchText}
           onChange={setSearchText}
           onSearch={handleSubmit}
         />
-        <Box sx={{ display: "flex", gap: "17px", justifyContent: "flex-end" }}>
+        <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
           <FilterButton onClick={handleFilter} text="Filter" />
         </Box>
       </Box>
-      {isFilterOpen &&
-        <div className='box'>
-          <div className='content'>
-            <div className='sanh-box'>
+      {isFilterOpen && (
+        <div className="box">
+          <div className="content">
+            <div className="sanh-box">
               <Dropdown
                 className="sanh"
                 label="Sảnh"
@@ -232,13 +234,10 @@ function DanhSachTiecCuoi() {
                 width={150}
                 options={options1}
               />
-
-
-
             </div>
 
-            <div className='ban-box'>
-              <div className='ban-box'>
+            <div className="ban-box">
+              <div className="ban-box">
                 <Rangeinput
                   label="Số lượng bàn"
                   width={56}
@@ -250,11 +249,10 @@ function DanhSachTiecCuoi() {
                 {errors.tuBan && <div className="error">{errors.tuBan}</div>}
                 {errors.denBan && <div className="error">{errors.denBan}</div>}
               </div>
-
             </div>
 
-            <div className='ngay-box'>
-              <div className='ngay-box'>
+            <div className="ngay-box">
+              <div className="ngay-box">
                 <DateRangePicker
                   label="Ngày"
                   fromDate={form.tuNgay}
@@ -263,9 +261,10 @@ function DanhSachTiecCuoi() {
                   onToChange={(v) => setForm({ ...form, denNgay: v })}
                 />
                 {errors.tuNgay && <div className="error">{errors.tuNgay}</div>}
-                {errors.denNgay && <div className="error">{errors.denNgay}</div>}
+                {errors.denNgay && (
+                  <div className="error">{errors.denNgay}</div>
+                )}
               </div>
-
             </div>
 
             <StatusRadio
@@ -274,15 +273,13 @@ function DanhSachTiecCuoi() {
               onChange={(val) => setForm({ ...form, trangThai: val })}
               options={options}
             />
-            <div className="apply" >
-              <FilterButton text='Apply' onClick={handleSubmit} />
-              <FilterButton text='Reset' onClick={handleResetFilter} />
+            <div className="apply">
+              <FilterButton text="Apply" onClick={handleSubmit} />
+              <FilterButton text="Reset" onClick={handleResetFilter} />
             </div>
-
-
           </div>
         </div>
-      }
+      )}
 
       <EditDialog
         open={isUpdateDialogOpen}
@@ -292,18 +289,13 @@ function DanhSachTiecCuoi() {
         content={`Bạn có chắc chắn muốn thay đổi trạng thái phiếu đặt tiệc này?`}
       />
 
-      {
-        loading ? (
-          <p style={{ padding: 24 }}>Đang tải dữ liệu...</p>
-        ) : (
-          <CustomTable
-            data={data}
-            columns={phieuData}
-            onDelete={handleDelete}
-          />
-
-        )
-      }
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress sx={{ color: '#063F5C' }} />
+        </Box>
+      ) : (
+        <CustomTable data={data} columns={phieuData} onDelete={handleDelete} />
+      )}
     </Box>
   );
 }
