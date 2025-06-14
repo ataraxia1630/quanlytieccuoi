@@ -20,6 +20,8 @@ const CustomTable = memo(
     onDelete = () => {},
     serverSideSort = false,
     onSortChange = () => {},
+    disabledEdit = false,
+    disabledDelete = false,
   }) => {
     const [order, setOrder] = useState('asc');
     const [orderBy, setOrderBy] = useState(null);
@@ -64,7 +66,13 @@ const CustomTable = memo(
       if (column.id === 'index') return rowIndex + 1;
       if (column.render) {
         return column.id === 'actions'
-          ? column.render(row, onEdit, onDelete)
+          ? column.render(
+              row,
+              onEdit,
+              onDelete,
+              disabledEdit,
+              disabledDelete
+            )
           : column.render(row);
       }
       return row[column.id];
