@@ -55,7 +55,7 @@ export default function DanhSachLoaiSanh() {
 
   useEffect(() => {
     fetchData();
-  }, [filters, searchTerm]);
+  }, [filters]);
   //#endregion
 
   //#region func handler
