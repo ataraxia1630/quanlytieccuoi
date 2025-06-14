@@ -363,7 +363,7 @@ function HoaDon() {
   };
 
   const columns = [
-    { id: "index", label: "STT", width: 10 },
+    { id: "index", label: "STT", width: 15 },
     {
       id: "TenDichVu",
       label: "Dịch vụ",
@@ -391,7 +391,7 @@ function HoaDon() {
     } : null,
   ].filter(Boolean);
   const columns2 = [
-    { id: "index", label: "STT", width: 5 },
+    { id: "index", label: "STT", width: 15 },
     {
       id: "TenMonAn",
       label: "Món ăn",
@@ -405,16 +405,7 @@ function HoaDon() {
       label: "Thành tiền",
       width: 50,
       render: (row) => row.DonGia * row.SoLuong
-    },
-    !isViewMode ? {
-      id: "actions",
-      label: "Thao tác",
-      sortable: false,
-      width: 10,
-      render: (row, onEdit, onDelete) => (
-        <ActionButtons row={row} onEdit={onEdit} onDelete={onDelete} />
-      ),
-    } : null,
+    }
   ].filter(Boolean);
 
   useEffect(() => {
@@ -516,7 +507,7 @@ function HoaDon() {
   return (
 
     <div className={`${styles.hoadonBox} ${styles.printableHoaDon}`}>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+      <ToastContainer className={styles.noPrint} position="top-right" autoClose={3000} hideProgressBar />
 
       <div className={`${styles.hoadonLeft} ${styles.dashedBorder}`}>
 
@@ -537,7 +528,7 @@ function HoaDon() {
         </div>
         {isViewMode ?
           <div>
-            <p className={styles.hoadonText} style={{ marginTop: '50px' }}>Tổng tiền dịch vụ: {form.TongTienDichVu ?? 0}</p>
+            <p className={styles.hoadonText} style={{ marginTop: '20px' }}>Tổng tiền dịch vụ: {form.TongTienDichVu ?? 0}</p>
             <p className={styles.hoadonText}>Tổng tiền bàn: {form.TongTienMonAn ?? 0}</p>
             <p className={styles.hoadonText}>Tổng tiền hoá đơn: {form.TongTienHoaDon}</p>
             <p className={styles.hoadonText}>Tiền đặt cọc: {tienCoc}</p>
@@ -565,7 +556,7 @@ function HoaDon() {
                 fontSize: "16px",
                 fontWeight: "700",
                 color: "#063F5C",
-                marginTop: '300px',
+                marginTop: '290px',
                 "&:hover": {
                   bgcolor: "#D9A441",
                 },
@@ -586,7 +577,7 @@ function HoaDon() {
                 fontSize: "16px",
                 fontWeight: "700",
                 color: "#063F5C",
-                marginTop: '30px',
+                marginTop: '15px',
                 "&:hover": {
                   bgcolor: "#D9A441",
                 },
@@ -637,6 +628,10 @@ function HoaDon() {
           </div>
           {Array.isArray(form.dsDichVu) && form.dsDichVu.length > 0 ? (
             <div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <p style={{ color: 'white', fontWeight: "700", fontSize: "28px" }}>Danh sách dịch vụ</p>
+                {!isViewMode && <div style={{ border: '1px solid rgba(224, 224, 224, 1)', width: 'fit-content', marginTop: "5px", marginBottom: "0px" }}> <AddButton onClick={handleOpenDVDialog} text="Thêm" sx={{ width: "fit-content" }} /></div>}
+              </div>
 
               <div className={styles.table} style={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
                 <CustomTable
@@ -652,12 +647,13 @@ function HoaDon() {
           ) : (
             <p style={{ color: 'white' }}>Không có dữ liệu dịch vụ.</p>
           )}
-          {!isViewMode && <AddButton onClick={handleOpenDVDialog} text="Thêm dịch vụ" />}
 
 
-          {/* {form.dsMonAn.length > 0 ? (
+          {form.dsMonAn.length > 0 ? (
             <div>
-              <div style={{ border: '1px solid rgba(224, 224, 224, 1)', marginTop: '30px' }}>
+              <p style={{ color: 'white', marginTop: "30px", fontWeight: "700", fontSize: "28px", marginBottom: "15px" }}>Thực đơn</p>
+              <div className={styles.table} style={{ border: '1px solid rgba(224, 224, 224, 1)', marginBottom: "15px" }}>
+
                 <CustomTable
                   data={form.dsMonAn}
                   columns={columns2}
@@ -670,7 +666,6 @@ function HoaDon() {
           ) : (
             <p style={{ color: 'white' }}>Không có dữ liệu món ăn.</p>
           )}
-          {!isViewMode && <AddButton onClick={handleOpenMADialog} text="Thêm món ăn" />} */}
 
         </div>
 

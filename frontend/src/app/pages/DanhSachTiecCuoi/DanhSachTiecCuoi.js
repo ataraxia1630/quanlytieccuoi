@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import './DanhSachTiecCuoi.css';
 import CustomTable from '../../components/Customtable';
 import Searchbar from '../../components/Searchbar';
@@ -16,6 +16,12 @@ import Phieucolumns from '../../components/danhsachtiec/phieudattiec_column';
 import { useNavigate } from 'react-router-dom';
 import useValidation from '../../validation/validation';
 import EditDialog from '../../components/danhsachtiec/editDialog';
+import dayjs from 'dayjs';
+import ActionDropdown from '../../components/Printandexport';
+import printDanhSachTiec from '../../components/danhsachtiec/dstiec_print_data';
+import exportDanhSachTiecCuoiToExcel from '../../components/danhsachtiec/dstiec_export_excel';
+import { getHoaDon } from '../../service/hoadon.service';
+
 function DanhSachTiecCuoi() {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -39,16 +45,7 @@ function DanhSachTiecCuoi() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [result, dsSanh] = await Promise.all([
-        getDanhSach(),
-        sanhService.getAllSanh(),
-      ]);
-
-      const sanhList = dsSanh
-        .filter((item) => item.TenSanh)
-        .map((item) => item.TenSanh);
-      setSanh(sanhList);
-
+      const result = await getDanhSach()
       setData(result);
     } catch (error) {
       console.error('Lỗi lấy danh sách:', error);
@@ -56,29 +53,27 @@ function DanhSachTiecCuoi() {
       setLoading(false);
     }
   };
+  const fetchSanh = async () => {
+    try {
+      const dsSanh = await sanhService.getAllSanh();
+      const sanhList = dsSanh
+        .filter((item) => item.TenSanh)
+        .map((item) => item.TenSanh);
+      setSanh(sanhList);
+    } catch (error) {
+      console.error('Lỗi lấy danh sách sảnh:', error);
+    }
+  };
 
   useEffect(() => {
     fetchData();
   }, []);
 
-  const handleSearch = async () => {
-    setLoading(true);
-    try {
-      if (!searchText.trim()) {
-        await fetchData();
-        return;
-      }
-      const result = await postDanhSach({});
-      setData(result);
-    } catch (error) {
-      console.error('Lỗi tìm kiếm:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFilter = () => {
+    fetchSanh();
     setIsFilterOpen(!isFilterOpen);
+
   };
 
   const handleResetFilter = async () => {
@@ -114,6 +109,13 @@ function DanhSachTiecCuoi() {
     if (isNaN(Number(denBan)) || Number(denBan) < 0) {
       newErrors.tuBan = 'Nhập số nguyên dương!';
     }
+    if (Number(tuBan) > Number(denBan) && denBan !== '') {
+      newErrors.denBan = "'Từ bàn' phải nhỏ hơn hoặc bằng 'Đến bàn'!";
+    }
+    if (dayjs(tuNgay).isAfter(dayjs(denNgay))) {
+      newErrors.denNgay = "'Từ ngày' phải nhỏ hơn hoặc bằng 'Đến ngày'!";
+    }
+
     // Cập nhật state lỗi
     setErrors(newErrors);
 
@@ -126,11 +128,13 @@ function DanhSachTiecCuoi() {
     setLoading(true);
     try {
       const payload = {};
-      if (tuBan) payload.tuBan = parseInt(tuBan);
-      if (denBan) payload.denBan = parseInt(denBan);
+      if (tuBan != null && tuBan !== '') payload.tuBan = parseInt(tuBan);
+if (denBan != null && denBan !== '') payload.denBan = parseInt(denBan);
+
       if (form.sanh) payload.sanh = form.sanh;
-      if (tuNgay) payload.tuNgay = new Date(tuNgay).toISOString();
-      if (denNgay) payload.denNgay = new Date(denNgay).toISOString();
+      if (tuNgay) payload.tuNgay = dayjs(tuNgay).format("YYYY-MM-DD");
+      if (denNgay) payload.denNgay = dayjs(denNgay).format("YYYY-MM-DD");
+
       if (form.trangThai !== '') payload.trangThai = form.trangThai;
       payload.ten = searchText.trim();
       const result = await postDanhSach(payload);
@@ -150,13 +154,11 @@ function DanhSachTiecCuoi() {
     try {
       setLoading(true);
       let newTrangThai = selectedPhieu.TrangThai;
-      console.log('trang thai ne: ', newTrangThai);
       if (newTrangThai === 'Đã hủy') {
         newTrangThai = 'Chưa thanh toán';
       } else if (newTrangThai === 'Chưa thanh toán') {
         newTrangThai = 'Đã hủy';
       }
-      console.log('trang thai moi ne: ', newTrangThai);
 
       const result = await PhieuDatTiecService.updatePhieuDatTiec(
         selectedPhieu.SoPhieuDatTiec,
@@ -181,6 +183,23 @@ function DanhSachTiecCuoi() {
       setLoading(false);
     }
   };
+  const handlePrint = () => {
+    const res = printDanhSachTiec(data);
+    if (!res.success) {
+      //showToast('error', `Lỗi khi in: ${res.message}`, 'print-error');
+    }
+  };
+
+  const handleExportExcel = async () => {
+    const res = await exportDanhSachTiecCuoiToExcel(data);
+    if (!res.success) {
+      //showToast('error', `Lỗi khi xuất file: ${res.message}`, 'excel-error');
+    }
+  };
+  const handleSearchTextChange = useCallback((val) => {
+  setSearchText(val);
+}, []);
+
   const options = [
     { label: 'Tất cả', value: '' },
     { label: 'Đã hủy', value: 'Đã hủy' },
@@ -189,7 +208,37 @@ function DanhSachTiecCuoi() {
   ];
 
   const options1 = sanh.map((MaSanh) => ({ label: MaSanh, value: MaSanh }));
-  const phieuData = Phieucolumns(navigate);
+  const phieuData = useMemo(() => Phieucolumns(navigate), [navigate]);
+
+const columns = useMemo(() => Phieucolumns(), []);
+
+const handleViewHoaDon = async (row) => {
+    try {
+      const hoaDon = await getHoaDon(row.SoPhieuDatTiec);
+      navigate("/DashBoard/HoaDon", {
+        state: {
+          ...(hoaDon ? { soHoaDon: hoaDon.SoHoaDon, data: hoaDon } : { data: row }),
+          soPhieuDatTiec: row.SoPhieuDatTiec,
+          chuRe: row.TenChuRe,
+          coDau: row.TenCoDau,
+          tienCoc: row.TienDatCoc,
+          ngayDaiTiec: row.NgayDaiTiec
+        }
+      });
+    } catch (err) {
+      console.error("Lỗi khi xem hóa đơn:", err);
+    }
+  };
+
+  const dataWithHandlers = useMemo(
+    () =>
+      data.map((item) => ({
+        ...item,
+        onViewHoaDon: handleViewHoaDon,
+        onDeletePhieu: handleDelete,
+      })),
+    [data]
+  );
 
   return (
     <Box sx={{ p: 3 }}>
@@ -213,13 +262,17 @@ function DanhSachTiecCuoi() {
         }}
       >
         <Searchbar
-          placeholder="Tìm tên cô dâu hoặc chú rể..."
+          placeholder="Tìm tên cô dâu, chú rể hoặc số phiếu đặt tiệc..."
           value={searchText}
-          onChange={setSearchText}
+          onChange={handleSearchTextChange}
           onSearch={handleSubmit}
         />
         <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
           <FilterButton onClick={handleFilter} text="Filter" />
+          <ActionDropdown
+            onPrint={handlePrint}
+            onExportExcel={handleExportExcel}
+          />
         </Box>
       </Box>
       {isFilterOpen && (
