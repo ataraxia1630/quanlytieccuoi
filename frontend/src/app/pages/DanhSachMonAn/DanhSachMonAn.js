@@ -16,6 +16,8 @@ import DeleteDialog from '../../components/Deletedialog';
 
 import MonAnService from '../../service/monan.service';
 
+import { hasPermission } from '../../utils/hasPermission';
+
 export default function DanhSachMonAn() {
   //#region declaration
   const [searchTerm, setSearchTerm] = useState('');
@@ -35,6 +37,8 @@ export default function DanhSachMonAn() {
   const [totalPages, setTotalPages] = useState(1);
   const [sort, setSort] = useState(null);
   const [currentSort, setCurrentSort] = useState(null);
+
+  const permissions = localStorage.getItem('permissions');
   //#endregion
 
   //#region useEffect
@@ -209,7 +213,11 @@ export default function DanhSachMonAn() {
 
         <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
           <FilterButton onClick={handleOpenHideFilter} text="Filter" />
-          <AddButton onClick={handleAdd} text="Thêm" />
+          <AddButton
+            onClick={handleAdd}
+            text="Thêm"
+            disabled={!hasPermission(permissions, 'food.create')}
+          />
         </Box>
       </Box>
 
@@ -241,6 +249,8 @@ export default function DanhSachMonAn() {
             serverSideSort={true}
             onSortChange={handleSortChange}
             currentSort={currentSort}
+            disabledEdit={!hasPermission(permissions, 'food.edit')}
+            disabledDelete={!hasPermission(permissions, 'food.delete')}
           />
           <Pagination
             count={totalPages}
