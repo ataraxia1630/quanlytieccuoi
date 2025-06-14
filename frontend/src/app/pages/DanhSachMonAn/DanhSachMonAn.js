@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './DanhSachMonAn.css';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { Box, Typography, CircularProgress } from '@mui/material';
+import { Box, Typography, CircularProgress, Pagination } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 
 import SearchBar from '../../components/Searchbar';
@@ -31,6 +31,9 @@ export default function DanhSachMonAn() {
     priceMax: '',
   });
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sort, setSort] = useState(null);
   //#endregion
 
   //#region useEffect
@@ -41,10 +44,18 @@ export default function DanhSachMonAn() {
         filters.status,
         searchTerm,
         filters.priceMin,
-        filters.priceMax
+        filters.priceMax,
+        currentPage,
+        20,
+        sort
       );
-      console.log(result.data);
-      setDishData(result.data || []);
+      const monanData = result.data.map((monan, index) => {
+        monan.STT = (currentPage - 1) * 20 + index + 1;
+        return monan;
+      });
+      console.log(monanData);
+      setDishData(monanData || []);
+      setTotalPages(result.totalPages || 1);
     } catch (error) {
       console.log('Error fetching sanhs:', error.message);
       toast.error(`Lỗi: ${error.message || 'Không thể tải danh sách món ăn!'}`);
@@ -55,13 +66,20 @@ export default function DanhSachMonAn() {
 
   useEffect(() => {
     fetchData();
-  }, [filters, searchTerm]);
+  }, [filters, totalPages, currentPage, sort]);
   //#endregion
 
   //#region func handler
   const handleSearch = () => {
     // toast.info(`Đang tìm kiếm: ${searchTerm}`);
+    setCurrentPage(1);
     fetchData();
+  };
+
+  const handleSortChange = (property, order) => {
+    console.log(property, order);
+    if (property === 'TenMonAn') setSort('name_' + order);
+    else if (property === 'DonGia') setSort('price_' + order);
   };
 
   const handleOpenHideFilter = () => {
@@ -200,12 +218,56 @@ export default function DanhSachMonAn() {
           <CircularProgress />
         </Box>
       ) : (
-        <CustomTable
-          data={dishData}
-          columns={DishColumns}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <CustomTable
+            data={dishData}
+            columns={DishColumns}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            serverSideSort={true}
+            onSortChange={handleSortChange}
+          />
+          <Pagination
+            count={totalPages}
+            siblingCount={1}
+            boundaryCount={1}
+            variant="outlined"
+            onChange={(e, value) => setCurrentPage(value)}
+            page={currentPage}
+            sx={{
+              '& .MuiPaginationItem-root': {
+                color: '#063F5C',
+                borderColor: '#063F5C',
+                minWidth: '45px',
+                height: '45px',
+                borderRadius: '999px',
+              },
+              '& .MuiPaginationItem-root.Mui-selected': {
+                backgroundColor: '#063F5C',
+                color: '#fff',
+                borderColor: '#063F5C',
+                '&:hover': {
+                  backgroundColor: '#045172',
+                },
+                '&.Mui-focusVisible': {
+                  backgroundColor: '#045172',
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: '#063F5C',
+                  opacity: 1,
+                },
+              },
+              marginTop: '50px',
+            }}
+          />
+        </Box>
       )}
 
       <EditDishPopUp
