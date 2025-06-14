@@ -13,6 +13,8 @@ import DeleteDialog from '../../components/Deletedialog';
 
 import UserService from '../../service/user.service';
 
+import { hasPermission } from '../../utils/hasPermission';
+
 export default function DanhSachLoaiSanh() {
   //#region declaration
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,6 +24,8 @@ export default function DanhSachLoaiSanh() {
   const [userData, setUserData] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const permissions = localStorage.getItem('permissions');
   //#endregion
 
   //#region useEffect
@@ -150,7 +154,11 @@ export default function DanhSachLoaiSanh() {
         />
 
         <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
-          <AddButton onClick={handleAdd} text="Thêm" />
+          <AddButton
+            onClick={handleAdd}
+            text="Thêm"
+            disabled={!hasPermission(permissions, 'account.create')}
+          />
         </Box>
       </Box>
 
@@ -164,6 +172,8 @@ export default function DanhSachLoaiSanh() {
           columns={UserColumn}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          disabledEdit={!hasPermission(permissions, 'account.edit')}
+          disabledDelete={!hasPermission(permissions, 'account.delete')}
         />
       )}
 
