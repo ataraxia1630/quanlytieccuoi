@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import './DanhSachMonAn.css';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { Box, Typography, CircularProgress } from '@mui/material';
+import { Box, Typography, CircularProgress, Pagination } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 
 import SearchBar from '../../components/Searchbar';
@@ -31,6 +31,8 @@ export default function DanhSachMonAn() {
     priceMax: '',
   });
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   //#endregion
 
   //#region useEffect
@@ -41,10 +43,13 @@ export default function DanhSachMonAn() {
         filters.status,
         searchTerm,
         filters.priceMin,
-        filters.priceMax
+        filters.priceMax,
+        currentPage,
+        20
       );
       console.log(result.data);
       setDishData(result.data || []);
+      setTotalPages(result.totalPages || 1);
     } catch (error) {
       console.log('Error fetching sanhs:', error.message);
       toast.error(`Lỗi: ${error.message || 'Không thể tải danh sách món ăn!'}`);
@@ -55,7 +60,7 @@ export default function DanhSachMonAn() {
 
   useEffect(() => {
     fetchData();
-  }, [filters, searchTerm]);
+  }, [filters, searchTerm, totalPages, currentPage]);
   //#endregion
 
   //#region func handler
@@ -200,12 +205,52 @@ export default function DanhSachMonAn() {
           <CircularProgress />
         </Box>
       ) : (
-        <CustomTable
-          data={dishData}
-          columns={DishColumns}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <CustomTable
+            data={dishData}
+            columns={DishColumns}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+          <Pagination
+            count={totalPages}
+            variant="outlined"
+            onChange={(e, value) => setCurrentPage(value)}
+            page={currentPage}
+            sx={{
+              '& .MuiPaginationItem-root': {
+                color: '#063F5C',
+                borderColor: '#063F5C',
+                minWidth: '45px',
+                height: '45px',
+                borderRadius: '999px',
+              },
+              '& .MuiPaginationItem-root.Mui-selected': {
+                backgroundColor: '#063F5C',
+                color: '#fff',
+                borderColor: '#063F5C',
+                '&:hover': {
+                  backgroundColor: '#045172',
+                },
+                '&.Mui-focusVisible': {
+                  backgroundColor: '#045172',
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: '#063F5C',
+                  opacity: 1,
+                },
+              },
+              marginTop: '50px',
+            }}
+          />
+        </Box>
       )}
 
       <EditDishPopUp
