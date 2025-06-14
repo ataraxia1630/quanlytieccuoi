@@ -33,6 +33,7 @@ export default function DanhSachMonAn() {
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [sort, setSort] = useState(null);
   //#endregion
 
   //#region useEffect
@@ -45,7 +46,8 @@ export default function DanhSachMonAn() {
         filters.priceMin,
         filters.priceMax,
         currentPage,
-        20
+        20,
+        sort
       );
       const monanData = result.data.map((monan, index) => {
         monan.STT = (currentPage - 1) * 20 + index + 1;
@@ -64,7 +66,7 @@ export default function DanhSachMonAn() {
 
   useEffect(() => {
     fetchData();
-  }, [filters, totalPages, currentPage]);
+  }, [filters, totalPages, currentPage, sort]);
   //#endregion
 
   //#region func handler
@@ -72,6 +74,12 @@ export default function DanhSachMonAn() {
     // toast.info(`Đang tìm kiếm: ${searchTerm}`);
     setCurrentPage(1);
     fetchData();
+  };
+
+  const handleSortChange = (property, order) => {
+    console.log(property, order);
+    if (property === 'TenMonAn') setSort('name_' + order);
+    else if (property === 'DonGia') setSort('price_' + order);
   };
 
   const handleOpenHideFilter = () => {
@@ -223,6 +231,8 @@ export default function DanhSachMonAn() {
             columns={DishColumns}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            serverSideSort={true}
+            onSortChange={handleSortChange}
           />
           <Pagination
             count={totalPages}

@@ -7,7 +7,8 @@ const MonAnService = {
     priceMin = 0,
     priceMax = 10000000,
     page,
-    limit
+    limit,
+    sort
   ) => {
     let uri = baseURL;
     const params = new URLSearchParams();
@@ -18,6 +19,7 @@ const MonAnService = {
     if (priceMax) params.set('maxPrice', priceMax);
     if (page) params.set('page', page);
     if (limit) params.set('limit', limit);
+    if (sort) params.set('sort', sort);
 
     const queryString = params.toString();
     if (queryString) {
