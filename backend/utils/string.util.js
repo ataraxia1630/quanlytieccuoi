@@ -8,9 +8,11 @@ const removeDiacritics = (str, keepSpaces = false) => {
     .replace(/Đ/g, 'D')
     .trim();
 
-  return keepSpaces
+  const replaced = keepSpaces
     ? cleaned.replace(/\s+/g, ' ')
     : cleaned.replace(/\s+/g, '');
+
+  return replaced.toLowerCase();
 };
 
 module.exports = removeDiacritics;
