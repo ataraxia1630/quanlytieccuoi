@@ -44,13 +44,14 @@ const Phieucolumns = (navigate) =>
 
     [
         { id: "index", label: "STT", width: 10 },
+        { id: "SoPhieuDatTiec", label: "Số phiếu", sortable: true, width: 150 },
         { id: "TenChuRe", label: "Tên chú rể", sortable: true },
         { id: "TenCoDau", label: "Tên cô dâu", sortable: true },
         {
             id: "TenSanh", label: "Sảnh",
             render: (row) => row?.Sanh?.TenSanh || "Không rõ"
         },
-        { id: "SoLuongBan", label: "Số lượng bàn", sortable: true, width: 150 },
+        { id: "SoLuongBan", label: "Số bàn", sortable: true, width: 100 },
         {
             id: "NgayDaiTiec",
             label: "Ngày",
@@ -74,10 +75,10 @@ const Phieucolumns = (navigate) =>
             id: "TrangThai", label: "Trạng thái"
         },
         {
-            id: "actions", label: "Thao tác", width: 200,
+            id: "actions", label: "Thao tác", width: 165,
             render: (row, _onEdit, onDelete) => (
 
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "6px" }}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0px" }}>
                     {
                         row.TrangThai !== 'Đã hủy' &&
                         <IconButton
@@ -143,7 +144,7 @@ const Phieucolumns = (navigate) =>
                                 {
                                     row.TrangThai === 'Đã hủy' &&
                                     <Typography variant="body2" sx={{ ml: 1, color: "#000" }}>
-                                        Kích hoạt phiếu
+                                        Kích hoạt
                                     </Typography>
                                 }
 

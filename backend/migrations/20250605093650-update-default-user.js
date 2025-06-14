@@ -11,7 +11,7 @@ module.exports = {
     });
 
     const defaultUsername = process.env.DEFAULT_USERNAME || 'defaultUser';
-    const defaultPassword = process.env.DEFAULT_PASSWORD || 'defaultPass123';
+    const defaultPassword = process.env.DEFAULT_PASSWORD || 'defaultUser';
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(defaultPassword, saltRounds);
 

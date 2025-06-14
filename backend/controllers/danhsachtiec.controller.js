@@ -27,19 +27,39 @@ module.exports.filter = async (req, res) => {
     where[Op.or] = [
       { tenChuRe: { [Op.like]: `%${ten}%` } },
       { tenCoDau: { [Op.like]: `%${ten}%` } },
+      { SoPhieuDatTiec: { [Op.like]: `%${ten}%` } },
+
     ];
   }
   if (sanh) where[`$Sanh.TenSanh$`] = { [Op.like]: `%${sanh}%` };
   if (tuNgay && denNgay) {
     where.ngayDaiTiec = {
-      [Op.between]: [new Date(tuNgay), new Date(denNgay)],
+  [Op.between]: [
+    new Date(tuNgay), 
+    new Date(`${denNgay}T23:59:59`)
+  ],
+};
+
+  }
+  else if (tuNgay) {
+    where.ngayDaiTiec = {
+      [Op.gte]: new Date(tuNgay),
     };
   }
-  if (tuBan && denBan) {
-    where.soluongban = {
-      [Op.between]: [tuBan, denBan],
+  else if (denNgay) {
+    where.ngayDaiTiec = {
+      [Op.lte]: new Date(`${denNgay}T23:59:59`),
     };
   }
+
+  if (tuBan != null && denBan != null) {
+  where.soLuongBan = { [Op.between]: [tuBan, denBan] };
+} else if (tuBan != null) {
+  where.soLuongBan = { [Op.gte]: tuBan };
+} else if (denBan != null) {
+  where.soLuongBan = { [Op.lte]: denBan };
+}
+
   if(trangThai) {
     where.trangthai = trangThai;
   }
