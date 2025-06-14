@@ -80,6 +80,7 @@ export default function DanhSachMonAn() {
     console.log(property, order);
     if (property === 'TenMonAn') setSort('name_' + order);
     else if (property === 'DonGia') setSort('price_' + order);
+    else if (property === 'MaMonAn') setSort('code_' + order);
   };
 
   const handleOpenHideFilter = () => {
