@@ -28,6 +28,7 @@ export default function BaoCaoThang() {
     month: '2-digit',
     year: 'numeric',
   });
+  const [reportDate, setReportDate] = useState(formattedDate);
   //#endregion
 
   //#region func handler
@@ -41,6 +42,14 @@ export default function BaoCaoThang() {
       setReportData(ctData);
       setTotalDoanhThu(baocao.TongDoanhThu || 0);
       setTotalTiecCuoi(ctData.reduce((sum, item) => sum + item.SoLuongTiec, 0));
+      console.log(typeof baocao.NgayLap);
+      setReportDate(
+        new Date(baocao.NgayLap).toLocaleDateString('vi-VN', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+        })
+      );
       toast.success('Lấy báo cáo thành công!');
     } catch (error) {
       console.log('Error fetching report:', error.message);
@@ -124,8 +133,11 @@ export default function BaoCaoThang() {
         month < 10 ? '0' + month : month
       } / ${year}</h1>`
     );
+    printWindow.document.write(`<p>Ngày lập báo cáo: ${reportDate}</p>`);
     printWindow.document.write(
-      `<p>Tổng doanh thu: ${totalDoanhThu.toLocaleString('vi-VN')} VNĐ</p>`
+      `<p>Tổng doanh thu: ${parseFloat(totalDoanhThu).toLocaleString(
+        'vi-VN'
+      )} VNĐ</p>`
     );
     printWindow.document.write(`<p>Tổng số tiệc cưới: ${totalTiecCuoi}</p>`);
     printWindow.document.write(
@@ -278,9 +290,7 @@ export default function BaoCaoThang() {
 
       {reportData.length > 0 && (
         <Box sx={{ justifyContent: 'center' }}>
-          <Typography sx={{ mt: 2 }}>
-            Ngày lập báo cáo: {formattedDate}
-          </Typography>
+          <Typography sx={{ mt: 2 }}>Ngày lập báo cáo: {reportDate}</Typography>
           <Typography sx={{ mt: 2 }}>
             Tổng doanh thu: {parseFloat(totalDoanhThu).toLocaleString('vi-VN')}{' '}
             VNĐ
