@@ -14,6 +14,8 @@ import GroupService from '../../service/nhom.service';
 import QuyenService from '../../service/quyen.service';
 import { transformPerGroup } from '../../utils/transformPerGroup';
 
+import { hasPermission } from '../../utils/hasPermission';
+
 export default function QuanLyNhomTab() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -22,6 +24,8 @@ export default function QuanLyNhomTab() {
   const [loading, setLoading] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [permissionGroups, setPermissionsGroup] = useState([]);
+
+  const permissions = localStorage.getItem('permissions');
 
   const fetchData = async () => {
     setLoading(true);
@@ -93,7 +97,11 @@ export default function QuanLyNhomTab() {
         />
 
         <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
-          <AddButton onClick={handleAdd} text="Thêm" />
+          <AddButton
+            onClick={handleAdd}
+            text="Thêm"
+            disabled={!hasPermission(permissions, 'group.create')}
+          />
         </Box>
       </Box>
 
@@ -110,6 +118,8 @@ export default function QuanLyNhomTab() {
               onDelete={handleDelete}
               onSave={fetchData}
               permissionGroups={permissionGroups}
+              disableEdit={!hasPermission(permissions, 'group.edit')}
+              disableDelete={!hasPermission(permissions, 'group.delete')}
             />
           ))}
         </Box>
