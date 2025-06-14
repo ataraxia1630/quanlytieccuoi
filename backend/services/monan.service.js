@@ -75,6 +75,12 @@ const MonAnService = {
         case 'price_desc':
           order.push(['DonGia', 'DESC']);
           break;
+        case 'code_asc':
+          order.push(['MaMonAn', 'ASC']);
+          break;
+        case 'code_desc':
+          order.push(['MaMonAn', 'DESC']);
+          break;
         default:
           order.push(['MaMonAn', 'ASC']);
       }
