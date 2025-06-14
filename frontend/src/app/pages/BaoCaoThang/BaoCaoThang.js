@@ -288,22 +288,30 @@ export default function BaoCaoThang() {
         </Button>
       </Box>
 
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          flexDirection: 'column',
+        }}
+      >
+        <Typography sx={{ mt: 2 }}>Ngày lập báo cáo: {reportDate}</Typography>
+        <Typography sx={{ mt: 2 }}>
+          Tổng doanh thu: {parseFloat(totalDoanhThu).toLocaleString('vi-VN')}{' '}
+          VNĐ
+        </Typography>
+        <Typography sx={{ mt: 2 }}>Tổng tiệc cưới: {totalTiecCuoi}</Typography>
+      </Box>
+
       {reportData.length > 0 && (
         <Box sx={{ justifyContent: 'center' }}>
-          <Typography sx={{ mt: 2 }}>Ngày lập báo cáo: {reportDate}</Typography>
-          <Typography sx={{ mt: 2 }}>
-            Tổng doanh thu: {parseFloat(totalDoanhThu).toLocaleString('vi-VN')}{' '}
-            VNĐ
-          </Typography>
-          <Typography sx={{ mt: 2 }}>
-            Tổng tiệc cưới: {totalTiecCuoi}
-          </Typography>
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'flex-end',
               gap: '20px',
               mb: 2,
+              marginRight: '50px',
             }}
           >
             <Button
