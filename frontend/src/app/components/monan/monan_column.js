@@ -4,7 +4,7 @@ import { statusMapToFrontend } from '../../pages/DanhSachMonAn/statusMapping';
 
 const DishColumns = [
   {
-    id: 'index',
+    id: 'STT',
     label: 'STT',
     sortable: false,
     width: 50,

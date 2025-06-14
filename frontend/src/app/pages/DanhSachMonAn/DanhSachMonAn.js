@@ -47,8 +47,12 @@ export default function DanhSachMonAn() {
         currentPage,
         20
       );
-      console.log(result.data);
-      setDishData(result.data || []);
+      const monanData = result.data.map((monan, index) => {
+        monan.STT = (currentPage - 1) * 20 + index + 1;
+        return monan;
+      });
+      console.log(monanData);
+      setDishData(monanData || []);
       setTotalPages(result.totalPages || 1);
     } catch (error) {
       console.log('Error fetching sanhs:', error.message);
@@ -60,12 +64,13 @@ export default function DanhSachMonAn() {
 
   useEffect(() => {
     fetchData();
-  }, [filters, searchTerm, totalPages, currentPage]);
+  }, [filters, totalPages, currentPage]);
   //#endregion
 
   //#region func handler
   const handleSearch = () => {
     // toast.info(`Đang tìm kiếm: ${searchTerm}`);
+    setCurrentPage(1);
     fetchData();
   };
 
@@ -221,6 +226,8 @@ export default function DanhSachMonAn() {
           />
           <Pagination
             count={totalPages}
+            siblingCount={1}
+            boundaryCount={1}
             variant="outlined"
             onChange={(e, value) => setCurrentPage(value)}
             page={currentPage}
