@@ -8,6 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import SearchBar from '../../components/Searchbar';
 import FilterButton from '../../components/Filterbutton';
 import AddButton from '../../components/Addbutton';
+import ActionDropdown from '../../components/Printandexport';
 import CustomTable from '../../components/Customtable';
 import HallTypeFilterPanel from '../../components/loaisanh/loaisanh_filter_panel';
 import EditHallTypePopUp from '../../components/loaisanh/loaisanh_edit_popup';
@@ -66,6 +67,20 @@ export default function DanhSachLoaiSanh() {
   const handleSearch = () => {
     // toast.info(`Đang tìm kiếm: ${searchTerm}`);
     fetchData();
+  };
+
+  const handlePrint = async () => {
+    const res = LoaiSanhService.print(hallTypeData);
+    if (!res.success) {
+      toast('error', `Lỗi khi in: ${res.message}`);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    const res = await LoaiSanhService.exportExcel(hallTypeData);
+    if (!res.success) {
+      toast('error', `Lỗi khi xuất file: ${res.message}`);
+    }
   };
 
   const handleOpenHideFilter = () => {
@@ -197,6 +212,10 @@ export default function DanhSachLoaiSanh() {
             onClick={handleAdd}
             text="Thêm"
             disabled={!hasPermission(permissions, 'hallType.create')}
+          />
+          <ActionDropdown
+            onPrint={handlePrint}
+            onExportExcel={handleExportExcel}
           />
         </Box>
       </Box>
