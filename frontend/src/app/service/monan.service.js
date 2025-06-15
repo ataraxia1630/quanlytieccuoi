@@ -423,7 +423,7 @@ const MonAnService = {
               </div>
               <div class="summary-content">
                 <div class="summary-row">
-                  <span class="summary-label">Tổng số dịch vụ:</span>
+                  <span class="summary-label">Tổng số món ăn:</span>
                   <span class="summary-value">${totalMonAn.toLocaleString(
                     'vi-VN'
                   )} dịch vụ</span>
