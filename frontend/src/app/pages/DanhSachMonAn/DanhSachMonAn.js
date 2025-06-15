@@ -8,6 +8,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import SearchBar from '../../components/Searchbar';
 import FilterButton from '../../components/Filterbutton';
 import AddButton from '../../components/Addbutton';
+import ActionDropdown from '../../components/Printandexport';
 import CustomTable from '../../components/Customtable';
 import DishFilterPanel from '../../components/monan/monan_filter_panel';
 import EditDishPopUp from '../../components/monan/monan_edit_popup';
@@ -88,6 +89,24 @@ export default function DanhSachMonAn() {
     else if (property === 'DonGia') setSort('price_' + order);
     else if (property === 'MaMonAn') setSort('code_' + order);
     setCurrentPage(1);
+  };
+
+  const handlePrint = async () => {
+    const result = await MonAnService.getAll();
+    const data = result.data;
+    const res = MonAnService.print(data);
+    if (!res.success) {
+      toast('error', `Lỗi khi in: ${res.message}`);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    const result = await MonAnService.getAll();
+    const data = result.data;
+    const res = await MonAnService.exportExcel(data);
+    if (!res.success) {
+      toast('error', `Lỗi khi xuất file: ${res.message}`);
+    }
   };
 
   const handleOpenHideFilter = () => {
@@ -217,6 +236,10 @@ export default function DanhSachMonAn() {
             onClick={handleAdd}
             text="Thêm"
             disabled={!hasPermission(permissions, 'food.create')}
+          />
+          <ActionDropdown
+            onPrint={handlePrint}
+            onExportExcel={handleExportExcel}
           />
         </Box>
       </Box>
