@@ -8,7 +8,8 @@ import FilterPanel from '../../components/sanh/sanh_filter_panel';
 import EditSanhDialog from '../../components/sanh/sanh_edit_sanh_pop_up';
 import defaultColumns from '../../components/sanh/sanh_default_column';
 import sanhService from '../../service/sanh.service';
-import { ToastContainer, toast } from 'react-toastify';
+import toastService from '../../service/toast/toast.service';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DeleteDialog from '../../components/Deletedialog';
 
@@ -25,23 +26,23 @@ function DanhSachSanh() {
   useEffect(() => {
     fetchSanhs();
   }, []);
-
   const fetchSanhs = async () => {
     setLoading(true);
     try {
-      //toast.info("Đang xử lý …");
       const data = await sanhService.getAllSanh();
       setSanhs(data);
-      //toast.success("Tải danh sách sảnh thành công!");
     } catch (error) {
       console.error('Error fetching sanhs:', error.message);
-      toast.error('Có lỗi xảy ra: ' + error.message);
+      toastService.crud.error.generic();
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSearch = () => {
+  };  const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      // Nếu không có search term, reset về danh sách đầy đủ
+      searchAndFilter({});
+      return;
+    }
     searchAndFilter();
   };
 
@@ -54,12 +55,17 @@ function DanhSachSanh() {
   const handleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
   };
-
   const handleApplyFilter = async (filters) => {
     searchAndFilter(filters);
-  };
-
-  const searchAndFilter = async (filters = {}) => {
+    
+    // Toast cho filter
+    const hasFilters = Object.values(filters).some(v => v);
+    if (hasFilters) {
+      toastService.search.appliedFilter();
+    } else {
+      toastService.search.resetFilter();
+    }
+  };  const searchAndFilter = async (filters = {}) => {
     try {
       const data = await sanhService.searchAndFilterSanh({
         tenSanh: searchTerm,
@@ -67,9 +73,17 @@ function DanhSachSanh() {
         ...filters,
       });
       setSanhs(data);
-      toast.success('Tìm kiếm thành công!');
+      
+      // Chỉ hiện toast khi có search term (không hiện khi reset về danh sách đầy đủ)
+      if (searchTerm.trim()) {
+        if (data.length === 0) {
+          toastService.search.noResults('sảnh');
+        } else {
+          toastService.search.success(data.length, 'sảnh');
+        }
+      }
     } catch (error) {
-      toast.error('Có lỗi xảy ra. Vui lòng thử lại sau!');
+      toastService.crud.error.generic();
     }
   };
 
@@ -90,20 +104,19 @@ function DanhSachSanh() {
     setIsDeleteDialogOpen(false);
     setSanhToEdit(null); // Clear the sanh to delete
   };
-
   const handleConfirmDelete = async () => {
     try {
-      toast.info('Đang xử lý …');
+      toastService.crud.processing.deleting();
       await sanhService.deleteSanh(sanhToEdit.MaSanh);
       await fetchSanhs();
-      toast.success('Xóa thành công!');
+      toastService.entity.deleteSuccess('sảnh', sanhToEdit.TenSanh);
       setIsDeleteDialogOpen(false);
       setSanhToEdit(null);
     } catch (error) {
       if (error.message.includes('Không tìm thấy sảnh')) {
-        toast.warn('Không tìm thấy sảnh!');
+        toastService.validation.notFound('sảnh');
       } else {
-        toast.error('Xóa thất bại! Vui lòng thử lại.');
+        toastService.crud.error.delete('sảnh');
       }
     }
   };
@@ -112,7 +125,6 @@ function DanhSachSanh() {
     setOpenDialog(false);
     setSanhToEdit(null);
   };
-
   const handleSaveSanh = async (sanhData) => {
     try {
       console.log('handleSaveSanh received sanhData:', sanhData);
@@ -128,11 +140,11 @@ function DanhSachSanh() {
         !sanhData.MaLoaiSanh ||
         !sanhData.SoLuongBanToiDa
       ) {
-        toast.warn('Vui lòng nhập đầy đủ thông tin!');
+        toastService.validation.requiredFields();
         return;
       }
 
-      toast.info('Đang gửi yêu cầu …');
+      toastService.crud.processing.saving();
       console.log('Sending update with data:', sanhData);
 
       if (mode === 'edit') {
@@ -143,18 +155,18 @@ function DanhSachSanh() {
         setSanhs(
           sanhs.map((s) => (s.MaSanh === sanhToEdit.MaSanh ? updatedSanh : s))
         );
-        toast.success('Cập nhật thành công!');
+        toastService.entity.updateSuccess('sảnh', sanhData.TenSanh);
       } else {
         const newSanh = await sanhService.createSanh(sanhData);
         setSanhs([...sanhs, newSanh]);
-        toast.success('Thêm mới thành công!');
+        toastService.entity.createSuccess('sảnh', sanhData.TenSanh);
       }
       setOpenDialog(false);
     } catch (error) {
       if (error.message.includes('Không tìm thấy sảnh')) {
-        toast.error('Cập nhật thất bại! Không tìm thấy sảnh.');
+        toastService.validation.notFound('sảnh');
       } else {
-        toast.error('Có lỗi xảy ra. Vui lòng thử lại sau!');
+        toastService.crud.error.generic();
       }
     }
   };

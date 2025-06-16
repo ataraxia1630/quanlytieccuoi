@@ -8,7 +8,8 @@ import FilterPanel from '../../components/ca/ca_filter_panel';
 import EditCaDialog from '../../components/ca/ca_edit_dialog';
 import defaultColumns from '../../components/ca/ca_default_column';
 import caService from '../../service/ca.service';
-import { ToastContainer, toast } from 'react-toastify';
+import toastService from '../../service/toast/toast.service';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DeleteDialog from './../../components/Deletedialog';
 
@@ -25,23 +26,23 @@ function DanhSachCa() {
   useEffect(() => {
     fetchCas();
   }, []);
-
   const fetchCas = async () => {
     setLoading(true);
     try {
-      //toast.info("Đang xử lý …");
       const data = await caService.getAllCa();
       setCas(data);
-      //toast.success("Tải danh sách ca thành công!");
     } catch (error) {
       console.error('Error fetching cas:', error.message);
-      toast.error('Có lỗi xảy ra: ' + error.message);
+      toastService.crud.error.generic();
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSearch = () => {
+  };  const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      // Nếu không có search term, reset về danh sách đầy đủ
+      searchAndFilter({});
+      return;
+    }
     searchAndFilter();
   };
 
@@ -54,12 +55,17 @@ function DanhSachCa() {
   const handleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
   };
-
   const handleApplyFilter = async (filters) => {
     searchAndFilter(filters);
-  };
-
-  const searchAndFilter = async (filters = {}) => {
+    
+    // Toast cho filter
+    const hasFilters = Object.values(filters).some(v => v);
+    if (hasFilters) {
+      toastService.search.appliedFilter();
+    } else {
+      toastService.search.resetFilter();
+    }
+  };  const searchAndFilter = async (filters = {}) => {
     try {
       const searchParams = {
         tenCa: searchTerm || '',
@@ -72,10 +78,18 @@ function DanhSachCa() {
       console.log('Search params:', searchParams); // Debug log
       const data = await caService.searchAndFilterCa(searchParams);
       setCas(data);
-      toast.success('Tìm kiếm thành công!');
+      
+      // Chỉ hiện toast khi có search term (không hiện khi reset về danh sách đầy đủ)
+      if (searchTerm.trim()) {
+        if (data.length === 0) {
+          toastService.search.noResults('ca');
+        } else {
+          toastService.search.success(data.length, 'ca');
+        }
+      }
     } catch (error) {
       console.error('Search error:', error.message);
-      toast.error('Có lỗi xảy ra: ' + error.message);
+      toastService.crud.error.generic();
     }
   };
 
@@ -96,20 +110,19 @@ function DanhSachCa() {
     setIsDeleteDialogOpen(false);
     setCaToEdit(null); // Clear the ca to delete
   };
-
   const handleConfirmDelete = async () => {
     try {
-      toast.info('Đang xử lý …');
+      toastService.crud.processing.deleting();
       await caService.deleteCa(caToEdit.MaCa);
       await fetchCas();
-      toast.success('Xóa thành công!');
+      toastService.entity.deleteSuccess('ca', caToEdit.TenCa);
       setIsDeleteDialogOpen(false);
       setCaToEdit(null);
     } catch (error) {
       if (error.message.includes('Không tìm thấy ca')) {
-        toast.warn('Không tìm thấy ca!');
+        toastService.validation.notFound('ca');
       } else {
-        toast.error('Xóa thất bại! Vui lòng thử lại.');
+        toastService.crud.error.delete('ca');
       }
     }
   };
@@ -118,36 +131,35 @@ function DanhSachCa() {
     setOpenDialog(false);
     setCaToEdit(null);
   };
-
   const handleSaveCa = async (caData) => {
     try {
       console.log('handleSaveCa received caData:', caData);
 
       if (!caData.TenCa || !caData.GioBatDau || !caData.GioKetThuc) {
-        toast.warn('Vui lòng nhập đầy đủ thông tin!');
+        toastService.validation.requiredFields();
         return;
       }
 
-      toast.info('Đang gửi yêu cầu …');
+      toastService.crud.processing.saving();
       console.log('Sending update with data:', caData);
 
       if (mode === 'edit') {
         const updatedCa = await caService.updateCa(caToEdit.MaCa, caData);
         setCas(cas.map((c) => (c.MaCa === caToEdit.MaCa ? updatedCa : c)));
         await fetchCas();
-        toast.success('Cập nhật thành công!');
+        toastService.entity.updateSuccess('ca', caData.TenCa);
       } else {
         const newCa = await caService.createCa(caData);
         setCas([...cas, newCa]);
         await fetchCas();
-        toast.success('Thêm mới thành công!');
+        toastService.entity.createSuccess('ca', caData.TenCa);
       }
       setOpenDialog(false);
     } catch (error) {
       if (error.message.includes('Không tìm thấy ca')) {
-        toast.error('Cập nhật thất bại! Không tìm thấy ca.');
+        toastService.validation.notFound('ca');
       } else {
-        toast.error('Có lỗi xảy ra. Vui lòng thử lại sau!');
+        toastService.crud.error.generic();
       }
     }
   };
