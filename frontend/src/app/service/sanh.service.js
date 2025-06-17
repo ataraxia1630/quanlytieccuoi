@@ -5,10 +5,26 @@ const getAllSanh = async () => {
 };
 
 const searchAndFilterSanh = async (filters) => {
-  const query = new URLSearchParams(filters).toString();
-  const response = await fetch(`/api/sanh/search?${query}`);
-  if (!response.ok) throw new Error("Failed to filter sanhs");
-  return response.json();
+  try {
+    const query = new URLSearchParams(filters).toString();
+    console.log('Search query string:', query); // Debug log
+    console.log('Query length:', query.length); // Debug log
+    
+    const response = await fetch(`/api/sanh/search?${query}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      if (response.status === 414) {
+        throw new Error("Từ khóa tìm kiếm quá dài, vui lòng nhập ngắn hơn");
+      }
+      throw new Error(errorText || "Failed to filter sanhs");
+    }
+    return response.json();
+  } catch (error) {
+    if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+      throw new Error("Từ khóa tìm kiếm quá dài hoặc có lỗi kết nối, vui lòng thử lại");
+    }
+    throw error;
+  }
 };
 
 const getSanhById = async (maSanh) => {

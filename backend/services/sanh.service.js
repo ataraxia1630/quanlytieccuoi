@@ -66,6 +66,16 @@ const createSanh = async ({ MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, Gh
             throw new ApiError(400, 'Mã loại sảnh không tồn tại');
         }
 
+        // Kiểm tra tên sảnh đã tồn tại chưa
+        const existingSanh = await Sanh.findOne({
+            where: {
+                TenSanh: TenSanh.trim()
+            }
+        });
+        if (existingSanh) {
+            throw new ApiError(400, `Tên sảnh "${TenSanh}" đã tồn tại`);
+        }
+
         const MaSanh = await generateMaSanh(); // Auto-generate MaSanh
 
         let imageUrl = null;
@@ -77,7 +87,7 @@ const createSanh = async ({ MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, Gh
         return await Sanh.create({
             MaSanh,
             MaLoaiSanh,
-            TenSanh,
+            TenSanh: TenSanh.trim(),
             SoLuongBanToiDa,
             HinhAnh: imageUrl,
             GhiChu
@@ -91,12 +101,29 @@ const createSanh = async ({ MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, Gh
 const updateSanh = async (maSanh, { MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBuffer, GhiChu }) => {
     try {
         const sanh = await Sanh.findByPk(maSanh);
-        if (!sanh) return false;
+        if (!sanh) {
+            throw new ApiError(404, 'Không tìm thấy sảnh');
+        }
 
         if (MaLoaiSanh) {
             const loaiSanh = await LoaiSanh.findByPk(MaLoaiSanh);
             if (!loaiSanh) {
                 throw new ApiError(400, 'Mã loại sảnh không tồn tại');
+            }
+        }
+
+        // Kiểm tra tên sảnh trùng lặp (nếu có thay đổi tên)
+        if (TenSanh && TenSanh.trim() !== sanh.TenSanh) {
+            const existingSanh = await Sanh.findOne({
+                where: {
+                    TenSanh: TenSanh.trim(),
+                    MaSanh: {
+                        [Op.ne]: maSanh // Loại bỏ chính sảnh đang cập nhật
+                    }
+                }
+            });
+            if (existingSanh) {
+                throw new ApiError(400, `Tên sảnh "${TenSanh}" đã tồn tại`);
             }
         }
 
@@ -115,7 +142,7 @@ const updateSanh = async (maSanh, { MaLoaiSanh, TenSanh, SoLuongBanToiDa, fileBu
 
         await sanh.update({
             MaLoaiSanh: MaLoaiSanh || sanh.MaLoaiSanh,
-            TenSanh: TenSanh || sanh.TenSanh,
+            TenSanh: TenSanh ? TenSanh.trim() : sanh.TenSanh,
             SoLuongBanToiDa: SoLuongBanToiDa !== undefined ? SoLuongBanToiDa : sanh.SoLuongBanToiDa,
             HinhAnh: imageUrl,
             GhiChu: GhiChu !== undefined ? GhiChu : sanh.GhiChu
@@ -132,7 +159,23 @@ const deleteSanh = async (maSanh) => {
     try {
         console.log("Received maSanh for delete:", maSanh); // Debug log
         const sanh = await Sanh.findByPk(maSanh);
-        if (!sanh) return false;
+        if (!sanh) {
+            throw new ApiError(404, 'Không tìm thấy sảnh');
+        }
+
+        // Kiểm tra xem sảnh có đang được sử dụng trong phiếu đặt tiệc không
+        const phieuDatTiecCount = await PhieuDatTiec.count({
+            where: {
+                MaSanh: maSanh,
+                TrangThai: {
+                    [Op.in]: ['Chưa thanh toán', 'Đã thanh toán'] // Chỉ kiểm tra phiếu còn hiệu lực
+                }
+            }
+        });
+
+        if (phieuDatTiecCount > 0) {
+            throw new ApiError(400, `Không thể xóa sảnh vì đang có ${phieuDatTiecCount} phiếu đặt tiệc sử dụng sảnh này`);
+        }
 
         // Xóa ảnh trên Cloudinary nếu tồn tại
         if (sanh.HinhAnh) {
@@ -145,7 +188,8 @@ const deleteSanh = async (maSanh) => {
         await sanh.destroy();
         return true;
     } catch (error) {
-        throw new ApiError(500, 'Lỗi khi xóa sảnh: ' + error.message);
+        if (error.name === 'ApiError') throw error;
+        throw new ApiError(500, error.message);
     }
 };
 
@@ -158,10 +202,19 @@ const searchAndFilterSanh = async ({ maSanh, tenSanh, maLoaiSanh, minSoLuongBan,
             if (tenSanh) where[Op.or].push({ TenSanh: { [Op.like]: `%${tenSanh}%` } });
         }
         if (maLoaiSanh) where.MaLoaiSanh = maLoaiSanh;
+        
         if (minSoLuongBan || maxSoLuongBan) {
+            const minVal = minSoLuongBan ? parseInt(minSoLuongBan) : null;
+            const maxVal = maxSoLuongBan ? parseInt(maxSoLuongBan) : null;
+            
+            // Kiểm tra logic min/max hợp lệ
+            if (minVal && maxVal && minVal > maxVal) {
+                throw new ApiError(400, 'Số lượng bàn tối thiểu không thể lớn hơn số lượng bàn tối đa');
+            }
+            
             where.SoLuongBanToiDa = {};
-            if (minSoLuongBan) where.SoLuongBanToiDa[Op.gte] = parseInt(minSoLuongBan);
-            if (maxSoLuongBan) where.SoLuongBanToiDa[Op.lte] = parseInt(maxSoLuongBan);
+            if (minVal) where.SoLuongBanToiDa[Op.gte] = minVal;
+            if (maxVal) where.SoLuongBanToiDa[Op.lte] = maxVal;
         }
 
         const order = sortBy && sortOrder ? [[sortBy, sortOrder]] : [['MaSanh', 'ASC']];
@@ -174,6 +227,7 @@ const searchAndFilterSanh = async ({ maSanh, tenSanh, maLoaiSanh, minSoLuongBan,
 
         return sanhs;
     } catch (error) {
+        if (error.name === 'ApiError') throw error;
         throw new ApiError(500, 'Lỗi khi tìm kiếm và lọc sảnh: ' + error.message);
     }
 };

@@ -41,7 +41,11 @@ const createSanh = async (req, res, next) => {
         const createdSanh = await sanhService.getSanhById(sanh.MaSanh);
         res.status(201).json(createdSanh);
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            res.status(error.statusCode || 400).json({ error: error.message });
+        } else {
+            next(error);
+        }
     }
 };
 
@@ -66,7 +70,11 @@ const updateSanh = async (req, res, next) => {
             res.json(updatedSanh);
         }
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            res.status(error.statusCode || 400).json({ error: error.message });
+        } else {
+            next(error);
+        }
     }
 };
 
@@ -79,7 +87,11 @@ const deleteSanh = async (req, res, next) => {
             res.json({ message: 'Xóa sảnh thành công' });
         }
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            res.status(error.statusCode || 400).json({ error: error.message });
+        } else {
+            next(error);
+        }
     }
 };
 
@@ -97,7 +109,11 @@ const searchAndFilterSanh = async (req, res, next) => {
         });
         res.json(sanhs);
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            res.status(error.statusCode || 400).json({ error: error.message });
+        } else {
+            next(error);
+        }
     }
 };
 

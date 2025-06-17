@@ -58,63 +58,42 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
     };
     fetchLoaiSanh();
   }, [sanh, open]); // Thêm open dependency để reset khi dialog mở
+
   const validateField = (name, value) => {
     const newErrors = { ...errors };
     
-    if (name === 'TenSanh') {
-      const tenSanhValue = value || '';
-      if (!tenSanhValue || (typeof tenSanhValue === 'string' && !tenSanhValue.trim())) {
-        newErrors.TenSanh = 'Tên sảnh là bắt buộc';
-      } else {
-        delete newErrors.TenSanh;
-      }
-    } else if (name === 'MaLoaiSanh') {
-      if (!value) {
-        newErrors.MaLoaiSanh = 'Loại sảnh là bắt buộc';
-      } else {
-        delete newErrors.MaLoaiSanh;
-      }
-    } else if (name === 'SoLuongBanToiDa') {
-      const soLuongValue = value || '';
-      if (!soLuongValue || soLuongValue.toString().trim() === '') {
-        newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa là bắt buộc';
-      } else if (parseInt(soLuongValue) < 1) {
-        newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa phải lớn hơn 0';
-      } else if (parseInt(soLuongValue) > 255) {
-        newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa không được vượt quá 255';
-      } else {
-        delete newErrors.SoLuongBanToiDa;
-      }
+    switch (name) {
+      case 'TenSanh':
+        const tenSanhValue = value || '';
+        if (!tenSanhValue || (typeof tenSanhValue === 'string' && !tenSanhValue.trim())) {
+          newErrors.TenSanh = 'Tên sảnh là bắt buộc';
+        } else {
+          delete newErrors.TenSanh;
+        }
+        break;
+      case 'MaLoaiSanh':
+        if (!value) {
+          newErrors.MaLoaiSanh = 'Loại sảnh là bắt buộc';
+        } else {
+          delete newErrors.MaLoaiSanh;
+        }
+        break;
+      case 'SoLuongBanToiDa':
+        const soLuongValue = value || '';
+        if (!soLuongValue || soLuongValue.toString().trim() === '') {
+          newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa là bắt buộc';
+        } else if (parseInt(soLuongValue) < 1) {
+          newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa phải lớn hơn 0';
+        } else if (parseInt(soLuongValue) > 255) {
+          newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa không được vượt quá 255';
+        } else {
+          delete newErrors.SoLuongBanToiDa;
+        }
+        break;
+      default:
+        break;
     }
     
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-
-    // Validate TenSanh
-    const tenSanhValue = formData.TenSanh || '';
-    if (!tenSanhValue || (typeof tenSanhValue === 'string' && !tenSanhValue.trim())) {
-      newErrors.TenSanh = 'Tên sảnh là bắt buộc';
-    }
-
-    // Validate MaLoaiSanh
-    if (!formData.MaLoaiSanh) {
-      newErrors.MaLoaiSanh = 'Loại sảnh là bắt buộc';
-    }
-
-    // Validate SoLuongBanToiDa
-    const soLuongValue = formData.SoLuongBanToiDa || '';
-    if (!soLuongValue || soLuongValue.toString().trim() === '') {
-      newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa là bắt buộc';
-    } else if (parseInt(soLuongValue) < 1) {
-      newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa phải lớn hơn 0';
-    } else if (parseInt(soLuongValue) > 255) {
-      newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa không được vượt quá 255';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -145,11 +124,17 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
   const handleClearImage = () => {
     setFormData({ ...formData, HinhAnh: null });
   };
+
   const handleSave = async () => {
     console.log("Saving formData:", formData, "HinhAnh instanceof File:", formData.HinhAnh instanceof File);
     
-    // Validate all fields at once when Save is clicked
-    if (!validateForm()) {
+    // Force validation for all fields when Save is clicked
+    const isValidTenSanh = validateField('TenSanh', formData.TenSanh || '');
+    const isValidMaLoaiSanh = validateField('MaLoaiSanh', formData.MaLoaiSanh || '');
+    const isValidSoLuongBan = validateField('SoLuongBanToiDa', formData.SoLuongBanToiDa || '');
+    
+    // Check if any validation failed - chỉ return, không hiển thị toast
+    if (!isValidTenSanh || !isValidMaLoaiSanh || !isValidSoLuongBan) {
       return;
     }
 
