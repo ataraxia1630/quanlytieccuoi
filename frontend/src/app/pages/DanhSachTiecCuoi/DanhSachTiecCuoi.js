@@ -359,9 +359,11 @@ function DanhSachTiecCuoi() {
               onChange={(val) => setForm({ ...form, trangThai: val })}
               options={options}
             />
+            
             <div className="apply">
+              <FilterButton text="Reset" onClick={handleResetFilter} colorVariant="reset"/>
               <FilterButton text="Apply" onClick={handleSubmit} />
-              <FilterButton text="Reset" onClick={handleResetFilter} />
+
             </div>
           </div>
         </div>
