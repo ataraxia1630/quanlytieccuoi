@@ -149,11 +149,18 @@ function DanhSachSanh() {
       
       // Dismiss processing toast
       toastService.dismissAll();
-        const errorMessage = error.message || 'Có lỗi xảy ra khi xóa sảnh';
-      if (error.message.includes('Không tìm thấy sảnh')) {
+      
+      // Parse error message từ backend
+      let errorMessage = error.message || 'Có lỗi xảy ra khi xóa sảnh';
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      }
+      
+      if (errorMessage.includes('Không tìm thấy sảnh')) {
         toastService.validation.notFound('sảnh');
-      } else if (error.message.includes('đang có') || error.message.includes('phiếu đặt tiệc') || error.message.includes('đang được sử dụng')) {
-        toastService.error(`Không thể xóa sảnh "${sanhToEdit.TenSanh}" vì đang có phiếu đặt tiệc sử dụng sảnh này.`, 'delete-in-use-error');
+      } else if (errorMessage.includes('Không thể xóa sảnh') && errorMessage.includes('phiếu đặt tiệc')) {
+        // Hiển thị message chi tiết từ backend
+        toastService.error(errorMessage, 'delete-in-use-error');
       } else {
         toastService.error(`Lỗi khi xóa sảnh "${sanhToEdit.TenSanh}": ${errorMessage}`, 'delete-error');
       }

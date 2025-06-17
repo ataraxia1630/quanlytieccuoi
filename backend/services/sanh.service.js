@@ -167,14 +167,10 @@ const deleteSanh = async (maSanh) => {
         const phieuDatTiecCount = await PhieuDatTiec.count({
             where: {
                 MaSanh: maSanh,
-                TrangThai: {
-                    [Op.in]: ['Chưa thanh toán', 'Đã thanh toán'] // Chỉ kiểm tra phiếu còn hiệu lực
-                }
             }
         });
-
         if (phieuDatTiecCount > 0) {
-            throw new ApiError(400, `Không thể xóa sảnh vì đang có ${phieuDatTiecCount} phiếu đặt tiệc sử dụng sảnh này`);
+            throw new ApiError(400, `Không thể xóa sảnh "${sanh.TenSanh}" vì đang có ${phieuDatTiecCount} phiếu đặt tiệc sử dụng sảnh này.`);
         }
 
         // Xóa ảnh trên Cloudinary nếu tồn tại

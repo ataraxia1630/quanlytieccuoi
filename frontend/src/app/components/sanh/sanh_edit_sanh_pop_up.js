@@ -58,6 +58,7 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
     };
     fetchLoaiSanh();
   }, [sanh, open]); // Thêm open dependency để reset khi dialog mở
+
   const validateField = (name, value) => {
     const newErrors = { ...errors };
     
@@ -65,6 +66,8 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
       const tenSanhValue = value || '';
       if (!tenSanhValue || (typeof tenSanhValue === 'string' && !tenSanhValue.trim())) {
         newErrors.TenSanh = 'Tên sảnh là bắt buộc';
+      } else if (tenSanhValue.length > 100) {
+        newErrors.TenSanh = 'Tên sảnh tối đa 100 ký tự';
       } else {
         delete newErrors.TenSanh;
       }
@@ -85,6 +88,13 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
       } else {
         delete newErrors.SoLuongBanToiDa;
       }
+    } else if (name === 'GhiChu') {
+      const ghiChuValue = value || '';
+      if (ghiChuValue.length > 255) {
+        newErrors.GhiChu = 'Ghi chú tối đa 255 ký tự';
+      } else {
+        delete newErrors.GhiChu;
+      }
     }
     
     setErrors(newErrors);
@@ -98,6 +108,8 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
     const tenSanhValue = formData.TenSanh || '';
     if (!tenSanhValue || (typeof tenSanhValue === 'string' && !tenSanhValue.trim())) {
       newErrors.TenSanh = 'Tên sảnh là bắt buộc';
+    } else if (tenSanhValue.length > 100) {
+      newErrors.TenSanh = 'Tên sảnh tối đa 100 ký tự';
     }
 
     // Validate MaLoaiSanh
@@ -113,6 +125,12 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
       newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa phải lớn hơn 0';
     } else if (parseInt(soLuongValue) > 255) {
       newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa không được vượt quá 255';
+    }
+
+    // Validate GhiChu (optional but check length)
+    const ghiChuValue = formData.GhiChu || '';
+    if (ghiChuValue.length > 255) {
+      newErrors.GhiChu = 'Ghi chú tối đa 255 ký tự';
     }
 
     setErrors(newErrors);
@@ -145,6 +163,7 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
   const handleClearImage = () => {
     setFormData({ ...formData, HinhAnh: null });
   };
+
   const handleSave = async () => {
     console.log("Saving formData:", formData, "HinhAnh instanceof File:", formData.HinhAnh instanceof File);
     
@@ -225,6 +244,8 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
             fullWidth
             multiline
             rows={4}
+            error={!!errors.GhiChu}
+            helperText={errors.GhiChu}
           />
         </Box>
 

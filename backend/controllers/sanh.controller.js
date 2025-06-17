@@ -82,16 +82,15 @@ const deleteSanh = async (req, res, next) => {
     try {
         const deleted = await sanhService.deleteSanh(req.params.maSanh);
         if (!deleted) {
-            res.status(404).json({ error: 'Không tìm thấy sảnh' });
+            return res.status(404).json({ error: 'Không tìm thấy sảnh' });
         } else {
-            res.json({ message: 'Xóa sảnh thành công' });
+            return res.json({ message: 'Xóa sảnh thành công' });
         }
     } catch (error) {
         if (error.name === 'ApiError') {
-            res.status(error.statusCode || 400).json({ error: error.message });
-        } else {
-            next(error);
+            return res.status(error.statusCode).json({ error: error.message });
         }
+        return res.status(500).json({ error: 'Lỗi server khi xóa sảnh' });
     }
 };
 

@@ -48,7 +48,10 @@ const createSanh = async (sanhData) => {
     body: formData,
   });
 
-  if (!response.ok) throw new Error("Failed to create sanh");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to create sanh");
+  }
   return response.json();
 };
 
@@ -72,9 +75,9 @@ const updateSanh = async (maSanh, sanhData) => {
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    console.log("Response error text:", text);
-    throw new Error(text || "Failed to update sanh");
+    const errorData = await response.json();
+    console.log("Response error data:", errorData);
+    throw new Error(errorData.error || "Failed to update sanh");
   }
 
   try {
@@ -88,7 +91,10 @@ const deleteSanh = async (maSanh) => {
   const response = await fetch(`/api/sanh/${maSanh}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete sanh");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to delete sanh");
+  }
   return response.json();
 };
 
