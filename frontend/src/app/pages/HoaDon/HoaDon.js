@@ -653,8 +653,8 @@ function HoaDon() {
             ) : (
               <div>
                 <p style={{ color: 'white' }}>Không có dữ liệu dịch vụ.</p>
-                <div style={{ border: '1px solid rgba(224, 224, 224, 1)', width: 'fit-content', marginTop: "5px", marginBottom: "0px" }}>
-                  <AddButton onClick={handleOpenDVDialog} text="Thêm" sx={{ width: "fit-content" }} /></div></div>
+                {!isViewMode && <div style={{ border: '1px solid rgba(224, 224, 224, 1)', width: 'fit-content', marginTop: "5px", marginBottom: "0px" }}>
+                  <AddButton onClick={handleOpenDVDialog} text="Thêm" sx={{ width: "fit-content" }} /></div>}</div>
             )}
 
 
