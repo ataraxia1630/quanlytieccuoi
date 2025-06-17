@@ -9,7 +9,7 @@ import FilterButton from '../../components/Filterbutton';
 import { getDanhSach, postDanhSach } from '../../service/danhsachtiec.service';
 import sanhService from '../../service/sanh.service';
 import DateRangePicker from '../../components/danhsachtiec/daterange';
-import { Box, Typography, CircularProgress } from '@mui/material';
+import { Box, Typography, CircularProgress, Pagination } from '@mui/material';
 import { toast, ToastContainer } from 'react-toastify';
 import PhieuDatTiecService from '../../service/phieudattiec.service';
 import Phieucolumns from '../../components/danhsachtiec/phieudattiec_column';
@@ -21,6 +21,7 @@ import ActionDropdown from '../../components/Printandexport';
 import printDanhSachTiec from '../../components/danhsachtiec/dstiec_print_data';
 import exportDanhSachTiecCuoiToExcel from '../../components/danhsachtiec/dstiec_export_excel';
 import { getHoaDon } from '../../service/hoadon.service';
+import toastService from '../../service/toast/toast.service';
 
 function DanhSachTiecCuoi() {
   const navigate = useNavigate();
@@ -32,6 +33,12 @@ function DanhSachTiecCuoi() {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [selectedPhieu, setSelectedPhieu] = useState(null);
   const [errors, setErrors] = useState({});
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [isFiltering, setIsFiltering] = useState(false);
+  const [filterPayload, setFilterPayload] = useState(null);
+
   const [form, setForm] = useState({
     tuBan: '',
     denBan: '',
@@ -45,9 +52,12 @@ function DanhSachTiecCuoi() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const result = await getDanhSach()
-      setData(result);
+      const result = await getDanhSach({ page: currentPage, limit: 10 });
+      setData(result.data);
+      setTotalItems(result.totalItems);
     } catch (error) {
+      toastService.crud.error.generic(); // "Có lỗi xảy ra. Vui lòng thử lại sau!"
+
       console.error('Lỗi lấy danh sách:', error);
     } finally {
       setLoading(false);
@@ -61,13 +71,36 @@ function DanhSachTiecCuoi() {
         .map((item) => item.TenSanh);
       setSanh(sanhList);
     } catch (error) {
+      toastService.crud.error.generic(); // "Có lỗi xảy ra. Vui lòng thử lại sau!"
+
       console.error('Lỗi lấy danh sách sảnh:', error);
     }
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetch = async () => {
+      setLoading(true);
+      try {
+        if (isFiltering && filterPayload) {
+          const result = await postDanhSach(filterPayload, currentPage, 10);
+          setData(result.data);
+          setTotalItems(result.totalItems);
+          setTotalPages(Math.ceil(result.totalItems / 10));
+        } else {
+          const result = await getDanhSach({ page: currentPage, limit: 10 });
+          setData(result.data);
+          setTotalItems(result.totalItems);
+          setTotalPages(Math.ceil(result.totalItems / 10));
+        }
+      } catch (error) {
+        toastService.crud.error.generic();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetch();
+  }, [currentPage, isFiltering, filterPayload]);
 
 
   const handleFilter = () => {
@@ -77,6 +110,7 @@ function DanhSachTiecCuoi() {
   };
 
   const handleResetFilter = async () => {
+    setCurrentPage(1);
     setForm({
       tuBan: '',
       denBan: '',
@@ -86,28 +120,33 @@ function DanhSachTiecCuoi() {
       trangThai: '',
       ten: '',
     });
+
+    setIsFiltering(false);
+    setFilterPayload(null);
+    setCurrentPage(1);
     setSearchText('');
     setErrors({});
     await fetchData();
+    toastService.search.resetFilter(); // "Đã reset bộ lọc"
+
   };
 
   const handleDelete = (phieu) => {
     setSelectedPhieu(phieu);
     setIsUpdateDialogOpen(true);
+
   };
 
   const handleSubmit = async () => {
     const { tuBan, denBan, tuNgay, denNgay } = form;
-
     const newErrors = {};
 
     // Validate và ghi lỗi vào biến tạm
     if (isNaN(Number(tuBan)) || Number(tuBan) < 0) {
-      newErrors.tuBan = 'Nhập số nguyên dương!';
+      newErrors.tuBan = 'Số lượng bàn là số nguyên dương!';
     }
-
     if (isNaN(Number(denBan)) || Number(denBan) < 0) {
-      newErrors.tuBan = 'Nhập số nguyên dương!';
+      newErrors.tuBan = 'Số lượng bàn là số nguyên dương!';
     }
     if (Number(tuBan) > Number(denBan) && denBan !== '') {
       newErrors.denBan = "'Từ bàn' phải nhỏ hơn hoặc bằng 'Đến bàn'!";
@@ -120,16 +159,18 @@ function DanhSachTiecCuoi() {
     setErrors(newErrors);
 
     if (Object.values(newErrors).some((error) => error)) {
+      toastService.validation.invalidData(); // 
+
       console.warn('Dữ liệu không hợp lệ:', newErrors);
       return;
     }
 
     // Gửi dữ liệu nếu không có lỗi
-    setLoading(true);
+
     try {
       const payload = {};
       if (tuBan != null && tuBan !== '') payload.tuBan = parseInt(tuBan);
-if (denBan != null && denBan !== '') payload.denBan = parseInt(denBan);
+      if (denBan != null && denBan !== '') payload.denBan = parseInt(denBan);
 
       if (form.sanh) payload.sanh = form.sanh;
       if (tuNgay) payload.tuNgay = dayjs(tuNgay).format("YYYY-MM-DD");
@@ -137,14 +178,27 @@ if (denBan != null && denBan !== '') payload.denBan = parseInt(denBan);
 
       if (form.trangThai !== '') payload.trangThai = form.trangThai;
       payload.ten = searchText.trim();
-      const result = await postDanhSach(payload);
-      setData(result);
+
+      setCurrentPage(1);
+      setLoading(true);
+      setIsFiltering(true);      // bật chế độ lọc
+      setFilterPayload(payload);
+
+      const result = await postDanhSach(payload, currentPage, 10);
+
+      setData(result.data);
+      setTotalItems(result.totalItems);
+      setTotalPages(Math.ceil(result.totalItems / 10));
+      toastService.search.appliedFilter(); // "Đã áp dụng bộ lọc"
+
     } catch (error) {
+      toastService.crud.error.generic(); // "Có lỗi xảy ra. Vui lòng thử lại sau!"
+
       console.error('Lỗi lọc dữ liệu:', error);
     } finally {
       setLoading(false);
     }
-  };
+  };///
 
   const handleCloseDeleteDialog = () => {
     setIsUpdateDialogOpen(false);
@@ -160,45 +214,48 @@ if (denBan != null && denBan !== '') payload.denBan = parseInt(denBan);
         newTrangThai = 'Đã hủy';
       }
 
-      const result = await PhieuDatTiecService.updatePhieuDatTiec(
+      await PhieuDatTiecService.updatePhieuDatTiec(
         selectedPhieu.SoPhieuDatTiec,
         { TrangThai: newTrangThai }
       );
 
       setIsUpdateDialogOpen(false);
       await handleSubmit();
+      toastService.crud.success.update('trạng thái'); // "Cập nhật trạng thái thành công!"
 
-      const toastByStatus = {
-        'soft-deleted': toast.info,
-        'already-soft-deleted': toast.warning,
-        deleted: toast.success,
-      };
-
-      (toastByStatus[result.status] || toast.success)(result.message);
 
       setSelectedPhieu(null);
     } catch (error) {
-      toast.error(error.message);
+      toastService.crud.error.update('trạng thái'); // "Cập nhật trạng thái thất bại!"
+
     } finally {
       setLoading(false);
     }
   };
   const handlePrint = () => {
+    if (data.length === 0) {
+      toastService.file.noPrintData(); // "Không có dữ liệu để in!"
+      return;
+    }
     const res = printDanhSachTiec(data);
     if (!res.success) {
-      //showToast('error', `Lỗi khi in: ${res.message}`, 'print-error');
+      toastService.file.printError('Connection timeout'); // "Lỗi khi in: Connection timeout"
     }
   };
 
   const handleExportExcel = async () => {
+    if (data.length === 0) {
+      toastService.file.noPrintData(); // "Không có dữ liệu để in!"
+      return;
+    }
     const res = await exportDanhSachTiecCuoiToExcel(data);
     if (!res.success) {
-      //showToast('error', `Lỗi khi xuất file: ${res.message}`, 'excel-error');
+      toastService.file.exportError('File not found'); // "Lỗi khi xuất file: File not found"
     }
   };
   const handleSearchTextChange = useCallback((val) => {
-  setSearchText(val);
-}, []);
+    setSearchText(val);
+  }, []);
 
   const options = [
     { label: 'Tất cả', value: '' },
@@ -210,35 +267,11 @@ if (denBan != null && denBan !== '') payload.denBan = parseInt(denBan);
   const options1 = sanh.map((MaSanh) => ({ label: MaSanh, value: MaSanh }));
   const phieuData = useMemo(() => Phieucolumns(navigate), [navigate]);
 
-const columns = useMemo(() => Phieucolumns(), []);
 
-const handleViewHoaDon = async (row) => {
-    try {
-      const hoaDon = await getHoaDon(row.SoPhieuDatTiec);
-      navigate("/DashBoard/HoaDon", {
-        state: {
-          ...(hoaDon ? { soHoaDon: hoaDon.SoHoaDon, data: hoaDon } : { data: row }),
-          soPhieuDatTiec: row.SoPhieuDatTiec,
-          chuRe: row.TenChuRe,
-          coDau: row.TenCoDau,
-          tienCoc: row.TienDatCoc,
-          ngayDaiTiec: row.NgayDaiTiec
-        }
-      });
-    } catch (err) {
-      console.error("Lỗi khi xem hóa đơn:", err);
-    }
-  };
-
-  const dataWithHandlers = useMemo(
-    () =>
-      data.map((item) => ({
-        ...item,
-        onViewHoaDon: handleViewHoaDon,
-        onDeletePhieu: handleDelete,
-      })),
-    [data]
-  );
+  const computedDataWithIndex = data.map((item, idx) => ({
+    ...item,
+    indexGlobal: (currentPage - 1) * 10 + idx + 1,
+  }));
 
   return (
     <Box sx={{ p: 3 }}>
@@ -347,7 +380,57 @@ const handleViewHoaDon = async (row) => {
           <CircularProgress sx={{ color: '#063F5C' }} />
         </Box>
       ) : (
-        <CustomTable data={data} columns={phieuData} onDelete={handleDelete} />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <CustomTable
+            columns={[
+              { id: 'indexGlobal', label: 'STT', width: 50 },
+              ...phieuData,
+            ]}
+            data={computedDataWithIndex}
+            currentPage={currentPage}
+            pageSize={10} onDelete={handleDelete} />
+          <Pagination
+            page={currentPage}
+            count={Math.ceil(totalItems / 10)}
+            onChange={(e, page) => setCurrentPage(page)}
+            siblingCount={1}
+            boundaryCount={1}
+            variant="outlined"
+            sx={{
+              '& .MuiPaginationItem-root': {
+                color: '#063F5C',
+                borderColor: '#063F5C',
+                minWidth: '45px',
+                height: '45px',
+                borderRadius: '999px',
+              },
+              '& .MuiPaginationItem-root.Mui-selected': {
+                backgroundColor: '#063F5C',
+                color: '#fff',
+                borderColor: '#063F5C',
+                '&:hover': {
+                  backgroundColor: '#045172',
+                },
+                '&.Mui-focusVisible': {
+                  backgroundColor: '#045172',
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: '#063F5C',
+                  opacity: 1,
+                },
+              },
+              marginTop: '50px',
+            }}
+          />
+        </Box>
+
       )}
     </Box>
   );

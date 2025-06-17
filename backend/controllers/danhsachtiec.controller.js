@@ -4,7 +4,10 @@ const { Op, fn, col, where } = require("sequelize");
 // GET http://localhost:25053/api/danhsachtiec/
 module.exports.index = async (req, res) => {
   try {
-    const phieudattiecs = await PhieuDatTiec.findAll({
+    const offset = parseInt(req.query.offset) || 0;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const { count: totalItems, rows: phieudattiecs } = await PhieuDatTiec.findAndCountAll({
       include: [
         {
           model: Sanh,
@@ -12,15 +15,25 @@ module.exports.index = async (req, res) => {
           attributes: ['TenSanh']
         }
       ],
+      offset,
+      limit
     });
-    return res.status(200).json(phieudattiecs);
+
+    return res.status(200).json({
+      data: phieudattiecs,
+      totalItems
+    });
   } catch (er) {
-    console.error(er)
+    console.error(er);
+    return res.status(500).json({ error: "Lỗi server khi lấy danh sách phiếu đặt tiệc" });
   }
-}
+};
+
 
 module.exports.filter = async (req, res) => {
   const { ten, sanh, tuNgay, denNgay, tuBan, denBan, trangThai } = req.body;
+  const offset = parseInt(req.query.offset) || 0;
+  const limit = parseInt(req.query.limit) || 10;
 
   const where = {};
   if (ten) {
@@ -34,11 +47,11 @@ module.exports.filter = async (req, res) => {
   if (sanh) where[`$Sanh.TenSanh$`] = { [Op.like]: `%${sanh}%` };
   if (tuNgay && denNgay) {
     where.ngayDaiTiec = {
-  [Op.between]: [
-    new Date(tuNgay), 
-    new Date(`${denNgay}T23:59:59`)
-  ],
-};
+      [Op.between]: [
+        new Date(tuNgay),
+        new Date(`${denNgay}T23:59:59`)
+      ],
+    };
 
   }
   else if (tuNgay) {
@@ -53,27 +66,33 @@ module.exports.filter = async (req, res) => {
   }
 
   if (tuBan != null && denBan != null) {
-  where.soLuongBan = { [Op.between]: [tuBan, denBan] };
-} else if (tuBan != null) {
-  where.soLuongBan = { [Op.gte]: tuBan };
-} else if (denBan != null) {
-  where.soLuongBan = { [Op.lte]: denBan };
-}
+    where.soLuongBan = { [Op.between]: [tuBan, denBan] };
+  } else if (tuBan != null) {
+    where.soLuongBan = { [Op.gte]: tuBan };
+  } else if (denBan != null) {
+    where.soLuongBan = { [Op.lte]: denBan };
+  }
 
-  if(trangThai) {
+  if (trangThai) {
     where.trangthai = trangThai;
   }
 
-  const danhSach = await PhieuDatTiec.findAll({
+  const { count: totalItems, rows: phieudattiecs } = await PhieuDatTiec.findAndCountAll({
     where,
     include: [
       {
         model: Sanh,
         attributes: ['TenSanh'],
       },
-    ],
+    ]
+    ,
+    offset,
+    limit
   });
-  res.json(danhSach);
+  return res.status(200).json({
+    data: phieudattiecs,
+    totalItems
+  });
 };
 // GET http://localhost:25053/api/danhsachtiec/detail/:id
 module.exports.detail = async (req, res) => {

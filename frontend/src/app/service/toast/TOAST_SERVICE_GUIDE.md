@@ -152,8 +152,8 @@ toastService.hoaDon.serviceRemoved(); // "Đã xoá dịch vụ khỏi hoá đơ
 toastService.hoaDon.dishRemoved(); // "Đã xoá món ăn khỏi hoá đơn!"
 toastService.hoaDon.serviceAlreadySelected(); // "Dịch vụ đã được chọn trước đó!"
 toastService.hoaDon.dishAlreadySelected(); // "Món ăn đã được chọn trước đó!"
-toastService.hoaDon.paymentSuccess(); // "Thanh toán thành công!"
-toastService.hoaDon.paymentFailed(); // "Thanh toán thất bại!"
+toastService.hoaDon.paymentSuccess(); // "Tạo hoá đơn thành công!"
+toastService.hoaDon.paymentFailed(); // "Tạo hoá đơn thất bại!"
 ```
 
 #### Báo cáo:

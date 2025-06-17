@@ -43,7 +43,6 @@ const EyeIcon = () => (
 const Phieucolumns = (navigate) =>
 
     [
-        { id: "index", label: "STT", width: 10 },
         { id: "SoPhieuDatTiec", label: "Số phiếu", sortable: true, width: 150 },
         { id: "TenChuRe", label: "Tên chú rể", sortable: true },
         { id: "TenCoDau", label: "Tên cô dâu", sortable: true },

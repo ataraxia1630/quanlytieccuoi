@@ -89,8 +89,8 @@ export const PAGE_MESSAGES = {
     DISH_REMOVED: 'Đã xoá món ăn khỏi hoá đơn!',
     SERVICE_ALREADY_SELECTED: 'Dịch vụ đã được chọn trước đó!',
     DISH_ALREADY_SELECTED: 'Món ăn đã được chọn trước đó!',
-    PAYMENT_SUCCESS: 'Thanh toán thành công!',
-    PAYMENT_FAILED: 'Thanh toán thất bại!',
+    PAYMENT_SUCCESS: 'Tạo hoá đơn thành công!',
+    PAYMENT_FAILED: 'Tạo hoá đơn thất bại!',
   },
   // BaoCaoThang
   BAOCAO: {
