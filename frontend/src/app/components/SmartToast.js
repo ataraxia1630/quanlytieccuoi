@@ -22,16 +22,17 @@ const typeOptions = {
 const smartToast = (type, message, id, customOptions = {}) => {
   const toastId = id || type;
 
-  // Dismiss previous toast with the same ID
-  if (toastCache[toastId]) {
-    toast.dismiss(toastCache[toastId]);
-  }
+  // Không hiển thị lại toast cũ
+  if (toastCache[toastId]) return;
 
   // Merge options: default + type-specific + custom
   const options = {
     ...defaultOptions,
     ...typeOptions[type],
-    ...customOptions
+    ...customOptions,
+    onClose: () => {
+      delete toastCache[toastId];
+    },
   };
 
   // Show new toast with merged options
