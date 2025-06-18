@@ -1,19 +1,27 @@
 import { useState } from 'react';
-import { Box, Collapse, Paper } from '@mui/material';
+import {
+  Box,
+  Collapse,
+  Paper,
+  FormControl,
+  FormHelperText,
+} from '@mui/material';
 import RangeInputs from '../Rangeinput';
 import FilterButton from '../Filterbutton';
 import StatusCheckbox from '../Statuscheckbx';
-import showToast from '../Showtoast';
 
 const DichVuFilter = ({ isOpen, onApply }) => {
   const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
   const [status, setStatus] = useState([]);
+  const [errors, setErrors] = useState({
+    priceFrom: '',
+    priceTo: '',
+  });
 
   const isValidPriceInput = (value) => {
     if (value === '') return true;
-    const regex = /^[0-9]*\.?[0-9]*(e[0-9]+)?$/;
-    return regex.test(value);
+    return /^([0-9]+(\.[0-9]*)?)?$/.test(value);
   };
 
   const parsePrice = (value) => {
@@ -25,24 +33,24 @@ const DichVuFilter = ({ isOpen, onApply }) => {
   const handlePriceFromChange = (value) => {
     if (isValidPriceInput(value)) {
       setPriceFrom(value);
+      setErrors((prev) => ({ ...prev, priceFrom: '' }));
     } else {
-      showToast(
-        'error',
-        'Khoảng giá chỉ được nhập số dương hoặc định dạng số khoa học (VD: 1e6 cho 1 triệu)',
-        'priceFromInvalid'
-      );
+      setErrors((prev) => ({
+        ...prev,
+        priceFrom: 'Chỉ được nhập số dương',
+      }));
     }
   };
 
   const handlePriceToChange = (value) => {
     if (isValidPriceInput(value)) {
       setPriceTo(value);
+      setErrors((prev) => ({ ...prev, priceTo: '' }));
     } else {
-      showToast(
-        'error',
-        'Khoảng giá chỉ được nhập số dương hoặc định dạng số khoa học (VD: 1e6 cho 1 triệu)',
-        'priceToInvalid'
-      );
+      setErrors((prev) => ({
+        ...prev,
+        priceTo: 'Chỉ được nhập số dương',
+      }));
     }
   };
 
@@ -50,13 +58,16 @@ const DichVuFilter = ({ isOpen, onApply }) => {
     const parsedPriceFrom = parsePrice(priceFrom);
     const parsedPriceTo = parsePrice(priceTo);
 
+    let newErrors = { priceFrom: '', priceTo: '' };
+    let hasError = false;
+
     if (parsedPriceFrom !== null && parsedPriceFrom < 0) {
-      showToast('error', 'Giá từ không được nhỏ hơn 0', 'priceFromNegative');
-      return;
+      newErrors.priceFrom = 'Giá từ không được nhỏ hơn 0';
+      hasError = true;
     }
     if (parsedPriceTo !== null && parsedPriceTo < 0) {
-      showToast('error', 'Giá đến không được nhỏ hơn 0', 'priceToNegative');
-      return;
+      newErrors.priceTo = 'Giá đến không được nhỏ hơn 0';
+      hasError = true;
     }
 
     if (
@@ -64,13 +75,13 @@ const DichVuFilter = ({ isOpen, onApply }) => {
       parsedPriceTo !== null &&
       parsedPriceFrom > parsedPriceTo
     ) {
-      showToast(
-        'error',
-        'Giá từ phải nhỏ hơn hoặc bằng giá đến',
-        'invalidRange'
-      );
-      return;
+      newErrors.priceFrom = 'Giá từ phải nhỏ hơn hoặc bằng giá đến';
+      hasError = true;
     }
+
+    setErrors(newErrors);
+
+    if (hasError) return;
 
     const mappedStatus = status
       .map((s) => {
@@ -107,6 +118,7 @@ const DichVuFilter = ({ isOpen, onApply }) => {
     setPriceFrom('');
     setPriceTo('');
     setStatus([]);
+    setErrors({ priceFrom: '', priceTo: '' });
     onApply({});
   };
 
@@ -122,14 +134,25 @@ const DichVuFilter = ({ isOpen, onApply }) => {
         }}
       >
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-          <RangeInputs
-            width="130px"
-            label="Khoảng giá"
-            fromValue={priceFrom}
-            toValue={priceTo}
-            onFromChange={handlePriceFromChange}
-            onToChange={handlePriceToChange}
-          />
+          <FormControl
+            sx={{ width: '300px' }}
+            error={Boolean(errors.priceFrom || errors.priceTo)}
+          >
+            <RangeInputs
+              width="130px"
+              label="Khoảng giá"
+              fromValue={priceFrom}
+              toValue={priceTo}
+              onFromChange={handlePriceFromChange}
+              onToChange={handlePriceToChange}
+            />
+            {errors.priceFrom && (
+              <FormHelperText>{errors.priceFrom}</FormHelperText>
+            )}
+            {!errors.priceFrom && errors.priceTo && (
+              <FormHelperText>{errors.priceTo}</FormHelperText>
+            )}
+          </FormControl>
 
           <Box sx={{ display: 'block' }}>
             <StatusCheckbox
@@ -154,7 +177,7 @@ const DichVuFilter = ({ isOpen, onApply }) => {
             onClick={handleReset}
             colorVariant="reset"
           />
-          
+
           <FilterButton text="Apply" onClick={handleApply} />
         </Box>
       </Paper>
