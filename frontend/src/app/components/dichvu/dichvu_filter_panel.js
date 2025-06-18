@@ -37,7 +37,7 @@ const DichVuFilter = ({ isOpen, onApply }) => {
     } else {
       setErrors((prev) => ({
         ...prev,
-        priceFrom: 'Chỉ được nhập số dương hoặc số khoa học hợp lệ (VD: 1e6)',
+        priceFrom: 'Chỉ được nhập số dương',
       }));
     }
   };
@@ -49,7 +49,7 @@ const DichVuFilter = ({ isOpen, onApply }) => {
     } else {
       setErrors((prev) => ({
         ...prev,
-        priceTo: 'Chỉ được nhập số dương hoặc số khoa học hợp lệ (VD: 1e6)',
+        priceTo: 'Chỉ được nhập số dương',
       }));
     }
   };
