@@ -172,7 +172,7 @@ function DanhSachDichVu() {
     try {
       setLoading(true);
       const dichVuData = {
-        TenDichVu: formData.name,
+        TenDichVu: formData.name.trim().replace(/\s+/g, ' '),
         DonGia: Number(formData.price),
         TinhTrang: formData.status,
       };
