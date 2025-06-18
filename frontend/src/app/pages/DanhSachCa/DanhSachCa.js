@@ -1,13 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 import SearchBar from '../../components/Searchbar';
 import FilterButton from '../../components/Filterbutton';
 import AddButton from '../../components/Addbutton';
+import ActionDropdown from '../../components/Printandexport';
 import CustomTable from '../../components/Customtable';
 import FilterPanel from '../../components/ca/ca_filter_panel';
 import EditCaDialog from '../../components/ca/ca_edit_dialog';
 import defaultColumns from '../../components/ca/ca_default_column';
 import caService from '../../service/ca.service';
+import exportCaToExcel from '../../components/ca/ca_export_excel';
+import printCa from '../../components/ca/ca_print_data';
 import toastService from '../../service/toast/toast.service';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -22,30 +25,74 @@ function DanhSachCa() {
   const [cas, setCas] = useState([]);
   const [caToEdit, setCaToEdit] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [currentFilters, setCurrentFilters] = useState({});
+
+  const fetchCas = useCallback(
+    async (filters = currentFilters, search = '') => {
+      try {
+        setLoading(true);
+        let data;
+        const normalizedSearchTerm = search.trim().replace(/\s+/g, ' ');
+
+        const { searchTerm: oldSearchTerm, ...filtersWithoutSearch } = filters;
+
+        const searchParams = {
+          ...filtersWithoutSearch,
+          ...(normalizedSearchTerm && { 
+            tenCa: normalizedSearchTerm,
+            maCa: normalizedSearchTerm 
+          }),
+        };
+
+        if (Object.keys(searchParams).length > 0) {
+          data = await caService.searchAndFilterCa(searchParams);
+        } else {
+          data = await caService.getAllCa();
+        }
+
+        setCas(data);
+        return data;      } catch (error) {
+        toastService.error(`Lỗi khi tìm kiếm ca: ${error.message}`, 'search-error');
+        setCas([]);
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    },
+    [currentFilters]
+  );
 
   useEffect(() => {
     fetchCas();
-  }, []);
-  const fetchCas = async () => {
-    setLoading(true);
-    try {
-      const data = await caService.getAllCa();
-      setCas(data);
-    } catch (error) {
-      console.error('Error fetching cas:', error.message);
-      toastService.crud.error.generic();
-    } finally {
-      setLoading(false);
-    }
-  };  const handleSearch = () => {
-    if (!searchTerm.trim()) {
-      // Nếu không có search term, reset về danh sách đầy đủ
-      searchAndFilter({});
+  }, [fetchCas]);
+  const handleSearch = async () => {
+    const normalizedSearchTerm = searchTerm.trim().replace(/\s+/g, ' ');
+
+    if (!normalizedSearchTerm) {
+      toastService.warning('Vui lòng nhập từ khóa tìm kiếm', 'search-empty');
       return;
     }
-    searchAndFilter();
+
+    toastService.info(`Đang tìm kiếm: ${normalizedSearchTerm}`, 'search-start');
+    const result = await fetchCas(currentFilters, normalizedSearchTerm);
+
+    if (result?.length === 0) {
+      toastService.search.noResults('ca');
+    } else {
+      toastService.search.success(result.length, 'ca');
+    }
   };
 
+  // Hiển thị lại ds ca sau khi xóa tìm kiếm
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (searchTerm.trim() === '') {
+        fetchCas(currentFilters, '');
+      }
+    }, 300);
+
+    return () => clearTimeout(timeout);
+  }, [searchTerm, fetchCas, currentFilters]);
   const handleAdd = () => {
     setCaToEdit(null);
     setOpenDialog(true);
@@ -55,76 +102,31 @@ function DanhSachCa() {
   const handleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
   };
-  const handleApplyFilter = async (filters) => {
-    searchAndFilter(filters);
-    
-    // Toast cho filter
-    const hasFilters = Object.values(filters).some(v => v);
-    if (hasFilters) {
-      toastService.search.appliedFilter();
+  const handleApplyFilter = (filterParams) => {
+    setCurrentFilters(filterParams);
+    fetchCas(filterParams, searchTerm);
+
+    if (Object.keys(filterParams).length > 0) {
+      toastService.search.appliedFilter('ca');
     } else {
-      toastService.search.resetFilter();
-    }
-  };  const searchAndFilter = async (filters = {}) => {
-    try {
-      const searchParams = {
-        tenCa: searchTerm || '',
-        maCa: searchTerm || '',
-        gioBatDau: filters.gioBatDau || '',
-        gioKetThuc: filters.gioKetThuc || '',
-        sortBy: filters.sortBy || '',
-        sortOrder: filters.sortOrder || '',
-      };
-      console.log('Search params:', searchParams); // Debug log
-      const data = await caService.searchAndFilterCa(searchParams);
-      setCas(data);
-      
-      // Chỉ hiện toast khi có search term (không hiện khi reset về danh sách đầy đủ)
-      if (searchTerm.trim()) {
-        if (data.length === 0) {
-          toastService.search.noResults('ca');
-        } else {
-          toastService.search.success(data.length, 'ca');
-        }
-      }
-    } catch (error) {
-      console.error('Search error:', error.message);
-      toastService.crud.error.generic();
+      toastService.search.resetFilter('ca');
     }
   };
 
   const handleEdit = (ca) => {
-    console.log('Editing ca with maCa:', ca.MaCa);
+    setMode('edit');
     setCaToEdit(ca);
     setOpenDialog(true);
-    setMode('edit');
   };
 
   const handleDelete = (ca) => {
-    console.log('Deleting ca with maCa:', ca.MaCa);
-    setCaToEdit(ca); // Store the ca to delete
+    setCaToEdit(ca);
     setIsDeleteDialogOpen(true);
   };
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
-    setCaToEdit(null); // Clear the ca to delete
-  };
-  const handleConfirmDelete = async () => {
-    try {
-      toastService.crud.processing.deleting();
-      await caService.deleteCa(caToEdit.MaCa);
-      await fetchCas();
-      toastService.entity.deleteSuccess('ca', caToEdit.TenCa);
-      setIsDeleteDialogOpen(false);
-      setCaToEdit(null);
-    } catch (error) {
-      if (error.message.includes('Không tìm thấy ca')) {
-        toastService.validation.notFound('ca');
-      } else {
-        toastService.crud.error.delete('ca');
-      }
-    }
+    setCaToEdit(null);
   };
 
   const handleCloseDialog = () => {
@@ -133,40 +135,84 @@ function DanhSachCa() {
   };
   const handleSaveCa = async (caData) => {
     try {
-      console.log('handleSaveCa received caData:', caData);
+      setLoading(true);
 
-      if (!caData.TenCa || !caData.GioBatDau || !caData.GioKetThuc) {
-        toastService.validation.requiredFields();
-        return;
-      }
-
-      toastService.crud.processing.saving();
-      console.log('Sending update with data:', caData);
-
-      if (mode === 'edit') {
-        const updatedCa = await caService.updateCa(caToEdit.MaCa, caData);
-        setCas(cas.map((c) => (c.MaCa === caToEdit.MaCa ? updatedCa : c)));
-        await fetchCas();
+      if (mode === 'edit' && caToEdit) {
+        await caService.updateCa(caToEdit.MaCa, caData);
         toastService.entity.updateSuccess('ca', caData.TenCa);
       } else {
-        const newCa = await caService.createCa(caData);
-        setCas([...cas, newCa]);
-        await fetchCas();
+        await caService.createCa(caData);
         toastService.entity.createSuccess('ca', caData.TenCa);
       }
+
       setOpenDialog(false);
+      setCaToEdit(null);
+      fetchCas(currentFilters, searchTerm);
+      
+      // Return success to indicate the operation completed successfully
+      return { success: true };
     } catch (error) {
-      if (error.message.includes('Không tìm thấy ca')) {
-        toastService.validation.notFound('ca');
+      // Parse error message for better user experience
+      let errorMessage = error.message || 'Lỗi khi lưu ca';
+      
+      if (errorMessage.includes('đã tồn tại')) {
+        toastService.error(errorMessage, 'duplicate-error');
+      } else if (errorMessage.includes('trùng') || errorMessage.includes('overlap')) {
+        toastService.error(errorMessage, 'overlap-error');
+      } else if (errorMessage.includes('bằng')) {
+        toastService.error(errorMessage, 'time-equal-error');
       } else {
         toastService.crud.error.generic();
       }
+      
+      // Return error to indicate the operation failed
+      return { success: false, error: error.message };
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleConfirmDelete = async () => {
+    try {
+      setLoading(true);
+      toastService.crud.processing.deleting();
+      await caService.deleteCa(caToEdit.MaCa);
+      toastService.entity.deleteSuccess('ca', caToEdit.TenCa);
+      setIsDeleteDialogOpen(false);
+      setCaToEdit(null);
+      fetchCas(currentFilters, searchTerm);
+    } catch (error) {
+      let errorMessage = error.message || 'Lỗi khi xóa ca';
+      
+      if (errorMessage.includes('Không tìm thấy ca')) {
+        toastService.validation.notFound('ca');
+      } else if (errorMessage.includes('Không thể xóa') && errorMessage.includes('phiếu đặt tiệc')) {
+        // Show detailed error message from backend
+        toastService.error(errorMessage, 'delete-in-use-error');
+      } else {
+        toastService.crud.error.delete('ca');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handlePrint = () => {
+    const res = printCa(cas);
+    if (!res.success) {
+      toastService.file.printError(res.message);
     }
   };
 
-  return (
+  const handleExportExcel = async () => {
+    const res = await exportCaToExcel(cas);
+    if (res.success) {
+      toastService.success(`Xuất Excel thành công`, 'export-success');
+    } else {
+      toastService.file.exportError(res.message);
+    }
+  };  return (
     <Box sx={{ p: 3 }}>
       <ToastContainer />
+      
       <Typography
         variant="h4"
         sx={{ fontWeight: 'bold', color: '#063F5C', mb: 4 }}
@@ -178,29 +224,45 @@ function DanhSachCa() {
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '20px',
+          alignItems: 'flex-start',
+          gap: 2,
           mb: 3,
+          flexWrap: { xs: 'wrap', md: 'nowrap' },
         }}
       >
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-          onSearch={handleSearch}
-          placeholder="Tìm tên hoặc mã ca ..."
-        />
+        <Box
+          sx={{ flex: 1, minWidth: 250, display: 'flex', alignItems: 'center' }}
+        >
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSearch={handleSearch}
+            placeholder="Tìm tên hoặc mã ca ..."
+          />
+        </Box>
 
-        <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}
+        >
           <FilterButton onClick={handleFilter} text="Filter" />
           <AddButton onClick={handleAdd} text="Thêm" />
+          <ActionDropdown
+            onPrint={handlePrint}
+            onExportExcel={handleExportExcel}
+          />
         </Box>
       </Box>
 
       <FilterPanel isOpen={isFilterOpen} onApply={handleApplyFilter} />
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
           <CircularProgress sx={{ color: '#063F5C' }} />
         </Box>
       ) : (
@@ -225,6 +287,7 @@ function DanhSachCa() {
         onClose={handleCloseDeleteDialog}
         onDelete={handleConfirmDelete}
         title="Xác nhận xóa ca"
+        content={`Bạn có chắc chắn muốn xóa ca "${caToEdit?.TenCa}"?`}
       />
     </Box>
   );

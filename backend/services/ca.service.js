@@ -45,11 +45,59 @@ const generateMaCa = async () => {
 
 const createCa = async ({ TenCa, GioBatDau, GioKetThuc }) => {
     try {
+        // Validate giờ bắt đầu không được bằng giờ kết thúc
+        if (GioBatDau === GioKetThuc) {
+            throw new ApiError(400, 'Giờ bắt đầu không được bằng giờ kết thúc');
+        }
+
+        // Kiểm tra tên ca đã tồn tại chưa
+        const existingCa = await Ca.findOne({
+            where: {
+                TenCa: TenCa.trim()
+            }
+        });
+        if (existingCa) {
+            throw new ApiError(400, `Tên ca "${TenCa}" đã tồn tại`);
+        }
+
+        // Kiểm tra trùng lặp thời gian với các ca khác
+        const overlappingCa = await Ca.findOne({
+            where: {
+                [Op.or]: [
+                    // Giờ bắt đầu của ca mới nằm trong khoảng thời gian của ca cũ
+                    {
+                        [Op.and]: [
+                            { GioBatDau: { [Op.lte]: GioBatDau } },
+                            { GioKetThuc: { [Op.gt]: GioBatDau } }
+                        ]
+                    },
+                    // Giờ kết thúc của ca mới nằm trong khoảng thời gian của ca cũ
+                    {
+                        [Op.and]: [
+                            { GioBatDau: { [Op.lt]: GioKetThuc } },
+                            { GioKetThuc: { [Op.gte]: GioKetThuc } }
+                        ]
+                    },
+                    // Ca mới bao phủ hoàn toàn ca cũ
+                    {
+                        [Op.and]: [
+                            { GioBatDau: { [Op.gte]: GioBatDau } },
+                            { GioKetThuc: { [Op.lte]: GioKetThuc } }
+                        ]
+                    }
+                ]
+            }
+        });
+
+        if (overlappingCa) {
+            throw new ApiError(400, `Khoảng thời gian ${GioBatDau} - ${GioKetThuc} bị trùng với ca "${overlappingCa.TenCa}" (${overlappingCa.GioBatDau} - ${overlappingCa.GioKetThuc})`);
+        }
+
         const MaCa = await generateMaCa(); // Auto-generate MaCa
 
         return await Ca.create({
             MaCa,
-            TenCa,
+            TenCa: TenCa.trim(),
             GioBatDau,
             GioKetThuc
         });
@@ -62,9 +110,71 @@ const createCa = async ({ TenCa, GioBatDau, GioKetThuc }) => {
 const updateCa = async (maCa, { TenCa, GioBatDau, GioKetThuc }) => {
     try {
         const ca = await Ca.findByPk(maCa);
-        if (!ca) return false;
+        if (!ca) {
+            throw new ApiError(404, 'Không tìm thấy ca');
+        }
+
+        // Validate giờ bắt đầu không được bằng giờ kết thúc (nếu có cập nhật)
+        const newGioBatDau = GioBatDau || ca.GioBatDau;
+        const newGioKetThuc = GioKetThuc || ca.GioKetThuc;
+        
+        if (newGioBatDau === newGioKetThuc) {
+            throw new ApiError(400, 'Giờ bắt đầu không được bằng giờ kết thúc');
+        }
+
+        // Kiểm tra tên ca trùng lặp (nếu có thay đổi tên)
+        if (TenCa && TenCa.trim() !== ca.TenCa) {
+            const existingCa = await Ca.findOne({
+                where: {
+                    TenCa: TenCa.trim(),
+                    MaCa: {
+                        [Op.ne]: maCa
+                    }
+                }
+            });
+            if (existingCa) {
+                throw new ApiError(400, `Tên ca "${TenCa}" đã tồn tại`);
+            }
+        }
+
+        // Kiểm tra trùng lặp thời gian với các ca khác (nếu có thay đổi thời gian)
+        if (GioBatDau || GioKetThuc) {
+            const overlappingCa = await Ca.findOne({
+                where: {
+                    MaCa: { [Op.ne]: maCa }, // Loại trừ ca hiện tại
+                    [Op.or]: [
+                        // Giờ bắt đầu của ca được cập nhật nằm trong khoảng thời gian của ca khác
+                        {
+                            [Op.and]: [
+                                { GioBatDau: { [Op.lte]: newGioBatDau } },
+                                { GioKetThuc: { [Op.gt]: newGioBatDau } }
+                            ]
+                        },
+                        // Giờ kết thúc của ca được cập nhật nằm trong khoảng thời gian của ca khác
+                        {
+                            [Op.and]: [
+                                { GioBatDau: { [Op.lt]: newGioKetThuc } },
+                                { GioKetThuc: { [Op.gte]: newGioKetThuc } }
+                            ]
+                        },
+                        // Ca được cập nhật bao phủ hoàn toàn ca khác
+                        {
+                            [Op.and]: [
+                                { GioBatDau: { [Op.gte]: newGioBatDau } },
+                                { GioKetThuc: { [Op.lte]: newGioKetThuc } }
+                            ]
+                        }
+                    ]
+                }
+            });
+
+            if (overlappingCa) {
+                throw new ApiError(400, `Khoảng thời gian ${newGioBatDau} - ${newGioKetThuc} bị trùng với ca "${overlappingCa.TenCa}" (${overlappingCa.GioBatDau} - ${overlappingCa.GioKetThuc})`);
+            }
+        }
+
         await ca.update({
-            TenCa: TenCa || ca.TenCa,
+            TenCa: TenCa ? TenCa.trim() : ca.TenCa,
             GioBatDau: GioBatDau || ca.GioBatDau,
             GioKetThuc: GioKetThuc || ca.GioKetThuc
         });
@@ -78,11 +188,29 @@ const updateCa = async (maCa, { TenCa, GioBatDau, GioKetThuc }) => {
 const deleteCa = async (maCa) => {
     try {
         const ca = await Ca.findByPk(maCa);
-        if (!ca) return false;
+        if (!ca) {
+            throw new ApiError(404, 'Không tìm thấy ca');
+        }
+
+        // Kiểm tra xem ca có đang được sử dụng trong phiếu đặt tiệc không
+        const phieuDatTiecCount = await PhieuDatTiec.count({
+            where: {
+                MaCa: maCa,
+                TrangThai: {
+                    [Op.in]: ['Chưa thanh toán', 'Đã thanh toán'] // Chỉ kiểm tra phiếu còn hiệu lực
+                }
+            }
+        });
+
+        if (phieuDatTiecCount > 0) {
+            throw new ApiError(400, `Không thể xóa ca "${ca.TenCa}" vì đang có ${phieuDatTiecCount} phiếu đặt tiệc sử dụng ca này.`);
+        }
+
         await ca.destroy();
         return true;
     } catch (error) {
-        throw new ApiError(500, 'Lỗi khi xóa ca: ' + error.message);
+        if (error.name === 'ApiError') throw error;
+        throw new ApiError(500, error.message);
     }
 };
 
