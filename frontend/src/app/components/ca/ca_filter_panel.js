@@ -7,30 +7,44 @@ import FormTextField from "../../components/Formtextfield";
 import FilterButton from "../../components/Filterbutton";
 
 const FilterPanel = ({ isOpen, onApply }) => {
-  const [timeFrom, setTimeFrom] = useState("00:00:00");
-  const [timeTo, setTimeTo] = useState("23:00:00");
-
+  // Set default time values - 06:00:00 for start and 22:00:00 for end
+  const defaultTimeFrom = new Date('1970-01-01T06:00:00');
+  const defaultTimeTo = new Date('1970-01-01T22:00:00');
+  
+  const [timeFrom, setTimeFrom] = useState(defaultTimeFrom);
+  const [timeTo, setTimeTo] = useState(defaultTimeTo);
   const handleApply = () => {
-    onApply({
-      gioBatDau: timeFrom,
-      gioKetThuc: timeTo,
-    });
+    const filters = {};
+    
+    // If timeFrom is empty/null, set it to default and use default value for filter
+    const finalTimeFrom = timeFrom || defaultTimeFrom;
+    const finalTimeTo = timeTo || defaultTimeTo;
+    
+    // Update state with default values if they were empty
+    if (!timeFrom) {
+      setTimeFrom(defaultTimeFrom);
+    }
+    if (!timeTo) {
+      setTimeTo(defaultTimeTo);
+    }
+    
+    filters.gioBatDauFrom = finalTimeFrom.toTimeString().slice(0, 8);
+    filters.gioBatDauTo = finalTimeTo.toTimeString().slice(0, 8);
+    
+    onApply(filters);
+  };
+  const handleReset = () => {
+    setTimeFrom(defaultTimeFrom);
+    setTimeTo(defaultTimeTo);
+    onApply({});
   };
 
   const handleTimeFromChange = (newValue) => {
-    if (newValue) {
-      setTimeFrom(newValue.toTimeString().slice(0, 8));
-    } else {
-      setTimeFrom("00:00:00");
-    }
+    setTimeFrom(newValue);
   };
 
   const handleTimeToChange = (newValue) => {
-    if (newValue) {
-      setTimeTo(newValue.toTimeString().slice(0, 8));
-    } else {
-      setTimeTo("23:59:59");
-    }
+    setTimeTo(newValue);
   };
 
   return (
@@ -48,7 +62,7 @@ const FilterPanel = ({ isOpen, onApply }) => {
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
             <TimePicker
               label="Giờ bắt đầu"
-              value={timeFrom ? new Date(`1970-01-01T${timeFrom}`) : null}
+              value={timeFrom}
               onChange={handleTimeFromChange}
               format="HH:mm:ss"
               ampm={false}
@@ -57,13 +71,13 @@ const FilterPanel = ({ isOpen, onApply }) => {
                 <FormTextField
                   {...params}
                   fullWidth
-                  sx={{ width: "90px" }}
+                  sx={{ width: "150px" }}
                 />
               )}
             />
             <TimePicker
               label="Giờ kết thúc"
-              value={timeTo ? new Date(`1970-01-01T${timeTo}`) : null}
+              value={timeTo}
               onChange={handleTimeToChange}
               format="HH:mm:ss"
               ampm={false}
@@ -72,14 +86,15 @@ const FilterPanel = ({ isOpen, onApply }) => {
                 <FormTextField
                   {...params}
                   fullWidth
-                  sx={{ width: "90px" }}
+                  sx={{ width: "150px" }}
                 />
               )}
             />
           </Box>
         </LocalizationProvider>
 
-        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 2 }}>
+          <FilterButton text="Reset" onClick={handleReset} />
           <FilterButton text="Apply" onClick={handleApply} />
         </Box>
       </Paper>

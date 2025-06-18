@@ -3,8 +3,8 @@ const { check } = require('express-validator');
 // Validation cho việc tạo mới ca làm việc
 const caValidation = [
   check('TenCa')
-    .isLength({ max: 5 })
-    .withMessage('Tên ca tối đa 5 ký tự')
+    .isLength({ max: 50 })
+    .withMessage('Tên ca tối đa 50 ký tự')
     .notEmpty()
     .withMessage('Tên ca là bắt buộc'),
 
@@ -25,8 +25,8 @@ const caValidation = [
 const caUpdateValidation = [
   check('TenCa')
     .optional()
-    .isLength({ max: 5 })
-    .withMessage('Tên ca tối đa 5 ký tự'),
+    .isLength({ max: 50 })
+    .withMessage('Tên ca tối đa 50 ký tự'),
 
   check('GioBatDau')
     .optional()
@@ -56,13 +56,12 @@ const scheduleValidation = [
 const searchAndFilterValidation = [
   check('maCa')
     .optional()
-    .isLength({ max: 10 })
+    .isLength({ max: 50 })
     .withMessage('Mã ca tối đa 10 ký tự'),
-
   check('tenCa')
     .optional()
-    .isLength({ max: 5 })
-    .withMessage('Tên ca tối đa 5 ký tự'),
+    .isLength({ max: 50 })
+    .withMessage('Tên ca tối đa 50 ký tự'),
 
   check('gioBatDauFrom')
     .optional()
