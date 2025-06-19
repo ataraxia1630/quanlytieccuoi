@@ -18,6 +18,7 @@ import DeleteDialog from '../../components/Deletedialog';
 import MonAnService from '../../service/monan.service';
 
 import { hasPermission } from '../../utils/hasPermission';
+import toastService from '../../service/toast/toast.service';
 
 export default function DanhSachMonAn() {
   //#region declaration
@@ -38,6 +39,7 @@ export default function DanhSachMonAn() {
   const [totalPages, setTotalPages] = useState(1);
   const [sort, setSort] = useState(null);
   const [currentSort, setCurrentSort] = useState(null);
+  let total;
 
   const permissions = localStorage.getItem('permissions');
   //#endregion
@@ -62,9 +64,9 @@ export default function DanhSachMonAn() {
       console.log(monanData);
       setDishData(monanData || []);
       setTotalPages(result.totalPages || 1);
+      total = result.total;
     } catch (error) {
-      console.log('Error fetching sanhs:', error.message);
-      toast.error(`Lỗi: ${error.message || 'Không thể tải danh sách món ăn!'}`);
+      toastService.crud.error.generic();
     } finally {
       setLoading(false);
     }
@@ -80,10 +82,17 @@ export default function DanhSachMonAn() {
   //#endregion
 
   //#region func handler
-  const handleSearch = () => {
-    // toast.info(`Đang tìm kiếm: ${searchTerm}`);
+  const handleSearchResult = () => {
+    if (total > 0) toastService.search.success(total, 'món ăn');
+    else toastService.search.noResults('món ăn');
+  };
+
+  const handleSearch = async () => {
     setCurrentPage(1);
-    fetchData();
+    try {
+      await fetchData();
+      handleSearchResult();
+    } catch (error) {}
   };
 
   const handleSortChange = (property, order) => {
@@ -100,7 +109,7 @@ export default function DanhSachMonAn() {
     const data = result.data;
     const res = MonAnService.print(data);
     if (!res.success) {
-      toast('error', `Lỗi khi in: ${res.message}`);
+      toastService.file.printError(res.message);
     }
   };
 
@@ -109,7 +118,7 @@ export default function DanhSachMonAn() {
     const data = result.data;
     const res = await MonAnService.exportExcel(data);
     if (!res.success) {
-      toast('error', `Lỗi khi xuất file: ${res.message}`);
+      toastService.file.exportError(res.message);
     }
   };
 
@@ -119,7 +128,7 @@ export default function DanhSachMonAn() {
 
   const handleApplyFilter = (newFilters) => {
     setFilters(newFilters);
-    toast.success('Đã áp dụng bộ lọc');
+    toastService.search.appliedFilter();
   };
 
   const handleResetFilter = () => {
@@ -128,41 +137,41 @@ export default function DanhSachMonAn() {
     setCurrentPage(1);
     setCurrentSort(null);
     setSort(null);
-    toast.success('Đã reset bộ lọc');
+    toastService.search.resetFilter();
   };
 
   const handleAdd = () => {
     setMode('add');
     setSelectedRow(null);
     setIsEditDialogOpen(true);
-    toast.success('Bắt đầu thêm món ăn mới');
+    toastService.entity.createStart('món ăn');
   };
 
   const handleEdit = async (row) => {
     setMode('edit');
     setSelectedRow(row);
     setIsEditDialogOpen(true);
-    toast.info(`Đang chỉnh sửa món ăn: ${row.TenMonAn}`);
+    toastService.entity.editing('món ăn', row.TenMonAn);
   };
 
   const handleCloseEditDialog = () => {
     setIsEditDialogOpen(false);
     setSelectedRow(false);
     mode === 'edit'
-      ? toast.info('Đã đóng cửa sổ chỉnh sửa')
-      : toast.info('Đã đóng cửa sổ thêm mới');
+      ? toastService.crud.cancel.edit()
+      : toastService.crud.cancel.create();
   };
 
   const handleDelete = async (row) => {
     setIsDeleteDialogOpen(true);
     setSelectedRow(row);
-    toast.warn(`Bạn sắp xóa món ăn: ${row.TenMonAn}`);
+    toastService.entity.deleteConfirm('món ăn', row.TenMonAn);
   };
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
     setSelectedRow(null);
-    toast.info('Đã hủy xóa món ăn');
+    toastService.entity.cancelDelete('món ăn');
   };
 
   const handleSaveDish = async (data, file) => {
@@ -173,14 +182,14 @@ export default function DanhSachMonAn() {
         TinhTrang: data.status,
       };
       console.log(monanData);
-      toast.info('Đang xử lý yêu cầu ...');
+      toastService.crud.processing.saving();
 
       if (mode === 'edit' && selectedRow) {
         await MonAnService.update(selectedRow.MaMonAn, monanData, file);
-        toast.success(`Cập nhật món ăn "${monanData.TenMonAn}" thành công!`);
+        toastService.entity.updateSuccess('món ăn', monanData.TenMonAn);
       } else {
         await MonAnService.createNew(monanData, file);
-        toast.success(`Thêm món ăn "${monanData.TenMonAn}" thành công!`);
+        toastService.entity.createSuccess('món ăn', monanData.TenMonAn);
       }
 
       setIsEditDialogOpen(false);
@@ -196,12 +205,12 @@ export default function DanhSachMonAn() {
       const result = await MonAnService.delete(selectedRow.MaMonAn);
       result.message
         ? toast.info(result.message)
-        : toast.success(`Đã xóa món ăn "${selectedRow.TenMonAn}" thành công!`);
+        : toastService.entity.deleteSuccess('món ăn', selectedRow.TenMonAn);
       setIsDeleteDialogOpen(false);
       setSelectedRow(null);
       fetchData();
     } catch (error) {
-      toast.error(`Xóa thất bại: ${error.message || 'Không thể xóa món ăn!'}`);
+      toastService.crud.error.delete();
     }
   };
 

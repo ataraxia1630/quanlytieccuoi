@@ -4,12 +4,17 @@ import 'react-toastify/dist/ReactToastify.css';
 import Chart from 'chart.js/auto';
 
 import { Box, Typography, CircularProgress, Button } from '@mui/material';
+import PrintIcon from '@mui/icons-material/Print';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { ToastContainer, toast } from 'react-toastify';
 
 import FormTextField from '../../components/Formtextfield';
 import CustomTable from '../../components/Customtable';
 import ReportColumns from '../../components/baocao/baocao_column';
 import BaoCaoThangService from '../../service/baocao.service';
+
+import toastService from '../../service/toast/toast.service';
 
 export default function BaoCaoThang() {
   //#region declaration
@@ -54,7 +59,7 @@ export default function BaoCaoThang() {
         })
       );
       setReportTitleDate({ month: baocao.Thang, year: baocao.Nam });
-      toast.success('Lấy báo cáo thành công!');
+      toastService.success('Lấy báo cáo thành công!');
     } catch (error) {
       console.log('Error fetching report:', error.message);
       toast.error(`Lỗi: ${error.message || 'Không thể tải báo cáo!'}`);
@@ -93,25 +98,25 @@ export default function BaoCaoThang() {
   const handleViewReport = () => {
     if (validate()) {
       fetchReport();
-    }
+    } else toastService.validation.checkInfo();
   };
 
   const handleExportReport = async () => {
     if (reportData.length === 0) {
-      toast.error('Không có dữ liệu để xuất!');
+      toastService.file.noExportData();
       return;
     }
     try {
       await BaoCaoThangService.exportMonthlyReport(month, year);
-      toast.success('Xuất báo cáo thành công!');
+      toastService.file.exportSuccess();
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể xuất báo cáo!'}`);
+      toastService.file.exportError();
     }
   };
 
   const handlePrintReport = () => {
     if (reportData.length === 0) {
-      toast.error('Không có dữ liệu để in!');
+      toastService.file.noPrintData();
       return;
     }
     const printWindow = window.open('', '', 'height=600,width=800');
@@ -174,6 +179,7 @@ export default function BaoCaoThang() {
     printWindow.document.close();
     printWindow.print();
   };
+
   const drawChart = (data) => {
     if (!chartRef.current || data.length === 0) return;
 
@@ -264,37 +270,48 @@ export default function BaoCaoThang() {
         Báo cáo doanh thu
       </Typography>
       <Box
-        sx={{ display: 'flex', justifyContent: 'center', gap: '20px', mb: 3 }}
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '20px',
+          mb: 3,
+        }}
       >
-        <FormTextField
-          label="Tháng"
-          type="number"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          error={!!errors.month}
-          helperText={errors.month}
-          width="150"
-          fullWidth="false"
-        />
-        <FormTextField
-          label="Năm"
-          type="number"
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-          error={!!errors.year}
-          helperText={errors.year}
-          width="150"
-          fullWidth={false}
-        />
+        <Box width={150}>
+          <FormTextField
+            label="Tháng"
+            type="number"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            error={!!errors.month}
+            helperText={errors.month}
+            fullWidth="false"
+          />
+        </Box>
+        <Box width={150}>
+          <FormTextField
+            label="Năm"
+            type="number"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            error={!!errors.year}
+            helperText={errors.year}
+            width="150"
+            fullWidth={false}
+          />
+        </Box>
+
         <Button
           variant="contained"
           sx={{
             backgroundColor: '#063F5C',
             '&:hover': { backgroundColor: '#045b7a' },
             height: 56,
+            textTransform: 'none',
           }}
           onClick={handleViewReport}
           disabled={loading}
+          startIcon={<RemoveRedEyeIcon />}
         >
           Xem báo cáo
         </Button>
@@ -341,8 +358,10 @@ export default function BaoCaoThang() {
               sx={{
                 backgroundColor: '#063F5C',
                 '&:hover': { backgroundColor: '#045b7a' },
+                textTransform: 'none',
               }}
               onClick={handleExportReport}
+              startIcon={<FileDownloadIcon />}
             >
               Xuất báo cáo
             </Button>
@@ -351,8 +370,10 @@ export default function BaoCaoThang() {
               sx={{
                 backgroundColor: '#063F5C',
                 '&:hover': { backgroundColor: '#045b7a' },
+                textTransform: 'none',
               }}
               onClick={handlePrintReport}
+              startIcon={<PrintIcon />}
             >
               In báo cáo
             </Button>

@@ -3,10 +3,9 @@ import RangeInputs from '../Rangeinput';
 import FilterButton from '../Filterbutton';
 import StatusCheckbox from '../Statuscheckbx';
 import { useState, useEffect } from 'react';
-import {
-  statusOptions,
-  statusMapToBackend,
-} from '../../pages/DanhSachMonAn/statusMapping';
+import { statusOptions } from '../../pages/DanhSachMonAn/statusMapping';
+import { ToastContainer } from 'react-toastify';
+import toastService from '../../service/toast/toast.service';
 
 const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   const [priceFrom, setPriceFrom] = useState('');
@@ -61,7 +60,7 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   const handleApply = () => {
     const isValid = validate();
     if (!isValid) {
-      // toast
+      toastService.validation.invalidData();
       return;
     }
 
@@ -74,10 +73,6 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   };
 
   const handleReset = () => {
-    if (!priceFrom && !priceTo && status.length === 0) {
-      // toast
-      return;
-    }
     setPriceFrom('');
     setPriceTo('');
     setStatus([]);
@@ -87,6 +82,7 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
 
   return (
     <Collapse in={isOpen}>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <Paper
         elevation={0}
         sx={{

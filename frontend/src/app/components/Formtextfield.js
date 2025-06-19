@@ -33,7 +33,7 @@ const FormTextField = ({ label, value, onChange, ...props }) => (
         whiteSpace: 'normal', // Cho phép xuống dòng nếu helperText dài
         overflow: 'hidden', // Ẩn phần văn bản vượt quá
         textOverflow: 'ellipsis', // Thêm dấu ... nếu văn bản quá dài
-        maxWidth: '150px', // Giới hạn chiều rộng của helperText
+        maxWidth: '100%', // Giới hạn chiều rộng của helperText
       },
     }}
     {...props}
