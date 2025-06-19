@@ -1,19 +1,23 @@
-import { Box, Collapse, Paper } from '@mui/material';
+import { Box, Collapse, Paper, Typography } from '@mui/material';
 import RangeInputs from '../Rangeinput';
 import FilterButton from '../Filterbutton';
 import { useState, useEffect } from 'react';
 
 const HallTypeFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
-  const [priceFrom, setPriceFrom] = useState(0);
+  const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
   const [errors, setErrors] = useState({ priceFrom: '', priceTo: '' });
 
   // Đồng bộ với filters từ props
   useEffect(() => {
-    setPriceFrom(filters.priceMin || 0);
+    setPriceFrom(filters.priceMin || '');
     setPriceTo(filters.priceMax || '');
     setErrors({ priceFrom: '', priceTo: '' });
   }, [filters]);
+
+  useEffect(() => {
+    validate();
+  }, [priceFrom, priceTo]);
 
   const validate = () => {
     let tempErrors = { priceFrom: '', priceTo: '' };
@@ -23,16 +27,23 @@ const HallTypeFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
     const to = Number(priceTo);
 
     if (priceFrom && (isNaN(from) || from < 0)) {
-      tempErrors.priceFrom = 'Giá tối thiểu phải là số không âm';
+      tempErrors.priceFrom = 'Giá tối thiểu phải là số và không âm';
       isValid = false;
     }
-    if (priceTo && (isNaN(to) || to < 0 || to > 100000000)) {
-      tempErrors.priceTo =
-        'Giá tối đa phải là số không âm và nhỏ hơn 100 triệu';
+    if (priceTo && (isNaN(to) || to < 0)) {
+      tempErrors.priceTo = 'Giá tối đa phải là số không âm';
       isValid = false;
     }
     if (priceFrom && priceTo && from > to) {
       tempErrors.priceFrom = 'Giá tối thiểu phải nhỏ hơn hoặc bằng giá tối đa';
+      isValid = false;
+    }
+    if (priceFrom && from >= 100000000) {
+      tempErrors.priceFrom = 'Giá tối thiểu phải nhỏ hơn 100.000.000';
+      isValid = false;
+    }
+    if (priceTo && to >= 100000000) {
+      tempErrors.priceTo = 'Giá tối đa phải nhỏ hơn 100.000.000';
       isValid = false;
     }
 
@@ -41,15 +52,24 @@ const HallTypeFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   };
 
   const handleApply = () => {
-    if (validate()) {
-      onApply({
-        priceMin: priceFrom ? Number(priceFrom) : 0,
-        priceMax: priceTo ? Number(priceTo) : 100000000,
-      });
+    const isValid = validate();
+    if (!isValid) {
+      // toast
+      return;
     }
+
+    let newFilters = {};
+    if (priceFrom) newFilters.priceMin = priceFrom;
+    if (priceTo) newFilters.priceMax = priceTo;
+
+    onApply(newFilters);
   };
 
   const handleReset = () => {
+    if (!priceFrom && !priceTo) {
+      // toast
+      return;
+    }
     setPriceFrom('');
     setPriceTo('');
     setErrors({ priceFrom: '', priceTo: '' });
@@ -68,23 +88,38 @@ const HallTypeFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
         }}
       >
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-          {/* Range input cho Khoảng giá */}
-          <RangeInputs
-            width="90px"
-            label="Đơn giá bàn tối thiểu"
-            fromValue={priceFrom}
-            toValue={priceTo}
-            onFromChange={(value) => {
-              setPriceFrom(value);
-              setErrors({ ...errors, priceFrom: '' });
-            }}
-            onToChange={(value) => {
-              setPriceTo(value);
-              setErrors({ ...errors, priceTo: '' });
-            }}
-            errorFrom={errors.priceFrom}
-            errorTo={errors.priceTo}
-          />
+          <Box sx={{ display: 'block' }}>
+            {/* Range input cho Khoảng giá */}
+            <RangeInputs
+              width="90px"
+              label="Đơn giá bàn tối thiểu"
+              fromValue={priceFrom}
+              toValue={priceTo}
+              onFromChange={(value) => {
+                setPriceFrom(value);
+                setErrors({ ...errors, priceFrom: '' });
+              }}
+              onToChange={(value) => {
+                setPriceTo(value);
+                setErrors({ ...errors, priceTo: '' });
+              }}
+              errorFrom={errors.priceFrom}
+              errorTo={errors.priceTo}
+            />
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              {errors.priceFrom && (
+                <Typography color="error" variant="caption" sx={{ mt: 1 }}>
+                  {errors.priceFrom}
+                </Typography>
+              )}
+
+              {errors.priceTo && (
+                <Typography color="error" variant="caption" sx={{ mt: 1 }}>
+                  {errors.priceTo}
+                </Typography>
+              )}
+            </Box>
+          </Box>
         </Box>
 
         {/* Nút áp dụng lọc */}
