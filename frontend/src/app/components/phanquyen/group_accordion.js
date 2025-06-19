@@ -154,7 +154,7 @@ export default function GroupAccordion({
             width: '100%',
           }}
         >
-          <Typography>
+          <Typography sx={{ margin: 0 }}>
             {groupCode} - {groupName}
           </Typography>
           <Box sx={{ display: 'flex', gap: '10px' }}>
