@@ -12,6 +12,7 @@ import {
   statusMapToBackend,
 } from '../../pages/DanhSachMonAn/statusMapping';
 import NumericFormatCustom from '../NumericFormatCustom';
+import toastService from '../../service/toast/toast.service';
 // Danh sách các tùy chọn tình trạng trong popup
 
 const EditDishPopUp = ({
@@ -125,6 +126,7 @@ const EditDishPopUp = ({
   const handleSave = () => {
     const isValid = validate();
     if (!isValid) {
+      toastService.validation.invalidData();
       return;
     }
 
