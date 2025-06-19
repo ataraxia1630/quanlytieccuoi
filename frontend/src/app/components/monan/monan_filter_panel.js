@@ -73,10 +73,6 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   };
 
   const handleReset = () => {
-    if (!priceFrom && !priceTo && status.length === 0) {
-      toastService.search.resetFilter();
-      return;
-    }
     setPriceFrom('');
     setPriceTo('');
     setStatus([]);

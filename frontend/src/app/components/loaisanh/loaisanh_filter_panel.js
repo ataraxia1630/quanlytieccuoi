@@ -2,6 +2,7 @@ import { Box, Collapse, Paper, Typography } from '@mui/material';
 import RangeInputs from '../Rangeinput';
 import FilterButton from '../Filterbutton';
 import { useState, useEffect } from 'react';
+import toastService from '../../service/toast/toast.service';
 
 const HallTypeFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   const [priceFrom, setPriceFrom] = useState('');
@@ -54,7 +55,7 @@ const HallTypeFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   const handleApply = () => {
     const isValid = validate();
     if (!isValid) {
-      // toast
+      toastService.validation.invalidData();
       return;
     }
 
@@ -66,10 +67,6 @@ const HallTypeFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   };
 
   const handleReset = () => {
-    if (!priceFrom && !priceTo) {
-      // toast
-      return;
-    }
     setPriceFrom('');
     setPriceTo('');
     setErrors({ priceFrom: '', priceTo: '' });

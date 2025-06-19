@@ -5,6 +5,7 @@ import DialogTitleCustom from '../Dialogtitlecustom';
 import FormTextField from '../Formtextfield';
 import DialogButtons from '../Dialogbutton';
 import NumericFormatCustom from '../NumericFormatCustom';
+import toastService from '../../service/toast/toast.service';
 
 const EditHallTypePopUp = ({
   open,
@@ -96,6 +97,7 @@ const EditHallTypePopUp = ({
   const handleSave = () => {
     const isValid = validate();
     if (!isValid) {
+      toastService.validation.invalidData();
       return;
     }
 
