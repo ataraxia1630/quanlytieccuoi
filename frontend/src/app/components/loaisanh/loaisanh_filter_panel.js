@@ -123,8 +123,15 @@ const HallTypeFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
         </Box>
 
         {/* Nút áp dụng lọc */}
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-          <FilterButton text="Reset" onClick={handleReset} />
+        <Box
+          sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}
+        >
+          <FilterButton
+            text="Reset"
+            onClick={handleReset}
+            colorVariant="reset"
+          />
+
           <FilterButton text="Apply" onClick={handleApply} />
         </Box>
       </Paper>
