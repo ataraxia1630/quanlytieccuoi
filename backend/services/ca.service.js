@@ -6,6 +6,58 @@ const PhieuDatTiec = sequelize.models.PhieuDatTiec;
 const Sanh = sequelize.models.Sanh;
 const LoaiSanh = sequelize.models.LoaiSanh;
 
+// Helper function to check if two time ranges overlap
+const timeRangesOverlap = (start1, end1, start2, end2) => {
+    // Convert time strings to minutes since midnight
+    const timeToMinutes = (timeStr) => {
+        const [hours, minutes, seconds] = timeStr.split(':').map(Number);
+        return hours * 60 + minutes + seconds / 60;
+    };
+
+    const s1 = timeToMinutes(start1);
+    const e1 = timeToMinutes(end1);
+    const s2 = timeToMinutes(start2);
+    const e2 = timeToMinutes(end2);
+
+    // Simple approach: normalize all times to a continuous timeline
+    // If a range is overnight (end < start), we extend it to next day
+    
+    const ranges1 = [];
+    const ranges2 = [];
+    
+    // Create all possible interpretations of range 1
+    if (e1 >= s1) {
+        // Same day range
+        ranges1.push({ start: s1, end: e1 });
+    } else {
+        // Overnight range: split into two parts
+        ranges1.push({ start: s1, end: 24 * 60 }); // Evening part
+        ranges1.push({ start: 0, end: e1 });       // Morning part
+    }
+    
+    // Create all possible interpretations of range 2
+    if (e2 >= s2) {
+        // Same day range
+        ranges2.push({ start: s2, end: e2 });
+    } else {
+        // Overnight range: split into two parts
+        ranges2.push({ start: s2, end: 24 * 60 }); // Evening part
+        ranges2.push({ start: 0, end: e2 });       // Morning part
+    }
+    
+    // Check if any part of range1 overlaps with any part of range2
+    for (const r1 of ranges1) {
+        for (const r2 of ranges2) {
+            // Two ranges overlap if: start1 < end2 AND start2 < end1
+            if (r1.start < r2.end && r2.start < r1.end) {
+                return true;
+            }
+        }
+    }
+    
+    return false;
+};
+
 const getAllCa = async () => {
     try {
         return await Ca.findAll({
@@ -58,36 +110,14 @@ const createCa = async ({ TenCa, GioBatDau, GioKetThuc }) => {
         });
         if (existingCa) {
             throw new ApiError(400, `Tên ca "${TenCa}" đã tồn tại`);
-        }
-
-        // Kiểm tra trùng lặp thời gian với các ca khác
-        const overlappingCa = await Ca.findOne({
-            where: {
-                [Op.or]: [
-                    // Giờ bắt đầu của ca mới nằm trong khoảng thời gian của ca cũ
-                    {
-                        [Op.and]: [
-                            { GioBatDau: { [Op.lte]: GioBatDau } },
-                            { GioKetThuc: { [Op.gt]: GioBatDau } }
-                        ]
-                    },
-                    // Giờ kết thúc của ca mới nằm trong khoảng thời gian của ca cũ
-                    {
-                        [Op.and]: [
-                            { GioBatDau: { [Op.lt]: GioKetThuc } },
-                            { GioKetThuc: { [Op.gte]: GioKetThuc } }
-                        ]
-                    },
-                    // Ca mới bao phủ hoàn toàn ca cũ
-                    {
-                        [Op.and]: [
-                            { GioBatDau: { [Op.gte]: GioBatDau } },
-                            { GioKetThuc: { [Op.lte]: GioKetThuc } }
-                        ]
-                    }
-                ]
-            }
+        }        // Kiểm tra trùng lặp thời gian với các ca khác
+        const allCas = await Ca.findAll({
+            attributes: ['MaCa', 'TenCa', 'GioBatDau', 'GioKetThuc']
         });
+
+        const overlappingCa = allCas.find(existingCa => 
+            timeRangesOverlap(GioBatDau, GioKetThuc, existingCa.GioBatDau, existingCa.GioKetThuc)
+        );
 
         if (overlappingCa) {
             throw new ApiError(400, `Khoảng thời gian ${GioBatDau} - ${GioKetThuc} bị trùng với ca "${overlappingCa.TenCa}" (${overlappingCa.GioBatDau} - ${overlappingCa.GioKetThuc})`);
@@ -135,38 +165,18 @@ const updateCa = async (maCa, { TenCa, GioBatDau, GioKetThuc }) => {
             if (existingCa) {
                 throw new ApiError(400, `Tên ca "${TenCa}" đã tồn tại`);
             }
-        }
-
-        // Kiểm tra trùng lặp thời gian với các ca khác (nếu có thay đổi thời gian)
+        }        // Kiểm tra trùng lặp thời gian với các ca khác (nếu có thay đổi thời gian)
         if (GioBatDau || GioKetThuc) {
-            const overlappingCa = await Ca.findOne({
+            const allCas = await Ca.findAll({
+                attributes: ['MaCa', 'TenCa', 'GioBatDau', 'GioKetThuc'],
                 where: {
-                    MaCa: { [Op.ne]: maCa }, // Loại trừ ca hiện tại
-                    [Op.or]: [
-                        // Giờ bắt đầu của ca được cập nhật nằm trong khoảng thời gian của ca khác
-                        {
-                            [Op.and]: [
-                                { GioBatDau: { [Op.lte]: newGioBatDau } },
-                                { GioKetThuc: { [Op.gt]: newGioBatDau } }
-                            ]
-                        },
-                        // Giờ kết thúc của ca được cập nhật nằm trong khoảng thời gian của ca khác
-                        {
-                            [Op.and]: [
-                                { GioBatDau: { [Op.lt]: newGioKetThuc } },
-                                { GioKetThuc: { [Op.gte]: newGioKetThuc } }
-                            ]
-                        },
-                        // Ca được cập nhật bao phủ hoàn toàn ca khác
-                        {
-                            [Op.and]: [
-                                { GioBatDau: { [Op.gte]: newGioBatDau } },
-                                { GioKetThuc: { [Op.lte]: newGioKetThuc } }
-                            ]
-                        }
-                    ]
+                    MaCa: { [Op.ne]: maCa } // Loại trừ ca hiện tại
                 }
             });
+
+            const overlappingCa = allCas.find(existingCa => 
+                timeRangesOverlap(newGioBatDau, newGioKetThuc, existingCa.GioBatDau, existingCa.GioKetThuc)
+            );
 
             if (overlappingCa) {
                 throw new ApiError(400, `Khoảng thời gian ${newGioBatDau} - ${newGioKetThuc} bị trùng với ca "${overlappingCa.TenCa}" (${overlappingCa.GioBatDau} - ${overlappingCa.GioKetThuc})`);

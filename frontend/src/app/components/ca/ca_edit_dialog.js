@@ -130,8 +130,27 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
       TenCa: "",
       GioBatDau: "",
       GioKetThuc: "",
+    });  }, [ca]);
+
+  // Reset form when dialog closes
+  const resetForm = () => {
+    setFormData({
+      TenCa: "",
+      GioBatDau: null,
+      GioKetThuc: null,
     });
-  }, [ca]);
+    setErrors({
+      TenCa: "",
+      GioBatDau: "",
+      GioKetThuc: "",
+    });
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -175,10 +194,9 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
     }
   };
 
-  return (
-    <Dialog
+  return (    <Dialog
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       fullWidth
       PaperProps={{
         sx: {
@@ -191,7 +209,7 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
         },
       }}
     >
-      <DialogTitleCustom title={title} onClose={onClose} />
+      <DialogTitleCustom title={title} onClose={handleClose} />
 
       <Divider sx={{ borderColor: "#063F5C", borderBottomWidth: "1.3px" }} />
 
@@ -251,12 +269,11 @@ const EditCaDialog = ({ open, onClose, onSave, title, ca }) => {
           </Box>
         </LocalizationProvider>
 
-        <Box mt={4}>
-          <DialogButtons
+        <Box mt={4}>          <DialogButtons
             textCancel={"Hủy"}
             text={"Lưu"}
             onAction={handleSave}
-            onCancel={onClose}
+            onCancel={handleClose}
           />
         </Box>
       </DialogContent>
