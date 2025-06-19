@@ -14,8 +14,8 @@ import BaoCaoThangService from '../../service/baocao.service';
 export default function BaoCaoThang() {
   //#region declaration
   const today = new Date();
-  const [month, setMonth] = useState();
-  const [year, setYear] = useState();
+  const [month, setMonth] = useState('');
+  const [year, setYear] = useState('');
   const [reportData, setReportData] = useState([]);
   const [totalDoanhThu, setTotalDoanhThu] = useState(0);
   const [totalTiecCuoi, setTotalTiecCuoi] = useState(0);
