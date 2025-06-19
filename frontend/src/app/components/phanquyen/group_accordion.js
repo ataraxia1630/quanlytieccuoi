@@ -166,6 +166,7 @@ export default function GroupAccordion({
                 borderColor: '#063F5C',
                 opacity: disableEdit ? 0.5 : 1,
                 cursor: disableEdit ? 'not-allowed' : 'pointer',
+                textTransform: 'none',
               }}
               onClick={(e) => {
                 if (expanded) handleCancel();
@@ -186,6 +187,7 @@ export default function GroupAccordion({
                 borderColor: '#063F5C',
                 opacity: disableDelete ? 0.5 : 1,
                 cursor: disableDelete ? 'not-allowed' : 'pointer',
+                textTransform: 'none',
               }}
               onClick={(e) => {
                 e.stopPropagation();
