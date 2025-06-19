@@ -106,7 +106,7 @@ const DichVuService = {
           return {
             status: 'already-soft-deleted',
             message:
-              'Dịch vụ đã ngừng cung cấp và không thể xóa vì có trong phiếu đặt tiệc.',
+              'Dịch vụ đã ngừng cung cấp và không thể xóa vì đã sử dụng.',
           };
         }
 
@@ -124,7 +124,7 @@ const DichVuService = {
         return {
           status: 'soft-deleted',
           message:
-            'Dịch vụ sang trạng thái ngừng cung cấp do có trong phiếu đặt tiệc.',
+            'Dịch vụ đã được sử dụng nên đã chuyển sang trạng thái ngừng cung cấp.',
         };
       } else {
         const deletedRows = await DichVu.destroy({ where: { MaDichVu: id } });

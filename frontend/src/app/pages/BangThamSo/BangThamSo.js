@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import toastService from '../../service/toast/toast.service';
 
 import SearchBar from '../../components/Searchbar';
 import CustomTable from '../../components/Customtable';
@@ -34,7 +35,11 @@ function BangThamSo() {
         setThamSoList(data);
         return data;
       } catch (error) {
-        toast.error(error.message || 'Lỗi khi tải danh sách tham số');
+        toastService.error(
+          error.message || 'Lỗi khi tải danh sách tham số',
+          'thamso-load-error'
+        );
+
         setThamSoList([]);
         return [];
       } finally {
@@ -60,30 +65,29 @@ function BangThamSo() {
   const handleSearch = async () => {
     const keyword = searchTerm.trim();
     if (!keyword) {
-      toast.warning('Vui lòng nhập từ khóa tìm kiếm');
+      toastService.search.emptyKeyword();
       return;
     }
 
-    toast.info(`Đang tìm kiếm: ${keyword}`);
+    toastService.crud.processing.loading();
     const result = await fetchThamSoList(keyword);
 
     if (result.length === 0) {
-      toast.warning('Không tìm thấy tham số phù hợp');
+      toastService.search.noResults('tham số');
     } else {
-      toast.success(`Tìm thấy ${result.length} tham số`);
+      toastService.search.success(result.length, 'tham số');
     }
   };
-
   const handleEdit = (row) => {
     setSelectedThamSo(row);
     setIsEditDialogOpen(true);
-    toast.info('Chỉnh sửa quy định');
+    toastService.thamSo.editing();
   };
 
   const handleCloseEditDialog = () => {
     setIsEditDialogOpen(false);
     setSelectedThamSo(null);
-    toast.info('Đã đóng chỉnh sửa');
+    toastService.thamSo.closeEdit();
   };
 
   const handleSaveThamSo = async (formData) => {
@@ -96,11 +100,11 @@ function BangThamSo() {
           : ts
       );
       setThamSoList(updatedList);
-      toast.success('Đã lưu chỉnh sửa');
+      toastService.thamSo.saveEdit();
       setIsEditDialogOpen(false);
       setSelectedThamSo(null);
     } catch (error) {
-      toast.error(error.message);
+      toastService.crud.error.update('tham số');
     } finally {
       setLoading(false);
     }

@@ -15,7 +15,7 @@ import DichVuDialog from '../../components/dichvu/dichvu_popup';
 import DichVuService from '../../service/dichvu.service';
 import exportDichVuToExcel from '../../components/dichvu/dichvu_export_excel';
 import printDichVu from '../../components/dichvu/dichvu_print_data';
-import showToast from '../../components/Showtoast';
+import toastService from '../../service/toast/toast.service';
 
 import { hasPermission } from '../../utils/hasPermission';
 
@@ -61,10 +61,8 @@ function DanhSachDichVu() {
         setPagination((prev) => ({ ...prev, limit, offset }));
         return data;
       } catch (error) {
-        showToast(
-          'error',
-          error.message || 'Lỗi khi tìm kiếm dịch vụ',
-          'search-error'
+        toastService.crud.error.generic(
+          error.message || 'Lỗi khi tìm kiếm dịch vụ'
         );
         setDichVuList([]);
         return [];
@@ -83,11 +81,11 @@ function DanhSachDichVu() {
     const normalizedSearchTerm = searchTerm.trim().replace(/\s+/g, ' ');
 
     if (!normalizedSearchTerm) {
-      showToast('warning', 'Vui lòng nhập từ khóa tìm kiếm', 'search-empty');
+      toastService.search.emptyKeyword();
       return;
     }
 
-    showToast('info', `Đang tìm kiếm: ${normalizedSearchTerm}`, 'search-start');
+    toastService.crud.processing.loading();
     const result = await fetchDichVuList(
       currentFilters,
       pagination.limit,
@@ -96,17 +94,9 @@ function DanhSachDichVu() {
     );
 
     if (result?.length === 0) {
-      showToast(
-        'warning',
-        'Không tìm thấy dịch vụ nào phù hợp.',
-        'search-none'
-      );
+      toastService.search.noResults('dịch vụ');
     } else {
-      showToast(
-        'success',
-        `Đã tìm thấy ${result.length} dịch vụ phù hợp`,
-        'search-success'
-      );
+      toastService.search.success(result.length, 'dịch vụ');
     }
   };
 
@@ -134,11 +124,10 @@ function DanhSachDichVu() {
   const handleApplyFilter = (filterParams) => {
     setCurrentFilters(filterParams);
     fetchDichVuList(filterParams, pagination.limit, 0, searchTerm);
-
     if (Object.keys(filterParams).length > 0) {
-      showToast('success', 'Đã áp dụng bộ lọc', 'filter-apply');
+      toastService.search.appliedFilter();
     } else {
-      showToast('info', 'Đã reset bộ lọc', 'filter-clear');
+      toastService.search.resetFilter();
     }
   };
 
@@ -165,7 +154,9 @@ function DanhSachDichVu() {
 
   const handleSaveDichVu = async (formData, errors) => {
     if (errors) {
-      Object.values(errors).forEach((error) => showToast('error', error));
+      Object.values(errors).forEach((error) =>
+        toastService.validation.invalidData(error)
+      );
       return;
     }
 
@@ -176,13 +167,12 @@ function DanhSachDichVu() {
         DonGia: Number(formData.price),
         TinhTrang: formData.status,
       };
-
       if (mode === 'edit' && selectedDichVu) {
         await DichVuService.updateDichVu(selectedDichVu.MaDichVu, dichVuData);
-        showToast('success', 'Cập nhật dịch vụ thành công', 'update-success');
+        toastService.entity.updateSuccess('dịch vụ', dichVuData.TenDichVu);
       } else {
         await DichVuService.createDichVu(dichVuData);
-        showToast('success', 'Thêm dịch vụ thành công', 'create-success');
+        toastService.entity.createSuccess('dịch vụ', dichVuData.TenDichVu);
       }
 
       setIsDialogOpen(false);
@@ -194,7 +184,7 @@ function DanhSachDichVu() {
         searchTerm
       );
     } catch (error) {
-      showToast('error', error.message || 'Lỗi khi lưu dịch vụ', 'save-error');
+      toastService.crud.error.save('dịch vụ');
     } finally {
       setLoading(false);
     }
@@ -204,17 +194,19 @@ function DanhSachDichVu() {
     try {
       setLoading(true);
       const result = await DichVuService.deleteDichVu(selectedDichVu.MaDichVu);
+
       const toastByStatus = {
-        'soft-deleted': ['info', result.message],
-        'already-soft-deleted': ['warning', result.message],
-        deleted: ['success', result.message],
+        'soft-deleted': () =>
+          toastService.info(result.message, `delete-soft-deleted`),
+        'already-soft-deleted': () =>
+          toastService.warning(result.message, `delete-already-soft-deleted`),
+        deleted: () => toastService.success(result.message, `delete-deleted`),
       };
 
-      const [type, msg] = toastByStatus[result.status] || [
-        'success',
-        result.message,
-      ];
-      showToast(type, msg, `delete-${result.status}`);
+      (
+        toastByStatus[result.status] ||
+        (() => toastService.success(result.message, `delete-default`))
+      )();
 
       setIsDeleteDialogOpen(false);
       setSelectedDichVu(null);
@@ -225,7 +217,7 @@ function DanhSachDichVu() {
         searchTerm
       );
     } catch (error) {
-      showToast('error', error.message, 'delete-error');
+      toastService.crud.error.delete('dịch vụ');
     } finally {
       setLoading(false);
     }
@@ -234,14 +226,14 @@ function DanhSachDichVu() {
   const handlePrint = () => {
     const res = printDichVu(dichVuList);
     if (!res.success) {
-      showToast('error', `Lỗi khi in: ${res.message}`, 'print-error');
+      toastService.file.printError(res.message);
     }
   };
 
   const handleExportExcel = async () => {
     const res = await exportDichVuToExcel(dichVuList);
     if (!res.success) {
-      showToast('error', `Lỗi khi xuất file: ${res.message}`, 'excel-error');
+      toastService.file.exportError(res.message);
     }
   };
 
