@@ -69,7 +69,7 @@ function DanhSachCa() {
     const normalizedSearchTerm = searchTerm.trim().replace(/\s+/g, ' ');
 
     if (!normalizedSearchTerm) {
-      toastService.warning('Vui lòng nhập từ khóa tìm kiếm', 'search-empty');
+      //toastService.warning('Vui lòng nhập từ khóa tìm kiếm', 'search-empty');
       return;
     }
 

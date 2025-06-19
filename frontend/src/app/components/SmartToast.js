@@ -5,7 +5,7 @@ const toastCache = {};
 // Default toast options
 const defaultOptions = {
   position: "top-right",
-  hideProgressBar: false,
+  hideProgressBar: true,
   closeOnClick: true,
   pauseOnHover: true,
   draggable: true,
