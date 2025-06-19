@@ -73,6 +73,10 @@ export default function DanhSachMonAn() {
   useEffect(() => {
     fetchData();
   }, [filters, totalPages, currentPage, sort]);
+
+  useEffect(() => {
+    if (!searchTerm) fetchData();
+  }, [searchTerm]);
   //#endregion
 
   //#region func handler

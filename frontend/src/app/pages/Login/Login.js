@@ -54,6 +54,12 @@ const Login = () => {
     }
   };
 
+  const handleKeyDown = async (e) => {
+    if (e.key === 'Enter') {
+      await handleLogin();
+    }
+  };
+
   return (
     <Box
       sx={{
@@ -124,6 +130,7 @@ const Login = () => {
               variant="outlined"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              onKeyDown={handleKeyDown}
               sx={style}
             />
             <TextField
@@ -132,6 +139,7 @@ const Login = () => {
               variant="outlined"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
               sx={style}
             />
             <Button

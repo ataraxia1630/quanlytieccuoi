@@ -11,7 +11,7 @@ import {
   statusMapToFrontend,
   statusMapToBackend,
 } from '../../pages/DanhSachMonAn/statusMapping';
-
+import NumericFormatCustom from '../NumericFormatCustom';
 // Danh sách các tùy chọn tình trạng trong popup
 
 const EditDishPopUp = ({
@@ -27,12 +27,13 @@ const EditDishPopUp = ({
   const [status, setStatus] = useState('');
   const [image, setImage] = useState(null);
   const [errors, setErrors] = useState({ name: '', price: '', status: '' });
+  const [isPriceFocused, setIsPriceFocused] = useState(false);
 
   useEffect(() => {
     console.log('editData', editData);
     if (mode === 'edit' && editData) {
       setName(editData.TenMonAn || '');
-      setPrice(editData.DonGia || '');
+      setPrice(Number(editData.DonGia) || '');
       setStatus(statusMapToFrontend[editData.TinhTrang] || '');
       setImage(editData.HinhAnh || null);
     } else {
@@ -42,26 +43,66 @@ const EditDishPopUp = ({
       setImage(null);
     }
     setErrors({ name: '', price: '', status: '' });
-  }, [editData, mode]);
+    setIsPriceFocused(false);
+  }, [editData, mode, open]);
 
-  const validate = () => {
-    let tempErrors = { name: '', price: '', status: '' };
-    let isValid = true;
+  useEffect(() => {
+    validateName();
+  }, [name]);
+
+  useEffect(() => {
+    validatePrice();
+  }, [price]);
+
+  const validateName = () => {
+    let nameError = '';
 
     if (!name.trim()) {
-      tempErrors.name = 'Tên món ăn không được để trống';
-      isValid = false;
+      nameError = 'Tên món ăn không được để trống';
     }
-    if (!price || isNaN(price) || Number(price) <= 0) {
-      tempErrors.price = 'Giá phải là số dương';
-      isValid = false;
+
+    if (name.length > 100) {
+      nameError = 'Tên món ăn không được quá 100 ký tự';
     }
+
+    setErrors({ ...errors, name: nameError });
+    return nameError;
+  };
+
+  const validatePrice = () => {
+    let priceError = '';
+
+    if (!price) {
+      priceError = 'Giá món ăn không được để trống';
+    }
+
+    if (isNaN(price) || Number(price) <= 0) {
+      priceError = 'Giá món ăn phải là số dương';
+    }
+
+    if (Number(price) >= 100000000) {
+      priceError = 'Giá món ăn phải nhỏ hơn 100.000.000 VNĐ';
+    }
+
+    setErrors({ ...errors, price: priceError });
+    return priceError;
+  };
+
+  const validate = () => {
+    let statusError = '';
+    let isValid = true;
+
+    const nameError = validateName();
+    const priceError = validatePrice();
+
+    if (nameError || priceError) isValid = false;
+
     if (!status) {
-      tempErrors.status = 'Vui lòng chọn tình trạng';
+      statusError = 'Vui lòng chọn tình trạng';
       isValid = false;
     }
 
-    setErrors(tempErrors);
+    setErrors({ name: nameError, price: priceError, status: statusError });
     return isValid;
   };
 
@@ -84,13 +125,6 @@ const EditDishPopUp = ({
   const handleSave = () => {
     const isValid = validate();
     if (!isValid) {
-      console.log('Validate thất bại:', errors);
-      alert(
-        'Vui lòng kiểm tra lại thông tin: \n' +
-          (errors.name ? errors.name + '\n' : '') +
-          (errors.price ? errors.price + '\n' : '') +
-          (errors.status ? errors.status : '')
-      );
       return;
     }
 
@@ -151,13 +185,20 @@ const EditDishPopUp = ({
 
           <FormTextField
             label="Giá"
-            type="number" // Thay đổi kiểu nhập thành số nếu là giá trị số
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            onBlur={() => handleBlur('price')}
+            onFocus={() => setIsPriceFocused(true)}
+            onBlur={() => {
+              setIsPriceFocused(false);
+              handleBlur('price');
+            }}
             // Bỏ InputProps nếu không có VNĐ
             InputProps={{
+              inputComponent: NumericFormatCustom,
               endAdornment: <span style={{ marginLeft: 4 }}>VNĐ</span>,
+            }}
+            InputLabelProps={{
+              shrink: !!price || isPriceFocused, // Thu nhỏ nhãn nếu price có giá trị
             }}
             fullWidth
             error={!!errors.price}

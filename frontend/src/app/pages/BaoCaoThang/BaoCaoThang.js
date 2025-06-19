@@ -13,6 +13,7 @@ import BaoCaoThangService from '../../service/baocao.service';
 
 export default function BaoCaoThang() {
   //#region declaration
+  const today = new Date();
   const [month, setMonth] = useState('');
   const [year, setYear] = useState('');
   const [reportData, setReportData] = useState([]);
@@ -22,13 +23,16 @@ export default function BaoCaoThang() {
   const [errors, setErrors] = useState({ month: '', year: '' });
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
-  const today = new Date();
   const formattedDate = today.toLocaleDateString('vi-VN', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   });
   const [reportDate, setReportDate] = useState(formattedDate);
+  const [reportTitleDate, setReportTitleDate] = useState({
+    month: '',
+    year: '',
+  });
   //#endregion
 
   //#region func handler
@@ -42,7 +46,6 @@ export default function BaoCaoThang() {
       setReportData(ctData);
       setTotalDoanhThu(baocao.TongDoanhThu || 0);
       setTotalTiecCuoi(ctData.reduce((sum, item) => sum + item.SoLuongTiec, 0));
-      console.log(typeof baocao.NgayLap);
       setReportDate(
         new Date(baocao.NgayLap).toLocaleDateString('vi-VN', {
           day: '2-digit',
@@ -50,6 +53,7 @@ export default function BaoCaoThang() {
           year: 'numeric',
         })
       );
+      setReportTitleDate({ month: baocao.Thang, year: baocao.Nam });
       toast.success('Lấy báo cáo thành công!');
     } catch (error) {
       console.log('Error fetching report:', error.message);
@@ -74,7 +78,7 @@ export default function BaoCaoThang() {
       tempErrors.month = 'Tháng phải là số từ 1 đến 12';
       isValid = false;
     } else if (yearNum === thisYear && monthNum > thisMonth) {
-      tempErrors.month = 'Tháng phải nhỏ hơn hoặc bằng tháng hiện tại';
+      tempErrors.month = 'Tháng chưa kết thúc nên chưa thể xem báo cáo';
       isValid = false;
     }
     if (!year || isNaN(yearNum) || yearNum < 2000 || yearNum > thisYear) {
@@ -241,17 +245,23 @@ export default function BaoCaoThang() {
     };
   }, [reportData]);
 
+  useEffect(() => {
+    if (month || year) {
+      validate();
+    }
+  }, [month, year]);
+
   //#endregion
 
   //#region ui
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <Typography
         variant="h4"
         sx={{ fontWeight: 'bold', color: '#063F5C', mb: 4 }}
       >
-        Báo cáo tháng
+        Báo cáo doanh thu
       </Typography>
       <Box
         sx={{ display: 'flex', justifyContent: 'center', gap: '20px', mb: 3 }}
@@ -263,7 +273,8 @@ export default function BaoCaoThang() {
           onChange={(e) => setMonth(e.target.value)}
           error={!!errors.month}
           helperText={errors.month}
-          sx={{ width: '150px' }}
+          width="150"
+          fullWidth="false"
         />
         <FormTextField
           label="Năm"
@@ -272,7 +283,8 @@ export default function BaoCaoThang() {
           onChange={(e) => setYear(e.target.value)}
           error={!!errors.year}
           helperText={errors.year}
-          sx={{ width: '150px' }}
+          width="150"
+          fullWidth={false}
         />
         <Button
           variant="contained"
@@ -288,20 +300,30 @@ export default function BaoCaoThang() {
         </Button>
       </Box>
 
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-        }}
-      >
-        <Typography sx={{ mt: 2 }}>Ngày lập báo cáo: {reportDate}</Typography>
-        <Typography sx={{ mt: 2 }}>
-          Tổng doanh thu: {parseFloat(totalDoanhThu).toLocaleString('vi-VN')}{' '}
-          VNĐ
-        </Typography>
-        <Typography sx={{ mt: 2 }}>Tổng tiệc cưới: {totalTiecCuoi}</Typography>
-      </Box>
+      {reportTitleDate.month && reportTitleDate.year && reportData && (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'column',
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 'bold', color: '#063F5C', mt: 2, mb: 4 }}
+          >
+            BÁO CÁO THÁNG {reportTitleDate.month} / {reportTitleDate.year}
+          </Typography>
+          <Typography sx={{ mt: 2 }}>Ngày lập báo cáo: {reportDate}</Typography>
+          <Typography sx={{ mt: 2 }}>
+            Tổng doanh thu: {parseFloat(totalDoanhThu).toLocaleString('vi-VN')}{' '}
+            VNĐ
+          </Typography>
+          <Typography sx={{ mt: 2 }}>
+            Tổng tiệc cưới: {totalTiecCuoi}
+          </Typography>
+        </Box>
+      )}
 
       {reportData.length > 0 && (
         <Box sx={{ justifyContent: 'center' }}>

@@ -47,6 +47,10 @@ export default function QuanLyNhomTab() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (!searchTerm) fetchData();
+  }, [searchTerm]);
+
   const handleSearch = () => {
     fetchData();
   };

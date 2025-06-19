@@ -22,6 +22,10 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
     setErrors({ priceFrom: '', priceTo: '' });
   }, [filters]);
 
+  useEffect(() => {
+    validate();
+  }, [priceFrom, priceTo]);
+
   const validate = () => {
     let tempErrors = { priceFrom: '', priceTo: '' };
     let isValid = true;
@@ -30,15 +34,23 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
     const to = Number(priceTo);
 
     if (priceFrom && (isNaN(from) || from < 0)) {
-      tempErrors.priceFrom = 'Giá tối thiểu phải là số không âm';
+      tempErrors.priceFrom = 'Giá tối thiểu phải là số và không âm';
       isValid = false;
     }
     if (priceTo && (isNaN(to) || to < 0)) {
-      tempErrors.priceTo = 'Giá tối đa phải là số không âm';
+      tempErrors.priceTo = 'Giá tối đa phải là số và không âm';
       isValid = false;
     }
     if (priceFrom && priceTo && from > to) {
       tempErrors.priceFrom = 'Giá tối thiểu phải nhỏ hơn hoặc bằng giá tối đa';
+      isValid = false;
+    }
+    if (priceFrom && from >= 100000000) {
+      tempErrors.priceFrom = 'Giá tối thiểu phải nhỏ hơn 100.000.000';
+      isValid = false;
+    }
+    if (priceTo && to >= 100000000) {
+      tempErrors.priceTo = 'Giá tối đa phải nhỏ hơn 100.000.000';
       isValid = false;
     }
 
@@ -49,7 +61,7 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   const handleApply = () => {
     const isValid = validate();
     if (!isValid) {
-      console.log('Validate thất bại:', errors);
+      // toast
       return;
     }
 
@@ -62,6 +74,10 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   };
 
   const handleReset = () => {
+    if (!priceFrom && !priceTo && status.length === 0) {
+      // toast
+      return;
+    }
     setPriceFrom('');
     setPriceTo('');
     setStatus([]);
@@ -99,17 +115,19 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
               errorFrom={errors.priceFrom}
               errorTo={errors.priceTo}
             />
-            {errors.priceFrom && (
-              <Typography color="error" variant="caption" sx={{ mt: 1 }}>
-                {errors.priceFrom}
-              </Typography>
-            )}
+            <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+              {errors.priceFrom && (
+                <Typography color="error" variant="caption" sx={{ mt: 1 }}>
+                  {errors.priceFrom}
+                </Typography>
+              )}
 
-            {errors.priceTo && (
-              <Typography color="error" variant="caption" sx={{ mt: 1 }}>
-                {errors.priceTo}
-              </Typography>
-            )}
+              {errors.priceTo && (
+                <Typography color="error" variant="caption" sx={{ mt: 1 }}>
+                  {errors.priceTo}
+                </Typography>
+              )}
+            </Box>
           </Box>
 
           {/* Checkbox cho Trạng thái */}
@@ -134,7 +152,7 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
 
         {/* Nút áp dụng lọc */}
         <Box
-          sx={{ display: "flex", justifyContent: "flex-end", gap: 2, mt: 2 }}
+          sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2 }}
         >
           <FilterButton
             text="Reset"
