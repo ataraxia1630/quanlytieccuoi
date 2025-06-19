@@ -45,6 +45,14 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
       tempErrors.priceFrom = 'Giá tối thiểu phải nhỏ hơn hoặc bằng giá tối đa';
       isValid = false;
     }
+    if (priceFrom && from >= 100000000) {
+      tempErrors.priceFrom = 'Giá tối thiểu phải nhỏ hơn 100.000.000';
+      isValid = false;
+    }
+    if (priceTo && to >= 100000000) {
+      tempErrors.priceTo = 'Giá tối đa phải nhỏ hơn 100.000.000';
+      isValid = false;
+    }
 
     setErrors(tempErrors);
     return isValid;
@@ -66,6 +74,10 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
   };
 
   const handleReset = () => {
+    if (!priceFrom && !priceTo && status.length === 0) {
+      // toast
+      return;
+    }
     setPriceFrom('');
     setPriceTo('');
     setStatus([]);
