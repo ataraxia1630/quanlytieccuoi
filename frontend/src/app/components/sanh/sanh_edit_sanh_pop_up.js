@@ -6,7 +6,7 @@ import SelectFieldCustom from "./sanh_select_field";
 import ImageUploadField from "../../components/Imageuploadfield";
 import DialogButtons from "../../components/Dialogbutton";
 import sanhService from "../../service/sanh.service";
-import { toast } from "react-toastify";
+import toastService from "../../service/toast/toast.service";
 
 const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
   const [formData, setFormData] = useState({
@@ -16,7 +16,8 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
     GhiChu: sanh?.GhiChu || "",
     HinhAnh: null,
   });
-  const [loaiSanhOptions, setLoaiSanhOptions] = useState(["LS001", "LS002", "LS003"]); // Default options
+  const [loaiSanhOptions, setLoaiSanhOptions] = useState([]);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (sanh) {
@@ -36,6 +37,8 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
         HinhAnh: null,
       });
     }
+    // Clear errors when dialog opens/closes
+    setErrors({});
 
     const fetchLoaiSanh = async () => {
       try {
@@ -50,20 +53,102 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
         setLoaiSanhOptions(options);
       } catch (error) {
         console.error("Error fetching loai sanh options:", error.message);
-        toast.error("Có lỗi xảy ra khi tải loại sảnh.");
+        toastService.error("Có lỗi xảy ra khi tải loại sảnh");
       }
     };
     fetchLoaiSanh();
-  }, [sanh]);
+  }, [sanh, open]); // Thêm open dependency để reset khi dialog mở
+
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+    
+    if (name === 'TenSanh') {
+      const tenSanhValue = value || '';
+      if (!tenSanhValue || (typeof tenSanhValue === 'string' && !tenSanhValue.trim())) {
+        newErrors.TenSanh = 'Tên sảnh là bắt buộc';
+      } else if (tenSanhValue.length > 100) {
+        newErrors.TenSanh = 'Tên sảnh tối đa 100 ký tự';
+      } else {
+        delete newErrors.TenSanh;
+      }
+    } else if (name === 'MaLoaiSanh') {
+      if (!value) {
+        newErrors.MaLoaiSanh = 'Loại sảnh là bắt buộc';
+      } else {
+        delete newErrors.MaLoaiSanh;
+      }
+    } else if (name === 'SoLuongBanToiDa') {
+      const soLuongValue = value || '';
+      if (!soLuongValue || soLuongValue.toString().trim() === '') {
+        newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa là bắt buộc';
+      } else if (parseInt(soLuongValue) < 1) {
+        newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa phải lớn hơn 0';
+      } else if (parseInt(soLuongValue) > 255) {
+        newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa không được vượt quá 255';
+      } else {
+        delete newErrors.SoLuongBanToiDa;
+      }
+    } else if (name === 'GhiChu') {
+      const ghiChuValue = value || '';
+      if (ghiChuValue.length > 255) {
+        newErrors.GhiChu = 'Ghi chú tối đa 255 ký tự';
+      } else {
+        delete newErrors.GhiChu;
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validate TenSanh
+    const tenSanhValue = formData.TenSanh || '';
+    if (!tenSanhValue || (typeof tenSanhValue === 'string' && !tenSanhValue.trim())) {
+      newErrors.TenSanh = 'Tên sảnh là bắt buộc';
+    } else if (tenSanhValue.length > 100) {
+      newErrors.TenSanh = 'Tên sảnh tối đa 100 ký tự';
+    }
+
+    // Validate MaLoaiSanh
+    if (!formData.MaLoaiSanh) {
+      newErrors.MaLoaiSanh = 'Loại sảnh là bắt buộc';
+    }
+
+    // Validate SoLuongBanToiDa
+    const soLuongValue = formData.SoLuongBanToiDa || '';
+    if (!soLuongValue || soLuongValue.toString().trim() === '') {
+      newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa là bắt buộc';
+    } else if (parseInt(soLuongValue) < 1) {
+      newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa phải lớn hơn 0';
+    } else if (parseInt(soLuongValue) > 255) {
+      newErrors.SoLuongBanToiDa = 'Số lượng bàn tối đa không được vượt quá 255';
+    }
+
+    // Validate GhiChu (optional but check length)
+    const ghiChuValue = formData.GhiChu || '';
+    if (ghiChuValue.length > 255) {
+      newErrors.GhiChu = 'Ghi chú tối đa 255 ký tự';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     console.log("Field changed:", e.target.name, "Value:", e.target.value);
-    if (e.target.name === "SoLuongBanToiDa") {
-      const value = e.target.value.replace(/\D/g, "");
-      setFormData({ ...formData, [e.target.name]: value });
-    }
-    else {
-      setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    
+    if (name === "SoLuongBanToiDa") {
+      // Chỉ cho phép nhập số
+      const numericValue = value.replace(/\D/g, "");
+      setFormData({ ...formData, [name]: numericValue });
+      validateField(name, numericValue);
+    } else {
+      setFormData({ ...formData, [name]: value });
+      validateField(name, value);
     }
   };
 
@@ -81,8 +166,9 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
 
   const handleSave = async () => {
     console.log("Saving formData:", formData, "HinhAnh instanceof File:", formData.HinhAnh instanceof File);
-    if (!formData.TenSanh || !formData.MaLoaiSanh || !formData.SoLuongBanToiDa) {
-      toast.warn("Vui lòng nhập đầy đủ thông tin!");
+    
+    // Validate all fields at once when Save is clicked
+    if (!validateForm()) {
       return;
     }
 
@@ -117,15 +203,19 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
             value={formData.TenSanh}
             onChange={handleChange}
             fullWidth
+            error={!!errors.TenSanh}
+            helperText={errors.TenSanh}
           />
 
           <SelectFieldCustom
-            label="Mã loại sảnh"
+            label="Loại sảnh"
             name="MaLoaiSanh"
             options={loaiSanhOptions}
             value={formData.MaLoaiSanh}
             onChange={handleChange}
             fullWidth
+            error={!!errors.MaLoaiSanh}
+            helperText={errors.MaLoaiSanh}
           />
 
           <FormTextField
@@ -136,6 +226,8 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
             onChange={handleChange}
             fullWidth
             inputProps={{ inputMode: 'numeric', pattern: '[0-9]*' }}
+            error={!!errors.SoLuongBanToiDa}
+            helperText={errors.SoLuongBanToiDa}
           />
 
           <ImageUploadField
@@ -152,6 +244,8 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
             fullWidth
             multiline
             rows={4}
+            error={!!errors.GhiChu}
+            helperText={errors.GhiChu}
           />
         </Box>
 
@@ -167,4 +261,5 @@ const EditSanhDialog = ({ open, onClose, onSave, title, sanh }) => {
     </Dialog>
   );
 };
+
 export default EditSanhDialog;

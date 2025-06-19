@@ -25,10 +25,14 @@ const getCaById = async (req, res, next) => {
 const createCa = async (req, res, next) => {
     try {
         const { MaCa, TenCa, GioBatDau, GioKetThuc } = req.body;
-        await caService.createCa({ MaCa, TenCa, GioBatDau, GioKetThuc });
-        res.status(201).json({ message: 'Thêm ca thành công', MaCa });
+        const result = await caService.createCa({ MaCa, TenCa, GioBatDau, GioKetThuc });
+        res.status(201).json({ message: 'Thêm ca thành công', data: result });
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            res.status(error.statusCode || 400).json({ error: error.message });
+        } else {
+            next(error);
+        }
     }
 };
 
@@ -42,7 +46,11 @@ const updateCa = async (req, res, next) => {
             res.json({ message: 'Cập nhật ca thành công' });
         }
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            res.status(error.statusCode || 400).json({ error: error.message });
+        } else {
+            next(error);
+        }
     }
 };
 
@@ -55,7 +63,11 @@ const deleteCa = async (req, res, next) => {
             res.json({ message: 'Xóa ca thành công' });
         }
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            res.status(error.statusCode || 400).json({ error: error.message });
+        } else {
+            next(error);
+        }
     }
 };
 
