@@ -8,7 +8,7 @@ module.exports = {
         {
           MaCa: 'CA001',
           TenCa: 'Trưa',
-          GioBatDau: '7:30:00',
+          GioBatDau: '07:30:00',
           GioKetThuc: '14:00:00',
         },
         {

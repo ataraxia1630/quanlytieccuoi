@@ -229,8 +229,6 @@ const Sidebar = () => {
             </filter>
           </defs>
         </svg>
-
-
       ),
       path: 'DanhSachLoaiSanh'
     },
@@ -298,7 +296,20 @@ const Sidebar = () => {
 
       ),
       path: 'BangThamSo'
+    },
+    {
+      text: 'Phân Quyền',
+      icon: (
+        <svg width="52" height="46" viewBox="0 0 52 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21.75 13.852C24.7416 13.852 27.1667 11.1988 27.1667 7.92601C27.1667 4.65317 24.7416 2 21.75 2C18.7584 2 16.3333 4.65317 16.3333 7.92601C16.3333 11.1988 18.7584 13.852 21.75 13.852Z" stroke="#063F5C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M25.0002 30.4444H12V29.1594C12.0172 27.3527 12.4528 25.5801 13.2659 24.0075C14.0791 22.4349 15.2433 21.1133 16.6499 20.1664C18.0565 19.2194 19.6595 18.6779 21.3092 18.5925C21.4562 18.5849 21.6033 18.5809 21.7501 18.5806C21.897 18.5809 22.044 18.5849 22.1911 18.5925C23.8408 18.6779 25.4438 19.2194 26.8504 20.1664C27.6592 20.7109 28.3879 21.3793 29.0158 22.1481" stroke="#063F5C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M29.3337 28.0737H40.1672" stroke="#063F5C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+
+      ),
+      path: 'PhanQuyen'
     }
+
 
   ];
 
@@ -362,6 +373,7 @@ const Sidebar = () => {
                   whiteSpace: 'nowrap',
                   fontStyle: 'normal',
                   paddingTop: '10px ',
+
 
                 }}
               />
