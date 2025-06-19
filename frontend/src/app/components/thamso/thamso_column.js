@@ -28,7 +28,7 @@ const ThamSoColumn = [
   {
     id: 'GiaTri',
     label: 'Giá trị',
-    sortable: true,
+    sortable: false,
     width: 150,
     render: (row) => {
       if (row.TenThamSo === 'TyLePhat') {
