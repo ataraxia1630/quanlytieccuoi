@@ -108,7 +108,7 @@ export default function GroupAccordion({
   const handleSave = async () => {
     try {
       const editData = {
-        TenNhom: groupName,
+        TenNhom: groupName.trim(),
         MaQuyenArray: permissionsState,
       };
       console.log(editData);
