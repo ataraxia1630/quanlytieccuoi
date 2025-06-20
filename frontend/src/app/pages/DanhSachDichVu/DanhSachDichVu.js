@@ -184,7 +184,7 @@ function DanhSachDichVu() {
         searchTerm
       );
     } catch (error) {
-      toastService.crud.error.save('dịch vụ');
+      toastService.crud.error.create('dịch vụ');
     } finally {
       setLoading(false);
     }

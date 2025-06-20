@@ -9,79 +9,115 @@ import {
 import RangeInputs from '../Rangeinput';
 import FilterButton from '../Filterbutton';
 import StatusCheckbox from '../Statuscheckbx';
+import toastService from '../../service/toast/toast.service';
+
+const formatPrice = (value) => {
+  if (!value && value !== 0) return '';
+  const num = parseInt(value.toString().replace(/\D/g, '') || '0');
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
+const parsePrice = (value) => {
+  if (!value) return '';
+  return value.replace(/\./g, '');
+};
 
 const DichVuFilter = ({ isOpen, onApply }) => {
   const [priceFrom, setPriceFrom] = useState('');
   const [priceTo, setPriceTo] = useState('');
   const [status, setStatus] = useState([]);
   const [errors, setErrors] = useState({
-    priceFrom: '',
-    priceTo: '',
+    priceFrom: [],
+    priceTo: [],
   });
 
-  const isValidPriceInput = (value) => {
-    if (value === '') return true;
-    return /^([0-9]+(\.[0-9]*)?)?$/.test(value);
+  const MAX_PRICE = 100_000_000;
+
+  const validatePrice = (value, field) => {
+    const errors = [];
+    if (value === '') return errors;
+    const parsed = Number(value);
+    if (!/^\d+$/.test(value) || parsed < 0) {
+      errors.push(
+        `${
+          field === 'priceFrom' ? 'Giá tối thiểu' : 'Giá tối đa'
+        } phải là số và không âm`
+      );
+    } else if (parsed >= MAX_PRICE) {
+      errors.push(
+        `${
+          field === 'priceFrom' ? 'Giá tối thiểu' : 'Giá tối đa'
+        } phải nhỏ hơn ${MAX_PRICE.toLocaleString('vi-VN', {
+          style: 'decimal',
+        })}`
+      );
+    }
+    return errors;
   };
 
-  const parsePrice = (value) => {
-    if (value === '') return null;
-    const parsed = Number(value);
-    return isNaN(parsed) ? null : parsed;
+  const validatePriceRange = (from, to) => {
+    const parsedFrom = parsePrice(from);
+    const parsedTo = parsePrice(to);
+    if (parsedFrom && parsedTo && Number(parsedFrom) > Number(parsedTo)) {
+      return ['Giá tối thiểu phải nhỏ hơn hoặc bằng giá tối đa'];
+    }
+    return [];
   };
 
   const handlePriceFromChange = (value) => {
-    if (isValidPriceInput(value)) {
-      setPriceFrom(value);
-      setErrors((prev) => ({ ...prev, priceFrom: '' }));
-    } else {
-      setErrors((prev) => ({
-        ...prev,
-        priceFrom: 'Chỉ được nhập số dương',
-      }));
-    }
+    const rawValue = parsePrice(value);
+    const formattedValue = formatPrice(rawValue);
+    setPriceFrom(formattedValue);
+    const priceErrors = validatePrice(rawValue, 'priceFrom');
+    const rangeErrors = validatePriceRange(rawValue, parsePrice(priceTo));
+    setErrors((prev) => ({
+      ...prev,
+      priceFrom: [...priceErrors, ...(rawValue !== '' ? rangeErrors : [])],
+      priceTo: validatePrice(parsePrice(priceTo), 'priceTo'),
+    }));
   };
 
   const handlePriceToChange = (value) => {
-    if (isValidPriceInput(value)) {
-      setPriceTo(value);
-      setErrors((prev) => ({ ...prev, priceTo: '' }));
-    } else {
-      setErrors((prev) => ({
-        ...prev,
-        priceTo: 'Chỉ được nhập số dương',
-      }));
-    }
+    const rawValue = parsePrice(value);
+    const formattedValue = formatPrice(rawValue);
+    setPriceTo(formattedValue);
+    const priceErrors = validatePrice(rawValue, 'priceTo');
+    const rangeErrors = validatePriceRange(parsePrice(priceFrom), rawValue);
+    setErrors((prev) => ({
+      ...prev,
+      priceTo: priceErrors,
+      priceFrom: [
+        ...validatePrice(parsePrice(priceFrom), 'priceFrom'),
+        ...(parsePrice(priceFrom) !== '' ? rangeErrors : []),
+      ],
+    }));
   };
 
   const handleApply = () => {
     const parsedPriceFrom = parsePrice(priceFrom);
     const parsedPriceTo = parsePrice(priceTo);
 
-    let newErrors = { priceFrom: '', priceTo: '' };
+    let newErrors = { priceFrom: [], priceTo: [] };
     let hasError = false;
 
-    if (parsedPriceFrom !== null && parsedPriceFrom < 0) {
-      newErrors.priceFrom = 'Giá từ không được nhỏ hơn 0';
-      hasError = true;
-    }
-    if (parsedPriceTo !== null && parsedPriceTo < 0) {
-      newErrors.priceTo = 'Giá đến không được nhỏ hơn 0';
-      hasError = true;
-    }
+    newErrors.priceFrom = validatePrice(parsedPriceFrom, 'priceFrom');
+    if (newErrors.priceFrom.length > 0) hasError = true;
 
-    if (
-      parsedPriceFrom !== null &&
-      parsedPriceTo !== null &&
-      parsedPriceFrom > parsedPriceTo
-    ) {
-      newErrors.priceFrom = 'Giá từ phải nhỏ hơn hoặc bằng giá đến';
+    newErrors.priceTo = validatePrice(parsedPriceTo, 'priceTo');
+    if (newErrors.priceTo.length > 0) hasError = true;
+
+    const rangeErrors = validatePriceRange(parsedPriceFrom, parsedPriceTo);
+    if (rangeErrors.length > 0) {
+      newErrors.priceFrom = [...newErrors.priceFrom, ...rangeErrors];
       hasError = true;
     }
 
     setErrors(newErrors);
 
-    if (hasError) return;
+    if (hasError) {
+      toastService.validation.invalidData();
+      return;
+    }
 
     const mappedStatus = status
       .map((s) => {
@@ -100,14 +136,14 @@ const DichVuFilter = ({ isOpen, onApply }) => {
 
     const filterParams = {};
 
-    if (parsedPriceFrom !== null && !isNaN(parsedPriceFrom)) {
-      filterParams.giaTu = parsedPriceFrom;
+    if (parsedPriceFrom) {
+      filterParams.giaTu = Number(parsedPriceFrom);
     }
-    if (parsedPriceTo !== null && !isNaN(parsedPriceTo)) {
-      filterParams.giaDen = parsedPriceTo;
+    if (parsedPriceTo) {
+      filterParams.giaDen = Number(parsedPriceTo);
     }
 
-    if (mappedStatus.length > 0 && !status.includes('tat_ca')) {
+    if (mappedStatus.length > 0) {
       filterParams.tinhTrang = mappedStatus;
     }
 
@@ -118,7 +154,7 @@ const DichVuFilter = ({ isOpen, onApply }) => {
     setPriceFrom('');
     setPriceTo('');
     setStatus([]);
-    setErrors({ priceFrom: '', priceTo: '' });
+    setErrors({ priceFrom: [], priceTo: [] });
     onApply({});
   };
 
@@ -136,7 +172,9 @@ const DichVuFilter = ({ isOpen, onApply }) => {
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
           <FormControl
             sx={{ width: '300px' }}
-            error={Boolean(errors.priceFrom || errors.priceTo)}
+            error={Boolean(
+              errors.priceFrom.length > 0 || errors.priceTo.length > 0
+            )}
           >
             <RangeInputs
               width="130px"
@@ -146,12 +184,26 @@ const DichVuFilter = ({ isOpen, onApply }) => {
               onFromChange={handlePriceFromChange}
               onToChange={handlePriceToChange}
             />
-            {errors.priceFrom && (
-              <FormHelperText>{errors.priceFrom}</FormHelperText>
-            )}
-            {!errors.priceFrom && errors.priceTo && (
-              <FormHelperText>{errors.priceTo}</FormHelperText>
-            )}
+            <Box sx={{ mt: 0.5 }}>
+              {errors.priceFrom.map((error, index) => (
+                <FormHelperText
+                  key={`priceFrom-${index}`}
+                  error
+                  sx={{ m: 0, lineHeight: 1.5 }}
+                >
+                  {error}
+                </FormHelperText>
+              ))}
+              {errors.priceTo.map((error, index) => (
+                <FormHelperText
+                  key={`priceTo-${index}`}
+                  error
+                  sx={{ m: 0, lineHeight: 1.5 }}
+                >
+                  {error}
+                </FormHelperText>
+              ))}
+            </Box>
           </FormControl>
 
           <Box sx={{ display: 'block' }}>

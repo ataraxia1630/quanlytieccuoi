@@ -96,7 +96,7 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
           {/* Range input cho Khoảng giá */}
           <Box sx={{ display: 'block' }}>
             <RangeInputs
-              width="90px"
+              width="130px"
               label="Giá"
               fromValue={priceFrom}
               toValue={priceTo}
