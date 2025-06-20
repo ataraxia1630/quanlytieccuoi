@@ -230,20 +230,32 @@ export default function DanhSachMonAn() {
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '20px',
+          alignItems: 'flex-start',
+          gap: 2,
           mb: 3,
+          flexWrap: { xs: 'wrap', md: 'nowrap' },
         }}
       >
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-          onSearch={handleSearch}
-          placeholder="Tìm tên hoặc mã món ăn ..."
-        />
+        <Box
+          sx={{ flex: 1, minWidth: 250, display: 'flex', alignItems: 'center' }}
+        >
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSearch={handleSearch}
+            placeholder="Tìm tên hoặc mã món ăn ..."
+          />
+        </Box>
 
-        <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}
+        >
           <FilterButton onClick={handleOpenHideFilter} text="Filter" />
           <AddButton
             onClick={handleAdd}
