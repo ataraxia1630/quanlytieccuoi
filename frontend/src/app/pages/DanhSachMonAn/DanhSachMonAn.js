@@ -3,7 +3,7 @@ import './DanhSachMonAn.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { Box, Typography, CircularProgress, Pagination } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 import SearchBar from '../../components/Searchbar';
 import FilterButton from '../../components/Filterbutton';
@@ -40,6 +40,7 @@ export default function DanhSachMonAn() {
   const [sort, setSort] = useState(null);
   const [currentSort, setCurrentSort] = useState(null);
   let total;
+  const limit = 30;
 
   const permissions = localStorage.getItem('permissions');
   //#endregion
@@ -54,11 +55,11 @@ export default function DanhSachMonAn() {
         filters.priceMin,
         filters.priceMax,
         currentPage,
-        20,
+        limit,
         sort
       );
       const monanData = result.data.map((monan, index) => {
-        monan.STT = (currentPage - 1) * 20 + index + 1;
+        monan.STT = (currentPage - 1) * limit + index + 1;
         return monan;
       });
       console.log(monanData);
@@ -196,7 +197,7 @@ export default function DanhSachMonAn() {
       setSelectedRow(null);
       fetchData();
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể lưu món ăn!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể lưu món ăn!'}`);
     }
   };
 
@@ -204,7 +205,7 @@ export default function DanhSachMonAn() {
     try {
       const result = await MonAnService.delete(selectedRow.MaMonAn);
       result.message
-        ? toast.info(result.message)
+        ? toastService.info(result.message)
         : toastService.entity.deleteSuccess('món ăn', selectedRow.TenMonAn);
       setIsDeleteDialogOpen(false);
       setSelectedRow(null);

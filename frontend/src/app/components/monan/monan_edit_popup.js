@@ -131,7 +131,7 @@ const EditDishPopUp = ({
     }
 
     const data = {
-      name,
+      name: name.trim(),
       price: Number(price),
       status: statusMapToBackend[status],
     };

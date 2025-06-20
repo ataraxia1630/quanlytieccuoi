@@ -4,7 +4,6 @@ import FilterButton from '../Filterbutton';
 import StatusCheckbox from '../Statuscheckbx';
 import { useState, useEffect } from 'react';
 import { statusOptions } from '../../pages/DanhSachMonAn/statusMapping';
-import { ToastContainer } from 'react-toastify';
 import toastService from '../../service/toast/toast.service';
 
 const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
@@ -82,7 +81,6 @@ const DishFilterPanel = ({ isOpen, onApply, onReset, filters }) => {
 
   return (
     <Collapse in={isOpen}>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <Paper
         elevation={0}
         sx={{

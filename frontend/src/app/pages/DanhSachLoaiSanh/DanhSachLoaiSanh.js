@@ -3,7 +3,7 @@ import './DanhSachLoaiSanh.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { Box, Typography, CircularProgress } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import toastService from '../../service/toast/toast.service';
 
 import SearchBar from '../../components/Searchbar';
@@ -171,7 +171,7 @@ export default function DanhSachLoaiSanh() {
       setSelectedRow(null);
       fetchData();
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể lưu loại sảnh!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể lưu loại sảnh!'}`);
     }
   };
 
