@@ -94,7 +94,7 @@ const FilterPanel = ({ isOpen, onApply }) => {
         </LocalizationProvider>
 
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 2, gap: 2 }}>
-          <FilterButton text="Reset" onClick={handleReset} />
+          <FilterButton text="Reset" onClick={handleReset} colorVariant="reset" />
           <FilterButton text="Apply" onClick={handleApply} />
         </Box>
       </Paper>
