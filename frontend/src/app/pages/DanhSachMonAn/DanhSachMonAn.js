@@ -3,7 +3,7 @@ import './DanhSachMonAn.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { Box, Typography, CircularProgress, Pagination } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 import SearchBar from '../../components/Searchbar';
 import FilterButton from '../../components/Filterbutton';
@@ -196,7 +196,7 @@ export default function DanhSachMonAn() {
       setSelectedRow(null);
       fetchData();
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể lưu món ăn!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể lưu món ăn!'}`);
     }
   };
 
@@ -204,7 +204,7 @@ export default function DanhSachMonAn() {
     try {
       const result = await MonAnService.delete(selectedRow.MaMonAn);
       result.message
-        ? toast.info(result.message)
+        ? toastService.info(result.message)
         : toastService.entity.deleteSuccess('món ăn', selectedRow.TenMonAn);
       setIsDeleteDialogOpen(false);
       setSelectedRow(null);
