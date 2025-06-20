@@ -93,7 +93,7 @@ const EditUserPopUp = ({
     const data = {
       MaNhom: groupMap[groupName],
     };
-    if (mode === 'add') data.username = username;
+    if (mode === 'add') data.username = username.trim();
     if (password) data.password = password;
     console.log('Dữ liệu gửi từ popup:', data);
     onSave(data);

@@ -40,7 +40,7 @@ export default function AddGroupPopUp({
   const handleSave = async () => {
     try {
       const data = {
-        TenNhom: groupName,
+        TenNhom: groupName.trim(),
         MaQuyenArray: permissionsState,
       };
       console.log(data);
