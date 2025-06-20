@@ -4,6 +4,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import Chart from 'chart.js/auto';
 
 import { Box, Typography, CircularProgress, Button } from '@mui/material';
+import PrintIcon from '@mui/icons-material/Print';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { ToastContainer, toast } from 'react-toastify';
 
 import FormTextField from '../../components/Formtextfield';
@@ -11,8 +14,11 @@ import CustomTable from '../../components/Customtable';
 import ReportColumns from '../../components/baocao/baocao_column';
 import BaoCaoThangService from '../../service/baocao.service';
 
+import toastService from '../../service/toast/toast.service';
+
 export default function BaoCaoThang() {
   //#region declaration
+  const today = new Date();
   const [month, setMonth] = useState('');
   const [year, setYear] = useState('');
   const [reportData, setReportData] = useState([]);
@@ -22,13 +28,16 @@ export default function BaoCaoThang() {
   const [errors, setErrors] = useState({ month: '', year: '' });
   const chartRef = useRef(null);
   const chartInstance = useRef(null);
-  const today = new Date();
   const formattedDate = today.toLocaleDateString('vi-VN', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   });
   const [reportDate, setReportDate] = useState(formattedDate);
+  const [reportTitleDate, setReportTitleDate] = useState({
+    month: '',
+    year: '',
+  });
   //#endregion
 
   //#region func handler
@@ -42,7 +51,6 @@ export default function BaoCaoThang() {
       setReportData(ctData);
       setTotalDoanhThu(baocao.TongDoanhThu || 0);
       setTotalTiecCuoi(ctData.reduce((sum, item) => sum + item.SoLuongTiec, 0));
-      console.log(typeof baocao.NgayLap);
       setReportDate(
         new Date(baocao.NgayLap).toLocaleDateString('vi-VN', {
           day: '2-digit',
@@ -50,7 +58,8 @@ export default function BaoCaoThang() {
           year: 'numeric',
         })
       );
-      toast.success('Lấy báo cáo thành công!');
+      setReportTitleDate({ month: baocao.Thang, year: baocao.Nam });
+      toastService.success('Lấy báo cáo thành công!');
     } catch (error) {
       console.log('Error fetching report:', error.message);
       toast.error(`Lỗi: ${error.message || 'Không thể tải báo cáo!'}`);
@@ -74,7 +83,7 @@ export default function BaoCaoThang() {
       tempErrors.month = 'Tháng phải là số từ 1 đến 12';
       isValid = false;
     } else if (yearNum === thisYear && monthNum > thisMonth) {
-      tempErrors.month = 'Tháng phải nhỏ hơn hoặc bằng tháng hiện tại';
+      tempErrors.month = 'Tháng chưa kết thúc nên chưa thể xem báo cáo';
       isValid = false;
     }
     if (!year || isNaN(yearNum) || yearNum < 2000 || yearNum > thisYear) {
@@ -89,25 +98,25 @@ export default function BaoCaoThang() {
   const handleViewReport = () => {
     if (validate()) {
       fetchReport();
-    }
+    } else toastService.validation.checkInfo();
   };
 
   const handleExportReport = async () => {
     if (reportData.length === 0) {
-      toast.error('Không có dữ liệu để xuất!');
+      toastService.file.noExportData();
       return;
     }
     try {
       await BaoCaoThangService.exportMonthlyReport(month, year);
-      toast.success('Xuất báo cáo thành công!');
+      toastService.file.exportSuccess();
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể xuất báo cáo!'}`);
+      toastService.file.exportError();
     }
   };
 
   const handlePrintReport = () => {
     if (reportData.length === 0) {
-      toast.error('Không có dữ liệu để in!');
+      toastService.file.noPrintData();
       return;
     }
     const printWindow = window.open('', '', 'height=600,width=800');
@@ -170,6 +179,7 @@ export default function BaoCaoThang() {
     printWindow.document.close();
     printWindow.print();
   };
+
   const drawChart = (data) => {
     if (!chartRef.current || data.length === 0) return;
 
@@ -241,67 +251,96 @@ export default function BaoCaoThang() {
     };
   }, [reportData]);
 
+  useEffect(() => {
+    if (month || year) {
+      validate();
+    }
+  }, [month, year]);
+
   //#endregion
 
   //#region ui
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <Typography
         variant="h4"
         sx={{ fontWeight: 'bold', color: '#063F5C', mb: 4 }}
       >
-        Báo cáo tháng
+        Báo cáo doanh thu
       </Typography>
       <Box
-        sx={{ display: 'flex', justifyContent: 'center', gap: '20px', mb: 3 }}
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: '20px',
+          mb: 3,
+        }}
       >
-        <FormTextField
-          label="Tháng"
-          type="number"
-          value={month}
-          onChange={(e) => setMonth(e.target.value)}
-          error={!!errors.month}
-          helperText={errors.month}
-          sx={{ width: '150px' }}
-        />
-        <FormTextField
-          label="Năm"
-          type="number"
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-          error={!!errors.year}
-          helperText={errors.year}
-          sx={{ width: '150px' }}
-        />
+        <Box width={150}>
+          <FormTextField
+            label="Tháng"
+            type="number"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            error={!!errors.month}
+            helperText={errors.month}
+            fullWidth="false"
+          />
+        </Box>
+        <Box width={150}>
+          <FormTextField
+            label="Năm"
+            type="number"
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            error={!!errors.year}
+            helperText={errors.year}
+            width="150"
+            fullWidth={false}
+          />
+        </Box>
+
         <Button
           variant="contained"
           sx={{
             backgroundColor: '#063F5C',
             '&:hover': { backgroundColor: '#045b7a' },
             height: 56,
+            textTransform: 'none',
           }}
           onClick={handleViewReport}
           disabled={loading}
+          startIcon={<RemoveRedEyeIcon />}
         >
           Xem báo cáo
         </Button>
       </Box>
 
-      <Box
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          flexDirection: 'column',
-        }}
-      >
-        <Typography sx={{ mt: 2 }}>Ngày lập báo cáo: {reportDate}</Typography>
-        <Typography sx={{ mt: 2 }}>
-          Tổng doanh thu: {parseFloat(totalDoanhThu).toLocaleString('vi-VN')}{' '}
-          VNĐ
-        </Typography>
-        <Typography sx={{ mt: 2 }}>Tổng tiệc cưới: {totalTiecCuoi}</Typography>
-      </Box>
+      {reportTitleDate.month && reportTitleDate.year && reportData && (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'column',
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: 'bold', color: '#063F5C', mt: 2, mb: 4 }}
+          >
+            BÁO CÁO THÁNG {reportTitleDate.month} / {reportTitleDate.year}
+          </Typography>
+          <Typography sx={{ mt: 2 }}>Ngày lập báo cáo: {reportDate}</Typography>
+          <Typography sx={{ mt: 2 }}>
+            Tổng doanh thu: {parseFloat(totalDoanhThu).toLocaleString('vi-VN')}{' '}
+            VNĐ
+          </Typography>
+          <Typography sx={{ mt: 2 }}>
+            Tổng tiệc cưới: {totalTiecCuoi}
+          </Typography>
+        </Box>
+      )}
 
       {reportData.length > 0 && (
         <Box sx={{ justifyContent: 'center' }}>
@@ -319,8 +358,10 @@ export default function BaoCaoThang() {
               sx={{
                 backgroundColor: '#063F5C',
                 '&:hover': { backgroundColor: '#045b7a' },
+                textTransform: 'none',
               }}
               onClick={handleExportReport}
+              startIcon={<FileDownloadIcon />}
             >
               Xuất báo cáo
             </Button>
@@ -329,8 +370,10 @@ export default function BaoCaoThang() {
               sx={{
                 backgroundColor: '#063F5C',
                 '&:hover': { backgroundColor: '#045b7a' },
+                textTransform: 'none',
               }}
               onClick={handlePrintReport}
+              startIcon={<PrintIcon />}
             >
               In báo cáo
             </Button>

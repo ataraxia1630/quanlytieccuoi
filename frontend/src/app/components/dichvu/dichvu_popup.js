@@ -7,6 +7,16 @@ import DialogButtons from '../Dialogbutton';
 
 const statusOptions = ['Có sẵn', 'Tạm dừng', 'Ngừng cung cấp'];
 
+const formatPrice = (value) => {
+  if (!value && value !== 0) return '';
+  const num = parseInt(value.toString().replace(/\D/g, '') || '0');
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+};
+
+const parsePrice = (value) => {
+  return value.replace(/\./g, '');
+};
+
 const DichVuDialog = ({
   open,
   onClose,
@@ -24,7 +34,7 @@ const DichVuDialog = ({
     if (open) {
       if (mode === 'edit' && initialData) {
         setName(initialData.TenDichVu || '');
-        setPrice(initialData.DonGia?.toString() || '');
+        setPrice(initialData.DonGia ? formatPrice(initialData.DonGia) : '');
         setStatus(initialData.TinhTrang || '');
       } else {
         setName('');
@@ -44,11 +54,12 @@ const DichVuDialog = ({
       newErrors.name = 'Tên dịch vụ không được vượt quá 100 ký tự';
     }
 
-    if (!price.trim()) {
+    const parsedPrice = parsePrice(price);
+    if (!parsedPrice) {
       newErrors.price = 'Giá không được để trống';
-    } else if (isNaN(price) || Number(price) < 0) {
+    } else if (isNaN(parsedPrice) || Number(parsedPrice) < 0) {
       newErrors.price = 'Giá phải là số không âm';
-    } else if (isNaN(price) || Number(price) >= 100000000) {
+    } else if (Number(parsedPrice) >= 100000000) {
       newErrors.price = 'Giá phải nhỏ hơn 100 triệu';
     }
 
@@ -64,7 +75,7 @@ const DichVuDialog = ({
     if (validateForm()) {
       const formData = {
         name: name.trim(),
-        price: Number(price),
+        price: Number(parsePrice(price)),
         status: status,
       };
       onSave(formData);
@@ -74,6 +85,11 @@ const DichVuDialog = ({
   const handleCancel = () => {
     setErrors({});
     onClose();
+  };
+
+  const handlePriceChange = (e) => {
+    const formattedValue = formatPrice(e.target.value);
+    setPrice(formattedValue);
   };
 
   return (
@@ -109,9 +125,8 @@ const DichVuDialog = ({
 
           <FormTextField
             label="Giá"
-            type="number"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={handlePriceChange}
             InputProps={{
               endAdornment: <span style={{ marginLeft: 4 }}>VNĐ</span>,
             }}
@@ -119,8 +134,8 @@ const DichVuDialog = ({
             error={!!errors.price}
             helperText={errors.price}
             inputProps={{
-              min: 0,
-              step: 1000,
+              inputMode: 'numeric',
+              pattern: '[0-9.]*',
             }}
           />
 

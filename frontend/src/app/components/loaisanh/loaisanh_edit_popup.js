@@ -4,6 +4,8 @@ import { Dialog, DialogContent, Box, Divider } from '@mui/material';
 import DialogTitleCustom from '../Dialogtitlecustom';
 import FormTextField from '../Formtextfield';
 import DialogButtons from '../Dialogbutton';
+import NumericFormatCustom from '../NumericFormatCustom';
+import toastService from '../../service/toast/toast.service';
 
 const EditHallTypePopUp = ({
   open,
@@ -15,36 +17,75 @@ const EditHallTypePopUp = ({
 }) => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
-  const [errors, setErrors] = useState({ name: '', price: '', status: '' });
+  const [errors, setErrors] = useState({ name: '', price: '' });
+  const [isPriceFocused, setIsPriceFocused] = useState(false);
 
   useEffect(() => {
     console.log('editData', editData);
     if (mode === 'edit' && editData) {
       setName(editData.TenLoaiSanh || '');
       setPrice(
-        editData.DonGiaBanToiThieu ? editData.DonGiaBanToiThieu.toString() : ''
+        editData.DonGiaBanToiThieu ? Number(editData.DonGiaBanToiThieu) : ''
       );
     } else {
       setName('');
       setPrice('');
     }
     setErrors({ name: '', price: '' });
-  }, [editData, mode]);
+    setIsPriceFocused(false);
+  }, [editData, mode, open]);
 
-  const validate = () => {
-    let tempErrors = { name: '', price: '' };
-    let isValid = true;
+  useEffect(() => {
+    validateName();
+  }, [name]);
+
+  useEffect(() => {
+    validatePrice();
+  }, [price]);
+
+  const validateName = () => {
+    let nameError = '';
 
     if (!name.trim()) {
-      tempErrors.name = 'Tên loại sảnh không được để trống';
-      isValid = false;
-    }
-    if (!price || isNaN(price) || Number(price) <= 0) {
-      tempErrors.price = 'Giá phải là số dương';
-      isValid = false;
+      nameError = 'Tên loại sảnh không được để trống';
     }
 
-    setErrors(tempErrors);
+    if (name.length > 100) {
+      nameError = 'Tên loại sảnh không được quá 10 ký tự';
+    }
+
+    setErrors({ ...errors, name: nameError });
+    return nameError;
+  };
+
+  const validatePrice = () => {
+    let priceError = '';
+
+    if (!price) {
+      priceError = 'Đơn giá bàn tối thiểu không được để trống';
+    }
+
+    if (isNaN(price) || Number(price) <= 0) {
+      priceError = 'Đơn giá bàn tối thiểu phải là số dương';
+    }
+
+    if (Number(price) >= 100000000) {
+      priceError = 'Đơn giá bàn tối thiểu phải nhỏ hơn 100.000.000 VNĐ';
+    }
+
+    setErrors({ ...errors, price: priceError });
+    return priceError;
+  };
+
+  const validate = () => {
+    let isValid = true;
+
+    const nameError = validateName();
+    const priceError = validatePrice();
+
+    if (nameError || priceError) isValid = false;
+
+    setErrors({ name: nameError, price: priceError });
     return isValid;
   };
 
@@ -56,12 +97,7 @@ const EditHallTypePopUp = ({
   const handleSave = () => {
     const isValid = validate();
     if (!isValid) {
-      console.log('Validate thất bại:', errors);
-      alert(
-        'Vui lòng kiểm tra lại thông tin: \n' +
-          (errors.name ? errors.name + '\n' : '') +
-          (errors.price ? errors.price + '\n' : '')
-      );
+      toastService.validation.invalidData();
       return;
     }
 
@@ -109,13 +145,20 @@ const EditHallTypePopUp = ({
 
           <FormTextField
             label="Đơn giá bàn tối thiểu"
-            type="number" // Thay đổi kiểu nhập thành số nếu là giá trị số
             value={price}
             onChange={(e) => setPrice(e.target.value)}
-            onBlur={() => handleBlur('price')}
+            onFocus={() => setIsPriceFocused(true)}
+            onBlur={() => {
+              setIsPriceFocused(false);
+              handleBlur('price');
+            }}
             // Bỏ InputProps nếu không có VNĐ
             InputProps={{
+              inputComponent: NumericFormatCustom,
               endAdornment: <span style={{ marginLeft: 4 }}>VNĐ</span>,
+            }}
+            InputLabelProps={{
+              shrink: !!price || isPriceFocused, // Thu nhỏ nhãn nếu price có giá trị
             }}
             fullWidth
             error={!!errors.price}
