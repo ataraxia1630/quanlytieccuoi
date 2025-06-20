@@ -45,6 +45,56 @@ const DichVuDialog = ({
     }
   }, [open, mode, initialData]);
 
+  const validateName = (value) => {
+    if (value.trim() && value.trim().length > 100) {
+      return 'Tên dịch vụ không được vượt quá 100 ký tự';
+    }
+    return '';
+  };
+
+  const validatePrice = (value) => {
+    const parsedPrice = parsePrice(value);
+    if (parsedPrice && (isNaN(parsedPrice) || Number(parsedPrice) < 0)) {
+      return 'Giá phải là số không âm';
+    }
+    if (parsedPrice && Number(parsedPrice) >= 100000000) {
+      return 'Giá phải nhỏ hơn 100 triệu';
+    }
+    return '';
+  };
+
+  const validateStatus = () => {
+    return '';
+  };
+
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+    setErrors((prev) => ({
+      ...prev,
+      name: validateName(value),
+    }));
+  };
+
+  const handlePriceChange = (e) => {
+    const value = e.target.value;
+    const formattedValue = formatPrice(value);
+    setPrice(formattedValue);
+    setErrors((prev) => ({
+      ...prev,
+      price: validatePrice(formattedValue),
+    }));
+  };
+
+  const handleStatusChange = (e) => {
+    const value = e.target.value;
+    setStatus(value);
+    setErrors((prev) => ({
+      ...prev,
+      status: validateStatus(value),
+    }));
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -87,11 +137,6 @@ const DichVuDialog = ({
     onClose();
   };
 
-  const handlePriceChange = (e) => {
-    const formattedValue = formatPrice(e.target.value);
-    setPrice(formattedValue);
-  };
-
   return (
     <Dialog
       open={open}
@@ -117,7 +162,7 @@ const DichVuDialog = ({
           <FormTextField
             label="Tên dịch vụ"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
             fullWidth
             error={!!errors.name}
             helperText={errors.name}
@@ -143,7 +188,7 @@ const DichVuDialog = ({
             label="Tình trạng"
             options={statusOptions}
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            onChange={handleStatusChange}
             fullWidth
             error={!!errors.status}
             helperText={errors.status}
