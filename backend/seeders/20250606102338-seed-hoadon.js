@@ -173,7 +173,7 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     const maHoaDonList = Array.from(
-      { length: 265 }, // Đổi số nếu muốn undo nhiều/ít hóa đơn hơn
+      { length: 300 }, // Đổi số nếu muốn undo nhiều/ít hóa đơn hơn
       (_, i) => `HD${String(i + 1).padStart(3, '0')}`
     );
 
