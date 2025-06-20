@@ -40,6 +40,7 @@ export default function DanhSachMonAn() {
   const [sort, setSort] = useState(null);
   const [currentSort, setCurrentSort] = useState(null);
   let total;
+  const limit = 30;
 
   const permissions = localStorage.getItem('permissions');
   //#endregion
@@ -54,11 +55,11 @@ export default function DanhSachMonAn() {
         filters.priceMin,
         filters.priceMax,
         currentPage,
-        20,
+        limit,
         sort
       );
       const monanData = result.data.map((monan, index) => {
-        monan.STT = (currentPage - 1) * 20 + index + 1;
+        monan.STT = (currentPage - 1) * limit + index + 1;
         return monan;
       });
       console.log(monanData);
