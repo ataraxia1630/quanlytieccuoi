@@ -15,6 +15,7 @@ import printSanh from '../../components/sanh/sanh_print_data';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DeleteDialog from '../../components/Deletedialog';
+import { hasPermission } from '../../utils/hasPermission';
 
 function DanhSachSanh() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -27,6 +28,8 @@ function DanhSachSanh() {
   const [sanhToEdit, setSanhToEdit] = useState(null);
   const [loading, setLoading] = useState(false);
   const [currentFilters, setCurrentFilters] = useState({});
+
+  const permissions = localStorage.getItem('permissions');
 
   useEffect(() => {
     fetchSanhs();
@@ -308,7 +311,11 @@ function DanhSachSanh() {
         >
 
           <FilterButton onClick={handleFilter} text="Filter" />
-          <AddButton onClick={handleAdd} text="Thêm" />
+          <AddButton 
+            onClick={handleAdd} 
+            text="Thêm" 
+            disabled={!hasPermission(permissions, 'hall.create')}
+          />
           <ActionDropdown 
             onPrint={handlePrint}
             onExportExcel={handleExport}
@@ -322,11 +329,14 @@ function DanhSachSanh() {
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
           <CircularProgress sx={{ color: '#063F5C' }} />
         </Box>
-      ) : (        <CustomTable
+      ) : (        
+        <CustomTable
           data={filteredSanhs}
           columns={defaultColumns}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          disabledEdit={!hasPermission(permissions, 'hall.edit')}
+          disabledDelete={!hasPermission(permissions, 'hall.delete')}
         />
       )}
 

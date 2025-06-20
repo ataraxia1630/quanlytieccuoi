@@ -15,6 +15,7 @@ import toastService from '../../service/toast/toast.service';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DeleteDialog from './../../components/Deletedialog';
+import { hasPermission } from '../../utils/hasPermission';
 
 function DanhSachCa() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -26,6 +27,8 @@ function DanhSachCa() {
   const [caToEdit, setCaToEdit] = useState(null);
   const [loading, setLoading] = useState(false);
   const [currentFilters, setCurrentFilters] = useState({});
+
+  const permissions = localStorage.getItem('permissions');
 
   const fetchCas = useCallback(
     async (filters = currentFilters, search = '') => {
@@ -251,7 +254,11 @@ function DanhSachCa() {
           }}
         >
           <FilterButton onClick={handleFilter} text="Filter" />
-          <AddButton onClick={handleAdd} text="Thêm" />
+          <AddButton 
+            onClick={handleAdd} 
+            text="Thêm"
+            disabled={!hasPermission(permissions, 'shift.create')}  
+          />
           <ActionDropdown
             onPrint={handlePrint}
             onExportExcel={handleExportExcel}
@@ -271,6 +278,8 @@ function DanhSachCa() {
           columns={defaultColumns}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          disabledEdit={!hasPermission(permissions, 'shift.edit')}
+          disabledDelete={!hasPermission(permissions, 'shift.delete')}
         />
       )}
 
