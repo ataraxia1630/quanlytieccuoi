@@ -281,19 +281,31 @@ function DanhSachSanh() {
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '20px',
+          alignItems: 'flex-start',
+          gap: 2,
           mb: 3,
+          flexWrap: { xs: 'wrap', md: 'nowrap' },
         }}
       >
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-          onSearch={handleSearch}
-          placeholder="Tìm tên hoặc mã sảnh ..."
-        />
-          <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
+        <Box
+          sx={{ flex: 1, minWidth: 250, display: 'flex', alignItems: 'center' }}
+        >
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSearch={handleSearch}
+            placeholder="Tìm tên hoặc mã sảnh ..."
+          />
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}
+        >
 
           <FilterButton onClick={handleFilter} text="Filter" />
           <AddButton onClick={handleAdd} text="Thêm" />

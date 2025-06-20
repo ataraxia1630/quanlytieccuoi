@@ -288,19 +288,32 @@ function DanhSachTiecCuoi() {
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '20px',
+          alignItems: 'flex-start',
+          gap: 2,
           mb: 3,
+          flexWrap: { xs: 'wrap', md: 'nowrap' },
         }}
       >
-        <Searchbar
-          placeholder="Tìm tên cô dâu, chú rể hoặc số phiếu đặt tiệc..."
-          value={searchText}
-          onChange={handleSearchTextChange}
-          onSearch={handleSubmit}
-        />
-        <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
+        <Box
+          sx={{ flex: 1, minWidth: 250, display: 'flex', alignItems: 'center' }}
+        >
+          <Searchbar
+            placeholder="Tìm tên cô dâu, chú rể hoặc số phiếu đặt tiệc..."
+            value={searchText}
+            onChange={handleSearchTextChange}
+            onSearch={handleSubmit}
+          />
+        </Box>
+
+        <Box 
+          sx={{
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}
+        >
           <FilterButton onClick={handleFilter} text="Filter" />
           <ActionDropdown
             onPrint={handlePrint}
