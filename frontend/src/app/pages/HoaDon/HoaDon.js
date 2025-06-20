@@ -30,6 +30,7 @@ import DeleteDialog from "../../components/Deletedialog";
 import ctDatBanService from '../../service/ct_datban.service';
 import SomeActionButton from '../../components/Someactionbutton';
 import toastService from '../../service/toast/toast.service';
+import FormTextField from '../../components/Formtextfield';
 
 function HoaDon() {
   const location = useLocation();
@@ -357,13 +358,16 @@ function HoaDon() {
   /////////////////////////////////////////
 
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+
     setForm((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
+
 
   const columns = [
     { id: "index", label: "STT", width: 15 },
@@ -598,8 +602,7 @@ function HoaDon() {
         <div className={styles.hoadonRight}>
 
           <div >
-            <p className={styles.ctHoadon}>CHI TIẾT HOÁ ĐƠN</p>
-
+            {isViewMode ? <p className={styles.ctHoadon}>CHI TIẾT HOÁ ĐƠN</p> : <p className={styles.ctHoadon}>CHI TIẾT ĐẶT TIỆC</p>}
             <div className={styles.row}>
               <div className={styles.hoadonText}>
                 <p>Số lượng bàn: </p>
@@ -610,16 +613,46 @@ function HoaDon() {
                     value={form.SoLuongBanDaDung}
                     onChange={handleChange}
                     variant="filled"
-                    sx={{ width: 80 }}
-                    InputProps={{
-                      disableUnderline: true,
-                      sx: {
+                    error={form.SoLuongBanDaDung < 0}
+                    helperText={
+                      form.SoLuongBanDaDung < 0 ? "Không được nhập số âm" : ""
+                    }
+                    sx={{
+                      width: 160,
+                      marginTop: '19px',
+                      backgroundColor: '#063F5C',
+                      borderRadius: 1,
+                      '& .MuiFilledInput-root': {
+                        backgroundColor: '#063F5C',
+                        borderRadius: 1,
+                        '&:hover': {
+                          backgroundColor: '#075373',
+                        },
+                        '&.Mui-focused': {
+                          backgroundColor: '#063F5C',
+                          boxShadow: '0 0 0 1px white',
+                        },
                         input: {
                           color: 'white',
                         },
                       },
+                      '& .MuiFormHelperText-root': {
+                        color: 'red',
+                      },
+                      '& .MuiInputBase-input': {
+                        padding: '12px',
+                      },
+                    }}
+                    InputProps={{
+                      disableUnderline: true,
+                      inputProps: {
+                        min: 0,
+                      },
                     }}
                   />
+
+
+
                 )}
               </div>
 
