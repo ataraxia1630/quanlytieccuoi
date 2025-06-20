@@ -28,8 +28,9 @@ const FilterPanel = ({ isOpen, onApply }) => {
       setTimeTo(defaultTimeTo);
     }
     
-    filters.gioBatDauFrom = finalTimeFrom.toTimeString().slice(0, 8);
-    filters.gioBatDauTo = finalTimeTo.toTimeString().slice(0, 8);
+    // Use overlap filtering with 2 parameters instead of 4
+    filters.gioBatDau = finalTimeFrom.toTimeString().slice(0, 8);
+    filters.gioKetThuc = finalTimeTo.toTimeString().slice(0, 8);
     
     onApply(filters);
   };
