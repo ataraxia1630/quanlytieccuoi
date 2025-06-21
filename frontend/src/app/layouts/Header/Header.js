@@ -13,14 +13,12 @@ import {
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../context/AuthContext';
+import ProfileCard from '../../components/phanquyen/profile_card';
 
 const Header = () => {
   const [anchorElFeatures, setAnchorElFeatures] = useState(null);
-  const [anchorElUser, setAnchorElUser] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
-  const { username, logout } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -45,13 +43,6 @@ const Header = () => {
 
   const handleClose = (setter) => () => {
     setter(null);
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('permissions');
-    setAnchorElUser(false);
-    logout();
-    navigate('/signin');
   };
 
   return (
@@ -111,38 +102,7 @@ const Header = () => {
         </Box>
 
         {/* Actions */}
-        <Box sx={{ display: 'flex', justifyContent: 'end', gap: 2 }}>
-          {username ? (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Avatar
-                onClick={handleOpen(setAnchorElUser)}
-                sx={{
-                  width: 36,
-                  height: 36,
-                  cursor: 'pointer',
-                  bgcolor: '#063F5C',
-                }}
-              >
-                {username.charAt(0).toUpperCase()}
-              </Avatar>
-              <Menu
-                anchorEl={anchorElUser}
-                open={Boolean(anchorElUser)}
-                onClose={handleClose(setAnchorElUser)}
-              >
-                <MenuItem onClick={() => navigate('/profile')}>Hồ sơ</MenuItem>
-                <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
-              </Menu>
-            </Box>
-          ) : (
-            <CancelButton
-              onClick={() => {
-                navigate('/signin');
-              }}
-              textCancel="Sign In"
-            />
-          )}
-        </Box>
+        <ProfileCard />
       </Toolbar>
     </AppBar>
   );

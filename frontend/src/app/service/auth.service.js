@@ -23,6 +23,28 @@ const AuthService = {
     }
     return token;
   },
+
+  changePassword: async (oldPassword, newPassword) => {
+    const token = localStorage.getItem('accessToken');
+    const uri = baseURL + '/change-password';
+    const res = await fetch(uri, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ oldPassword, newPassword }),
+    });
+    console.log({ oldPassword, newPassword });
+    if (!res.ok) {
+      const error = await res.text();
+      throw new Error(
+        error.message || 'Đã có lỗi xảy ra! Vui lòng thử lại sau.'
+      );
+    }
+    const result = await res.json();
+    return result.message;
+  },
 };
 
 export default AuthService;
