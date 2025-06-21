@@ -55,18 +55,18 @@ module.exports = {
       return acc;
     }, {});
 
-    const dishUnitPrices = monAnRecords.reduce((acc, monAn) => {
-      acc[monAn.MaMonAn] = parseInt(monAn.DonGia);
-      return acc;
-    }, {});
+    // const dishUnitPrices = monAnRecords.reduce((acc, monAn) => {
+    //   acc[monAn.MaMonAn] = parseInt(monAn.DonGia);
+    //   return acc;
+    // }, {});
 
-    const phieuMonAnMap = ctDatBanRecords.reduce((acc, ct) => {
-      if (!acc[ct.SoPhieuDatTiec]) {
-        acc[ct.SoPhieuDatTiec] = new Set();
-      }
-      acc[ct.SoPhieuDatTiec].add(ct.MaMonAn);
-      return acc;
-    }, {});
+    // const phieuMonAnMap = ctDatBanRecords.reduce((acc, ct) => {
+    //   if (!acc[ct.SoPhieuDatTiec]) {
+    //     acc[ct.SoPhieuDatTiec] = new Set();
+    //   }
+    //   acc[ct.SoPhieuDatTiec].add(ct.MaMonAn);
+    //   return acc;
+    // }, {});
 
     const tongTienMonAnMap = ctDatBanRecords.reduce((acc, ct) => {
       const donGia = parseInt(ct.DonGia) || 0;
@@ -107,17 +107,14 @@ module.exports = {
             )
           : 0;
 
-      // Tính DonGiaBan (tổng đơn giá món ăn với SoLuong = 1)
-      const monAnList = phieuMonAnMap[phieu.SoPhieuDatTiec] || new Set();
-      let donGiaBan = 0;
-      for (const maMonAn of monAnList) {
-        donGiaBan += dishUnitPrices[maMonAn] || 0;
-      }
-      donGiaBan = parseInt(donGiaBan.toFixed(2));
-
-      const tongTienMonAn = parseInt(
+      // Tính DonGiaBan (tổng đơn giá từ Ct_DatBan)
+      const donGiaBan = parseInt(
         (tongTienMonAnMap[phieu.SoPhieuDatTiec] || 0).toFixed(2)
       );
+
+      // Tính TongTienMonAn (DonGiaBan * SoLuongBanDaDung)
+      const tongTienMonAn = parseInt((donGiaBan * soLuongBanDaDung).toFixed(2));
+
       const tongTienDichVu = parseInt(
         (tongTienDichVuMap[phieu.SoPhieuDatTiec] || 0).toFixed(2)
       );
