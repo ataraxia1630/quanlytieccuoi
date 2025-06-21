@@ -1,83 +1,131 @@
-import { useState, useEffect } from "react";
-import { Box, Typography } from "@mui/material";
-import SearchBar from "../../components/Searchbar";
-import FilterButton from "../../components/Filterbutton";
-import AddButton from "../../components/Addbutton";
-import CustomTable from "../../components/Customtable";
-import FilterPanel from "../../components/sanh/sanh_filter_panel";
-import EditSanhDialog from "../../components/sanh/sanh_edit_sanh_pop_up";
-import defaultColumns from "../../components/sanh/sanh_default_column";
-import sanhService from "../../service/sanh.service";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import DeleteDialog from "../../components/Deletedialog";
+import { useState, useEffect } from 'react';
+import { Box, Typography, CircularProgress } from '@mui/material';
+import SearchBar from '../../components/Searchbar';
+import FilterButton from '../../components/Filterbutton';
+import AddButton from '../../components/Addbutton';
+import ActionDropdown from '../../components/Printandexport';
+import CustomTable from '../../components/Customtable';
+import FilterPanel from '../../components/sanh/sanh_filter_panel';
+import EditSanhDialog from '../../components/sanh/sanh_edit_sanh_pop_up';
+import defaultColumns from '../../components/sanh/sanh_default_column';
+import sanhService from '../../service/sanh.service';
+import toastService from '../../service/toast/toast.service';
+import exportSanhToExcel from '../../components/sanh/sanh_export_excel';
+import printSanh from '../../components/sanh/sanh_print_data';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import DeleteDialog from '../../components/Deletedialog';
+import { hasPermission } from '../../utils/hasPermission';
 
 function DanhSachSanh() {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [mode, setMode] = useState("add");
+  const [mode, setMode] = useState('add');
   const [sanhs, setSanhs] = useState([]);
+  const [filteredSanhs, setFilteredSanhs] = useState([]);
   const [sanhToEdit, setSanhToEdit] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [currentFilters, setCurrentFilters] = useState({});
+
+  const permissions = localStorage.getItem('permissions');
 
   useEffect(() => {
     fetchSanhs();
-  }, []);
-
-  const fetchSanhs = async () => {
+  }, []);  const fetchSanhs = async () => {
+    setLoading(true);
     try {
-      //toast.info("Đang xử lý …");
       const data = await sanhService.getAllSanh();
       setSanhs(data);
-      //toast.success("Tải danh sách sảnh thành công!");
+      setFilteredSanhs(data);
     } catch (error) {
-      console.error("Error fetching sanhs:", error.message);
-      toast.error("Có lỗi xảy ra: " + error.message);
+      console.error('Error fetching sanhs:', error.message);
+      toastService.error(`Lỗi khi tải dữ liệu: ${error.message}`, 'fetch-error');
+    } finally {
+      setLoading(false);
     }
   };
-
   const handleSearch = () => {
+    if (!searchTerm.trim()) {
+      // Reset về danh sách đầy đủ khi không có search term
+      setFilteredSanhs(sanhs);
+      setCurrentFilters({});
+      return;
+    }
     searchAndFilter();
   };
+
+  // Tự động search khi xóa search term
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredSanhs(sanhs);
+      setCurrentFilters({});
+    }
+  }, [searchTerm, sanhs]);
 
   const handleAdd = () => {
     setSanhToEdit(null);
     setOpenDialog(true);
-    setMode("add");
+    setMode('add');
   };
 
   const handleFilter = () => {
     setIsFilterOpen(!isFilterOpen);
-  };
-
-  const handleApplyFilter = async (filters) => {
+  };  const handleApplyFilter = async (filters) => {
+    setCurrentFilters(filters);
     searchAndFilter(filters);
+    
+    // Toast cho filter
+    const hasFilters = Object.values(filters).some(v => v);
+    if (hasFilters) {
+      toastService.search.appliedFilter('sảnh');
+    } else {
+      toastService.search.resetFilter('sảnh');
+    }
   };
-
-  const searchAndFilter = async (filters = {}) => {
+  const searchAndFilter = async (filters = currentFilters) => {
     try {
       const data = await sanhService.searchAndFilterSanh({
         tenSanh: searchTerm,
         maSanh: searchTerm,
         ...filters,
       });
-      setSanhs(data);
-      toast.success("Tìm kiếm thành công!");
+      setFilteredSanhs(data);
+      
+      // Chỉ hiện toast khi có search term (không hiện khi reset về danh sách đầy đủ)
+      if (searchTerm.trim()) {
+        if (data.length === 0) {
+          toastService.search.noResults('sảnh');
+        } else {
+          toastService.search.success(data.length, 'sảnh');
+        }
+      }
     } catch (error) {
-      toast.error("Có lỗi xảy ra. Vui lòng thử lại sau!");
+      console.error('Search error:', error);
+      let errorMessage = 'Có lỗi xảy ra khi tìm kiếm';
+      
+      if (error.message) {
+        if (error.message.includes('too long') || error.message.includes('quá dài')) {
+          errorMessage = 'Từ khóa tìm kiếm quá dài, vui lòng nhập ngắn hơn';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      toastService.error(`Lỗi tìm kiếm: ${errorMessage}`, 'search-error');
     }
   };
 
   const handleEdit = (sanh) => {
-    console.log("Editing sanh with maSanh:", sanh.MaSanh);
+    console.log('Editing sanh with maSanh:', sanh.MaSanh);
     setSanhToEdit(sanh);
     setOpenDialog(true);
-    setMode("edit");
+    setMode('edit');
   };
 
   const handleDelete = (sanh) => {
-    console.log("Deleting sanh with maSanh:", sanh.MaSanh);
+    console.log('Deleting sanh with maSanh:', sanh.MaSanh);
     setSanhToEdit(sanh); // Set the sanh to delete
     setIsDeleteDialogOpen(true);
   };
@@ -85,21 +133,39 @@ function DanhSachSanh() {
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
     setSanhToEdit(null); // Clear the sanh to delete
-  };
-
-  const handleConfirmDelete = async () => {
+  };  const handleConfirmDelete = async () => {
+    // Show processing toast
+    toastService.info('Đang xóa sảnh...', 'processing-delete');
+    
     try {
-      toast.info("Đang xử lý …");
       await sanhService.deleteSanh(sanhToEdit.MaSanh);
       await fetchSanhs();
-      toast.success("Xóa thành công!");
+      
+      // Dismiss processing toast and show success
+      toastService.dismissAll();
+      toastService.entity.deleteSuccess('sảnh', sanhToEdit.TenSanh);
+      
       setIsDeleteDialogOpen(false);
       setSanhToEdit(null);
     } catch (error) {
-      if (error.message.includes("Không tìm thấy sảnh")) {
-        toast.warn("Không tìm thấy sảnh!");
+      console.error('Delete error:', error);
+      
+      // Dismiss processing toast
+      toastService.dismissAll();
+      
+      // Parse error message từ backend
+      let errorMessage = error.message || 'Có lỗi xảy ra khi xóa sảnh';
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      }
+      
+      if (errorMessage.includes('Không tìm thấy sảnh')) {
+        toastService.validation.notFound('sảnh');
+      } else if (errorMessage.includes('Không thể xóa sảnh') && errorMessage.includes('phiếu đặt tiệc')) {
+        // Hiển thị message chi tiết từ backend
+        toastService.error(errorMessage, 'delete-in-use-error');
       } else {
-        toast.error("Xóa thất bại! Vui lòng thử lại.");
+        toastService.error(`Lỗi khi xóa sảnh "${sanhToEdit.TenSanh}": ${errorMessage}`, 'delete-error');
       }
     }
   };
@@ -107,37 +173,100 @@ function DanhSachSanh() {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSanhToEdit(null);
-  };
-
-  const handleSaveSanh = async (sanhData) => {
+  };  const handleSaveSanh = async (sanhData) => {
+    // Show processing toast
+    const processingMessage = mode === 'edit' ? 'Đang cập nhật sảnh...' : 'Đang thêm sảnh...';
+    toastService.info(processingMessage, `processing-${mode}`);
+    
     try {
-      console.log("handleSaveSanh received sanhData:", sanhData);
-      console.log("HinhAnh in handleSaveSanh:", sanhData.HinhAnh, "instanceof File:", sanhData.HinhAnh instanceof File);
+      console.log('handleSaveSanh received sanhData:', sanhData);
+      console.log(
+        'HinhAnh in handleSaveSanh:',
+        sanhData.HinhAnh,
+        'instanceof File:',
+        sanhData.HinhAnh instanceof File
+      );
 
-      if (!sanhData.TenSanh || !sanhData.MaLoaiSanh || !sanhData.SoLuongBanToiDa) {
-        toast.warn("Vui lòng nhập đầy đủ thông tin!");
+      if (
+        !sanhData.TenSanh ||
+        !sanhData.MaLoaiSanh ||
+        !sanhData.SoLuongBanToiDa
+      ) {
+        // Dismiss processing toast
+        toastService.dismissAll();
+        toastService.validation.requiredFields();
         return;
       }
 
-      toast.info("Đang gửi yêu cầu …");
-      console.log("Sending update with data:", sanhData);
+      console.log('Sending update with data:', sanhData);
 
-      if (mode === "edit") {
-        const updatedSanh = await sanhService.updateSanh(sanhToEdit.MaSanh, sanhData);
-        setSanhs(sanhs.map((s) => s.MaSanh === sanhToEdit.MaSanh ? updatedSanh : s));
-        toast.success("Cập nhật thành công!");
+      if (mode === 'edit') {
+        const updatedSanh = await sanhService.updateSanh(
+          sanhToEdit.MaSanh,
+          sanhData
+        );
+        setSanhs(
+          sanhs.map((s) => (s.MaSanh === sanhToEdit.MaSanh ? updatedSanh : s))
+        );
+        setFilteredSanhs(
+          filteredSanhs.map((s) => (s.MaSanh === sanhToEdit.MaSanh ? updatedSanh : s))
+        );
+        
+        // Dismiss processing toast and show success
+        toastService.dismissAll();
+        toastService.entity.updateSuccess('sảnh', sanhData.TenSanh);
       } else {
         const newSanh = await sanhService.createSanh(sanhData);
         setSanhs([...sanhs, newSanh]);
-        toast.success("Thêm mới thành công!");
+        setFilteredSanhs([...filteredSanhs, newSanh]);
+        
+        // Dismiss processing toast and show success
+        toastService.dismissAll();
+        toastService.entity.createSuccess('sảnh', sanhData.TenSanh);
       }
       setOpenDialog(false);
     } catch (error) {
-      if (error.message.includes("Không tìm thấy sảnh")) {
-        toast.error("Cập nhật thất bại! Không tìm thấy sảnh.");
+      console.error('Save error:', error);      
+      // Dismiss processing toast
+      toastService.dismissAll();
+      
+      let errorMessage = error.message || 'Có lỗi xảy ra';
+      
+      if (error.message && error.message.includes('Không tìm thấy sảnh')) {
+        toastService.validation.notFound('sảnh');
+      } else if (error.message && error.message.includes('đã tồn tại')) {
+        // Parse JSON error message if it exists
+        try {
+          // Check if message is JSON format
+          if (errorMessage.startsWith('{') && errorMessage.endsWith('}')) {
+            const parsed = JSON.parse(errorMessage);
+            errorMessage = parsed.error || errorMessage;
+          }
+        } catch (e) {
+          // If not valid JSON, use original message
+        }
+        toastService.error(errorMessage, 'duplicate-error');
+      } else if (error.message && error.message.includes('Số lượng bàn')) {
+        toastService.error(errorMessage, 'validation-error');
       } else {
-        toast.error("Có lỗi xảy ra. Vui lòng thử lại sau!");
+        toastService.error(`Lỗi khi lưu: ${errorMessage}`, 'save-error');
       }
+    }
+  };
+
+  // Chức năng in
+  const handlePrint = () => {
+    const res = printSanh(filteredSanhs);
+    if (!res.success) {
+      toastService.file.printError(res.message);
+    }
+  };  // Chức năng xuất Excel
+  const handleExport = async () => {
+    const res = await exportSanhToExcel(filteredSanhs);
+    if (res.success) {
+      toastService.success(`Xuất Excel thành công: ${res.fileName}`, 'export-success');
+    } else {
+      toastService.file.exportError(res.message);
     }
   };
 
@@ -146,52 +275,77 @@ function DanhSachSanh() {
       <ToastContainer />
       <Typography
         variant="h4"
-        sx={{ fontWeight: "bold", color: "#063F5C", mb: 4 }}
+        sx={{ fontWeight: 'bold', color: '#063F5C', mb: 4 }}
       >
         Danh sách sảnh
       </Typography>
 
       <Box
         sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "20px",
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+          gap: 2,
           mb: 3,
+          flexWrap: { xs: 'wrap', md: 'nowrap' },
         }}
       >
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-          onSearch={handleSearch}
-          placeholder="Tìm tên hoặc mã sảnh ..."
-        />
+        <Box
+          sx={{ flex: 1, minWidth: 250, display: 'flex', alignItems: 'center' }}
+        >
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSearch={handleSearch}
+            placeholder="Tìm tên hoặc mã sảnh ..."
+          />
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}
+        >
 
-        <Box sx={{ display: "flex", gap: "17px", justifyContent: "flex-end" }}>
           <FilterButton onClick={handleFilter} text="Filter" />
-          <AddButton onClick={handleAdd} text="Thêm" />
+          <AddButton 
+            onClick={handleAdd} 
+            text="Thêm" 
+            disabled={!hasPermission(permissions, 'hall.create')}
+          />
+          <ActionDropdown 
+            onPrint={handlePrint}
+            onExportExcel={handleExport}
+          />
         </Box>
       </Box>
 
-      <FilterPanel
-        isOpen={isFilterOpen}
-        onApply={handleApplyFilter}
-      />
+      <FilterPanel isOpen={isFilterOpen} onApply={handleApplyFilter} />
 
-      <CustomTable
-        data={sanhs}
-        columns={defaultColumns}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-      />
+      {loading ? (
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+          <CircularProgress sx={{ color: '#063F5C' }} />
+        </Box>
+      ) : (        
+        <CustomTable
+          data={filteredSanhs}
+          columns={defaultColumns}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          disabledEdit={!hasPermission(permissions, 'hall.edit')}
+          disabledDelete={!hasPermission(permissions, 'hall.delete')}
+        />
+      )}
 
       <EditSanhDialog
         open={openDialog}
         onClose={handleCloseDialog}
         onSave={handleSaveSanh}
         sanh={sanhToEdit}
-        title={mode === "edit" ? "Chỉnh sửa sảnh" : "Thêm sảnh"}
+        title={mode === 'edit' ? 'Chỉnh sửa sảnh' : 'Thêm sảnh'}
       />
 
       <DeleteDialog

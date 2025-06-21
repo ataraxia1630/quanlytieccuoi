@@ -101,7 +101,7 @@ module.exports.create = async (req, res) => {
       const gia = parseFloat(dv.DonGia);
       return tong + (isNaN(gia) ? 0 : gia);
     }, 0);
-    const tongTienBan = donGiaBan*SoLuongBanDaDung;
+    const tongTienBan = donGiaBan * SoLuongBanDaDung;
 
     const tongTien = tongTienDichVu + tongTienBan;
 
@@ -113,19 +113,19 @@ module.exports.create = async (req, res) => {
 
     const tienDatCoc = Number(phieuDatTiec.TienDatCoc) || 0;
     const tienConLai = tongTien + tienPhat - tienDatCoc;
-
     const hoadon = await HoaDon.create({
       SoHoaDon,
       SoPhieuDatTiec,
       NgayThanhToan: now,
-      DonGiaBan: donGiaBan,
+      DonGiaBan: donGiaBan.toFixed(2),
       SoLuongBanDaDung,
-      TongTienDichVu: tongTienDichVu,
-      TongTienMonAn: tongTienBan,
-      TongTienHoaDon: tongTien,
-      TongTienPhat: tienPhat,
-      TienConLai: tienConLai,
+      TongTienDichVu: tongTienDichVu.toFixed(2),
+      TongTienMonAn: tongTienBan.toFixed(2),
+      TongTienHoaDon: tongTien.toFixed(2),
+      TongTienPhat: tienPhat.toFixed(2),
+      TienConLai: tienConLai.toFixed(2),
     });
+
 
     const hoadonData = hoadon.toJSON();
     hoadonData.TienDatCoc = tienDatCoc;

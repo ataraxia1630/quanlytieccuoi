@@ -9,12 +9,16 @@ import {
   Button,
   Menu,
   MenuItem,
+  Avatar,
 } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { useNavigate } from 'react-router-dom';
+import ProfileCard from '../../components/phanquyen/profile_card';
 
 const Header = () => {
   const [anchorElFeatures, setAnchorElFeatures] = useState(null);
   const [scrolled, setScrolled] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -98,10 +102,7 @@ const Header = () => {
         </Box>
 
         {/* Actions */}
-        <Box sx={{ display: 'flex', justifyContent: 'end', gap: 2 }}>
-          <CancelButton onClick={() => {}} textCancel="Sign In" />
-          {/* <SaveAndPrintButton onClick={() => { }} text='Sign Up' sx={{ color: "white" }} /> */}
-        </Box>
+        <ProfileCard />
       </Toolbar>
     </AppBar>
   );

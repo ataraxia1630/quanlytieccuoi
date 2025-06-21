@@ -123,11 +123,26 @@ const exportDichVuToExcel = async (data, fileName = 'DanhSachDichVu') => {
         right: { style: 'thin', color: { argb: 'FFCCCCCC' } },
       };
 
+      // Xử lý định dạng tiền tệ
       const giaCell = row.getCell(4);
-      const donGia =
-        typeof item.DonGia === 'number'
-          ? item.DonGia.toLocaleString('vi-VN')
-          : item.DonGia || '';
+      let donGia = '';
+
+      if (
+        item.DonGia !== null &&
+        item.DonGia !== undefined &&
+        item.DonGia !== ''
+      ) {
+        const price =
+          typeof item.DonGia === 'number'
+            ? item.DonGia
+            : parseFloat(item.DonGia);
+        if (!isNaN(price)) {
+          donGia = price.toLocaleString('vi-VN');
+        } else {
+          donGia = item.DonGia.toString();
+        }
+      }
+
       giaCell.value = donGia;
       giaCell.alignment = { horizontal: 'right', vertical: 'middle' };
       giaCell.fill = {
@@ -161,9 +176,9 @@ const exportDichVuToExcel = async (data, fileName = 'DanhSachDichVu') => {
     worksheet.columns = [
       { width: 8 }, // STT
       { width: 13 }, // Mã dịch vụ
-      { width: 33 }, // Tên dịch vụ
-      { width: 17 }, // Đơn giá
-      { width: 17 }, // Tình trạng
+      { width: 35 }, // Tên dịch vụ
+      { width: 18 }, // Đơn giá
+      { width: 15 }, // Tình trạng
     ];
 
     // Xuất file

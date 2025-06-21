@@ -21,7 +21,7 @@ module.exports = {
         allowNull: false,
       },
       DonGiaBan: {
-        type: Sequelize.DECIMAL(10, 2),
+        type: Sequelize.DECIMAL(18, 2),
         allowNull: false,
       },
       SoLuongBanDaDung: {

@@ -247,6 +247,9 @@ function DatDichVu() {
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
+        <div className='button-container' style={{ paddingTop: "30px" }}>
+          <Cancelbutton onClick={() => handleNav()} textCancel="Xong" />
+        </div>
       </div>
 
       <DeleteDialog
@@ -269,9 +272,6 @@ function DatDichVu() {
         {services.map((item, index) => (
           <ServiceCard key={index} srv={item} onClick={AddReservedService} />
         ))}
-      </div>
-      <div className='button-container'>
-        <Cancelbutton onClick={() => handleNav()} textCancel="Hoàn Thành" />
       </div>
     </div>
   );

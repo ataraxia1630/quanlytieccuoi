@@ -1,5 +1,5 @@
-const DichVuService = require("../services/dichvu.service.js");
-const ApiError = require("../utils/apiError.js");
+const DichVuService = require('../services/dichvu.service.js');
+const ApiError = require('../utils/apiError.js');
 
 const parsePagination = (req) => {
   const limit = parseInt(req.query.limit) || 10;
@@ -21,7 +21,7 @@ const DichVuController = {
   getDichVuById: async (req, res, next) => {
     try {
       if (!req.params.id) {
-        throw new ApiError(400, "ID dịch vụ không hợp lệ.");
+        throw new ApiError(400, 'ID dịch vụ không hợp lệ.');
       }
 
       const data = await DichVuService.getDichVuById(req.params.id);
@@ -44,7 +44,7 @@ const DichVuController = {
   createDichVu: async (req, res, next) => {
     try {
       const data = await DichVuService.createDichVu(req.body);
-      res.status(201).json({ message: "Cập nhật dịch vụ thành công.", data });
+      res.status(201).json({ message: 'Cập nhật dịch vụ thành công.', data });
     } catch (err) {
       next(err);
     }
@@ -53,13 +53,13 @@ const DichVuController = {
   updateDichVu: async (req, res, next) => {
     try {
       if (!req.params.id) {
-        throw new ApiError(400, "ID dịch vụ không hợp lệ.");
+        throw new ApiError(400, 'ID dịch vụ không hợp lệ.');
       }
 
       const updated = await DichVuService.updateDichVu(req.params.id, req.body);
       res
         .status(200)
-        .json({ message: "Cập nhật dịch vụ thành công.", updated });
+        .json({ message: 'Cập nhật dịch vụ thành công.', updated });
     } catch (err) {
       next(err);
     }
@@ -68,7 +68,7 @@ const DichVuController = {
   deleteDichVu: async (req, res, next) => {
     try {
       if (!req.params.id) {
-        throw new ApiError(400, "ID dịch vụ không hợp lệ.");
+        throw new ApiError(400, 'ID dịch vụ không hợp lệ.');
       }
 
       const result = await DichVuService.deleteDichVu(req.params.id);
@@ -81,7 +81,11 @@ const DichVuController = {
   searchDichVu: async (req, res, next) => {
     try {
       const { limit, offset } = parsePagination(req);
-      const { maDichVu, tenDichVu, giaTu, giaDen, tinhTrang } = req.query;
+
+      const allParams = { ...req.query, ...req.body };
+
+      const { maDichVu, tenDichVu, giaTu, giaDen, tinhTrang, searchTerm } =
+        allParams;
 
       const parsedTinhTrang = tinhTrang
         ? Array.isArray(tinhTrang)
@@ -89,8 +93,17 @@ const DichVuController = {
           : [tinhTrang]
         : undefined;
 
+      const searchParams = {
+        maDichVu,
+        tenDichVu,
+        giaTu,
+        giaDen,
+        tinhTrang: parsedTinhTrang,
+        searchTerm,
+      };
+
       const data = await DichVuService.searchDichVu(
-        { maDichVu, tenDichVu, giaTu, giaDen, tinhTrang: parsedTinhTrang },
+        searchParams,
         limit,
         offset
       );

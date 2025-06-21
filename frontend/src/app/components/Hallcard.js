@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Box, Typography, Card, CardMedia } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { green } from '@mui/material/colors';
 
 
 const TagButton = styled(Button)({
@@ -41,8 +42,17 @@ const HallCard = ({ hall, shifts, index, onClick }) => {
                 textOverflow: 'ellipsis'
             }}>
                 <Typography sx={{ fontSize: '1.5rem', fontWeight: 'Bold', marginBottom: 0 }}>{hall.TenSanh}</Typography>
-                <TagButton>
-                    {hall.TenLoaiSanh}</TagButton>
+                <Box sx={{
+
+                    display: 'flex',
+                    background: '#063F5C',
+                    borderRadius: '100px',
+                    color: 'white',
+                    fontSize: '0.8rem',
+                    px: '40px',
+                    alignItems: 'center',
+                }}>
+                    {hall.TenLoaiSanh}</Box>
             </Box>
             <Typography sx={{ fontSize: '1rem', fontWeight: 'Bold', marginBottom: 0 }}>Số lượng bàn tối đa: {hall.SoLuongBanToiDa}</Typography>
             <CardMedia
@@ -50,8 +60,8 @@ const HallCard = ({ hall, shifts, index, onClick }) => {
 
                 image={hall.HinhAnh}
                 alt={`introduction-hall-${index}`}
-                sx={{ height: "192px", objectFit: 'cover' }}
-                className='hall-img-show'
+                sx={{ height: "152px", objectFit: 'cover' }}
+
             />
             <div className='container'
                 style={{
@@ -63,7 +73,7 @@ const HallCard = ({ hall, shifts, index, onClick }) => {
                 {hall.CaAvailability.map((ca) => (
                     <TagButton
                         key={ca.MaCa}
-                        sx={{ background: ca.TrangThai === 'Trống' ? '#063F5C' : '#DFDFDF', marginRight: 1, marginBottom: 1 }}
+                        sx={{ background: ca.TrangThai === 'Trống' ? chosingShift === ca.MaCa ? 'green' : '#063F5C' : '#DFDFDF', marginRight: 1, marginBottom: 1 }}
                         onClick={() => setChoosingShift(ca.MaCa)}
                         disabled={!(ca.TrangThai === "Trống")}
                     >
@@ -72,7 +82,7 @@ const HallCard = ({ hall, shifts, index, onClick }) => {
                 ))}
             </div>
 
-            <Typography sx={{ fontSize: '1rem', fontWeight: 'Bold', height: '75px', overflowY: 'auto', overflowX: 'hidden' }}>
+            <Typography sx={{ fontSize: '1rem', fontWeight: 'Bold', height: '55px', overflowY: 'auto', overflowX: 'hidden' }}>
                 Ghi chú: {(hall.GhiChu === null) ? "Không" : hall.GhiChu}
             </Typography>
             <Button

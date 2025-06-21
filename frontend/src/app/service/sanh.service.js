@@ -5,10 +5,26 @@ const getAllSanh = async () => {
 };
 
 const searchAndFilterSanh = async (filters) => {
-  const query = new URLSearchParams(filters).toString();
-  const response = await fetch(`/api/sanh/search?${query}`);
-  if (!response.ok) throw new Error("Failed to filter sanhs");
-  return response.json();
+  try {
+    const query = new URLSearchParams(filters).toString();
+    console.log('Search query string:', query); // Debug log
+    console.log('Query length:', query.length); // Debug log
+    
+    const response = await fetch(`/api/sanh/search?${query}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      if (response.status === 414) {
+        throw new Error("Từ khóa tìm kiếm quá dài, vui lòng nhập ngắn hơn");
+      }
+      throw new Error(errorText || "Failed to filter sanhs");
+    }
+    return response.json();
+  } catch (error) {
+    if (error.message.includes('Failed to fetch') || error.name === 'TypeError') {
+      throw new Error("Từ khóa tìm kiếm quá dài hoặc có lỗi kết nối, vui lòng thử lại");
+    }
+    throw error;
+  }
 };
 
 const getSanhById = async (maSanh) => {
@@ -32,7 +48,10 @@ const createSanh = async (sanhData) => {
     body: formData,
   });
 
-  if (!response.ok) throw new Error("Failed to create sanh");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to create sanh");
+  }
   return response.json();
 };
 
@@ -56,9 +75,9 @@ const updateSanh = async (maSanh, sanhData) => {
   });
 
   if (!response.ok) {
-    const text = await response.text();
-    console.log("Response error text:", text);
-    throw new Error(text || "Failed to update sanh");
+    const errorData = await response.json();
+    console.log("Response error data:", errorData);
+    throw new Error(errorData.error || "Failed to update sanh");
   }
 
   try {
@@ -72,7 +91,10 @@ const deleteSanh = async (maSanh) => {
   const response = await fetch(`/api/sanh/${maSanh}`, {
     method: "DELETE",
   });
-  if (!response.ok) throw new Error("Failed to delete sanh");
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || "Failed to delete sanh");
+  }
   return response.json();
 };
 

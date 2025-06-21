@@ -27,37 +27,174 @@ import 'react-toastify/dist/ReactToastify.css';
 import PhanQuyen from '../pages/PhanQuyen';
 import Login from '../pages/Login';
 
+import ProtectedRoute from './ProtectedRoute';
+import CheckPermissionRoute from './CheckPermissionRoute';
+
 export default function MainRoutes() {
   return (
     <BrowserRouter>
       <Header />
       <Routes>
-        <Route path="/login" element={<Login />} />
+        <Route path="/signin" element={<Login />} />
 
         <Route path="/" element={<Home />} />
         <Route path="*" element={<PageNotFound />} />
 
         {/* Route chứa layout sidebar (DashBoardLayout) */}
-        <Route path="/DashBoard" element={<DashBoard />}>
+        <Route
+          path="/DashBoard"
+          element={
+            <ProtectedRoute>
+              <DashBoard />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<DatTiecCuoi />} />
-          <Route path="DatTiecCuoi" element={<DatTiecCuoi />}>
+          <Route
+            path="DatTiecCuoi"
+            element={
+              <CheckPermissionRoute requiredPermissions={['order.create']}>
+                <DatTiecCuoi />
+              </CheckPermissionRoute>
+            }
+          >
             <Route index element={<ThongTinTiecCuoi />} />
             <Route path="ThongTinTiecCuoi" element={<ThongTinTiecCuoi />} />
             <Route path="DatMonAn" element={<DatMonAn />} />
             <Route path="DatDichVu" element={<DatDichVu />} />
           </Route>
-          <Route path="DanhSachTiecCuoi" element={<DanhSachTiecCuoi />} />
-          <Route path="DanhSachSanhTiec" element={<DanhSachSanhTiec />} />
-          <Route path="HoaDon" element={<HoaDon />} />
-          <Route path="DanhSachMonAn" element={<DanhSachMonAn />} />
-          <Route path="DanhSachDichVu" element={<DanhSachDichVu />} />
-          <Route path="DanhSachCa" element={<DanhSachCa />} />
-          <Route path="DanhSachLoaiSanh" element={<DanhSachLoaiSanh />} />
+          <Route
+            path="DanhSachTiecCuoi"
+            element={
+              <CheckPermissionRoute
+                requiredPermissions={['wedding.view', 'wedding.delete']}
+              >
+                <DanhSachTiecCuoi />
+              </CheckPermissionRoute>
+            }
+          />
+          <Route
+            path="DanhSachSanhTiec"
+            element={
+              <CheckPermissionRoute
+                requiredPermissions={[
+                  'hall.view',
+                  'hall.edit',
+                  'hall.delete',
+                  'hall.create',
+                ]}
+              >
+                <DanhSachSanhTiec />
+              </CheckPermissionRoute>
+            }
+          />
+          <Route
+            path="HoaDon"
+            element={
+              <CheckPermissionRoute requiredPermissions={['bill.create']}>
+                <HoaDon />
+              </CheckPermissionRoute>
+            }
+          />
+          <Route
+            path="DanhSachMonAn"
+            element={
+              <CheckPermissionRoute
+                requiredPermissions={[
+                  'food.view',
+                  'food.edit',
+                  'food.delete',
+                  'food.create',
+                ]}
+              >
+                <DanhSachMonAn />
+              </CheckPermissionRoute>
+            }
+          />
+          <Route
+            path="DanhSachDichVu"
+            element={
+              <CheckPermissionRoute
+                requiredPermissions={[
+                  'service.view',
+                  'service.edit',
+                  'service.delete',
+                  'service.create',
+                ]}
+              >
+                <DanhSachDichVu />
+              </CheckPermissionRoute>
+            }
+          />
+          <Route
+            path="DanhSachCa"
+            element={
+              <CheckPermissionRoute
+                requiredPermissions={[
+                  'shift.view',
+                  'shift.edit',
+                  'shift.delete',
+                  'shift.create',
+                ]}
+              >
+                <DanhSachCa />
+              </CheckPermissionRoute>
+            }
+          />
+          <Route
+            path="DanhSachLoaiSanh"
+            element={
+              <CheckPermissionRoute
+                requiredPermissions={[
+                  'hallType.view',
+                  'hallType.edit',
+                  'hallType.delete',
+                  'hallType.create',
+                ]}
+              >
+                <DanhSachLoaiSanh />
+              </CheckPermissionRoute>
+            }
+          />
 
-          <Route path="BangThamSo" element={<BangThamSo />} />
-          <Route path="BaoCaoThang" element={<BaoCaoThang />} />
+          <Route
+            path="BangThamSo"
+            element={
+              <CheckPermissionRoute
+                requiredPermissions={['variable.view', 'variable.edit']}
+              >
+                <BangThamSo />
+              </CheckPermissionRoute>
+            }
+          />
+          <Route
+            path="BaoCaoThang"
+            element={
+              <CheckPermissionRoute requiredPermissions={['report.view']}>
+                <BaoCaoThang />
+              </CheckPermissionRoute>
+            }
+          />
 
-          <Route path="PhanQuyen" element={<PhanQuyen />} />
+          <Route
+            path="PhanQuyen"
+            element={
+              <CheckPermissionRoute
+                requiredPermissions={[
+                  'account.view',
+                  'account.create',
+                  'account.edit',
+                  'account.delete',
+                  'group.view',
+                  'group.create',
+                  'group.edit',
+                  'group.delete',
+                ]}
+              >
+                <PhanQuyen />
+              </CheckPermissionRoute>
+            }
+          />
         </Route>
       </Routes>
       <Footer />

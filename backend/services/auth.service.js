@@ -14,11 +14,13 @@ const AuthService = {
       if (!isValidPassword)
         throw new ApiError(400, 'Username hoặc password không đúng!');
       const token = jwt.sign({ username }, SECRET_KEY, {
-        expiresIn: '24h',
+        expiresIn: '4h',
       });
       return token;
     } catch (error) {
-      throw new ApiError(error || 500, 'Lỗi server! Vui long thử lại sau.');
+      throw error instanceof ApiError
+        ? error
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -32,7 +34,9 @@ const AuthService = {
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       await USER.update({ password: hashedPassword }, { where: { username } });
     } catch (error) {
-      throw new ApiError(error || 500, 'Lỗi server! Vui long thử lại sau.');
+      throw error instanceof ApiError
+        ? error
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 };

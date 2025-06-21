@@ -225,6 +225,8 @@ const PhieuDatTiecService = {
             if (!phieudattiec) {
                 throw new Error('Không tìm thấy phiếu đặt tiệc');
             }
+            await Ct_DichVu.destroy({ where: { SoPhieuDatTiec: id } });
+            await Ct_DatBan.destroy({ where: { SoPhieuDatTiec: id } });
 
             await phieudattiec.destroy();
             return true;

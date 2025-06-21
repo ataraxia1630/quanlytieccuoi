@@ -5,9 +5,8 @@ module.exports = (sequelize, DataTypes) => {
       MaCa: {
         type: DataTypes.CHAR(10),
         primaryKey: true,
-      },
-      TenCa: {
-        type: DataTypes.STRING(5),
+      },      TenCa: {
+        type: DataTypes.STRING(50),
         allowNull: false,
       },
       GioBatDau: {

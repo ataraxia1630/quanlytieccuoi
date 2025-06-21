@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import styles from './HoaDon.module.css';
 import { createHoaDon, getHoaDon } from '../../service/hoadon.service';
 import { useLocation } from 'react-router-dom';
-import { Button, TextField } from '@mui/material';
+import { Box, Button, TextField } from '@mui/material';
 import CustomTable from '../../components/Customtable';
 import ActionButtons from '../../components/Actionbuttons';
 import AddButton from '../../components/Addbutton';
@@ -29,6 +29,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import DeleteDialog from "../../components/Deletedialog";
 import ctDatBanService from '../../service/ct_datban.service';
 import SomeActionButton from '../../components/Someactionbutton';
+import toastService from '../../service/toast/toast.service';
 
 function HoaDon() {
   const location = useLocation();
@@ -134,6 +135,7 @@ function HoaDon() {
     });
     setMode("add");
     setIsDVDialogOpen(true);
+    toastService.hoaDon.serviceAlreadySelected(); // "Dịch vụ đã được chọn trước đó!"
 
     await fetchDichVuList(pagination.limit, pagination.offset);
 
@@ -204,21 +206,18 @@ function HoaDon() {
       };
 
       if (mode === "edit" && selectedDichVu) {
-
-        console.log("vao edit dich vu");
         await updateCTDichVu(selectedDichVu.MaDichVu, soPhieuDatTiec, dichVuData);
-        const newList = await getAllCTDichVuByPDTId(soPhieuDatTiec);
 
-        const normalized = newList.map(item => ({
-          ...item,
-          DichVu: {
-            TenDichVu: item["DichVu.TenDichVu"] || item?.DichVu?.TenDichVu
-          }
+        setForm(prev => ({
+          ...prev,
+          dsDichVu: prev.dsDichVu.map(dv =>
+            dv.MaDichVu === selectedDichVu.MaDichVu
+              ? { ...dv, ...dichVuData, DichVu: { TenDichVu: dv.DichVu.TenDichVu } }
+              : dv
+          )
         }));
 
-        setForm(prev => ({ ...prev, dsDichVu: normalized }));
-
-        toast.success("Dịch vụ đã được cập nhật!");
+        toastService.hoaDon.serviceUpdated();
       } else {
 
         const isExist = form.dsDichVu.some(
@@ -226,7 +225,7 @@ function HoaDon() {
         );
 
         if (isExist) {
-          toast.error("Dịch vụ đã được chọn trước đó!");
+          toastService.hoaDon.serviceAlreadySelected(); // "Dịch vụ đã được chọn trước đó!"
           setIsDVDialogOpen(false);
           return;
         }
@@ -241,7 +240,7 @@ function HoaDon() {
         }));
 
         setForm(prev => ({ ...prev, dsDichVu: normalized }));
-        toast.success("Dịch vụ đã được thêm vào hoá đơn!");
+        toastService.hoaDon.serviceAdded(); // "Dịch vụ đã được thêm vào hoá đơn!"
       }
 
       setIsDVDialogOpen(false);
@@ -313,23 +312,27 @@ function HoaDon() {
   const acceptDeleteDV = async () => {
     try {
       setLoading(true);
-      const result = await deleteCTDichVu(selectedDichVu.MaDichVu, soPhieuDatTiec);
-      const newList = await getAllCTDichVuByPDTId(soPhieuDatTiec);
-      setForm((prev) => ({
+
+      await deleteCTDichVu(selectedDichVu.MaDichVu, soPhieuDatTiec);
+
+      setForm(prev => ({
         ...prev,
-        dsDichVu: newList,
+        dsDichVu: prev.dsDichVu.filter(
+          dv => dv.MaDichVu !== selectedDichVu.MaDichVu
+        ),
       }));
-      toast.success('Đã xoá dịch vụ khỏi hoá đơn!')
+
+      toastService.hoaDon.serviceRemoved();
 
       setIsDeleteDVDialogOpen(false);
       setSelectedDichVu(null);
-      fetchDichVuList(currentFilters, pagination.limit, pagination.offset);
     } catch (error) {
       toast.error(error.message);
     } finally {
       setLoading(false);
     }
   };
+
 
   const acceptDeleteMA = async () => {
     try {
@@ -363,7 +366,7 @@ function HoaDon() {
   };
 
   const columns = [
-    { id: "index", label: "STT", width: 10 },
+    { id: "index", label: "STT", width: 15 },
     {
       id: "TenDichVu",
       label: "Dịch vụ",
@@ -391,7 +394,7 @@ function HoaDon() {
     } : null,
   ].filter(Boolean);
   const columns2 = [
-    { id: "index", label: "STT", width: 5 },
+    { id: "index", label: "STT", width: 15 },
     {
       id: "TenMonAn",
       label: "Món ăn",
@@ -405,16 +408,7 @@ function HoaDon() {
       label: "Thành tiền",
       width: 50,
       render: (row) => row.DonGia * row.SoLuong
-    },
-    !isViewMode ? {
-      id: "actions",
-      label: "Thao tác",
-      sortable: false,
-      width: 10,
-      render: (row, onEdit, onDelete) => (
-        <ActionButtons row={row} onEdit={onEdit} onDelete={onDelete} />
-      ),
-    } : null,
+    }
   ].filter(Boolean);
 
   useEffect(() => {
@@ -462,7 +456,7 @@ function HoaDon() {
           setForm(newForm);
         }
       } catch (err) {
-        console.error('❌ Lỗi khi lấy dữ liệu:', err);
+        toastService.crud.error.generic(); // "Có lỗi xảy ra. Vui lòng thử lại sau!"
       } finally {
         setLoading(false);
       }
@@ -495,12 +489,13 @@ function HoaDon() {
           ...result,
         }));
 
-        toast.success("Tạo hóa đơn thành công");
+        toastService.hoaDon.paymentSuccess(); // "Tạo hoá đơn thành công!"
       } else {
-        toast.error("Tạo hóa đơn không thành công");
+        toastService.hoaDon.paymentFailed(); // "Tạo hoá đơn thất bại!"
       }
     } catch (err) {
-      toast.error("Lỗi khi tạo hóa đơn: " + err.message);
+      toastService.crud.error.generic(); // "Có lỗi xảy ra. Vui lòng thử lại sau!"
+
     } finally {
       setLoading(false);
     }
@@ -514,182 +509,191 @@ function HoaDon() {
   if (loading) return <p>Đang tải dữ liệu hóa đơn...</p>;
 
   return (
+    <Box sx={{ p: 3 }}>
 
-    <div className={`${styles.hoadonBox} ${styles.printableHoaDon}`}>
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
+      <div className={`${styles.hoadonBox} ${styles.printableHoaDon}`}>
+        <ToastContainer className={styles.noPrint} position="top-right" autoClose={3000} hideProgressBar />
 
-      <div className={`${styles.hoadonLeft} ${styles.dashedBorder}`}>
+        <div className={`${styles.hoadonLeft} ${styles.dashedBorder}`}>
 
-        <div style={{ flex: 1 }}>
-          <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '80px' }}>Chú rể:</p>
-          <span className={styles.hoadonName}>{chuRe}</span>
+          <div style={{ flex: 1 }}>
+            <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '80px' }}>Chú rể:</p>
+            <span className={styles.hoadonName}>{chuRe}</span>
 
-          <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '15px' }}>Cô dâu:</p>
-          <span className={styles.hoadonName}>{coDau}</span>
+            <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '15px' }}>Cô dâu:</p>
+            <span className={styles.hoadonName}>{coDau}</span>
 
-          <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '15px' }}>Ngày đãi tiệc: </p>
-          <span className={styles.hoadonName}>{formatDate(ngayDaiTiec)}</span>
+            <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '15px' }}>Ngày đãi tiệc: </p>
+            <span className={styles.hoadonName}>{formatDate(ngayDaiTiec)}</span>
 
-          <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '15px' }}>Ngày thanh toán: </p>
-          {isViewMode && form.NgayThanhToan && (
-            <span className={styles.hoadonName}>{formatDate(form.NgayThanhToan)}</span>
-          )}
+            <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '15px' }}>Ngày thanh toán: </p>
+            {isViewMode && form.NgayThanhToan && (
+              <span className={styles.hoadonName}>{formatDate(form.NgayThanhToan)}</span>
+            )}
+          </div>
+          {isViewMode ?
+            <div>
+              <p className={styles.hoadonText} style={{ marginTop: '20px' }}>Tổng tiền dịch vụ: {form.TongTienDichVu ?? 0}</p>
+              <p className={styles.hoadonText}>Tổng tiền bàn: {form.TongTienMonAn ?? 0}</p>
+              <p className={styles.hoadonText}>Tổng tiền hoá đơn: {form.TongTienHoaDon}</p>
+              <p className={styles.hoadonText}>Tiền đặt cọc: {tienCoc}</p>
+              <p className={styles.hoadonText}>Tiền phạt: {form.TongTienPhat}</p>
+              {form.TienConLai > 0 ?
+                <p className={styles.hoadonText}>Khách còn thiếu: {form.TienConLai}</p>
+                :
+                <p className={styles.hoadonText}>Khách còn dư: {Math.abs(form.TienConLai)}</p>
+              }
+            </div> :
+            <div></div>
+          }
+
+          {
+            !isViewMode ? (
+              <Button
+                className={styles.noPrint}
+                variant="contained"
+                onClick={() => handleCreateHoaDon()}
+                sx={{
+                  bgcolor: "#FFD66D",
+                  width: "150px",
+                  textTransform: "none",
+                  height: "40px",
+                  fontSize: "16px",
+                  fontWeight: "700",
+                  color: "#063F5C",
+                  marginTop: '290px',
+                  "&:hover": {
+                    bgcolor: "#D9A441",
+                  },
+                }}
+              >
+                Lưu thay đổi
+              </Button>
+            ) : (
+              <Button
+                className={styles.noPrint}
+                variant="contained"
+                onClick={() => handlePrintHoaDon()}
+                sx={{
+                  bgcolor: "#FFD66D",
+                  width: "150px",
+                  textTransform: "none",
+                  height: "40px",
+                  fontSize: "16px",
+                  fontWeight: "700",
+                  color: "#063F5C",
+                  marginTop: '15px',
+                  "&:hover": {
+                    bgcolor: "#D9A441",
+                  },
+                }}
+              >
+                Xuất hoá đơn
+              </Button>
+            )
+          }
         </div>
-        {isViewMode ?
-          <div>
-            <p className={styles.hoadonText} style={{ marginTop: '50px' }}>Tổng tiền dịch vụ: {form.TongTienDichVu ?? 0}</p>
-            <p className={styles.hoadonText}>Tổng tiền bàn: {form.TongTienMonAn ?? 0}</p>
-            <p className={styles.hoadonText}>Tổng tiền hoá đơn: {form.TongTienHoaDon}</p>
-            <p className={styles.hoadonText}>Tiền đặt cọc: {tienCoc}</p>
-            <p className={styles.hoadonText}>Tiền phạt: {form.TongTienPhat}</p>
-            {form.TienConLai > 0 ?
-              <p className={styles.hoadonText}>Khách còn thiếu: {form.TienConLai}</p>
-              :
-              <p className={styles.hoadonText}>Khách còn dư: {Math.abs(form.TienConLai)}</p>
-            }
-          </div> :
-          <div></div>
-        }
-
-        {
-          !isViewMode ? (
-            <Button
-              className={styles.noPrint}
-              variant="contained"
-              onClick={() => handleCreateHoaDon()}
-              sx={{
-                bgcolor: "#FFD66D",
-                width: "150px",
-                textTransform: "none",
-                height: "40px",
-                fontSize: "16px",
-                fontWeight: "700",
-                color: "#063F5C",
-                marginTop: '300px',
-                "&:hover": {
-                  bgcolor: "#D9A441",
-                },
-              }}
-            >
-              Lưu thay đổi
-            </Button>
-          ) : (
-            <Button
-              className={styles.noPrint}
-              variant="contained"
-              onClick={() => handlePrintHoaDon()}
-              sx={{
-                bgcolor: "#FFD66D",
-                width: "150px",
-                textTransform: "none",
-                height: "40px",
-                fontSize: "16px",
-                fontWeight: "700",
-                color: "#063F5C",
-                marginTop: '30px',
-                "&:hover": {
-                  bgcolor: "#D9A441",
-                },
-              }}
-            >
-              Xuất hoá đơn
-            </Button>
-          )
-        }
-      </div>
 
 
-      <div className={styles.hoadonRight}>
+        <div className={styles.hoadonRight}>
 
-        <div >
-          <p className={styles.ctHoadon}>CHI TIẾT HOÁ ĐƠN</p>
+          <div >
+            <p className={styles.ctHoadon}>CHI TIẾT HOÁ ĐƠN</p>
 
-          <div className={styles.row}>
-            <div className={styles.hoadonText}>
-              <p>Số lượng bàn: </p>
-              {isViewMode ? form.SoLuongBanDaDung : (
-                <TextField
-                  name="SoLuongBanDaDung"
-                  type="number"
-                  value={form.SoLuongBanDaDung}
-                  onChange={handleChange}
-                  variant="filled"
-                  sx={{ width: 80 }}
-                  InputProps={{
-                    disableUnderline: true,
-                    sx: {
-                      input: {
-                        color: 'white',
-                      },
-                    },
-                  }}
-                />
-              )}
-            </div>
-
-            {isViewMode ?
+            <div className={styles.row}>
               <div className={styles.hoadonText}>
-                <p>Đơn giá bàn: {form.DonGiaBan}</p>
-              </div> : null}
+                <p>Số lượng bàn: </p>
+                {isViewMode ? form.SoLuongBanDaDung : (
+                  <TextField
+                    name="SoLuongBanDaDung"
+                    type="number"
+                    value={form.SoLuongBanDaDung}
+                    onChange={handleChange}
+                    variant="filled"
+                    sx={{ width: 80 }}
+                    InputProps={{
+                      disableUnderline: true,
+                      sx: {
+                        input: {
+                          color: 'white',
+                        },
+                      },
+                    }}
+                  />
+                )}
+              </div>
+
+              {isViewMode ?
+                <div className={styles.hoadonText}>
+                  <p>Đơn giá bàn: {form.DonGiaBan}</p>
+                </div> : null}
 
 
+
+            </div>
+            {Array.isArray(form.dsDichVu) && form.dsDichVu.length > 0 ? (
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <p style={{ color: 'white', fontWeight: "700", fontSize: "28px", marginBottom: '10px' }}>Danh sách dịch vụ</p>
+                  {!isViewMode && <div style={{ border: '1px solid rgba(224, 224, 224, 1)', width: 'fit-content', marginTop: "5px", marginBottom: "0px" }}>
+                    <AddButton onClick={handleOpenDVDialog} text="Thêm" sx={{ width: "fit-content" }} /></div>}
+                </div>
+
+                <div className={styles.table} style={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
+                  <CustomTable
+                    sx={{ marginRight: '20px' }}
+                    data={form.dsDichVu}
+                    columns={columns}
+                    onEdit={handleEditDV}
+                    onDelete={handleDeleteDV}
+                  />
+                </div>
+
+              </div>
+            ) : (
+              <div>
+                <p style={{ color: 'white' }}>Không có dữ liệu dịch vụ.</p>
+                {!isViewMode && <div style={{ border: '1px solid rgba(224, 224, 224, 1)', width: 'fit-content', marginTop: "5px", marginBottom: "0px" }}>
+                  <AddButton onClick={handleOpenDVDialog} text="Thêm" sx={{ width: "fit-content" }} /></div>}</div>
+            )}
+
+
+            {form.dsMonAn.length > 0 ? (
+              <div>
+                <p style={{ color: 'white', marginTop: "30px", fontWeight: "700", fontSize: "28px", marginBottom: "10px" }}>Thực đơn</p>
+                <div className={styles.table} style={{ border: '1px solid rgba(224, 224, 224, 1)', marginBottom: "15px" }}>
+
+                  <CustomTable
+                    data={form.dsMonAn}
+                    columns={columns2}
+                    onEdit={handleEditMA}
+                    onDelete={handleDeleteMA}
+
+                  />
+                </div>
+              </div>
+            ) : (
+              <p style={{ color: 'white' }}>Không có dữ liệu món ăn.</p>
+            )}
 
           </div>
-          {Array.isArray(form.dsDichVu) && form.dsDichVu.length > 0 ? (
-            <div>
 
-              <div className={styles.table} style={{ border: '1px solid rgba(224, 224, 224, 1)' }}>
-                <CustomTable
-                  sx={{ marginRight: '20px' }}
-                  data={form.dsDichVu}
-                  columns={columns}
-                  onEdit={handleEditDV}
-                  onDelete={handleDeleteDV}
-                />
-              </div>
+          <DichVuDialog
+            open={isDVDialogOpen}
+            onClose={handleCloseDVEditDialog}
+            onSave={handleSaveCT_DichVu}
+            title={mode === "edit" ? "Chỉnh sửa dịch vụ" : "Thêm dịch vụ"}
+            initialData={selectedDichVu}
+            mode={mode}
+          />
+          <DanhSachDichVuDialog
+            open={openDichVuDialog}
+            title='Chọn dịch vụ để thêm'
+            onClose={handleCloseDVDialog}
+            onSelect={handleChonDichVu}
+          />
 
-            </div>
-          ) : (
-            <p style={{ color: 'white' }}>Không có dữ liệu dịch vụ.</p>
-          )}
-          {!isViewMode && <AddButton onClick={handleOpenDVDialog} text="Thêm dịch vụ" />}
-
-
-          {/* {form.dsMonAn.length > 0 ? (
-            <div>
-              <div style={{ border: '1px solid rgba(224, 224, 224, 1)', marginTop: '30px' }}>
-                <CustomTable
-                  data={form.dsMonAn}
-                  columns={columns2}
-                  onEdit={handleEditMA}
-                  onDelete={handleDeleteMA}
-
-                />
-              </div>
-            </div>
-          ) : (
-            <p style={{ color: 'white' }}>Không có dữ liệu món ăn.</p>
-          )}
-          {!isViewMode && <AddButton onClick={handleOpenMADialog} text="Thêm món ăn" />} */}
-
-        </div>
-
-        <DichVuDialog
-          open={isDVDialogOpen}
-          onClose={handleCloseDVEditDialog}
-          onSave={handleSaveCT_DichVu}
-          title={mode === "edit" ? "Chỉnh sửa dịch vụ" : "Thêm dịch vụ"}
-          initialData={selectedDichVu}
-          mode={mode}
-        />
-        <DanhSachDichVuDialog
-          open={openDichVuDialog}
-          title='Chọn dịch vụ để thêm'
-          onClose={handleCloseDVDialog}
-          onSelect={handleChonDichVu}
-        />
-
-        {/* <MonAnDialog
+          {/* <MonAnDialog
           open={isMADialogOpen}
           onClose={handleCloseMAEditDialog}
           onSave={handleSaveCT_MonAn}
@@ -697,28 +701,37 @@ function HoaDon() {
           initialData={selectedMonAn}
           mode={mode}
         /> */}
-        {/* <DanhSachMonAnDialog
+          {/* <DanhSachMonAnDialog
           open={openMonAnDialog}
           title='Chọn món ăn để thêm'
           onClose={handleCloseMADialog}
           onSelect={handleChonMonAn}
         /> */}
-        <DeleteDialog
-          open={isDeleteDVDialogOpen}
-          onClose={handleCloseDVDeleteDialog}
-          onDelete={acceptDeleteDV}
-          title="Xác nhận xóa dịch vụ"
-          content={`Bạn có chắc chắn muốn xóa dịch vụ "${selectedDichVu?.TenDichVu}"?`}
-        />
-        {/* <DeleteDialog
+          <DeleteDialog
+            open={isDeleteDVDialogOpen}
+            onClose={handleCloseDVDeleteDialog}
+            onDelete={acceptDeleteDV}
+            title="Xác nhận xóa dịch vụ"
+            content={`Bạn có chắc chắn muốn xóa dịch vụ "${selectedDichVu?.TenDichVu}"?`}
+          />
+          {/* <DeleteDialog
           open={isDeleteMADialogOpen}
           onClose={handleCloseMADeleteDialog}
           onDelete={acceptDeleteMA}
           title="Xác nhận xóa món ăn"
           content={`Bạn có chắc chắn muốn xóa món ăn "${selectedMonAn?.TenMonAn}"?`}
         /> */}
+        </div>
       </div>
-    </div>
+      <div className={styles.footerPrint} style={{ display: "none" }}>
+        <div >
+          <div className={styles.signatureTitle}>Người lập</div>
+          <div >Ký tên</div>
+        </div>
+
+      </div>
+
+    </Box>
   );
 }
 

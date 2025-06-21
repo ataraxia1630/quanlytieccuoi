@@ -11,7 +11,7 @@ module.exports = {
     });
 
     const defaultUsername = process.env.DEFAULT_USERNAME || 'defaultUser';
-    const defaultPassword = process.env.DEFAULT_PASSWORD || 'defaultPass123';
+    const defaultPassword = process.env.DEFAULT_PASSWORD || 'defaultUser';
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(defaultPassword, saltRounds);
 
@@ -41,11 +41,6 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.changeColumn('USER', 'password', {
-      type: Sequelize.STRING(50),
-      allowNull: false,
-    });
-
     const defaultUsername = process.env.DEFAULT_USERNAME || 'defaultUser';
     const defaultPassword = process.env.DEFAULT_PASSWORD || 'defaultPass123';
 
@@ -53,5 +48,9 @@ module.exports = {
       `UPDATE USER SET password = :defaultPassword WHERE username = :defaultUsername`,
       { replacements: { defaultPassword, defaultUsername } }
     );
+    await queryInterface.changeColumn('USER', 'password', {
+      type: Sequelize.STRING(50),
+      allowNull: false,
+    });
   },
 };

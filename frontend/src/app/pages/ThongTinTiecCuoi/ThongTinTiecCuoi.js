@@ -9,6 +9,7 @@ import Cancelbutton from '../../components/Cancelbutton';
 import SaveAndPrintButton from '../../components/Someactionbutton';
 import { StepContext } from '../DatTiecCuoi/DatTiecCuoi';
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import PhieuDatTiecService from '../../service/phieudattiec.service';
 import caService from '../../service/ca.service';
 import sanhService from '../../service/sanh.service';
@@ -19,6 +20,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HallCard from '../../components/Hallcard';
 import { format } from 'date-fns';
+import { grey } from '@mui/material/colors';
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -47,6 +49,7 @@ const ThongTinTiecCuoi = () => {
     NgayDaiTiec: "",
     TienDatCoc: "",
     SoLuongBan: "",
+    SoBanDuTru: "",
     NgayDatTiec: "",
     MaSanh: "",
     MaCa: ""
@@ -94,22 +97,19 @@ const ThongTinTiecCuoi = () => {
   // Tìm sảnh tương ứng dựa trên MaSanh
   const sanhInfo = useMemo(() => {
 
-    const sanh = halls.find(sanh => sanh.MaSanh === phieuDatTiec.MaSanh) || { MaSanh: null, TenSanh: "", TenLoaiSanh: "", SoLuongBanToiDa: "" };
-    if (sanh.MaSanh === null) {
-      setErrors(prev => ({ ...prev, MaCa: null }))
-    };
-    return sanh;
-  }, [phieuDatTiec.MaSanh, halls, phieuDatTiec.SoLuongBan]);
+    return halls.find(sanh => sanh.MaSanh === phieuDatTiec.MaSanh) || { TenSanh: "", TenLoaiSanh: "", SoLuongBanToiDa: "" };
+  }, [phieuDatTiec.MaSanh, halls]);
 
   // Tìm ca tương ứng dựa trên MaCa
   const caInfo = useMemo(() => {
     return shifts.find(ca => ca.MaCa === phieuDatTiec.MaCa) || { MaCa: null, TenCa: "", ThoiGianBatDau: "", ThoiGianKetThuc: "" };
-  }, [phieuDatTiec.MaCa, shifts]);
+  }, [phieuDatTiec.MaCa]);
+
 
 
   //trường phone number
   const validatePhoneNumberField = useCallback((name, value, setErrors) => {
-    const phoneRegex = /^(0|\+84)[0-9]{9}$/;
+    const phoneRegex = /^0(3|5|7|8|9)\d{8}$/;
 
     if (!value || !phoneRegex.test(value)) {
       setErrors((prev) => ({
@@ -134,15 +134,15 @@ const ThongTinTiecCuoi = () => {
         ...prev,
         [name]: "Ngày không được trước ngày hiện tại!",
       }));
-    } else if (name === "NgayDaiTiec" && value.getTime() < phieuDatTiec.NgayDatTiec.getTime()
-      || name === "NgayDatTiec" && value.getTime() > phieuDatTiec.NgayDaiTiec.getTime()) {
-      setErrors(prev => ({ ...prev, [name]: "Ngày đặt tiệc không được trước ngày đặt tiệc!" }));
+    } else if ((name === "NgayDaiTiec" && value.getTime() < phieuDatTiec.NgayDatTiec.getTime())
+      || (name === "NgayDatTiec" && value.getTime() > phieuDatTiec.NgayDaiTiec.getTime())) {
+      setErrors(prev => ({ ...prev, [name]: "Ngày đãi tiệc không được trước ngày đặt tiệc!" }));
     }
     else {
       setErrors((prev) => ({ ...prev, NgayDaiTiec: "" }));
       setErrors((prev) => ({ ...prev, NgayDatTiec: "" }));
     }
-  }, []);
+  }, [phieuDatTiec.NgayDatTiec, phieuDatTiec.NgayDaiTiec]);
 
 
   //Phiếu đặt tiệc
@@ -152,20 +152,42 @@ const ThongTinTiecCuoi = () => {
 
     let newValue = value;
     // Nếu là trường số thì ép kiểu số nguyên
-    if (name === "SoLuongBan" || name === "TienDatCoc") {
+    if (name === "SoLuongBan" || name === "TienDatCoc" || name == "SoBanDuTru") {
       newValue = parseInt(value, 10);
-      if (isNaN(newValue)) {
+      if (isNaN(newValue) || newValue < 0) {
+        console.error(`Giá trị không hợp lệ cho trường ${name}: ${value}`);
         newValue = ""; // Trường hợp người dùng xóa hết input
       }
 
     }
+
     if (name === "sanhCa") {
       setPhieuDatTiec(prev => ({
         ...prev,
         MaSanh: newValue.MaSanh,
         MaCa: newValue.MaCa,
       }));
+      toast.success(`Đã chọn sảnh/ca thành công`);
     }
+    else if (name === "GioDaiTiec" && newValue) {
+      const currentNgay = new Date(phieuDatTiec.NgayDaiTiec);
+      const gioMoi = new Date(newValue);
+
+      const ngayCapNhat = new Date(
+        currentNgay.getFullYear(),
+        currentNgay.getMonth(),
+        currentNgay.getDate(),
+        gioMoi.getHours(),
+        gioMoi.getMinutes(),
+        gioMoi.getSeconds()
+      );
+
+      setPhieuDatTiec(prev => ({
+        ...prev,
+        NgayDaiTiec: ngayCapNhat
+      }));
+    }
+
     else
       setPhieuDatTiec({ ...phieuDatTiec, [name]: newValue });
     if (name === "NgayDaiTiec" || name === "NgayDatTiec") {
@@ -173,17 +195,24 @@ const ThongTinTiecCuoi = () => {
       validateTimeField(name, newValue, setErrors);
 
     }
-    else if (name === "TienDatCoc" || name === "SoLuongBan") {
+    else if (name === "TienDatCoc" || name === "SoLuongBan" || name == "SoBanDuTru") {
+
       validateNumberField(name, newValue, setErrors);
-      if (name === "SoLuongBan" && newValue > sanhInfo.SoLuongBanToiDa) {
+      if (phieuDatTiec.MaSanh && name === "SoLuongBan" && newValue + phieuDatTiec.SoBanDuTru > Number(sanhInfo.SoLuongBanToiDa)) {
         setErrors(prev => ({ ...prev, SoLuongBan: "Sảnh quá nhỏ so với số lượng bàn yêu cầu" }));
+
       }
+      else if (phieuDatTiec.MaSanh && name === "SoBanDuTru" && newValue + phieuDatTiec.SoLuongBan > Number(sanhInfo.SoLuongBanToiDa)) {
+        setErrors(prev => ({ ...prev, SoBanDuTru: "Sảnh quá nhỏ so với số lượng bàn yêu cầu" }));
+      }
+      else {
+        setErrors(prev => ({ ...prev, SoLuongBan: "", SoBanDuTru: "" }))
+      }
+
     }
     else if (name === "SDT") {
       validatePhoneNumberField(name, newValue, setErrors);
     }
-    console.log(`${name}:`, newValue)
-    console.log("phieuDattiec: ", phieuDatTiec)
 
 
   };
@@ -287,6 +316,7 @@ const ThongTinTiecCuoi = () => {
       if ((!phieuDatTiec.TenChuRe || !phieuDatTiec.TenCoDau || !phieuDatTiec.SDT
         || !phieuDatTiec.SoLuongBan || !phieuDatTiec.NgayDaiTiec || !phieuDatTiec.NgayDatTiec)
         || !phieuDatTiec.MaCa || !phieuDatTiec.MaSanh || hasErrors()) {
+        console.log("hass err", hasErrors())
         console.log("phieudattiec", phieuDatTiec)
         console.log("lỗi nhập liệu", errors)
         const toastId = "save-error-toast";
@@ -306,26 +336,28 @@ const ThongTinTiecCuoi = () => {
 
 
   };
-  //set full ca data
-  useEffect(() => {
-    fetchFullCa();
-  }, [fetchFullCa]);
-
 
   //set valid sanh data
   useEffect(() => {
 
-    let slban = phieuDatTiec.SoLuongBan == "" ? 0 : phieuDatTiec.SoLuongBan;
-    fetchValidSanhByDate({ ngayDaiTiec: pdtReFormat.NgayDaiTiec.slice(0, 10), soLuongBan: slban, soBanDuTru: phieuDatTiec.SoBanDuTru });
+    if (errors.SoLuongBan === "", errors.SoBanDuTru == "") {
+      let slban = phieuDatTiec.SoLuongBan == "" ? 0 : phieuDatTiec.SoLuongBan;
+      let slBanDuTru = phieuDatTiec.SoBanDuTru == "" ? 0 : phieuDatTiec.SoBanDuTru;
+      fetchValidSanhByDate({ ngayDaiTiec: pdtReFormat.NgayDaiTiec.slice(0, 10), soLuongBan: slban, soBanDuTru: slBanDuTru });
+    }
+  }, [phieuDatTiec.NgayDaiTiec, phieuDatTiec.SoLuongBan, phieuDatTiec.SoBanDuTru, phieuDatTiec.MaSanh]);
 
-  }, [fetchFullCa, fetchValidSanhByDate, phieuDatTiec.NgayDaiTiec, phieuDatTiec.SoLuongBan, phieuDatTiec.SoBanDuTru]);
+  //set full ca data
+  useEffect(() => {
+    fetchFullCa();
+  }, []);
 
 
 
   // Lấy currentPDT từ localStorage 
   useEffect(() => {
     // setPhieuDatTiec(initialState);
-    localStorage.setItem("currentPDT", "PDT001");
+    //localStorage.setItem("currentPDT", "PDT001");
 
     const pdt = localStorage.getItem("currentPDT");
     console.log("currentPDT: ", pdt)
@@ -340,22 +372,19 @@ const ThongTinTiecCuoi = () => {
 
 
 
-  }, [fetchCurrentPhieuDatTiec]);
+  }, []);
 
 
-  console.log("phieuDatTiec: ", phieuDatTiec);
-  console.log("ca: ", caInfo);
-  console.log("sanh: ", sanhInfo);
+
   return (
     <div className="page">
       <ToastContainer />
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <Box className="form-section">
+          <Typography variant='h6' mb={3}>Thông tin khách hàng</Typography>
           <Box className="form-grid">
             <FormTextField label="Tên chú rể"
-              InputLabelProps={{
-                shrink: Boolean(phieuDatTiec.TenChuRe)
-              }}
+
               name="TenChuRe"
               value={phieuDatTiec.TenChuRe}
               onChange={handleChange} />
@@ -365,9 +394,7 @@ const ThongTinTiecCuoi = () => {
               name="TenCoDau"
               value={phieuDatTiec.TenCoDau}
               onChange={handleChange}
-              InputLabelProps={{
-                shrink: Boolean(phieuDatTiec.TenCoDau)
-              }} />
+            />
             <FormTextField
               label="Số điện thoại"
               name="SDT"
@@ -375,20 +402,16 @@ const ThongTinTiecCuoi = () => {
               onChange={handleChange}
               error={!!errors.SDT}
               helperText={errors.SDT}
-              InputLabelProps={{
-                shrink: Boolean(phieuDatTiec.SDT)
-              }} />
+            />
 
             <FormTextField
               label="Tiền đặt cọc"
               name="TienDatCoc"
-              value={phieuDatTiec.TienDatCoc}
+              value={phieuDatTiec.TienDatCoc.toString()}
               onChange={handleChange}
               error={!!errors.TienDatCoc}
               helperText={errors.TienDatCoc}
-              InputLabelProps={{
-                shrink: (phieuDatTiec.TienDatCoc >= 0 && phieuDatTiec.TienDatCoc !== "")
-              }} />
+            />
             <LocalizationProvider dateAdapter={AdapterDateFns}>
               <DatePicker
                 label="Ngày đặt tiệc"
@@ -421,8 +444,31 @@ const ThongTinTiecCuoi = () => {
                   },
                 }}
               />
+              <TimePicker
+                label="Giờ đãi tiệc"
+                name="GioDaiTiec"
+                value={phieuDatTiec.NgayDaiTiec}
+                ampm={false}
+                onChange={(newValue) => handleChange({ target: { name: "GioDaiTiec", value: newValue } })}
+                format="HH:mm:ss"
+                slotProps={{
+                  textField: {
+                    fullWidth: true,
+                    error: !!errors.NgayDaiTiec,
+                    helperText: errors.NgayDaiTiec,
+                  },
+                }}
+              />
+
             </LocalizationProvider>
           </Box>
+          <Typography variant='h6' >Thông tinh sảnh/ca</Typography>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, alignItems: 'center' }}>
+            <p style={{ color: 'grey', margin: 0 }}>--có thể tiến hành đặt sảnh ở bên dưới--</p>
+            <IconButton onClick={() => handleScroll()}>
+              <KeyboardDoubleArrowDown />
+            </IconButton>
+          </div>
           <FormTextField
             label="Thông tin sảnh"
             name="MaSanh"
@@ -449,7 +495,7 @@ const ThongTinTiecCuoi = () => {
             <div className="BookingCount-container" style={{ paddingTop: 20 }}  >
               <FormTextField
                 label="Số lượng bàn"
-                value={phieuDatTiec.SoLuongBan}
+                value={phieuDatTiec.SoLuongBan.toString()}
                 name="SoLuongBan"
                 onChange={handleChange}
                 size="medium"
@@ -458,11 +504,16 @@ const ThongTinTiecCuoi = () => {
               />
             </div>
 
-            <div className="BookingCount-container">
-              <span>Số lượng bàn dự trữ</span>
-              <IconButton sx={{ ml: 2 }} onClick={() => handleChange({ target: { name: "SoBanDuTru", value: Math.max(0, phieuDatTiec.SoBanDuTru - 5) } })}><RemoveIcon /></IconButton>
-              <Typography mt={5}>{phieuDatTiec.SoBanDuTru}</Typography>
-              <IconButton onClick={() => handleChange({ target: { name: "SoBanDuTru", value: phieuDatTiec.SoBanDuTru + 5 } })}><AddIcon /></IconButton>
+            <div className="BookingCount-container" style={{ paddingTop: 20 }}>
+              <FormTextField
+                label="Số bàn dự trữ"
+                value={phieuDatTiec.SoBanDuTru.toString()}
+                name="SoBanDuTru"
+                onChange={handleChange}
+                size="medium"
+                error={!!errors.SoBanDuTru}
+                helperText={errors.SoBanDuTru}
+              />
             </div>
           </Box>
 
@@ -474,7 +525,7 @@ const ThongTinTiecCuoi = () => {
         >
           Đặt sảnh
         </Typography>
-        <div className='hall-introduction-container'>
+        <div className='hall-introduction-container' >
           {introductionHalls.map((hall, index) => (
             <div className='hall-card' key={hall.title}>
               {(index === 1) ? (
@@ -497,15 +548,14 @@ const ThongTinTiecCuoi = () => {
               )}
             </div>
           ))}
-          <IconButton sx={{ position: 'absolute', bottom: 20 }} onClick={() => handleScroll()}>
-            <KeyboardDoubleArrowDown />
-          </IconButton>
+
         </div>
+        <div ref={sectionRef} style={{ width: '100%', display: 'flex', justifyContent: 'center', marginTop: 20 }} />
         <img src="https://res.cloudinary.com/digpe9tmq/image/upload/v1747733599/Group_64_wwly0x.png" style={{
           width: '40%', margin: 100
         }}
           alt='text-img' />
-        <div className='selection-container' ref={sectionRef}>
+        <div className='selection-container'>
           {halls.map((item, index) => (
             <HallCard key={index} hall={item} shifts={shifts} index={index} onClick={handleChange} />
           ))}

@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import './DanhSachMonAn.css';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { Box, Typography, CircularProgress } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
+import { Box, Typography, CircularProgress, Pagination } from '@mui/material';
+import { ToastContainer } from 'react-toastify';
 
 import SearchBar from '../../components/Searchbar';
 import FilterButton from '../../components/Filterbutton';
 import AddButton from '../../components/Addbutton';
+import ActionDropdown from '../../components/Printandexport';
 import CustomTable from '../../components/Customtable';
 import DishFilterPanel from '../../components/monan/monan_filter_panel';
 import EditDishPopUp from '../../components/monan/monan_edit_popup';
@@ -15,6 +16,9 @@ import DishColumns from '../../components/monan/monan_column';
 import DeleteDialog from '../../components/Deletedialog';
 
 import MonAnService from '../../service/monan.service';
+
+import { hasPermission } from '../../utils/hasPermission';
+import toastService from '../../service/toast/toast.service';
 
 export default function DanhSachMonAn() {
   //#region declaration
@@ -31,6 +35,14 @@ export default function DanhSachMonAn() {
     priceMax: '',
   });
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sort, setSort] = useState(null);
+  const [currentSort, setCurrentSort] = useState(null);
+  let total;
+  const limit = 30;
+
+  const permissions = localStorage.getItem('permissions');
   //#endregion
 
   //#region useEffect
@@ -41,13 +53,21 @@ export default function DanhSachMonAn() {
         filters.status,
         searchTerm,
         filters.priceMin,
-        filters.priceMax
+        filters.priceMax,
+        currentPage,
+        limit,
+        sort
       );
-      console.log(result.data);
-      setDishData(result.data || []);
+      const monanData = result.data.map((monan, index) => {
+        monan.STT = (currentPage - 1) * limit + index + 1;
+        return monan;
+      });
+      console.log(monanData);
+      setDishData(monanData || []);
+      setTotalPages(result.totalPages || 1);
+      total = result.total;
     } catch (error) {
-      console.log('Error fetching sanhs:', error.message);
-      toast.error(`Lỗi: ${error.message || 'Không thể tải danh sách món ăn!'}`);
+      toastService.crud.error.generic();
     } finally {
       setLoading(false);
     }
@@ -55,13 +75,52 @@ export default function DanhSachMonAn() {
 
   useEffect(() => {
     fetchData();
-  }, [filters, searchTerm]);
+  }, [filters, totalPages, currentPage, sort]);
+
+  useEffect(() => {
+    if (!searchTerm) fetchData();
+  }, [searchTerm]);
   //#endregion
 
   //#region func handler
-  const handleSearch = () => {
-    // toast.info(`Đang tìm kiếm: ${searchTerm}`);
-    fetchData();
+  const handleSearchResult = () => {
+    if (total > 0) toastService.search.success(total, 'món ăn');
+    else toastService.search.noResults('món ăn');
+  };
+
+  const handleSearch = async () => {
+    setCurrentPage(1);
+    try {
+      await fetchData();
+      handleSearchResult();
+    } catch (error) {}
+  };
+
+  const handleSortChange = (property, order) => {
+    setCurrentSort({ field: property, order });
+    console.log(property, order);
+    if (property === 'TenMonAn') setSort('name_' + order);
+    else if (property === 'DonGia') setSort('price_' + order);
+    else if (property === 'MaMonAn') setSort('code_' + order);
+    setCurrentPage(1);
+  };
+
+  const handlePrint = async () => {
+    const result = await MonAnService.getAll();
+    const data = result.data;
+    const res = MonAnService.print(data);
+    if (!res.success) {
+      toastService.file.printError(res.message);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    const result = await MonAnService.getAll();
+    const data = result.data;
+    const res = await MonAnService.exportExcel(data);
+    if (!res.success) {
+      toastService.file.exportError(res.message);
+    }
   };
 
   const handleOpenHideFilter = () => {
@@ -70,47 +129,50 @@ export default function DanhSachMonAn() {
 
   const handleApplyFilter = (newFilters) => {
     setFilters(newFilters);
-    toast.success('Đã áp dụng bộ lọc');
+    toastService.search.appliedFilter();
   };
 
   const handleResetFilter = () => {
     setFilters({ status: [], priceMin: '', priceMax: '' });
     setSearchTerm('');
-    toast.success('Đã reset bộ lọc');
+    setCurrentPage(1);
+    setCurrentSort(null);
+    setSort(null);
+    toastService.search.resetFilter();
   };
 
   const handleAdd = () => {
     setMode('add');
     setSelectedRow(null);
     setIsEditDialogOpen(true);
-    toast.success('Bắt đầu thêm món ăn mới');
+    toastService.entity.createStart('món ăn');
   };
 
   const handleEdit = async (row) => {
     setMode('edit');
     setSelectedRow(row);
     setIsEditDialogOpen(true);
-    toast.info(`Đang chỉnh sửa món ăn: ${row.TenMonAn}`);
+    toastService.entity.editing('món ăn', row.TenMonAn);
   };
 
   const handleCloseEditDialog = () => {
     setIsEditDialogOpen(false);
     setSelectedRow(false);
     mode === 'edit'
-      ? toast.info('Đã đóng cửa sổ chỉnh sửa')
-      : toast.info('Đã đóng cửa sổ thêm mới');
+      ? toastService.crud.cancel.edit()
+      : toastService.crud.cancel.create();
   };
 
   const handleDelete = async (row) => {
     setIsDeleteDialogOpen(true);
     setSelectedRow(row);
-    toast.warn(`Bạn sắp xóa món ăn: ${row.TenMonAn}`);
+    toastService.entity.deleteConfirm('món ăn', row.TenMonAn);
   };
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
     setSelectedRow(null);
-    toast.info('Đã hủy xóa món ăn');
+    toastService.entity.cancelDelete('món ăn');
   };
 
   const handleSaveDish = async (data, file) => {
@@ -121,21 +183,21 @@ export default function DanhSachMonAn() {
         TinhTrang: data.status,
       };
       console.log(monanData);
-      toast.info('Đang xử lý yêu cầu ...');
+      toastService.crud.processing.saving();
 
       if (mode === 'edit' && selectedRow) {
         await MonAnService.update(selectedRow.MaMonAn, monanData, file);
-        toast.success(`Cập nhật món ăn "${monanData.TenMonAn}" thành công!`);
+        toastService.entity.updateSuccess('món ăn', monanData.TenMonAn);
       } else {
         await MonAnService.createNew(monanData, file);
-        toast.success(`Thêm món ăn "${monanData.TenMonAn}" thành công!`);
+        toastService.entity.createSuccess('món ăn', monanData.TenMonAn);
       }
 
       setIsEditDialogOpen(false);
       setSelectedRow(null);
       fetchData();
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể lưu món ăn!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể lưu món ăn!'}`);
     }
   };
 
@@ -143,13 +205,13 @@ export default function DanhSachMonAn() {
     try {
       const result = await MonAnService.delete(selectedRow.MaMonAn);
       result.message
-        ? toast.info(result.message)
-        : toast.success(`Đã xóa món ăn "${selectedRow.TenMonAn}" thành công!`);
+        ? toastService.info(result.message)
+        : toastService.entity.deleteSuccess('món ăn', selectedRow.TenMonAn);
       setIsDeleteDialogOpen(false);
       setSelectedRow(null);
       fetchData();
     } catch (error) {
-      toast.error(`Xóa thất bại: ${error.message || 'Không thể xóa món ăn!'}`);
+      toastService.crud.error.delete();
     }
   };
 
@@ -169,22 +231,42 @@ export default function DanhSachMonAn() {
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '20px',
+          alignItems: 'flex-start',
+          gap: 2,
           mb: 3,
+          flexWrap: { xs: 'wrap', md: 'nowrap' },
         }}
       >
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-          onSearch={handleSearch}
-          placeholder="Tìm tên hoặc mã món ăn ..."
-        />
+        <Box
+          sx={{ flex: 1, minWidth: 250, display: 'flex', alignItems: 'center' }}
+        >
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSearch={handleSearch}
+            placeholder="Tìm tên hoặc mã món ăn ..."
+          />
+        </Box>
 
-        <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}
+        >
           <FilterButton onClick={handleOpenHideFilter} text="Filter" />
-          <AddButton onClick={handleAdd} text="Thêm" />
+          <AddButton
+            onClick={handleAdd}
+            text="Thêm"
+            disabled={!hasPermission(permissions, 'food.create')}
+          />
+          <ActionDropdown
+            onPrint={handlePrint}
+            onExportExcel={handleExportExcel}
+          />
         </Box>
       </Box>
 
@@ -197,15 +279,62 @@ export default function DanhSachMonAn() {
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
-          <CircularProgress />
+          <CircularProgress sx={{ color: '#063F5C' }} />
         </Box>
       ) : (
-        <CustomTable
-          data={dishData}
-          columns={DishColumns}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <CustomTable
+            data={dishData}
+            columns={DishColumns}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            serverSideSort={true}
+            onSortChange={handleSortChange}
+            currentSort={currentSort}
+            disabledEdit={!hasPermission(permissions, 'food.edit')}
+            disabledDelete={!hasPermission(permissions, 'food.delete')}
+          />
+          <Pagination
+            count={totalPages}
+            siblingCount={1}
+            boundaryCount={1}
+            variant="outlined"
+            onChange={(e, value) => setCurrentPage(value)}
+            page={currentPage}
+            sx={{
+              '& .MuiPaginationItem-root': {
+                color: '#063F5C',
+                borderColor: '#063F5C',
+                minWidth: '45px',
+                height: '45px',
+                borderRadius: '999px',
+              },
+              '& .MuiPaginationItem-root.Mui-selected': {
+                backgroundColor: '#063F5C',
+                color: '#fff',
+                borderColor: '#063F5C',
+                '&:hover': {
+                  backgroundColor: '#045172',
+                },
+                '&.Mui-focusVisible': {
+                  backgroundColor: '#045172',
+                },
+                '&.Mui-disabled': {
+                  backgroundColor: '#063F5C',
+                  opacity: 1,
+                },
+              },
+              marginTop: '50px',
+            }}
+          />
+        </Box>
       )}
 
       <EditDishPopUp

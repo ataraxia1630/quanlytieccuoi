@@ -33,8 +33,14 @@ const HallTypeColumns = [
     label: 'Thao tác',
     sortable: false,
     width: 100,
-    render: (row, onEdit, onDelete) => (
-      <ActionButtons row={row} onEdit={onEdit} onDelete={onDelete} />
+    render: (row, onEdit, onDelete, disabledEdit, disabledDelete) => (
+      <ActionButtons
+        row={row}
+        onEdit={onEdit}
+        onDelete={onDelete}
+        disabledEdit={disabledEdit}
+        disabledDelete={disabledDelete}
+      />
     ),
   },
 ];

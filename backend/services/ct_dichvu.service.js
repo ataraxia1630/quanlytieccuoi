@@ -110,7 +110,7 @@ const CTDichVuService = {
                 DonGia: DonGia !== undefined ? DonGia : ct.DonGia
             });
 
-            return true;
+            return ct;
         } catch (error) {
             if (error.name === 'ApiError') throw error;
             throw new ApiError(500, `Lỗi khi cập nhật chi tiết dịch vụ  ${phieuDatTiecId}: ` + error.message);

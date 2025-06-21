@@ -27,7 +27,7 @@ const UserService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -39,7 +39,7 @@ const UserService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -60,11 +60,11 @@ const UserService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
-  getAll: async () => {
+  getAll: async (search = '') => {
     try {
       const users = await USER.findAll({
         include: {
@@ -72,11 +72,23 @@ const UserService = {
           attributes: ['TenNhom'],
         },
       });
-      return users;
+      if (!search) return users;
+
+      const lowerSearch = search.toLowerCase();
+      const filtered = users.filter((user) => {
+        const usernameMatch = user.username
+          ?.toLowerCase()
+          .includes(lowerSearch);
+        const groupNameMatch =
+          user.NHOM?.TenNhom?.toLowerCase().includes(lowerSearch);
+        return usernameMatch || groupNameMatch;
+      });
+
+      return filtered;
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -89,7 +101,7 @@ const UserService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 };

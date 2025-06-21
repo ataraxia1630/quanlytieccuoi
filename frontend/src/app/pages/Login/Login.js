@@ -1,21 +1,63 @@
 import React, { useState } from 'react';
 import { Box, Grid, TextField, Button, Typography } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AuthService from '../../service/auth.service';
 import weddingImage from '../../assets/wedding_img.jpg';
+import { usePermission } from '../../../context/PermissionContext';
+import QuyenService from '../../service/quyen.service';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../context/AuthContext';
+import toastService from '../../service/toast/toast.service';
+
+const style = {
+  width: { xs: '100%', sm: '300px' },
+  '& .MuiOutlinedInput-root': {
+    '& fieldset': {
+      borderColor: '#063F5C',
+    },
+    '&:hover fieldset': {
+      borderColor: '#063F5C',
+    },
+    '&.Mui-focused fieldset': {
+      borderColor: '#063F5C',
+    },
+    '& input': {
+      color: 'black',
+    },
+  },
+  '& .MuiInputLabel-root': {
+    color: 'black',
+  },
+  '& .MuiInputLabel-root.Mui-focused': {
+    color: '#063F5C',
+  },
+};
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const { setPermissions } = usePermission();
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     try {
       const token = await AuthService.login(username, password);
       localStorage.setItem('accessToken', token);
-      window.location.href = '/';
+      const permissions = await QuyenService.getPerOfUser();
+      localStorage.setItem('permissions', JSON.stringify(permissions));
+      setPermissions(permissions);
+      login(token);
+      navigate('/');
     } catch (error) {
-      toast(error.message || 'Đăng nhập không thành công!');
+      toastService.error(error.message || 'Đăng nhập không thành công!');
+    }
+  };
+
+  const handleKeyDown = async (e) => {
+    if (e.key === 'Enter') {
+      await handleLogin();
     }
   };
 
@@ -89,11 +131,8 @@ const Login = () => {
               variant="outlined"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              sx={{
-                mb: 2,
-                bgcolor: 'rgba(255, 255, 255, 0.8)',
-                width: { xs: '100%', sm: '300px' },
-              }}
+              onKeyDown={handleKeyDown}
+              sx={style}
             />
             <TextField
               label="Password"
@@ -101,11 +140,8 @@ const Login = () => {
               variant="outlined"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              sx={{
-                mb: 2,
-                bgcolor: 'rgba(255, 255, 255, 0.8)',
-                width: { xs: '100%', sm: '300px' },
-              }}
+              onKeyDown={handleKeyDown}
+              sx={style}
             />
             <Button
               variant="contained"
@@ -116,7 +152,7 @@ const Login = () => {
               }}
               onClick={handleLogin}
             >
-              Login
+              Sign in
             </Button>
           </Grid>
         </Grid>

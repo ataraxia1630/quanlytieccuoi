@@ -41,7 +41,11 @@ const createSanh = async (req, res, next) => {
         const createdSanh = await sanhService.getSanhById(sanh.MaSanh);
         res.status(201).json(createdSanh);
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            res.status(error.statusCode || 400).json({ error: error.message });
+        } else {
+            next(error);
+        }
     }
 };
 
@@ -66,7 +70,11 @@ const updateSanh = async (req, res, next) => {
             res.json(updatedSanh);
         }
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            res.status(error.statusCode || 400).json({ error: error.message });
+        } else {
+            next(error);
+        }
     }
 };
 
@@ -74,12 +82,15 @@ const deleteSanh = async (req, res, next) => {
     try {
         const deleted = await sanhService.deleteSanh(req.params.maSanh);
         if (!deleted) {
-            res.status(404).json({ error: 'Không tìm thấy sảnh' });
+            return res.status(404).json({ error: 'Không tìm thấy sảnh' });
         } else {
-            res.json({ message: 'Xóa sảnh thành công' });
+            return res.json({ message: 'Xóa sảnh thành công' });
         }
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            return res.status(error.statusCode).json({ error: error.message });
+        }
+        return res.status(500).json({ error: 'Lỗi server khi xóa sảnh' });
     }
 };
 
@@ -97,7 +108,11 @@ const searchAndFilterSanh = async (req, res, next) => {
         });
         res.json(sanhs);
     } catch (error) {
-        next(error);
+        if (error.name === 'ApiError') {
+            res.status(error.statusCode || 400).json({ error: error.message });
+        } else {
+            next(error);
+        }
     }
 };
 
