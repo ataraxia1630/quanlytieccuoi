@@ -1,6 +1,8 @@
 import { getHoaDon } from "../../service/hoadon.service";
 import { IconButton, Typography } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { hasPermission } from '../../utils/hasPermission';
 
 const EditIcon = () => (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -39,24 +41,37 @@ const EyeIcon = () => (
         />
     </svg>
 );
+const permissions = localStorage.getItem('permissions');
 
 const Phieucolumns = (navigate) =>
 
     [
-        { id: "SoPhieuDatTiec", label: "Số phiếu", sortable: true, width: 150 },
+        { id: "SoPhieuDatTiec", label: "Số phiếu", sortable: true },
         { id: "TenChuRe", label: "Tên chú rể", sortable: true },
         { id: "TenCoDau", label: "Tên cô dâu", sortable: true },
         {
-            id: "TenSanh", label: "Sảnh",
+            id: "TenSanh", label: "Sảnh", sortable: true,
             render: (row) => row?.Sanh?.TenSanh || "Không rõ"
         },
         { id: "SoLuongBan", label: "Số bàn", sortable: true, width: 100 },
         {
             id: "NgayDaiTiec",
-            label: "Ngày",
+            label: "Ngày đãi",
             sortable: true,
             render: (row) => {
                 const date = new Date(row.NgayDaiTiec);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Lưu ý: getMonth() trả về 0-11
+                const year = date.getFullYear();
+                return `${day}/${month}/${year}`;
+            }
+        },
+        {
+            id: "NgayDatTiec",
+            label: "Ngày đặt",
+            sortable: true,
+            render: (row) => {
+                const date = new Date(row.NgayDatTiec);
                 const day = String(date.getDate()).padStart(2, '0');
                 const month = String(date.getMonth() + 1).padStart(2, '0'); // Lưu ý: getMonth() trả về 0-11
                 const year = date.getFullYear();
@@ -78,6 +93,13 @@ const Phieucolumns = (navigate) =>
 
             render: (row, _onEdit, onDelete, disabledEdit, disabledDelete, disableCreate) => {
                 const handleXemHoaDon = async (e) => {
+                    const today = new Date();
+                    const ngayDaiTiec = new Date(row.NgayDaiTiec);
+
+                    if (ngayDaiTiec > today) {
+                        toast.warning("Chưa tới ngày đãi tiệc, không thể tạo hoá đơn.");
+                        return;
+                    }
                     e.stopPropagation();
                     try {
                         const hoaDon = await getHoaDon(row.SoPhieuDatTiec);
@@ -116,31 +138,46 @@ const Phieucolumns = (navigate) =>
                 const isDaThanhToan = row.TrangThai === 'Đã thanh toán';
 
                 return (
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "6px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                         {/* Tạo hoặc Xem hóa đơn */}
-                        {!isDaHuy && !disableCreate && (
-                            <IconButton
+                        {
+                            isDaThanhToan && <IconButton
                                 className="action"
                                 onClick={handleXemHoaDon}
+
+                            >
+                                <EyeIcon />
+                                <Typography variant="body2" sx={{ ml: 1, color: "#000", marginLeft: "0px" }}>
+                                    Xem hóa đơn
+                                </Typography>
+                            </IconButton>
+                        }
+                        {
+                            !isDaHuy && isChuaThanhToan && <IconButton
+                                className="action"
+                                onClick={handleXemHoaDon}
+                                disabled={!hasPermission(permissions, 'bill.create')}
+
                                 sx={{
                                     opacity: disableCreate ? 0.5 : 1,
                                     cursor: disableCreate ? 'not-allowed' : 'pointer',
                                 }}
                             >
                                 <EyeIcon />
-                                <Typography variant="body2" sx={{ ml: 1, color: "#000" }}>
-                                    {isDaThanhToan ? "Xem hóa đơn" : "Tạo hóa đơn"}
+                                <Typography variant="body2" sx={{ ml: 1, color: "#000", marginLeft: "0px" }}>
+                                    Tạo hóa đơn
                                 </Typography>
                             </IconButton>
-                        )}
-
+                        }
                         {/* Huỷ hoặc kích hoạt phiếu */}
-                        {(isChuaThanhToan || isDaHuy) && !disabledEdit && (
-                            <IconButton
+                        {
+                            isDaHuy && <IconButton
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onDelete(row);
                                 }}
+                                disabled={disabledEdit}
+
                                 sx={{
                                     opacity: disabledEdit ? 0.5 : 1,
                                     cursor: disabledEdit ? 'not-allowed' : 'pointer',
@@ -148,10 +185,30 @@ const Phieucolumns = (navigate) =>
                             >
                                 <EditIcon />
                                 <Typography variant="body2" sx={{ ml: 1, color: "#000" }}>
-                                    {isDaHuy ? "Kích hoạt" : "Huỷ phiếu"}
+                                    Kích hoạt
                                 </Typography>
                             </IconButton>
-                        )}
+                        }
+
+                        {
+                            isChuaThanhToan && <IconButton
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDelete(row);
+                                }}
+                                disabled={disabledDelete}
+
+                                sx={{
+                                    opacity: disabledDelete ? 0.5 : 1,
+                                    cursor: disabledDelete ? 'not-allowed' : 'pointer',
+                                }}
+                            >
+                                <EditIcon />
+                                <Typography variant="body2" sx={{ ml: 1, color: "#000" }}>
+                                    Huỷ phiếu
+                                </Typography>
+                            </IconButton>
+                        }
                     </div>
                 );
             }

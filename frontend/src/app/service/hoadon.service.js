@@ -37,6 +37,54 @@ export const createHoaDon = async (data) => {
   throw error
  }
 }
+export const updateHoaDon = async (soHoaDon, data) => {
+  try {
+    const res = await fetch(`${API_URL}/hoadon/${soHoaDon}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const contentType = res.headers.get("content-type");
+
+    if (!res.ok) {
+      // Nếu là lỗi JSON, parse để lấy message cụ thể
+      if (contentType && contentType.includes("application/json")) {
+        const errJson = await res.json();
+        throw new Error(errJson.message || "Cập nhật hoá đơn thất bại");
+      }
+
+      // Nếu không phải JSON, đọc text thường
+      const errorText = await res.text();
+      throw new Error(errorText || "Cập nhật hoá đơn thất bại");
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Lỗi cập nhật hoá đơn:", error);
+    throw error;
+  }
+};
+
+// services/hoadon.service.js
+export const checkEditAllowed = async (soHoaDon) => {
+  try {
+    const res = await fetch(`${API_URL}/hoadon/check-date/${soHoaDon}`);
+    const data = await res.json();
+
+    if (!res.ok) {
+      console.error("Lỗi từ backend:", data);
+      throw new Error(data.message || "Không thể kiểm tra trạng thái chỉnh sửa hóa đơn");
+    }
+
+    return data.allowed;
+  } catch (error) {
+    console.error("checkEditAllowed error:", error);
+    throw new Error("Không thể kiểm tra trạng thái chỉnh sửa hóa đơn");
+  }
+};
+
+
 export const deleteHoaDon = async (soHoaDon) => {
   try {
     const res = await fetch(`${API_URL}/hoadon/${soHoaDon}`, {
@@ -56,27 +104,3 @@ export const deleteHoaDon = async (soHoaDon) => {
     throw error;
   }
 };
-export const restoreDichVu = async (soPhieu, dsBackup) => {
-  try {
-    const res = await fetch(`${API_URL}/hoadon/restore-dichvu/${soPhieu}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dsBackup),
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error("Không thể khôi phục dịch vụ:", res.status, errorText);
-      throw new Error(errorText || "Khôi phục dịch vụ thất bại");
-    }
-
-    const data = await res.json();
-    return data;
-  } catch (error) {
-    console.error("Lỗi khi khôi phục dịch vụ:", error);
-    throw error;
-  }
-};
-

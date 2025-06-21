@@ -1,6 +1,6 @@
 const API_URL = "http://localhost:25053/api/danhsachtiec";
 
-export const getDanhSach = async ({ page = 1, limit = 10, sortField, sortOrder }) => {
+export const getDanhSach = async ({ page = 1, limit = 30, sortField, sortOrder }) => {
   try {
     const offset = (page - 1) * limit;
 
@@ -26,7 +26,7 @@ export const getDanhSach = async ({ page = 1, limit = 10, sortField, sortOrder }
 };
 
 
-export const postDanhSach = async (data, page = 1, limit = 10, sortField, sortOrder) => {
+export const postDanhSach = async (data, page = 1, limit = 30, sortField, sortOrder) => {
   const offset = (page - 1) * limit;
 
   const fullPayload = {

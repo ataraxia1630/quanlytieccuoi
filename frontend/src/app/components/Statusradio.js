@@ -24,6 +24,11 @@ const StatusRadio = ({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         row={row}
+        sx={{  
+          ".css-1tclnr1-MuiTypography-root": {
+            marginBottom: 0
+          }
+         }}
       >
         {options.map((option) => (
           <FormControlLabel

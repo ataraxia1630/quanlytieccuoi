@@ -55,7 +55,7 @@ function DanhSachTiecCuoi() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const result = await getDanhSach({ page: currentPage, limit: 10 });
+      const result = await getDanhSach({ page: currentPage, limit: 30 });
       setData(result.data);
       setTotalItems(result.totalItems);
     } catch (error) {
@@ -87,7 +87,7 @@ function DanhSachTiecCuoi() {
       try {
         const payload = {
           page: currentPage,
-          limit: 10,
+          limit: 30,
           sortField: sort.field,
           sortOrder: sort.order,
         };
@@ -96,12 +96,12 @@ function DanhSachTiecCuoi() {
         let result;
         if (isFiltering && filterPayload) {
           result = await postDanhSach(
-            { ...filterPayload, page: currentPage, limit: 10, sortField: sort.field, sortOrder: sort.order }
+            { ...filterPayload, page: currentPage, limit: 30, sortField: sort.field, sortOrder: sort.order }
           );
         } else {
           result = await getDanhSach({
             page: currentPage,
-            limit: 10,
+            limit: 30,
             sortField: sort.field,
             sortOrder: sort.order,
           });
@@ -206,7 +206,7 @@ function DanhSachTiecCuoi() {
       setIsFiltering(true);      // bật chế độ lọc
       setFilterPayload(payload);
 
-      const result = await postDanhSach(payload, currentPage, 10);
+      const result = await postDanhSach(payload, currentPage, 30);
 
       setData(result.data);
       setTotalItems(result.totalItems);
@@ -291,7 +291,7 @@ function DanhSachTiecCuoi() {
 
   const computedDataWithIndex = data.map((item, idx) => ({
     ...item,
-    indexGlobal: (currentPage - 1) * 10 + idx + 1,
+    indexGlobal: (currentPage - 1) * 30 + idx + 1,
   }));
 
   return (
@@ -374,7 +374,7 @@ function DanhSachTiecCuoi() {
             <div className="ngay-box">
               <div className="ngay-box">
                 <DateRangePicker
-                  label="Ngày"
+                  label="Ngày đãi tiệc"
                   fromDate={form.tuNgay}
                   toDate={form.denNgay}
                   onFromChange={(v) => setForm({ ...form, tuNgay: v })}
@@ -394,11 +394,13 @@ function DanhSachTiecCuoi() {
               options={options}
             />
 
-            <div className="apply">
+            <Box
+          sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2, marginTop: 20 }}
+        >
               <FilterButton text="Reset" onClick={handleResetFilter} colorVariant="reset" />
               <FilterButton text="Apply" onClick={handleSubmit} />
 
-            </div>
+            </Box>
           </div>
         </div>
       )}
@@ -431,16 +433,16 @@ function DanhSachTiecCuoi() {
             ]}
             data={computedDataWithIndex}
             currentPage={currentPage}
-            pageSize={10} onDelete={handleDelete} serverSideSort
+            pageSize={30} onDelete={handleDelete} serverSideSort
             currentSort={sort}
             onSortChange={handleSortChange}
             disabledEdit={!hasPermission(permissions, 'wedding.edit')}
-
             disabledDelete={!hasPermission(permissions, 'wedding.delete')}
+            disabledCreate={!hasPermission(permissions, 'bill.create')}
           />
           <Pagination
             page={currentPage}
-            count={Math.ceil(totalItems / 10)}
+            count={Math.ceil(totalItems / 30)}
             onChange={(e, page) => setCurrentPage(page)}
             siblingCount={1}
             boundaryCount={1}

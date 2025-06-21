@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './HoaDon.module.css';
-import { createHoaDon, deleteHoaDon, restoreDichVu } from '../../service/hoadon.service';
+import { checkEditAllowed, createHoaDon, deleteHoaDon, restoreDichVu, updateHoaDon } from '../../service/hoadon.service';
 import { useLocation } from 'react-router-dom';
 import { Box, Button, TextField } from '@mui/material';
 import CustomTable from '../../components/Customtable';
@@ -27,24 +27,27 @@ import DeleteDialog from "../../components/Deletedialog";
 import ctDatBanService from '../../service/ct_datban.service';
 import toastService from '../../service/toast/toast.service';
 import { hasPermission } from '../../utils/hasPermission';
-import { useNavigate } from "react-router-dom";
 import FormTextField from '../../components/Formtextfield';
-
+import DialogButtons from '../../components/Dialogbutton';
+import EditDialog from '../../components/hoadon/editdialog';
+import BaoCaoThangService from '../../service/baocao.service';
 
 function HoaDon() {
   const location = useLocation();
   const { soHoaDon, soPhieuDatTiec, data: initData, coDau, chuRe, tienCoc, ngayDaiTiec, slBanToiDa } = location.state || {};
-
+  const [tiLePhat, setTiLePhat] = useState(0);
+  const[isHoaDon, setIsHoaDon] = useState(Boolean(soHoaDon))
   const [isViewMode, setIsViewMode] = useState(Boolean(soHoaDon));
   const [openDichVuDialog, setOpenDichVuDialog] = useState(false);
 
   const handleOpenDVDialog = () => setOpenDichVuDialog(true);
   const handleCloseDVDialog = () => setOpenDichVuDialog(false);
-
+console.log("ngay lap hoa don: " + initData.NgayThanhToan)
+console.log("ti le phat: " + initData.TiLePhat)
   const [form, setForm] = useState({
     SoPhieuDatTiec: '',
     SoHoaDon: '',
-    NgayThanhToan: '',
+    NgayThanhToan: initData.NgayThanhToan?initData.NgayThanhToan:'',
     DonGiaBan: '',
     SoLuongBanDaDung: '',
     TongTienDichVu: '',
@@ -54,7 +57,6 @@ function HoaDon() {
     TienConLai: '',
     dsDichVu: [],
     dsMonAn: [],
-
   });
   const [isDVDialogOpen, setIsDVDialogOpen] = useState(false);
   const [isMADialogOpen, setIsMADialogOpen] = useState(false);
@@ -69,9 +71,9 @@ function HoaDon() {
   const [monAnList, setMonAnList] = useState([]);
 
   const [selectedDichVu, setSelectedDichVu] = useState(null);
-  const [selectedHoaDon, setSelectedHoaDon] = useState(null);
   const [selectedMonAn, setSelectedMonAn] = useState(null);
-  const [currentFilters, setCurrentFilters] = useState({});
+
+  const [isEditHDDialogOpen, setIsEditHDDialogOpen] = useState(false);
   const [pagination, setPagination] = useState({
     limit: 10,
     offset: 0,
@@ -80,10 +82,59 @@ function HoaDon() {
   const [errors, setErrors] = useState({
     SoLuongBanDaDung: "",
   });
-  const navigate = useNavigate();
-
-
   const permissions = localStorage.getItem('permissions');
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const dsChiTietDichVu = await getAllCTDichVuByPDTId(soPhieuDatTiec);
+        const dsThucDon = await CTDatBanCotroller.getAllByPhieuDatTiecId(soPhieuDatTiec);
+
+        const normalizedDichVu = dsChiTietDichVu.map(item => ({
+          ...item,
+          DichVu: { TenDichVu: item["DichVu.TenDichVu"] || item?.DichVu?.TenDichVu }
+        }));
+
+        const normalizedMonAn = dsThucDon.map(item => ({
+          ...item,
+          MonAn: { TenMonAn: item["MonAn.TenMonAn"] || item?.MonAn?.TenMonAn }
+        }));
+
+        setForm((prev) => ({
+          ...prev,
+          dsDichVu: normalizedDichVu,
+          dsMonAn: normalizedMonAn,
+        }));
+        if (isViewMode) {
+          console.log('vao read');
+          setForm({
+            ...initData,
+            dsDichVu: normalizedDichVu,
+            dsMonAn: normalizedMonAn,
+          });
+        } else {
+          console.log('vao create');
+          const randomNum = Math.floor(Math.random() * 1000); // 0 - 999
+          const randomNumStr = randomNum.toString().padStart(3, '0');
+          const newForm = {
+            ...form,
+            SoPhieuDatTiec: initData.SoPhieuDatTiec || '',
+            SoHoaDon: `HD${randomNumStr}`,
+            SoLuongBanDaDung: initData.SoLuongBan,
+            NgayThanhToan: new Date().toISOString(),
+            dsDichVu: dsChiTietDichVu || [],
+            dsMonAn: dsThucDon || [],
+          };
+          setForm(newForm);
+        }
+      } catch (err) {
+        toastService.crud.error.generic(); // "Có lỗi xảy ra. Vui lòng thử lại sau!"
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
 
   const fetchMonAnList = useCallback(
@@ -108,31 +159,33 @@ function HoaDon() {
     []
   );
 
-  const fetchDichVuList = useCallback(async (limit = 10, offset = 0) => {
-    try {
-      setLoading(true);
-      const data = await DichVuService.getAllDichVu(limit, offset);
-      const normalized = data.map(item => ({
-        ...item,
-        DichVu: {
-          TenDichVu: item["DichVu.TenDichVu"] || item?.TenDichVu,
-        },
-      }));
-      setDichVuList(normalized); // ❌ KHÔNG cập nhật form
-    } catch (error) {
-      toast.error(error.message);
-      setDichVuList([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const fetchDichVuList = useCallback(
+    async (filters = {}, limit = 10, offset = 0) => {
+      try {
+        setLoading(true);
+        let data;
+        data = await DichVuService.getAllDichVu(limit, offset);
+        setDichVuList(data);
+        setPagination((prev) => ({ ...prev, limit, offset }));
+
+        return data;
+      } catch (error) {
+        toast.error(error.message);
+        setDichVuList([]);
+        return [];
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
 
 
   const tongtiendichvu = useMemo(() => {
     if (!form.dsDichVu || form.dsDichVu.length === 0) return 0;
 
     return form.dsDichVu.reduce((sum, dv) => {
-      if (dv.isDeleted) return sum; // bỏ qua dịch vụ đã xoá tạm
+      if (dv.isDeleted) return sum;
       const thanhTien = (Number(dv.DonGia) || 0) * (Number(dv.SoLuong) || 0);
       return sum + thanhTien;
     }, 0);
@@ -159,338 +212,205 @@ function HoaDon() {
     });
     setMode("add");
     setIsDVDialogOpen(true);
+    toastService.hoaDon.serviceAlreadySelected(); // "Dịch vụ đã được chọn trước đó!"
+
+    await fetchDichVuList(pagination.limit, pagination.offset);
+
   };
 
   const handleSaveCT_DichVu = async (formData) => {
-  try {
-    setLoading(true);
-
-    if (!selectedDichVu?.MaDichVu) {
-      toast.error("Không có dịch vụ nào được chọn.");
-      return;
-    }
-
-    const dichVuData = {
-      MaDichVu: selectedDichVu.MaDichVu,
-      DonGia: Number(formData.price),
-      SoLuong: Number(formData.sl),
-      SoPhieuDatTiec: soPhieuDatTiec
-    };
-
-    let updatedDsDichVu;
-
-    if (mode === "edit") {
-      updatedDsDichVu = form.dsDichVu.map(dv =>
-        dv.MaDichVu === selectedDichVu.MaDichVu
-          ? {
-              ...dv,
-              ...(dv.original ? {} : { original: { SoLuong: dv.SoLuong, DonGia: dv.DonGia } }),
-              DonGia: dichVuData.DonGia,
-              SoLuong: dichVuData.SoLuong,
-              isUpdated: true,
-              isNew: false,
-              DichVu: dv.DichVu?.TenDichVu
-                ? { TenDichVu: dv.DichVu.TenDichVu }
-                : selectedDichVu.DichVu
-            }
-          : dv
-      );
-
-      toastService.hoaDon.serviceUpdated();
-    } else {
-      const isExist = form.dsDichVu.some(
-        (dv) => dv.MaDichVu === selectedDichVu.MaDichVu && !dv.isDeleted
-      );
-      if (isExist) {
-        toastService.hoaDon.serviceAlreadySelected();
-        setIsDVDialogOpen(false);
-        return;
-      }
-
-      updatedDsDichVu = [
-        ...form.dsDichVu,
-        {
-          ...dichVuData,
-          isNew: true,
-          isFromHoaDon: true,
-          DichVu: {
-            TenDichVu: selectedDichVu?.DichVu?.TenDichVu || "Không rõ"
-          }
-        }
-      ];
-      toastService.hoaDon.serviceAdded();
-    }
-
-    // ✅ Lưu cache
-    const cacheKey = `dv-backup-${soPhieuDatTiec}`;
-    localStorage.setItem(cacheKey, JSON.stringify(updatedDsDichVu));
-    console.log("updated dich vu sau khi edit hoac them: " + updatedDsDichVu)
-    
-    // ✅ Cập nhật state
-    setForm(prev => ({
-      ...prev,
-      dsDichVu: updatedDsDichVu
-    }));
-
-    setIsDVDialogOpen(false);
-    setSelectedDichVu(null);
-  } catch (error) {
-    toast.error(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  const acceptDeleteDV = async () => {
-  try {
-    setLoading(true);
-
-    if (!selectedDichVu?.MaDichVu) {
-      toast.error("Không có dịch vụ được chọn để xoá.");
-      return;
-    }
-
-    const updated = form.dsDichVu.map(dv =>
-      dv.MaDichVu === selectedDichVu.MaDichVu && !dv.isDeleted
-        ? { ...dv, isDeleted: true }
-        : dv
-    );
-
-    setForm(prev => ({
-      ...prev,
-      dsDichVu: updated
-    }));
-
-    // ✅ Cập nhật cache
-    localStorage.setItem(`dv-backup-${soPhieuDatTiec}`, JSON.stringify(updated));
-    console.log("updated dich vu sau khi xoa: " + JSON.stringify(updated))
-
-    toastService.hoaDon.serviceRemoved();
-    setIsDeleteDVDialogOpen(false);
-    setSelectedDichVu(null);
-  } catch (error) {
-    toast.error(error.message);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
- 
-const acceptDeleteHD = async () => {
-  try {
-    setLoading(true);
-
-    const dichVuCanXoa = form.dsDichVu.filter(dv => dv.isFromHoaDon);
-    for (const dv of dichVuCanXoa) {
-      await deleteCTDichVu(dv.MaDichVu, soPhieuDatTiec);
-    }
-
-    // 🔁 Khôi phục từ localStorage
-    const cacheKey = `dv-backup-${soPhieuDatTiec}`;
-    const cachedDV = localStorage.getItem(cacheKey);
-
-    if (cachedDV) {
-      try {
-        const parsedCache = JSON.parse(cachedDV);
-        await restoreDichVu(soPhieuDatTiec, parsedCache);
-console.log("📦 Dữ liệu sẽ khôi phục vào DB:", parsedCache);
-
-        // Ghi dấu đã khôi phục để useEffect không dùng lại cache
-        localStorage.setItem(`restored-${soPhieuDatTiec}`, 'true');
-
-        // Reset lại state để tránh xung đột
-        const updated = parsedCache.map(dv => ({
-          ...dv,
-          isNew: false,
-          isUpdated: false,
-          isDeleted: false,
-          original: undefined,
-        }));
-
-        setForm(prev => ({
-          ...prev,
-          dsDichVu: updated
-        }));
-      } catch (err) {
-        toast.error("Lỗi khi khôi phục dữ liệu gốc.");
-        return;
-      }
-    }
-
-    const maso = form.SoHoaDon || soHoaDon;
-    await deleteHoaDon(maso);
-
-    toast.success("Đã xoá hóa đơn và khôi phục dữ liệu gốc!");
-
-    // ❗ Di chuyển xoá cache và điều hướng xuống dưới cùng
-    localStorage.removeItem(`dv-backup-${soPhieuDatTiec}`);
-    navigate(-1);
-
-  } catch (error) {
-    toast.error(error.message || "Xoá hóa đơn thất bại.");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-  const handleCreateHoaDon = async () => {
-  const parsed = parseInt(form.SoLuongBanDaDung);
-
-  let message = "";
-  if (form.SoLuongBanDaDung === "") {
-    message = "Không được để trống";
-  } else if (isNaN(parsed)) {
-    message = "Giá trị không hợp lệ";
-  } else if (parsed < 0) {
-    message = "Không được nhập số âm";
-  } else if (parsed > slBanToiDa) {
-    message = `Số lượng bàn tối đa của sảnh là ${slBanToiDa}`;
-  }
-
-  if (message !== "") {
-    setErrors((prev) => ({
-      ...prev,
-      SoLuongBanDaDung: message,
-    }));
-    toastService.hoaDon.paymentFailed();
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    // Xử lý cập nhật chi tiết dịch vụ
-    for (const dv of form.dsDichVu) {
-      const isGoc = !dv.isNew && !dv.isFromHoaDon;
-
-      if (dv.isDeleted && isGoc) {
-        await deleteCTDichVu(dv.MaDichVu, soPhieuDatTiec);
-      }
-
-      if (dv.isNew) {
-        // Chỉ tạo mới khi thực sự là mới và không bị xóa
-        if (!dv.isDeleted) {
-          await createCTDichVu(dv);
-        }
-      } else if (dv.isUpdated && !dv.isDeleted) {
-        await updateCTDichVu(dv.MaDichVu, soPhieuDatTiec, dv);
-      }
-    }
-
-    // Gửi dữ liệu tạo hoá đơn
-    const hoaDonData = {
-      SoPhieuDatTiec: form.SoPhieuDatTiec,
-      SoHoaDon: form.SoHoaDon,
-      SoLuongBanDaDung: parsed,
-    };
-
-    const result = await createHoaDon(hoaDonData);
-
-    // Cập nhật trạng thái phiếu đặt tiệc
-    await PhieuDatTiecService.updatePhieuDatTiec(form.SoPhieuDatTiec, {
-      TrangThai: "Đã thanh toán",
-    });
-
-    if (result) {
-      // ✅ Xoá cache sau khi thành công
-      localStorage.removeItem(`dv-backup-${soPhieuDatTiec}`);
-
-      setIsViewMode(true);
-      setForm((prevForm) => ({
-        ...prevForm,
-        soHoaDon: result.SoHoaDon,
-        ...result,
-      }));
-      toastService.hoaDon.paymentSuccess();
-    } else {
-      toastService.hoaDon.paymentFailed();
-    }
-  } catch (err) {
-    console.error("❌ Lỗi khi tạo hoá đơn:", err);
-    toastService.crud.error.generic(); // "Có lỗi xảy ra. Vui lòng thử lại sau!"
-  } finally {
-    setLoading(false);
-  }
-};
-
-useEffect(() => {
-  async function fetchData() {
     try {
-      const cacheKey = `dv-backup-${soPhieuDatTiec}`;
-      
-      const restoredKey = `restored-${soPhieuDatTiec}`;
+      setLoading(true);
+      const dichVuData = {
+        MaDichVu: selectedDichVu.MaDichVu,
+        DonGia: Number(formData.price),
+        SoLuong: Number(formData.sl),
+        SoPhieuDatTiec: soPhieuDatTiec,
+      };
 
-      const cachedDV = localStorage.getItem(cacheKey);
-    console.log("dich vu trong useeffect: " + JSON.parse(cachedDV))
-
-      const isRestored = localStorage.getItem(restoredKey);
-
-      const dsChiTietDichVu = await getAllCTDichVuByPDTId(soPhieuDatTiec);
-      const dsThucDon = await CTDatBanCotroller.getAllByPhieuDatTiecId(soPhieuDatTiec);
-
-      const normalizedDichVu = dsChiTietDichVu.map(item => ({
-        ...item,
-        DichVu: { TenDichVu: item["DichVu.TenDichVu"] || item?.DichVu?.TenDichVu }
-      }));
-
-      const normalizedMonAn = dsThucDon.map(item => ({
-        ...item,
-        MonAn: { TenMonAn: item["MonAn.TenMonAn"] || item?.MonAn?.TenMonAn }
-      }));
-
-      let finalDichVu = normalizedDichVu;
-
-      // ✅ Chỉ dùng cache nếu chưa restore
-      if (!isViewMode && cachedDV && !isRestored) {
-        try {
-          const parsedCache = JSON.parse(cachedDV);
-          if (Array.isArray(parsedCache)) {
-            finalDichVu = parsedCache;
-          }
-        } catch (e) {
-          console.error("Lỗi parse localStorage:", e);
-        }
-      }
-
-      if (isViewMode) {
-        console.log('Vào chế độ xem');
-        setForm({
-          ...initData,
-          dsDichVu: finalDichVu,
-          dsMonAn: normalizedMonAn,
-        });
-      } else {
-        const randomNumStr = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      if (mode === "edit" && selectedDichVu) {
+        await updateCTDichVu(selectedDichVu.MaDichVu, soPhieuDatTiec, dichVuData);
 
         setForm(prev => ({
           ...prev,
-          SoPhieuDatTiec: initData.SoPhieuDatTiec || '',
-          SoHoaDon: `HD${randomNumStr}`,
-          SoLuongBanDaDung: initData.SoLuongBan,
-          NgayThanhToan: new Date().toISOString(),
-          dsDichVu: finalDichVu,
-          dsMonAn: normalizedMonAn,
+          dsDichVu: prev.dsDichVu.map(dv =>
+            dv.MaDichVu === selectedDichVu.MaDichVu
+              ? { ...dv, ...dichVuData, DichVu: { TenDichVu: dv.DichVu.TenDichVu } }
+              : dv
+          )
         }));
+
+        toastService.hoaDon.serviceUpdated();
+      } else {
+
+        const isExist = form.dsDichVu.some(
+          (dv) => dv.MaDichVu === selectedDichVu.MaDichVu
+        );
+
+        if (isExist) {
+          toastService.hoaDon.serviceAlreadySelected(); // "Dịch vụ đã được chọn trước đó!"
+          setIsDVDialogOpen(false);
+          return;
+        }
+        console.log("vao add dich vu");
+        await createCTDichVu(dichVuData);
+        const newList = await getAllCTDichVuByPDTId(soPhieuDatTiec);
+        const normalized = newList.map(item => ({
+          ...item,
+          DichVu: {
+            TenDichVu: item["DichVu.TenDichVu"] || item?.DichVu?.TenDichVu
+          }
+        }));
+
+        setForm(prev => ({ ...prev, dsDichVu: normalized }));
+        toastService.hoaDon.serviceAdded(); // "Dịch vụ đã được thêm vào hoá đơn!"
       }
 
-      // 🧹 Xoá dấu đã restore sau khi dùng xong
-      localStorage.removeItem(restoredKey);
-
-    } catch (err) {
-      toastService.crud.error.generic();
+      setIsDVDialogOpen(false);
+      setSelectedDichVu(null);
+    } catch (error) {
+      toast.error(error.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  fetchData();
-}, []);
+  const acceptDeleteDV = async () => {
+    try {
+      setLoading(true);
 
+      await deleteCTDichVu(selectedDichVu.MaDichVu, soPhieuDatTiec);
 
+      setForm(prev => ({
+        ...prev,
+        dsDichVu: prev.dsDichVu.filter(
+          dv => dv.MaDichVu !== selectedDichVu.MaDichVu
+        ),
+      }));
 
+      toastService.hoaDon.serviceRemoved();
+
+      setIsDeleteDVDialogOpen(false);
+      setSelectedDichVu(null);
+    } catch (error) {
+      toast.error(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEditHD = async () => {
+    const parsed = parseInt(form.SoLuongBanDaDung);
+
+    let message = "";
+    if (form.SoLuongBanDaDung === "") {
+      message = "Không được để trống";
+    } else if (isNaN(parsed)) {
+      message = "Giá trị không hợp lệ";
+    } else if (parsed < 0) {
+      message = "Không được nhập số âm";
+    } else if (parsed > slBanToiDa) {
+      message = `Số lượng bàn tối đa của sảnh là ${slBanToiDa}`;
+    }
+
+    if (message !== "") {
+      setErrors((prev) => ({
+        ...prev,
+        SoLuongBanDaDung: message,
+      }));
+      toastService.hoaDon.paymentFailed();
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const hoaDonData = {
+        SoPhieuDatTiec: form.SoPhieuDatTiec,
+        SoLuongBanDaDung: form.SoLuongBanDaDung,
+        TiLePhat: tiLePhat 
+      };
+      console.log(hoaDonData)
+      if (!form.SoHoaDon) {
+        toast.error("Không tìm thấy mã số hoá đơn để cập nhật.");
+        return;
+      }
+
+      const result = await updateHoaDon(form.SoHoaDon, hoaDonData);
+
+      if (result) {
+        setIsViewMode(true);
+        setForm((prevForm) => ({
+          ...prevForm,
+          ...result,
+        }));
+        setIsDeleteHDDialogOpen(true);
+        toast.success("Chỉnh sửa hoá đơn thành công!")
+      } else {
+        toastService.hoaDon.paymentFailed();
+      }
+    } catch (err) {
+      toast.error(err.message || "Có lỗi xảy ra khi cập nhật hoá đơn");
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleCreateHoaDon = async () => {
+    if(isHoaDon) {
+      handleEditHD()
+    }  else {
+
+    const parsed = parseInt(form.SoLuongBanDaDung);
+
+    let message = "";
+    if (form.SoLuongBanDaDung === "") {
+      message = "Không được để trống";
+    } else if (isNaN(parsed)) {
+      message = "Giá trị không hợp lệ";
+    } else if (parsed < 0) {
+      message = "Không được nhập số âm";
+    } else if (parsed > slBanToiDa) {
+      message = `Số lượng bàn tối đa của sảnh là ${slBanToiDa}`;
+    }
+
+    if (message !== "") {
+      setErrors((prev) => ({
+        ...prev,
+        SoLuongBanDaDung: message,
+      }));
+      toastService.hoaDon.paymentFailed();
+      return;
+    }
+   
+    try {
+      setLoading(true);
+      const hoaDonData = {
+        SoPhieuDatTiec: form.SoPhieuDatTiec,
+        SoHoaDon: form.SoHoaDon,
+        SoLuongBanDaDung: form.SoLuongBanDaDung,
+      };
+       
+      const result = await createHoaDon(hoaDonData);
+      setTiLePhat(result.TiLePhat)
+      setIsHoaDon(true);
+      PhieuDatTiecService.updatePhieuDatTiec(form.SoPhieuDatTiec, { TrangThai: "Đã thanh toán"});
+      if (result) {
+        setIsViewMode(true);
+        setForm((prevForm) => ({
+          ...prevForm,
+          ...result,
+        }));
+
+        toastService.hoaDon.paymentSuccess();
+      } else {
+        toastService.hoaDon.paymentFailed();
+      }
+    } catch (err) {
+      toastService.crud.error.generic(); // "Có lỗi xảy ra. Vui lòng thử lại sau!"
+    } finally {
+      setLoading(false);
+    }
+    }
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -500,6 +420,13 @@ useEffect(() => {
       setErrors(prev => ({
         ...prev,
         [name]: `Số lượng bàn tối đa của sảnh là ${slBanToiDa}`,
+      }));
+      return;
+    }
+    if(parsed === 0) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: `Số lượng bàn phải lớn hơn 0`,
       }));
       return;
     }
@@ -535,26 +462,8 @@ useEffect(() => {
     return `${day}-${month}-${year}`;
   }
 
-
-
-
   const handlePrintHoaDon = () => {
     window.print();
-  };
-
-
-  const handleChonMonAn = async (monan) => {
-    setSelectedMonAn({
-      MaMonAn: monan.MaMonAn,
-      DonGia: monan.DonGia,
-      SoLuong: 1,
-      MonAn: { TenMonAn: monan.TenMonAn }
-
-    });
-    setMode("add");
-    setIsMADialogOpen(true);
-
-    await fetchMonAnList(pagination.limit, pagination.offset);
   };
 
   const handleEditDV = (dichVu) => {
@@ -566,12 +475,6 @@ useEffect(() => {
   const handleDeleteDV = (dichVu) => {
     setSelectedDichVu(dichVu);
     setIsDeleteDVDialogOpen(true);
-  };
-
-
-  const handleDeleteHD = (hoadon) => {
-    setSelectedHoaDon(hoadon);
-    setIsDeleteHDDialogOpen(true);
   };
 
   const handleEditMA = (monan) => {
@@ -591,105 +494,39 @@ useEffect(() => {
     setSelectedDichVu(null);
   };
 
-  const handleCloseHDDeleteDialog = () => {
-    setIsDeleteHDDialogOpen(false);
-    setSelectedHoaDon(null);
-  };
-
-  const handleCloseMADeleteDialog = () => {
-    setIsDeleteMADialogOpen(false);
-    setSelectedMonAn(null);
-  };
-
   const handleCloseDVEditDialog = () => {
     setIsDVDialogOpen(false);
     setSelectedDichVu(null);
   };
-  const handleCloseMAEditDialog = () => {
-    setIsMADialogOpen(false);
-    setSelectedDichVu(null);
-  };
+  
+  const handleMoveToEditHD = () => {
+    setIsViewMode (false);
+    setIsEditHDDialogOpen(false);
 
-  const acceptDeleteMA = async () => {
-    try {
-      setLoading(true);
-      const result = await ctDatBanService.remove(soPhieuDatTiec, selectedMonAn.MaMonAn);
-      const newList = await CTDatBanCotroller.getAllByPhieuDatTiecId(soPhieuDatTiec);
-      setForm((prev) => ({
-        ...prev,
-        dsMonAn: newList,
-      }));
-      toast.success('Đã xoá món ăn khỏi hoá đơn!')
+    toast.success("Đã sang chế độ chỉnh sửa hoá đơn")
+    
+  }
+  const handleCloseHDEditDialog = () => {
+    setIsEditHDDialogOpen(false);
 
-      setIsDeleteMADialogOpen(false);
-      setSelectedMonAn(null);
-      fetchMonAnList(currentFilters, pagination.limit, pagination.offset);
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
+  }
+  
+  const handleOpenHDEditDialog = async () => {
+  try {
+    const allowed = await checkEditAllowed(form.SoHoaDon);
+    if (!allowed) {
+      toast.warning("Tháng của ngày đãi tiệc đã có báo cáo. Không thể sửa hoá đơn.");
+      return;
     }
-  };
-  /////////////////////////////////////////
 
-
-  const handleSaveCT_MonAn = async (formData) => {
-    try {
-      setLoading(true);
-      const monAnData = {
-        MaMonAn: selectedMonAn.MaMonAn,
-        DonGia: Number(formData.price),
-        SoLuong: Number(formData.sl),
-        SoPhieuDatTiec: soPhieuDatTiec,
-      };
-
-      if (mode === "edit" && selectedMonAn) {
-        await CTDatBanCotroller.update(soPhieuDatTiec, monAnData.MaMonAn, monAnData);
-        const newList = await CTDatBanCotroller.getAllByPhieuDatTiecId(soPhieuDatTiec);
-        const normalized = newList.map(item => ({
-          ...item,
-          MonAn: {
-            TenMonAn: item["MonAn.TenMonAn"] || item?.MonAn?.TenMonAn
-          }
-        }));
-
-        setForm(prev => ({ ...prev, dsMonAn: normalized }));
-
-        toast.success("Món ăn đã được cập nhật!");
-      } else {
-        const isExist = form.dsMonAn.some(
-          (ma) => ma.MaMonAn === selectedMonAn.MaMonAn
-        );
-
-        if (isExist) {
-          toast.error("Món ăn đã được chọn trước đó!");
-          setIsMADialogOpen(false);
-          return;
-        }
-
-
-        await CTDatBanCotroller.create(monAnData);
-        const newList = await CTDatBanCotroller.getAllByPhieuDatTiecId(soPhieuDatTiec);
-        const normalized = newList.map(item => ({
-          ...item,
-          MonAn: {
-            TenMonAn: item["MonAn.TenMonAn"] || item?.MonAn?.TenMonAn
-          }
-        }));
-        setForm(prev => ({ ...prev, dsMonAn: normalized }));
-        toast.success("Món ăn đã được thêm vào hoá đơn!");
-      }
-
-      setIsMADialogOpen(false);
-      setSelectedMonAn(null);
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) return <p>Đang tải dữ liệu hóa đơn...</p>;
+    setIsEditHDDialogOpen(true);
+  } catch (error) {
+    
+}
+  // Cho phép chỉnh sửa
+  setIsEditHDDialogOpen(true);
+};
+   if (loading) return <p>Đang tải dữ liệu hóa đơn...</p>;
 
   const columns = [
     { id: "index", label: "STT", width: 15 },
@@ -762,7 +599,7 @@ useEffect(() => {
             <span className={styles.hoadonName}>{formatDate(ngayDaiTiec)}</span>
 
             <p className={styles.hoadonName} style={{ fontSize: '14px', fontWeight: 400, color: 'white', marginTop: '15px' }}>Ngày thanh toán: </p>
-            {isViewMode && form.NgayThanhToan ? (
+            { form.NgayThanhToan ? (
               <span className={styles.hoadonName}>{formatDate(form.NgayThanhToan)}</span>
             ) : (
               <span className={styles.hoadonName}>{formatDate(new Date())}</span>
@@ -807,6 +644,7 @@ useEffect(() => {
                     bgcolor: "#D9A441",
                   },
                 }}
+                  disabled={!hasPermission(permissions, 'bill.create')}
 
               >
                 Lưu thay đổi
@@ -836,7 +674,7 @@ useEffect(() => {
                 <Button
                   className={styles.noPrint}
                   variant="contained"
-                  onClick={() => handleDeleteHD()}
+                  onClick={() => handleOpenHDEditDialog()}
                   sx={{
                     bgcolor: "#e53935",
                     width: "140px",
@@ -850,9 +688,9 @@ useEffect(() => {
                       bgcolor: "#c62828",
                     },
                   }}
-                //   disabled={!hasPermission(permissions, 'bill.delete')}
+                  disabled={!hasPermission(permissions, 'bill.edit')}
                 >
-                  Xoá hoá đơn
+                  Sửa hoá đơn
                 </Button>
               </div>
             )
@@ -937,25 +775,17 @@ useEffect(() => {
                       if (["-", "e", "+"].includes(e.key)) e.preventDefault();
                     }}
                   />
-
-
-
-
                 )}
               </div>
 
               {isViewMode ?
                 <div className={styles.hoadonText}>
-                  <p>Đơn giá bàn: {form.DonGiaBan}</p>
+                  <p>Đơn giá bàn: {new Intl.NumberFormat('vi-VN').format(form.DonGiaBan)}</p>
                 </div> : null}
-
-
-
             </div>
             <div>
               <div style={{ display: "flex", gap: "30px", alignItems: "center" }}>
                 <p style={{ color: 'white', fontWeight: "700", fontSize: "28px", marginBottom: '10px' }}>Danh sách dịch vụ</p>
-
               </div>
               {Array.isArray(form.dsDichVu) && form.dsDichVu.length > 0 ? (
 
@@ -979,9 +809,6 @@ useEffect(() => {
               {!isViewMode && <div style={{ border: '1px solid rgba(224, 224, 224, 1)', width: 'fit-content', marginTop: "5px", marginBottom: "0px" }}>
                 <AddButton onClick={handleOpenDVDialog} text="Thêm" sx={{ width: "fit-content" }} disabled={!hasPermission(permissions, 'service.create')} /></div>}
             </div>
-
-
-
             {form.dsMonAn.length > 0 ? (
               <div>
                 <p style={{ color: 'white', marginTop: "30px", fontWeight: "700", fontSize: "28px", marginBottom: "10px" }}>Danh sách món ăn</p>
@@ -1017,20 +844,6 @@ useEffect(() => {
             onSelect={handleChonDichVu}
           />
 
-          {/* <MonAnDialog
-          open={isMADialogOpen}
-          onClose={handleCloseMAEditDialog}
-          onSave={handleSaveCT_MonAn}
-          title={mode === "edit" ? "Chỉnh sửa món ăn" : "Thêm món ăn"}
-          initialData={selectedMonAn}
-          mode={mode}
-        /> */}
-          {/* <DanhSachMonAnDialog
-          open={openMonAnDialog}
-          title='Chọn món ăn để thêm'
-          onClose={handleCloseMADialog}
-          onSelect={handleChonMonAn}
-        /> */}
           <DeleteDialog
             open={isDeleteDVDialogOpen}
             onClose={handleCloseDVDeleteDialog}
@@ -1038,20 +851,14 @@ useEffect(() => {
             title="Xác nhận xóa dịch vụ"
             content={`Bạn có chắc chắn muốn xóa dịch vụ "${selectedDichVu?.TenDichVu}"?`}
           />
-          <DeleteDialog
-            open={isDeleteHDDialogOpen}
-            onClose={handleCloseHDDeleteDialog}
-            onDelete={acceptDeleteHD}
-            title="Xác nhận xóa hoá đơn"
-            content={`Bạn có chắc chắn muốn xóa hoá đơn này không?"`}
+          
+          <EditDialog
+            open={isEditHDDialogOpen} 
+            onClose={handleCloseHDEditDialog}
+            onEdit={handleMoveToEditHD}
+            title="Xác nhận chỉnh sửa hoá đơn"
+            content={`Bạn có chắc chắn muốn chỉnh sửa hoá đơn này không?"`}
           />
-          {/* <DeleteDialog
-          open={isDeleteMADialogOpen}
-          onClose={handleCloseMADeleteDialog}
-          onDelete={acceptDeleteMA}
-          title="Xác nhận xóa món ăn"
-          content={`Bạn có chắc chắn muốn xóa món ăn "${selectedMonAn?.TenMonAn}"?`}
-        /> */}
         </div>
       </div>
       <div className={styles.footerPrint} style={{ display: "none" }}>
@@ -1065,5 +872,4 @@ useEffect(() => {
     </Box>
   );
 }
-
 export default HoaDon;
