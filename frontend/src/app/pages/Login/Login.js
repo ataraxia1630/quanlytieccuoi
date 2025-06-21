@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Box, Grid, TextField, Button, Typography } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import AuthService from '../../service/auth.service';
 import weddingImage from '../../assets/wedding_img.jpg';
@@ -8,6 +8,7 @@ import { usePermission } from '../../../context/PermissionContext';
 import QuyenService from '../../service/quyen.service';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../context/AuthContext';
+import toastService from '../../service/toast/toast.service';
 
 const style = {
   width: { xs: '100%', sm: '300px' },
@@ -50,7 +51,7 @@ const Login = () => {
       login(token);
       navigate('/');
     } catch (error) {
-      toast(error.message || 'Đăng nhập không thành công!');
+      toastService.error(error.message || 'Đăng nhập không thành công!');
     }
   };
 

@@ -13,7 +13,7 @@ const AuthService = {
       body: JSON.stringify({ username, password }),
     });
     if (!res.ok) {
-      const error = await res.text();
+      const error = await res.json();
       throw new Error(error.message || 'Không thể đăng nhập!');
     }
     const result = await res.json();
@@ -37,7 +37,7 @@ const AuthService = {
     });
     console.log({ oldPassword, newPassword });
     if (!res.ok) {
-      const error = await res.text();
+      const error = await res.json();
       throw new Error(
         error.message || 'Đã có lỗi xảy ra! Vui lòng thử lại sau.'
       );

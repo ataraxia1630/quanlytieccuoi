@@ -27,7 +27,7 @@ const UserService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -39,7 +39,7 @@ const UserService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -60,7 +60,7 @@ const UserService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -88,7 +88,7 @@ const UserService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -101,7 +101,7 @@ const UserService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 };
