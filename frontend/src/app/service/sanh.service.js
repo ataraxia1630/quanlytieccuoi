@@ -120,6 +120,7 @@ const getAllLoaiSanh = async () => {
 
 const getSanhsAvailabilityByDate = async (queryData) => {
   const query = new URLSearchParams(queryData).toString();
+  console.log("query: ", query);
   const response = await fetch(`/api/sanh/availability?${query}`);
   if (!response.ok) {
     if (response.status === 400)
