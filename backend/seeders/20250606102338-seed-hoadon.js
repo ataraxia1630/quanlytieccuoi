@@ -55,19 +55,6 @@ module.exports = {
       return acc;
     }, {});
 
-    // const dishUnitPrices = monAnRecords.reduce((acc, monAn) => {
-    //   acc[monAn.MaMonAn] = parseInt(monAn.DonGia);
-    //   return acc;
-    // }, {});
-
-    // const phieuMonAnMap = ctDatBanRecords.reduce((acc, ct) => {
-    //   if (!acc[ct.SoPhieuDatTiec]) {
-    //     acc[ct.SoPhieuDatTiec] = new Set();
-    //   }
-    //   acc[ct.SoPhieuDatTiec].add(ct.MaMonAn);
-    //   return acc;
-    // }, {});
-
     const tongTienMonAnMap = ctDatBanRecords.reduce((acc, ct) => {
       const donGia = parseInt(ct.DonGia) || 0;
       acc[ct.SoPhieuDatTiec] = (acc[ct.SoPhieuDatTiec] || 0) + donGia;
@@ -82,9 +69,20 @@ module.exports = {
 
     const data = [];
     let hoaDonCounter = 1;
+    const currentDate = new Date(); // Lấy ngày hiện tại
 
     for (const phieu of phieuDatTiecRecords) {
       const phieuInfo = phieuInfoMap[phieu.SoPhieuDatTiec];
+
+      // Kiểm tra xem đã đến ngày đãi tiệc hay chưa
+      if (phieuInfo.ngayDaiTiec > currentDate) {
+        console.log(
+          `Bỏ qua phiếu ${
+            phieu.SoPhieuDatTiec
+          } vì chưa đến ngày đãi tiệc (${phieuInfo.ngayDaiTiec.toISOString()}).`
+        );
+        continue;
+      }
 
       // Random ngày thanh toán, 30% trễ hạn
       const isLate = Math.random() < 0.3;
@@ -165,12 +163,19 @@ module.exports = {
       hoaDonCounter++;
     }
 
+    if (data.length === 0) {
+      console.warn(
+        'Không có hóa đơn nào được tạo vì chưa có phiếu nào đến ngày đãi tiệc.'
+      );
+      return;
+    }
+
     await queryInterface.bulkInsert('HOADON', data, {});
   },
 
   async down(queryInterface, Sequelize) {
     const maHoaDonList = Array.from(
-      { length: 300 }, // Đổi số nếu muốn undo nhiều/ít hóa đơn hơn
+      { length: 300 },
       (_, i) => `HD${String(i + 1).padStart(3, '0')}`
     );
 

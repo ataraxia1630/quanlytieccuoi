@@ -40,42 +40,9 @@ module.exports = {
     }, {});
 
     const getRandomName = (isMale) => {
-      const maleNames = [
-        'Nam',
-        'Hùng',
-        'Minh',
-        'Long',
-        'Khoa',
-        'Đức',
-        'Tuấn',
-        'Hải',
-        'Phong',
-        'Vũ',
-      ];
-      const femaleNames = [
-        'Lan',
-        'Mai',
-        'Hương',
-        'Ngọc',
-        'Thảo',
-        'Linh',
-        'Yến',
-        'Trang',
-        'Huyền',
-        'Thu',
-      ];
-      const lastNames = [
-        'Nguyễn',
-        'Trần',
-        'Lê',
-        'Phạm',
-        'Hoàng',
-        'Vũ',
-        'Đặng',
-        'Bùi',
-        'Đỗ',
-        'Hồ',
-      ];
+      const maleNames = ['Nam', 'Huy', 'Minh', 'Khoa', 'Duy'];
+      const femaleNames = ['Lan', 'Mai', 'Linh', 'Yến', 'Thu'];
+      const lastNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Vũ'];
       const firstName = isMale
         ? maleNames[Math.floor(Math.random() * maleNames.length)]
         : femaleNames[Math.floor(Math.random() * femaleNames.length)];
