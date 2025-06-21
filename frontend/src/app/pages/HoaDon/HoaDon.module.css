@@ -2,7 +2,7 @@
   display: flex;
   margin: 0px 24px;
   width: 1332px;
-  height: 680px;
+  height: 690px;
   flex-shrink: 0;
   border-radius: 5px;
   background: #063F5C;
@@ -22,10 +22,10 @@
 }
 
 .hoadonLeft {
-  width: 293px;
+  width: 330px;
   border-right: 1px dashed white;
   margin-left: 19px;
-  height: 700px;
+  height: 690px;
 }
 
 .dashedBorder {
@@ -39,7 +39,7 @@
   margin-left: 43px;
   display: flex;
   flex-direction: column;
-  height: 680px;
+  height: 690px;
   width: 996px;
   overflow-y: auto;
   padding-right: 16px;
@@ -63,7 +63,7 @@
   font-size: 18px;
   font-style: normal;
   font-weight: 500;
-  line-height: normal;
+  
 }
 
 .hoadonName {

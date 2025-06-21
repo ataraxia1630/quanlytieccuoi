@@ -22,7 +22,8 @@ import printDanhSachTiec from '../../components/danhsachtiec/dstiec_print_data';
 import exportDanhSachTiecCuoiToExcel from '../../components/danhsachtiec/dstiec_export_excel';
 import { getHoaDon } from '../../service/hoadon.service';
 import toastService from '../../service/toast/toast.service';
-
+import { hasPermission } from '../../utils/hasPermission';
+import { useLocation } from 'react-router-dom';
 function DanhSachTiecCuoi() {
   const navigate = useNavigate();
   const [data, setData] = useState([]);
@@ -33,11 +34,13 @@ function DanhSachTiecCuoi() {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [selectedPhieu, setSelectedPhieu] = useState(null);
   const [errors, setErrors] = useState({});
-  const [totalPages, setTotalPages] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const [isFiltering, setIsFiltering] = useState(false);
   const [filterPayload, setFilterPayload] = useState(null);
+  const [sort, setSort] = useState({ field: null, order: null });
+
+  const permissions = localStorage.getItem('permissions');
 
   const [form, setForm] = useState({
     tuBan: '',
@@ -48,14 +51,15 @@ function DanhSachTiecCuoi() {
     trangThai: '',
     ten: '',
   });
-
+  const location = useLocation();
   const fetchData = async () => {
     setLoading(true);
     try {
-      const result = await getDanhSach({ page: currentPage, limit: 10 });
+      const result = await getDanhSach({ page: currentPage, limit: 30 });
       setData(result.data);
       setTotalItems(result.totalItems);
     } catch (error) {
+      console.log(error)
       toastService.crud.error.generic(); // "Có lỗi xảy ra. Vui lòng thử lại sau!"
 
       console.error('Lỗi lấy danh sách:', error);
@@ -81,18 +85,33 @@ function DanhSachTiecCuoi() {
     const fetch = async () => {
       setLoading(true);
       try {
+        const payload = {
+          page: currentPage,
+          limit: 30,
+          sortField: sort.field,
+          sortOrder: sort.order,
+        };
+
+
+        let result;
         if (isFiltering && filterPayload) {
-          const result = await postDanhSach(filterPayload, currentPage, 10);
-          setData(result.data);
-          setTotalItems(result.totalItems);
-          setTotalPages(Math.ceil(result.totalItems / 10));
+          result = await postDanhSach(
+            { ...filterPayload, page: currentPage, limit: 30, sortField: sort.field, sortOrder: sort.order }
+          );
         } else {
-          const result = await getDanhSach({ page: currentPage, limit: 10 });
-          setData(result.data);
-          setTotalItems(result.totalItems);
-          setTotalPages(Math.ceil(result.totalItems / 10));
+          result = await getDanhSach({
+            page: currentPage,
+            limit: 30,
+            sortField: sort.field,
+            sortOrder: sort.order,
+          });
         }
+
+        setData(result.data);
+        setTotalItems(result.totalItems);
       } catch (error) {
+        console.log(error)
+
         toastService.crud.error.generic();
       } finally {
         setLoading(false);
@@ -100,7 +119,12 @@ function DanhSachTiecCuoi() {
     };
 
     fetch();
-  }, [currentPage, isFiltering, filterPayload]);
+  }, [currentPage, isFiltering, filterPayload, location.state, sort]);
+
+  const handleSortChange = (field, order) => {
+    setSort({ field, order });
+    setCurrentPage(1); // về trang đầu khi sort
+  };
 
 
   const handleFilter = () => {
@@ -127,7 +151,7 @@ function DanhSachTiecCuoi() {
     setSearchText('');
     setErrors({});
     await fetchData();
-    toastService.search.resetFilter(); // "Đã reset bộ lọc"
+    toastService.search.resetFilter();
 
   };
 
@@ -165,8 +189,6 @@ function DanhSachTiecCuoi() {
       return;
     }
 
-    // Gửi dữ liệu nếu không có lỗi
-
     try {
       const payload = {};
       if (tuBan != null && tuBan !== '') payload.tuBan = parseInt(tuBan);
@@ -184,11 +206,10 @@ function DanhSachTiecCuoi() {
       setIsFiltering(true);      // bật chế độ lọc
       setFilterPayload(payload);
 
-      const result = await postDanhSach(payload, currentPage, 10);
+      const result = await postDanhSach(payload, currentPage, 30);
 
       setData(result.data);
       setTotalItems(result.totalItems);
-      setTotalPages(Math.ceil(result.totalItems / 10));
       toastService.search.appliedFilter(); // "Đã áp dụng bộ lọc"
 
     } catch (error) {
@@ -270,7 +291,7 @@ function DanhSachTiecCuoi() {
 
   const computedDataWithIndex = data.map((item, idx) => ({
     ...item,
-    indexGlobal: (currentPage - 1) * 10 + idx + 1,
+    indexGlobal: (currentPage - 1) * 30 + idx + 1,
   }));
 
   return (
@@ -305,7 +326,7 @@ function DanhSachTiecCuoi() {
           />
         </Box>
 
-        <Box 
+        <Box
           sx={{
             display: 'flex',
             gap: 2,
@@ -353,7 +374,7 @@ function DanhSachTiecCuoi() {
             <div className="ngay-box">
               <div className="ngay-box">
                 <DateRangePicker
-                  label="Ngày"
+                  label="Ngày đãi tiệc"
                   fromDate={form.tuNgay}
                   toDate={form.denNgay}
                   onFromChange={(v) => setForm({ ...form, tuNgay: v })}
@@ -372,12 +393,14 @@ function DanhSachTiecCuoi() {
               onChange={(val) => setForm({ ...form, trangThai: val })}
               options={options}
             />
-            
-            <div className="apply">
-              <FilterButton text="Reset" onClick={handleResetFilter} colorVariant="reset"/>
+
+            <Box
+          sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 2, marginTop: 20 }}
+        >
+              <FilterButton text="Reset" onClick={handleResetFilter} colorVariant="reset" />
               <FilterButton text="Apply" onClick={handleSubmit} />
 
-            </div>
+            </Box>
           </div>
         </div>
       )}
@@ -410,10 +433,16 @@ function DanhSachTiecCuoi() {
             ]}
             data={computedDataWithIndex}
             currentPage={currentPage}
-            pageSize={10} onDelete={handleDelete} />
+            pageSize={30} onDelete={handleDelete} serverSideSort
+            currentSort={sort}
+            onSortChange={handleSortChange}
+            disabledEdit={!hasPermission(permissions, 'wedding.edit')}
+            disabledDelete={!hasPermission(permissions, 'wedding.delete')}
+            disabledCreate={!hasPermission(permissions, 'bill.create')}
+          />
           <Pagination
             page={currentPage}
-            count={Math.ceil(totalItems / 10)}
+            count={Math.ceil(totalItems / 30)}
             onChange={(e, page) => setCurrentPage(page)}
             siblingCount={1}
             boundaryCount={1}
