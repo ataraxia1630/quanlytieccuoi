@@ -39,10 +39,10 @@ module.exports = {
       raw: true,
     });
 
-    const monAnRecords = await MonAn.findAll({
-      attributes: ['MaMonAn', 'DonGia'],
-      raw: true,
-    });
+    // const monAnRecords = await MonAn.findAll({
+    //   attributes: ['MaMonAn', 'DonGia'],
+    //   raw: true,
+    // });
 
     // Tạo map cho PĐT
     const phieuInfoMap = phieuDatTiecRecords.reduce((acc, phieu) => {
