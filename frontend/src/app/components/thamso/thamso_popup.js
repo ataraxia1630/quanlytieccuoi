@@ -41,10 +41,6 @@ const ThamSoDialog = ({ open, onClose, onSave, title, initialData = null }) => {
 
     const trimmedValue = value.trim();
 
-    if (!/^-?\d+$/.test(trimmedValue)) {
-      return 'Vui lòng nhập số nguyên không âm';
-    }
-
     const num = parseInt(trimmedValue);
 
     if (isNaN(num)) {
@@ -68,7 +64,10 @@ const ThamSoDialog = ({ open, onClose, onSave, title, initialData = null }) => {
 
       ThoiDiemThanhToanSoVoiNgayDaiTiec: (value) => {
         if (value < 0) {
-          return 'Thời điểm thanh toán phải là số không âm';
+          return 'Thời điểm thanh toán so với ngày đãi tiệc phải là số không âm';
+        }
+        if (value > 365) {
+          return 'Thời điểm thanh toán so với ngày đãi tiệc không được quá 365 ngày';
         }
         return null;
       },
@@ -112,6 +111,12 @@ const ThamSoDialog = ({ open, onClose, onSave, title, initialData = null }) => {
         ...prev,
         giaTri: null,
       }));
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (['e', 'E', '+', '-'].includes(e.key)) {
+      e.preventDefault();
     }
   };
 
@@ -159,14 +164,18 @@ const ThamSoDialog = ({ open, onClose, onSave, title, initialData = null }) => {
     return (
       <FormTextField
         label={tenThamSo === 'TyLePhat' ? 'Tỷ lệ (%)' : 'Số ngày'}
-        type="text"
+        type="number"
         value={giaTri}
         onChange={(e) => handleGiaTriChange(e.target.value)}
+        onKeyDown={handleKeyDown}
         fullWidth
         error={!!errors.giaTri}
         helperText={errors.giaTri}
         InputProps={{
           endAdornment: tenThamSo === 'TyLePhat' ? <span>%</span> : null,
+          inputProps: {
+            min: 0,
+          },
         }}
       />
     );
