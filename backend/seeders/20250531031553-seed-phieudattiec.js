@@ -107,7 +107,7 @@ module.exports = {
       partyDate.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để so sánh ngày
       currentDate.setHours(0, 0, 0, 0);
 
-      if (partyDate <= currentDate) {
+      if (partyDate < currentDate) {
         // Nếu đã đến hoặc qua ngày đãi tiệc, ưu tiên "Đã thanh toán"
         return 'Đã thanh toán';
       }
