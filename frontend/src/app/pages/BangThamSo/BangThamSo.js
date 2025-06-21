@@ -81,13 +81,11 @@ function BangThamSo() {
   const handleEdit = (row) => {
     setSelectedThamSo(row);
     setIsEditDialogOpen(true);
-    toastService.thamSo.editing();
   };
 
   const handleCloseEditDialog = () => {
     setIsEditDialogOpen(false);
     setSelectedThamSo(null);
-    toastService.thamSo.closeEdit();
   };
 
   const handleSaveThamSo = async (formData) => {

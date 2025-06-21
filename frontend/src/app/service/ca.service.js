@@ -60,10 +60,8 @@ const searchAndFilterCa = async (filters) => {
     const params = {};
     if (filters.maCa) params.maCa = filters.maCa;
     if (filters.tenCa) params.tenCa = filters.tenCa;
-    if (filters.gioBatDauFrom) params.gioBatDauFrom = filters.gioBatDauFrom;
-    if (filters.gioBatDauTo) params.gioBatDauTo = filters.gioBatDauTo;
-    if (filters.gioKetThucFrom) params.gioKetThucFrom = filters.gioKetThucFrom;
-    if (filters.gioKetThucTo) params.gioKetThucTo = filters.gioKetThucTo;
+    if (filters.gioBatDau) params.gioBatDau = filters.gioBatDau;
+    if (filters.gioKetThuc) params.gioKetThuc = filters.gioKetThuc;
     if (filters.sortBy) params.sortBy = filters.sortBy;
     if (filters.sortOrder) params.sortOrder = filters.sortOrder;
 

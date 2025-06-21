@@ -16,6 +16,7 @@ import { set } from 'date-fns';
 
 
 
+
 function DatMonAn() {
   const [foods, setFoods] = useState([]);
   const [reservedFoods, setReservedFoods] = useState([]);
@@ -257,6 +258,9 @@ function DatMonAn() {
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
+        <div className='button-container' style={{ paddingTop: "30px" }}>
+          <Cancelbutton onClick={() => handleNav()} textCancel="Tiếp tục" />
+        </div>
       </div>
       <DeleteDialog
         open={isDeleteDialogOpen}
@@ -278,9 +282,6 @@ function DatMonAn() {
         {foods.map((item, index) => (
           <FoodCard key={index} food={item} onClick={AddReservedFood} />
         ))}
-      </div>
-      <div className='button-container'>
-        <Cancelbutton onClick={() => handleNav()} textCancel="Tiếp tục" />
       </div>
     </div>
   );

@@ -44,12 +44,12 @@ const timeRangesOverlap = (start1, end1, start2, end2) => {
         ranges2.push({ start: s2, end: 24 * 60 }); // Evening part
         ranges2.push({ start: 0, end: e2 });       // Morning part
     }
-    
-    // Check if any part of range1 overlaps with any part of range2
+      // Check if any part of range1 overlaps with any part of range2
     for (const r1 of ranges1) {
         for (const r2 of ranges2) {
-            // Two ranges overlap if: start1 < end2 AND start2 < end1
-            if (r1.start < r2.end && r2.start < r1.end) {
+            // Two ranges overlap if: start1 <= end2 AND start2 <= end1
+            // Changed from < to <= to handle point-in-time cases (start = end)
+            if (r1.start <= r2.end && r2.start <= r1.end) {
                 return true;
             }
         }
@@ -299,36 +299,50 @@ const getCaSchedule = async (startDate, endDate) => {
     }
 };
 
-const searchAndFilterCa = async ({ maCa, tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo, sortBy, sortOrder }) => {
+const searchAndFilterCa = async ({ maCa, tenCa, gioBatDau, gioKetThuc, sortBy, sortOrder }) => {
     try {
         const where = {};
+        
+        // Handle text search (maCa, tenCa)
         if (maCa || tenCa) {
-        const orConditions = [];
-        if (maCa) {
-            orConditions.push({ MaCa: { [Op.like]: `%${maCa}%` } });
-        }
-        if (tenCa) {
-            orConditions.push({ TenCa: { [Op.like]: `%${tenCa}%` } });
-        }
-        where[Op.or] = orConditions;
-    }
-
-        const conditions = [];
-        if (gioBatDauFrom) conditions.push(literal(`GioBatDau >= '${gioBatDauFrom}'`));
-        if (gioBatDauTo) conditions.push(literal(`GioBatDau <= '${gioBatDauTo}'`));
-        if (gioKetThucFrom) conditions.push(literal(`GioKetThuc >= '${gioKetThucFrom}'`));
-        if (gioKetThucTo) conditions.push(literal(`GioKetThuc <= '${gioKetThucTo}'`));
-
-        if (conditions.length > 0) {
-            where[Op.and] = conditions;
+            const orConditions = [];
+            if (maCa) {
+                orConditions.push({ MaCa: { [Op.like]: `%${maCa}%` } });
+            }
+            if (tenCa) {
+                orConditions.push({ TenCa: { [Op.like]: `%${tenCa}%` } });
+            }
+            where[Op.or] = orConditions;
         }
 
         const order = sortBy && sortOrder ? [[sortBy, sortOrder]] : [['MaCa', 'ASC']];
 
-        const cas = await Ca.findAll({
+        // Get all cas first
+        let cas = await Ca.findAll({
             where,
             order
         });
+
+        // Apply overlap filtering if time range is specified
+        if (gioBatDau && gioKetThuc) {
+            console.log('Applying overlap filter:', { gioBatDau, gioKetThuc });
+            console.log('Total cas before filtering:', cas.length);
+            
+            cas = cas.filter(ca => {
+                const caGioBatDau = ca.GioBatDau;
+                const caGioKetThuc = ca.GioKetThuc;
+                
+                console.log(`\nChecking overlap: Filter(${gioBatDau} - ${gioKetThuc}) vs Ca "${ca.TenCa}"(${caGioBatDau} - ${caGioKetThuc})`);
+                
+                // Use the existing timeRangesOverlap helper function for overlap check
+                const hasOverlap = timeRangesOverlap(gioBatDau, gioKetThuc, caGioBatDau, caGioKetThuc);
+                
+                console.log(`  Overlap result: ${hasOverlap}`);
+                return hasOverlap;
+            });
+            
+            console.log('Total cas after overlap filtering:', cas.length);
+        }
 
         return cas;
     } catch (error) {

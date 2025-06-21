@@ -102,7 +102,7 @@ const EditHallTypePopUp = ({
     }
 
     const data = {
-      name,
+      name: name.trim(),
       price: Number(price),
     };
     console.log('Dữ liệu gửi từ popup:', data);

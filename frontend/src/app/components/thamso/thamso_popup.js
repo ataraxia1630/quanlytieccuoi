@@ -27,7 +27,6 @@ const ThamSoDialog = ({ open, onClose, onSave, title, initialData = null }) => {
     if (open && initialData) {
       setTenThamSo(initialData.TenThamSo || '');
       setDisplayName(initialData.displayName || '');
-
       setGiaTri(
         initialData.GiaTri !== undefined ? initialData.GiaTri.toString() : ''
       );
@@ -35,51 +34,90 @@ const ThamSoDialog = ({ open, onClose, onSave, title, initialData = null }) => {
     }
   }, [open, initialData]);
 
-  const validateForm = () => {
-    const newErrors = {};
+  const validateGiaTri = (value, paramName) => {
+    if (value === '') {
+      return null;
+    }
 
-    if (giaTri === '') {
-      newErrors.giaTri = 'Vui lòng nhập giá trị';
-      setErrors(newErrors);
-      return false;
+    const trimmedValue = value.trim();
+
+    const num = parseInt(trimmedValue);
+
+    if (isNaN(num)) {
+      return 'Vui lòng nhập số nguyên hợp lệ';
     }
 
     const validationRules = {
       TyLePhat: (value) => {
-        const num = parseInt(value);
-        if (isNaN(num) || num < 0 || num > 100) {
+        if (value < 0 || value > 100) {
           return 'Tỷ lệ phạt phải từ 0 đến 100';
         }
         return null;
       },
 
       ApDungQDPhatThanhToanTre: (value) => {
-        const num = parseInt(value);
-        if (!statusOptionValues.includes(num)) {
+        if (!statusOptionValues.includes(value)) {
           return 'Vui lòng chọn tình trạng hợp lệ';
         }
         return null;
       },
 
       ThoiDiemThanhToanSoVoiNgayDaiTiec: (value) => {
-        const num = parseInt(value);
-        if (isNaN(num) || num < 0) {
-          return 'Thời điểm thanh toán phải là số không âm';
+        if (value < 0) {
+          return 'Thời điểm thanh toán so với ngày đãi tiệc phải là số không âm';
+        }
+        if (value > 365) {
+          return 'Thời điểm thanh toán so với ngày đãi tiệc không được quá 365 ngày';
         }
         return null;
       },
     };
 
-    const validator = validationRules[tenThamSo];
+    const validator = validationRules[paramName];
     if (validator) {
-      const errorMessage = validator(giaTri);
-      if (errorMessage) {
-        newErrors.giaTri = errorMessage;
+      return validator(num);
+    }
+
+    return null;
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (giaTri === '') {
+      newErrors.giaTri = 'Vui lòng nhập giá trị';
+    } else {
+      const validationError = validateGiaTri(giaTri, tenThamSo);
+      if (validationError) {
+        newErrors.giaTri = validationError;
       }
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleGiaTriChange = (value) => {
+    setGiaTri(value);
+
+    if (value !== '') {
+      const validationError = validateGiaTri(value, tenThamSo);
+      setErrors((prev) => ({
+        ...prev,
+        giaTri: validationError,
+      }));
+    } else {
+      setErrors((prev) => ({
+        ...prev,
+        giaTri: null,
+      }));
+    }
+  };
+
+  const handleKeyDown = (e) => {
+    if (['e', 'E', '+', '-'].includes(e.key)) {
+      e.preventDefault();
+    }
   };
 
   const handleSave = () => {
@@ -98,8 +136,7 @@ const ThamSoDialog = ({ open, onClose, onSave, title, initialData = null }) => {
 
   const renderGiaTriInput = () => {
     if (tenThamSo === 'ApDungQDPhatThanhToanTre') {
-      const statusLabels = statusOptions.map((option) => option.label); // ["Áp dụng", "Không áp dụng"]
-
+      const statusLabels = statusOptions.map((option) => option.label);
       const currentLabel = getLabelByValue(parseInt(giaTri));
 
       return (
@@ -108,12 +145,14 @@ const ThamSoDialog = ({ open, onClose, onSave, title, initialData = null }) => {
           options={statusLabels}
           value={currentLabel}
           onChange={(e) => {
-            // Chuyển từ label về value để lưu
             const selectedLabel = e.target.value;
             const selectedOption = statusOptions.find(
               (opt) => opt.label === selectedLabel
             );
-            setGiaTri(selectedOption ? selectedOption.value.toString() : '');
+            const newValue = selectedOption
+              ? selectedOption.value.toString()
+              : '';
+            handleGiaTriChange(newValue);
           }}
           fullWidth
           error={!!errors.giaTri}
@@ -127,12 +166,16 @@ const ThamSoDialog = ({ open, onClose, onSave, title, initialData = null }) => {
         label={tenThamSo === 'TyLePhat' ? 'Tỷ lệ (%)' : 'Số ngày'}
         type="number"
         value={giaTri}
-        onChange={(e) => setGiaTri(e.target.value)}
+        onChange={(e) => handleGiaTriChange(e.target.value)}
+        onKeyDown={handleKeyDown}
         fullWidth
         error={!!errors.giaTri}
         helperText={errors.giaTri}
         InputProps={{
           endAdornment: tenThamSo === 'TyLePhat' ? <span>%</span> : null,
+          inputProps: {
+            min: 0,
+          },
         }}
       />
     );

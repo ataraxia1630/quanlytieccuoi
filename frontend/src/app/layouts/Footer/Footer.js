@@ -9,8 +9,9 @@ import {
 } from '@mui/icons-material';
 
 const Footer = () => {
+
   return (
-    <Box mt={20} sx={{ bgcolor: '#fdf6ec', borderTop: '2px solid #ccc', width: '100vw', zIndex: 10, height: "50vh" }}>
+    <Box pl={10} sx={{ bgcolor: '#fdf6ec', borderTop: '2px solid #ccc', width: '100vw', zIndex: 10, height: "53vh" }}>
       <Grid container spacing={4} justifyContent="space-between" sx={{ height: '100%' }}>
         {/* Save the Date Calendar */}
         <Grid gridColumn={{ xs: 'span 12', md: 'span 3', ml: 'span 6' }} sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
@@ -61,20 +62,30 @@ const Footer = () => {
         </Grid>
 
         {/* Wedding Couple Image */}
-        <Grid gridColumn={{ xs: 'span 12', md: 'span 2' }} sx={{ display: 'flex', position: "relative", alignItems: 'center', flexDirection: 'column' }}>
+        <Grid gridColumn={{ xs: 'span 12', md: 'span 2' }} sx={{ display: 'flex', position: "relative", left: "10px", alignItems: 'center', flexDirection: 'column' }}>
           <img
             src="https://res.cloudinary.com/digpe9tmq/image/upload/v1747706237/Group_169_pjxhoz.png"
             alt="Wedding Couple"
-            style={{ height: '88.5  %' }}
+            style={{ height: '85%' }}
           />
-          <IconButton sx={{ position: 'absolute', top: -10, left: 120, border: '2px solid #ccc', backgroundColor: 'white', borderRadius: '0%' }}>
+          <IconButton
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            sx={{
+              position: 'absolute',
+              top: -10,
+              left: 120,
+              border: '2px solid #ccc',
+              backgroundColor: 'white',
+              borderRadius: '0%',
+            }}>
+
             <KeyboardDoubleArrowUp />
           </IconButton>
         </Grid>
       </Grid>
 
       {/* Copyright */}
-      <Box textAlign="center" fontSize="0.8rem" bgcolor='white' p={2} borderTop={'2px solid #ccc'} >
+      <Box textAlign="center" width={'100vw'} position={'relative'} right={80} fontSize="0.8rem" bgcolor='white' pt={4} borderTop={'2px solid #ccc'} >
         © COPYRIGHT 2024 | ALL RIGHT RESERVED | WEB DESIGN BY NHÓM 17
       </Box>
     </Box>

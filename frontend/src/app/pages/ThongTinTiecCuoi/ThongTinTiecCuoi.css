@@ -36,8 +36,9 @@
 
 .table-selection {
     display: grid;
-    grid-template-columns: 4fr 5fr;
+    grid-template-columns: 1fr 1fr;
     align-items: center;
+    column-gap: 2rem;
 }
 
 

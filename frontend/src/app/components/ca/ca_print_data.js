@@ -53,8 +53,8 @@ const printCa = (caList) => {
             <thead>
               <tr>
                 <th class="text-center">STT</th>
-                <th>Mã Ca</th>
-                <th>Tên Ca</th>
+                <th class="text-center">Mã Ca</th>
+                <th class="text-center">Tên Ca</th>
                 <th class="text-center">Giờ Bắt Đầu</th>
                 <th class="text-center">Giờ Kết Thúc</th>
               </tr>

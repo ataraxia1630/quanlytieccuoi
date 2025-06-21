@@ -14,12 +14,13 @@ import {
 } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 
+
 function FoodCard({ food, onClick }) {
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState(0);
     const [note, setNote] = useState(null);
 
     const handleDecrease = () => {
-        setQuantity((prev) => Math.max(1, prev - 1));
+        setQuantity((prev) => Math.max(0, prev - 1));
     };
 
     const handleIncrease = () => {
@@ -71,9 +72,23 @@ function FoodCard({ food, onClick }) {
                     <IconButton size="small" onClick={handleDecrease}>
                         <Remove />
                     </IconButton>
-                    <Typography sx={{ mx: 1, minWidth: 24, textAlign: 'center', marginBottom: 0 }}>
-                        {quantity}
-                    </Typography>
+                    <TextField
+                        variant="standard"
+                        InputProps={{
+                            disableUnderline: true,
+                        }}
+                        value={quantity.toString()}
+                        onChange={(e) => setQuantity(Number(e.target.value))}
+                        sx={{
+                            border: 'none',
+                            outline: 'none',
+                            width: '25px',
+                            height: '30px',
+                            fontSize: '30px !important',
+                            paddingBottom: '10px',
+                            textAlign: 'center'
+                        }}
+                    />
                     <IconButton size="small" onClick={handleIncrease}>
                         <Add />
                     </IconButton>

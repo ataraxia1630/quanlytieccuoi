@@ -83,14 +83,12 @@ const getCaSchedule = async (req, res, next) => {
 
 const searchAndFilterCa = async (req, res, next) => {
     try {
-        const { maCa, tenCa, gioBatDauFrom, gioBatDauTo, gioKetThucFrom, gioKetThucTo, sortBy, sortOrder } = req.query;
+        const { maCa, tenCa, gioBatDau, gioKetThuc, sortBy, sortOrder } = req.query;
         const cas = await caService.searchAndFilterCa({
             maCa,
             tenCa,
-            gioBatDauFrom,
-            gioBatDauTo,
-            gioKetThucFrom,
-            gioKetThucTo,
+            gioBatDau,
+            gioKetThuc,
             sortBy,
             sortOrder
         });

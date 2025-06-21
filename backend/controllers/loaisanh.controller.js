@@ -70,8 +70,8 @@ const LoaiSanhController = {
 
   deleteLoaiSanh: async (req, res, next) => {
     try {
-      const loaisanh = await LoaiSanhService.deleteLoaiSanh(req.params.id);
-      return res.status(204).send();
+      const message = await LoaiSanhService.deleteLoaiSanh(req.params.id);
+      return res.status(200).json(message);
     } catch (error) {
       next(error);
     }
