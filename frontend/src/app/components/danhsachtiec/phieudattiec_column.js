@@ -75,90 +75,87 @@ const Phieucolumns = (navigate) =>
         },
         {
             id: "actions", label: "Thao tác", width: 165,
-            render: (row, _onEdit, onDelete) => (
 
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0px" }}>
-                    {
-                        row.TrangThai !== 'Đã hủy' &&
-                        <IconButton
-                            className='action'
-                            onClick={async (e) => {
-                                e.stopPropagation();
-                                try {
-                                    const hoaDon = await getHoaDon(row.SoPhieuDatTiec);
-                                    if (hoaDon) {
-                                        navigate('/DashBoard/HoaDon', {
-                                            state: {
-                                                soHoaDon: hoaDon.SoHoaDon,
-                                                soPhieuDatTiec: row.SoPhieuDatTiec,
-                                                data: hoaDon,
-                                                chuRe: row.TenChuRe,
-                                                coDau: row.TenCoDau,
-                                                tienCoc: row.TienDatCoc,
-                                                ngayDaiTiec: row.NgayDaiTiec
-                                            }
-                                        });
-                                    } else {
-                                        navigate('/DashBoard/HoaDon', {
-                                            state: {
-                                                soPhieuDatTiec: row.SoPhieuDatTiec,
-                                                data: row,
-                                                chuRe: row.TenChuRe,
-                                                coDau: row.TenCoDau,
-                                                tienCoc: row.TienDatCoc,
-                                                ngayDaiTiec: row.NgayDaiTiec
-                                            }
-                                        });
-                                    }
-                                } catch (error) {
-                                    console.error("Lỗi xem hóa đơn:", error);
+            render: (row, _onEdit, onDelete, disabledEdit, disabledDelete, disableCreate) => {
+                const handleXemHoaDon = async (e) => {
+                    e.stopPropagation();
+                    try {
+                        const hoaDon = await getHoaDon(row.SoPhieuDatTiec);
+                        const stateData = {
+                            soPhieuDatTiec: row.SoPhieuDatTiec,
+                            chuRe: row.TenChuRe,
+                            coDau: row.TenCoDau,
+                            tienCoc: row.TienDatCoc,
+                            ngayDaiTiec: row.NgayDaiTiec,
+                            slBanToiDa: row.Sanh?.SoLuongBanToiDa || 255,
+                        };
+
+                        if (hoaDon) {
+                            navigate('/DashBoard/HoaDon', {
+                                state: {
+                                    ...stateData,
+                                    soHoaDon: hoaDon.SoHoaDon,
+                                    data: hoaDon,
                                 }
-                            }}
-                        >
-                            <EyeIcon />
-
-
-                            {
-                                row.TrangThai === 'Đã thanh toán' &&
-                                <Typography variant="body2" sx={{ color: "#000" }}>
-                                    Xem hóa đơn
-                                </Typography>}
-
-                            {row.TrangThai === 'Chưa thanh toán' &&
-                                <Typography variant="body2" sx={{ color: "#000" }}>
-                                    Tạo hóa đơn
-                                </Typography>}
-                        </IconButton>
+                            });
+                        } else {
+                            navigate('/DashBoard/HoaDon', {
+                                state: {
+                                    ...stateData,
+                                    data: row,
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Lỗi xem/tạo hóa đơn:", error);
                     }
+                };
 
-                    <div>
-                        {row.TrangThai !== 'Đã thanh toán' &&
+                const isChuaThanhToan = row.TrangThai === 'Chưa thanh toán';
+                const isDaHuy = row.TrangThai === 'Đã hủy';
+                const isDaThanhToan = row.TrangThai === 'Đã thanh toán';
+
+                return (
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "6px" }}>
+                        {/* Tạo hoặc Xem hóa đơn */}
+                        {!isDaHuy && !disableCreate && (
+                            <IconButton
+                                className="action"
+                                onClick={handleXemHoaDon}
+                                sx={{
+                                    opacity: disableCreate ? 0.5 : 1,
+                                    cursor: disableCreate ? 'not-allowed' : 'pointer',
+                                }}
+                            >
+                                <EyeIcon />
+                                <Typography variant="body2" sx={{ ml: 1, color: "#000" }}>
+                                    {isDaThanhToan ? "Xem hóa đơn" : "Tạo hóa đơn"}
+                                </Typography>
+                            </IconButton>
+                        )}
+
+                        {/* Huỷ hoặc kích hoạt phiếu */}
+                        {(isChuaThanhToan || isDaHuy) && !disabledEdit && (
                             <IconButton
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onDelete(row);
                                 }}
+                                sx={{
+                                    opacity: disabledEdit ? 0.5 : 1,
+                                    cursor: disabledEdit ? 'not-allowed' : 'pointer',
+                                }}
                             >
                                 <EditIcon />
-                                {
-                                    row.TrangThai === 'Đã hủy' &&
-                                    <Typography variant="body2" sx={{ ml: 1, color: "#000" }}>
-                                        Kích hoạt
-                                    </Typography>
-                                }
-
-                                {
-                                    row.TrangThai === 'Chưa thanh toán' &&
-                                    <Typography variant="body2" sx={{ ml: 1, color: "#000" }}>
-                                        Huỷ phiếu
-                                    </Typography>
-                                }
-
+                                <Typography variant="body2" sx={{ ml: 1, color: "#000" }}>
+                                    {isDaHuy ? "Kích hoạt" : "Huỷ phiếu"}
+                                </Typography>
                             </IconButton>
-                        }
+                        )}
                     </div>
-                </div>
-            )
+                );
+            }
+
         }
     ];
 

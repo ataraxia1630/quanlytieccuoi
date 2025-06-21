@@ -140,3 +140,73 @@ module.exports.create = async (req, res) => {
     });
   }
 };
+
+// DELETE http://localhost:25053/api/danhsachtiec/hoadon/:id
+module.exports.delete = async (req, res) => {
+  try {
+    const { id } = req.params; // id = SoHoaDon
+
+    const hoaDon = await HoaDon.findOne({
+      where: { SoHoaDon: id },
+    });
+
+    if (!hoaDon) {
+      return res.status(404).json({ message: "Không tìm thấy hóa đơn" });
+    }
+
+    // (Tuỳ chọn) Cập nhật trạng thái phiếu đặt tiệc lại "Chưa thanh toán"
+    await PhieuDatTiec.update(
+      { TrangThai: "Chưa thanh toán" },
+      { where: { SoPhieuDatTiec: hoaDon.SoPhieuDatTiec } }
+    );
+
+    // Xoá hoá đơn
+    await hoaDon.destroy();
+
+    return res.status(200).json({ message: "Xoá hoá đơn thành công" });
+  } catch (error) {
+    console.error("[ERROR] deleteHoaDon:", error);
+    return res.status(500).json({
+      message: "Đã xảy ra lỗi khi xoá hoá đơn",
+      error: error.message,
+    });
+  }
+};
+
+// POST /api/danhsachtiec/hoadon/restore-dichvu/:soPhieu
+module.exports.restoreDichVu = async (req, res) => {
+  try {
+    const { soPhieu } = req.params;
+    const dsBackup = req.body;
+
+    if (!Array.isArray(dsBackup) || dsBackup.length === 0) {
+      return res.status(400).json({ message: "Danh sách dịch vụ phục hồi không hợp lệ." });
+    }
+
+    // Xóa các dịch vụ hiện tại (do hóa đơn tạo ra)
+    await Ct_DichVu.destroy({ where: { SoPhieuDatTiec: soPhieu } });
+
+    // Phục hồi lại dịch vụ ban đầu
+    const restored = dsBackup.map(dv => ({
+      SoPhieuDatTiec: soPhieu,
+      MaDichVu: dv.MaDichVu,
+      SoLuong: dv.SoLuong,
+      DonGia: dv.DonGia,
+    }));
+
+    await Ct_DichVu.bulkCreate(restored);
+
+    return res.status(200).json({
+      message: "Khôi phục dịch vụ thành công",
+      restoredCount: restored.length
+    });
+
+  } catch (error) {
+    console.error('[ERROR] restoreDichVu:', error);
+    return res.status(500).json({
+      message: "Lỗi server khi khôi phục dịch vụ",
+      error: error.message,
+    });
+  }
+};
+

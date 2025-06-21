@@ -37,3 +37,46 @@ export const createHoaDon = async (data) => {
   throw error
  }
 }
+export const deleteHoaDon = async (soHoaDon) => {
+  try {
+    const res = await fetch(`${API_URL}/hoadon/${soHoaDon}`, {
+      method: "DELETE",
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Không thể xoá hoá đơn:", res.status, errorText);
+      throw new Error(errorText || "Xoá hoá đơn thất bại");
+    }
+
+    const data = await res.json();
+    return data; 
+  } catch (error) {
+    console.error("Lỗi khi xoá hoá đơn:", error);
+    throw error;
+  }
+};
+export const restoreDichVu = async (soPhieu, dsBackup) => {
+  try {
+    const res = await fetch(`${API_URL}/hoadon/restore-dichvu/${soPhieu}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dsBackup),
+    });
+
+    if (!res.ok) {
+      const errorText = await res.text();
+      console.error("Không thể khôi phục dịch vụ:", res.status, errorText);
+      throw new Error(errorText || "Khôi phục dịch vụ thất bại");
+    }
+
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error("Lỗi khi khôi phục dịch vụ:", error);
+    throw error;
+  }
+};
+
