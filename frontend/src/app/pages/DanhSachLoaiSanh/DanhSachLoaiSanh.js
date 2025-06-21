@@ -177,8 +177,10 @@ export default function DanhSachLoaiSanh() {
 
   const acceptDelete = async () => {
     try {
-      await LoaiSanhService.delete(selectedRow.MaLoaiSanh);
-      toastService.entity.deleteSuccess('loại sảnh', selectedRow.TenLoaiSanh);
+      const message = await LoaiSanhService.delete(selectedRow.MaLoaiSanh);
+      if (message === 'success')
+        toastService.entity.deleteSuccess('loại sảnh', selectedRow.TenLoaiSanh);
+      else toastService.info(message);
       setIsDeleteDialogOpen(false);
       setSelectedRow(null);
       fetchData();

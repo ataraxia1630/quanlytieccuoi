@@ -93,8 +93,12 @@ const LoaiSanhService = {
     });
 
     if (!res.ok) {
-      throw new Error('Không thể xóa loại sảnh!');
+      const error = await res.json();
+      throw new Error(error.message || 'Không thể xóa loại sảnh!');
     }
+
+    const message = res.json();
+    return message;
   },
 
   print: (data, options = {}) => {
