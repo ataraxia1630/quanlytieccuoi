@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import useValidation from '../../validation/validation';
-import { set } from "date-fns";
+
 
 const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
     const { validateNumberField } = useValidation();
@@ -57,19 +57,24 @@ const EditCTDatBanDialog = ({ open, onClose, onSave, title, ctdatban }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        if (name === "SoLuong" || name === "DonGia") {
+        if (name === "SoLuong") {
 
             setFormData({ ...formData, [name]: value });
             validateNumberField(name, value, setErrors);
+            if (value < 1)
+                setErrors({ SoLuong: "Số lượng phải là một số dương" });
         } else {
             setFormData({ ...formData, [name]: value });
+            console.log(`${name}: `, { value });
         }
     };
-
+    const hasErrors = () => {
+        return Object.values(errors).some(error => error !== "");
+    };
     const handleSave = async () => {
         const { MaMonAn, TenMonAn, SoPhieuDatTiec, SoLuong, DonGia, GhiChu } = formData;
-        if (!MaMonAn || !TenMonAn || !SoPhieuDatTiec || !SoLuong || !DonGia) {
-            toast.warn("Vui lòng nhập đầy đủ thông tin!");
+        if (!MaMonAn || !TenMonAn || !SoPhieuDatTiec || !SoLuong || !DonGia || hasErrors()) {
+            toast.warn("Vui lòng nhập đầy đủ và chi tiết thông tin!");
             return;
         }
 

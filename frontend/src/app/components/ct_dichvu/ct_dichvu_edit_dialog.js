@@ -57,19 +57,21 @@ const EditCTDichVuDialog = ({ open, onClose, onSave, title, ctdichvu }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
 
-        if (name === "SoLuong" || name === "DonGia") {
-
-            setFormData({ ...formData, [name]: value });
+        if (name === "SoLuong") {
             validateNumberField(name, value, setErrors);
-        } else {
-            setFormData({ ...formData, [name]: value });
+            if (value < 1)
+                setErrors({ SoLuong: "Số lượng phải là một số dương" });
         }
+        setFormData({ ...formData, [name]: value });
+    };
+    const hasErrors = () => {
+        return Object.values(errors).some(error => error !== "");
     };
 
     const handleSave = async () => {
         const { MaDichVu, TenDichVu, SoPhieuDatTiec, SoLuong, DonGia } = formData;
-        if (!MaDichVu || !TenDichVu || !SoPhieuDatTiec || !SoLuong || !DonGia) {
-            toast.warn("Vui lòng nhập đầy đủ thông tin!");
+        if (!MaDichVu || !TenDichVu || !SoPhieuDatTiec || !SoLuong || !DonGia || hasErrors()) {
+            toast.warn("Vui lòng nhập đầy đủ và chính xác thông tin!");
             return;
         }
 

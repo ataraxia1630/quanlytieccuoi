@@ -11,9 +11,9 @@ import { Add, Remove } from '@mui/icons-material';
 
 
 function ServiceCard({ srv, onClick }) {
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState(0);
 
-    const handleDecrease = () => setQuantity((prev) => Math.max(1, prev - 1));
+    const handleDecrease = () => setQuantity((prev) => Math.max(0, prev - 1));
     const handleIncrease = () => setQuantity((prev) => prev + 1);
 
     return (
@@ -60,14 +60,15 @@ function ServiceCard({ srv, onClick }) {
                     variant="contained"
                     size="small"
                     sx={{
-                        bgcolor: 'orange',
+                        bgcolor: (quantity > 0) ? 'orange' : 'gray',
                         '&:hover': { bgcolor: 'darkorange' },
                         borderRadius: '999px',
                         textTransform: 'none',
                         paddingX: 3,
                     }}
                     onClick={() => {
-                        onClick({ ...srv, SoLuong: quantity })
+                        if (quantity > 0)
+                            onClick({ ...srv, SoLuong: quantity })
                     }}
                 >
                     Thêm
