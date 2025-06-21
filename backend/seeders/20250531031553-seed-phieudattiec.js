@@ -40,42 +40,9 @@ module.exports = {
     }, {});
 
     const getRandomName = (isMale) => {
-      const maleNames = [
-        'Nam',
-        'Hùng',
-        'Minh',
-        'Long',
-        'Khoa',
-        'Đức',
-        'Tuấn',
-        'Hải',
-        'Phong',
-        'Vũ',
-      ];
-      const femaleNames = [
-        'Lan',
-        'Mai',
-        'Hương',
-        'Ngọc',
-        'Thảo',
-        'Linh',
-        'Yến',
-        'Trang',
-        'Huyền',
-        'Thu',
-      ];
-      const lastNames = [
-        'Nguyễn',
-        'Trần',
-        'Lê',
-        'Phạm',
-        'Hoàng',
-        'Vũ',
-        'Đặng',
-        'Bùi',
-        'Đỗ',
-        'Hồ',
-      ];
+      const maleNames = ['Nam', 'Huy', 'Minh', 'Khoa', 'Duy'];
+      const femaleNames = ['Lan', 'Mai', 'Linh', 'Yến', 'Thu'];
+      const lastNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Vũ'];
       const firstName = isMale
         ? maleNames[Math.floor(Math.random() * maleNames.length)]
         : femaleNames[Math.floor(Math.random() * femaleNames.length)];
@@ -135,16 +102,19 @@ module.exports = {
     };
 
     const getRandomStatus = (ngayDaiTiec) => {
-      const partyMonth = ngayDaiTiec.getMonth(); // Trả về tháng (0 = tháng 1, 4 = tháng 5)
+      const currentDate = new Date(); // Lấy ngày hiện tại
+      const partyDate = new Date(ngayDaiTiec);
+      partyDate.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để so sánh ngày
+      currentDate.setHours(0, 0, 0, 0);
 
-      if (partyMonth <= 4) {
+      if (partyDate < currentDate) {
+        // Nếu đã đến hoặc qua ngày đãi tiệc, ưu tiên "Đã thanh toán"
         return 'Đã thanh toán';
       }
 
-      // Nếu là tháng 6 hoặc 7, phân phối tỷ lệ để đạt khoảng 40% đã thanh toán toàn kỳ:
+      // Nếu ngày đãi tiệc trong tương lai, chỉ gán "Chưa thanh toán" hoặc "Đã hủy"
       const rand = Math.random();
-      if (rand < 0.15) return 'Đã thanh toán'; // ~15%
-      if (rand < 0.95) return 'Chưa thanh toán'; // ~80%
+      if (rand < 0.95) return 'Chưa thanh toán'; // ~95%
       return 'Đã hủy'; // ~5%
     };
 
