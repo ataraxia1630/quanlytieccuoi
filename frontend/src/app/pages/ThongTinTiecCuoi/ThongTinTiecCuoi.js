@@ -577,7 +577,7 @@ const ThongTinTiecCuoi = () => {
             </IconButton>
           </div>
           <FormTextField
-            label="Thông tin sảnh"
+            label="Sảnh"
             name="MaSanh"
             value={sanhInfo.MaSanh ? `Mã sảnh: ${sanhInfo.MaSanh}, tên sảnh: ${sanhInfo.TenSanh}, loại sảnh: ${sanhInfo.TenLoaiSanh}, Số lượng bàn tối đa: ${sanhInfo.SoLuongBanToiDa}` : ""}
             InputLabelProps={{ shrink: true }}
