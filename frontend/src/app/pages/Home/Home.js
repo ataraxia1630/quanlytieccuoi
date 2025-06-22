@@ -947,7 +947,7 @@ export default function Home() {
               border: 0,
             }}
             onClick={() => navigate(`/DashBoard/DatTiecCuoi`)}
-            disabled={!hasPermission('order.create')}
+            disabled={!hasPermission(permissions, 'order.create')}
           >
             Đặt tiệc ngay
           </Button>
@@ -1116,7 +1116,7 @@ export default function Home() {
               border: 0,
             }}
             onClick={() => navigate(`/DashBoard/DatTiecCuoi`)}
-            disabled={!hasPermission('order.create')}
+            disabled={!hasPermission(permissions, 'order.create')}
           >
             Đặt Tiệc ngay
           </Button>
