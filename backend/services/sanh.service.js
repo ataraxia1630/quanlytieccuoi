@@ -198,16 +198,16 @@ const searchAndFilterSanh = async ({ maSanh, tenSanh, maLoaiSanh, minSoLuongBan,
             if (tenSanh) where[Op.or].push({ TenSanh: { [Op.like]: `%${tenSanh}%` } });
         }
         if (maLoaiSanh) where.MaLoaiSanh = maLoaiSanh;
-        
+
         if (minSoLuongBan || maxSoLuongBan) {
             const minVal = minSoLuongBan ? parseInt(minSoLuongBan) : null;
             const maxVal = maxSoLuongBan ? parseInt(maxSoLuongBan) : null;
-            
+
             // Kiểm tra logic min/max hợp lệ
             if (minVal && maxVal && minVal > maxVal) {
                 throw new ApiError(400, 'Số lượng bàn tối thiểu không thể lớn hơn số lượng bàn tối đa');
             }
-            
+
             where.SoLuongBanToiDa = {};
             if (minVal) where.SoLuongBanToiDa[Op.gte] = minVal;
             if (maxVal) where.SoLuongBanToiDa[Op.lte] = maxVal;
@@ -263,16 +263,22 @@ const uploadImage = async (maSanh, fileBuffer) => {
 
 const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru }) => {
     try {
-        // Tính tổng số bàn yêu cầu (số bàn ban đầu + số bàn dự trữ)
-        const totalBanRequired = parseInt(soLuongBan) + (parseInt(soBanDuTru) || 0);
+        // Chuyển đổi và kiểm tra đầu vào
+        const parsedSoLuongBan = parseInt(soLuongBan) || 0;
+        const parsedSoBanDuTru = parseInt(soBanDuTru) || 0;
+        const totalBanRequired = parsedSoLuongBan + parsedSoBanDuTru;
 
-        // Lấy tất cả sảnh thỏa điều kiện số lượng bàn
+        // Xây dựng điều kiện where cho sảnh
+        const whereCondition = {};
+        if (totalBanRequired > 0) {
+            whereCondition.SoLuongBanToiDa = {
+                [Op.gte]: totalBanRequired
+            };
+        }
+
+        // Lấy tất cả sảnh
         const sanhs = await Sanh.findAll({
-            where: {
-                SoLuongBanToiDa: {
-                    [Op.gte]: totalBanRequired // Lọc trước các sảnh có số lượng bàn tối đa >= tổng số bàn yêu cầu
-                }
-            },
+            where: whereCondition,
             include: [
                 {
                     model: LoaiSanh,
@@ -291,21 +297,21 @@ const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru 
                             [Op.between]: [
                                 new Date(ngayDaiTiec + 'T00:00:00'),
                                 new Date(ngayDaiTiec + 'T23:59:59')
-                            ] // So sánh theo toàn bộ ngày
+                            ]
                         },
                         TrangThai: {
-                            [Op.in]: ['Chưa thanh toán', 'Đã thanh toán'] // Chỉ lấy phiếu không trống
+                            [Op.in]: ['Chưa thanh toán', 'Đã thanh toán']
                         }
                     },
-                    required: false // Left join để lấy cả sảnh không có phiếu
+                    required: false
                 }
             ]
         });
 
-        // Lấy tất cả các ca một lần trước khi xử lý
+        // Lấy tất cả các ca
         const allCas = await Ca.findAll();
 
-        // Nếu không có sảnh nào thỏa điều kiện, trả về mảng rỗng
+        // Nếu không có sảnh nào, trả về mảng rỗng
         if (!sanhs || sanhs.length === 0) {
             return [];
         }
@@ -315,10 +321,10 @@ const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru 
             const sanhData = sanh.toJSON();
             const bookedTickets = sanhData.PhieuDatTiecs || [];
 
-            // Tính tình trạng theo từng ca dưới dạng mảng
+            // Tính tình trạng theo từng ca
             const caAvailability = allCas.map(ca => {
                 const caBooked = bookedTickets.find(ticket => ticket.MaCa === ca.MaCa);
-                const isAvailable = !caBooked; // Chỉ dựa vào việc có phiếu đặt tiệc hay không
+                const isAvailable = !caBooked;
 
                 return {
                     MaCa: ca.MaCa,
@@ -326,8 +332,9 @@ const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru 
                 };
             });
 
-            // Thêm thuộc tính TenLoaiSanh và xóa LoaiSanh, PhieuDatTiecs sau khi đã sử dụng
+            // Thêm thuộc tính TenLoaiSanh và xóa LoaiSanh, PhieuDatTiecs
             sanhData.TenLoaiSanh = sanhData.LoaiSanh ? sanhData.LoaiSanh.TenLoaiSanh : null;
+            sanhData.MaLoaiSanh = sanhData.LoaiSanh ? sanhData.LoaiSanh.MaLoaiSanh : null;
             delete sanhData.LoaiSanh;
             delete sanhData.PhieuDatTiecs;
 
@@ -336,13 +343,12 @@ const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru 
                 CaAvailability: caAvailability
             };
         });
-
+        console.log(availability)
         return availability;
     } catch (error) {
         throw new ApiError(500, 'Lỗi khi lấy danh sách sảnh khả dụng theo ca: ' + error.message);
     }
 };
-
 module.exports = { getSanhsAvailabilityByDate };
 
 module.exports = {

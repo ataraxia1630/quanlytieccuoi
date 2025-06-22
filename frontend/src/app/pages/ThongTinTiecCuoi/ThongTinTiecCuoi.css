@@ -1,11 +1,5 @@
 /* CSS cho ThongTinTiecCuoi */
-.BookingCount-container {
-    flex: 1;
-    display: flex;
-    flex-direction: row;
-    height: 100px;
 
-}
 
 .BookingCount-container span {
     display: flex;
@@ -37,7 +31,7 @@
 .table-selection {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    align-items: center;
+    align-items: start;
     column-gap: 2rem;
 }
 

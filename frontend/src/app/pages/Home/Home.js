@@ -443,10 +443,10 @@ export default function Home() {
       {/* 4. Introduction */}
       <Box
         sx={{
-          position: 'relative',
-          left: '130px',
+          marginLeft: 'auto',
           my: 8,
-          width: '100vw',
+          width: '90vw',
+          height: '500px',
           boxShadow: '8px 8px 4px rgba(0, 0, 0, 0.1),-8px -8px 10px rgba(0, 0, 0, 0.1)',
           display: 'flex',
           gap: '50px'
@@ -457,7 +457,7 @@ export default function Home() {
           component="img"
           src="https://res.cloudinary.com/digpe9tmq/image/upload/v1750302416/section_intro_ndrly6.png"
           alt="intro_pic"
-          width="20%"
+
           sx={{
             border: '20px solid #ffffff',
             boxShadow: '8px 0px 10px rgba(0, 0, 0, 0.1),-8px 0px 10px rgba(0, 0, 0, 0.1)',
@@ -493,10 +493,10 @@ export default function Home() {
 
       <Box
         sx={{
-          position: 'relative',
-          right: '130px',
+          marginRight: 'auto',
           my: 8,
-          width: '100vw',
+          width: '90vw',
+          height: '450px',
           boxShadow: '8px 8px 4px rgba(0, 0, 0, 0.1),-8px -8px 10px rgba(0, 0, 0, 0.1)',
           display: 'flex',
           gap: '50px',

@@ -70,35 +70,15 @@ const Header = () => {
         }}
       >
         {/* Logo */}
-        <Typography variant="h6" sx={{ fontWeight: 'light' }}>
+        <Typography
+          onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); navigate('/') }}
+          variant="h6" sx={{ fontWeight: 'light' }}>
           <b>DAPHNE</b>
         </Typography>
 
         {/* Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box>
-            <Button
-              onClick={handleOpen(setAnchorElFeatures)}
-              endIcon={<ArrowDropDownIcon />}
-              sx={{ color: 'black' }}
-            >
-              Dịch vụ
-            </Button>
-            <Menu
-              anchorEl={anchorElFeatures}
-              open={Boolean(anchorElFeatures)}
-              onClose={handleClose(setAnchorElFeatures)}
-            >
-              <MenuItem onClick={handleClose(setAnchorElFeatures)}>
-                Feature 1
-              </MenuItem>
-              <MenuItem onClick={handleClose(setAnchorElFeatures)}>
-                Feature 2
-              </MenuItem>
-            </Menu>
-          </Box>
-
-          <Button sx={{ color: 'black' }}>Về chúng tôi </Button>
+          <Button href="#" sx={{ color: 'black' }}>Về chúng tôi </Button>
         </Box>
 
         {/* Actions */}

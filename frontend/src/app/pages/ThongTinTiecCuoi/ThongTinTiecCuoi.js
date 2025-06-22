@@ -1,7 +1,5 @@
 import React, { useState, useContext, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Box, IconButton, Typography, Grid } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import RemoveIcon from '@mui/icons-material/Remove';
 import KeyboardDoubleArrowDown from '@mui/icons-material/KeyboardDoubleArrowDown';
 import './ThongTinTiecCuoi.css';
 import FormTextField from '../../components/Formtextfield';
@@ -19,8 +17,9 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HallCard from '../../components/Hallcard';
-import { format } from 'date-fns';
-import { grey } from '@mui/material/colors';
+import { format, isValid } from 'date-fns';
+import toastService from '../../service/toast/toast.service';
+import LoaiSanhService from '../../service/loaisanh.service';
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -39,18 +38,22 @@ const initialState = {
   TrangThai: "Chưa thanh toán",
 };
 
+
 const ThongTinTiecCuoi = () => {
 
   //thong tin cơ bản 
   const { validateNumberField } = useValidation();
   const [currentPDT, setCurrentPDT] = useState(null)
+  const [originDate, setOriginDate] = useState(null)
   const [errors, setErrors] = useState({
     SDT: "",
+    TenChuRe: "",
+    TenCoDau: "",
     NgayDaiTiec: "",
+    GioDaiTiec: "",
     TienDatCoc: "",
     SoLuongBan: "",
     SoBanDuTru: "",
-    NgayDatTiec: "",
     MaSanh: "",
     MaCa: ""
   });
@@ -61,8 +64,7 @@ const ThongTinTiecCuoi = () => {
   const [halls, setHalls] = useState([]);
   const [shifts, setshifts] = useState([]);
   const sectionRef = useRef(null);
-
-  const { handleNav } = useContext(StepContext);
+  const sectionRef2 = useRef(null);
 
 
   //introduction
@@ -78,20 +80,24 @@ const ThongTinTiecCuoi = () => {
       imageUrl: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730641/Image-1_u1ebzb.png',
     },
     {
-      title: 'lãng Mạn',
+      title: 'Lãng Mạn',
       description: 'Sảnh tiệc cưới lãng mạn với sắc hoa tươi thắm và thiết kế mềm mại, tạo nên không gian ấm áp, dịu dàng cho ngày trọng đại.',
       imageUrl: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image-2_sc6ztt.png',
     },
   ], []);
 
+  const { handleNav } = useContext(StepContext);
 
 
   //định dạng lại ngày 
   const pdtReFormat = useMemo(() => {
+    const ngayDaiTiec = phieuDatTiec.NgayDaiTiec;
+    const ngayDatTiec = phieuDatTiec.NgayDatTiec;
+
     return {
       ...phieuDatTiec,
-      NgayDaiTiec: phieuDatTiec.NgayDaiTiec ? format(new Date(phieuDatTiec.NgayDaiTiec), "yyyy-MM-dd'T'HH:mm:ss") : null,
-      NgayDatTiec: phieuDatTiec.NgayDatTiec ? format(new Date(phieuDatTiec.NgayDatTiec), "yyyy-MM-dd'T'HH:mm:ss") : null
+      NgayDaiTiec: isValid(new Date(ngayDaiTiec)) ? format(new Date(ngayDaiTiec), "yyyy-MM-dd'T'HH:mm:ss") : null,
+      NgayDatTiec: isValid(new Date(ngayDatTiec)) ? format(new Date(ngayDatTiec), "yyyy-MM-dd'T'HH:mm:ss") : null,
     };
   }, [phieuDatTiec]);
   // Tìm sảnh tương ứng dựa trên MaSanh
@@ -103,14 +109,13 @@ const ThongTinTiecCuoi = () => {
   // Tìm ca tương ứng dựa trên MaCa
   const caInfo = useMemo(() => {
     return shifts.find(ca => ca.MaCa === phieuDatTiec.MaCa) || { MaCa: null, TenCa: "", ThoiGianBatDau: "", ThoiGianKetThuc: "" };
-  }, [phieuDatTiec.MaCa]);
+  }, [phieuDatTiec.MaCa, shifts]);
 
 
 
-  //trường phone number
-  const validatePhoneNumberField = useCallback((name, value, setErrors) => {
+  //Validation
+  const validatePhoneNumberField = useCallback((name, value) => {
     const phoneRegex = /^0(3|5|7|8|9)\d{8}$/;
-
     if (!value || !phoneRegex.test(value)) {
       setErrors((prev) => ({
         ...prev,
@@ -125,7 +130,7 @@ const ThongTinTiecCuoi = () => {
   }, []);
 
 
-  const validateTimeField = useCallback((name, value, setErrors) => {
+  const validateDateField = useCallback((name, value) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const timeStr = value instanceof Date ? value.toTimeString() : (value || "");
@@ -134,16 +139,62 @@ const ThongTinTiecCuoi = () => {
         ...prev,
         [name]: "Ngày không được trước ngày hiện tại!",
       }));
-    } else if ((name === "NgayDaiTiec" && value.getTime() < phieuDatTiec.NgayDatTiec.getTime())
-      || (name === "NgayDatTiec" && value.getTime() > phieuDatTiec.NgayDaiTiec.getTime())) {
-      setErrors(prev => ({ ...prev, [name]: "Ngày đãi tiệc không được trước ngày đặt tiệc!" }));
     }
     else {
-      setErrors((prev) => ({ ...prev, NgayDaiTiec: "" }));
-      setErrors((prev) => ({ ...prev, NgayDatTiec: "" }));
+      setErrors((prev) => ({ ...prev, [name]: "" }));
     }
-  }, [phieuDatTiec.NgayDatTiec, phieuDatTiec.NgayDaiTiec]);
+  }, []);
 
+  const validateTimeField = useCallback((name, value, gioBatDau, gioketthuc) => {
+    if (!(value instanceof Date) || isNaN(value.getTime())) {
+      return;
+    }
+    const gioPhutGiay = new Intl.DateTimeFormat('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false
+    }).format(value);
+    if ((gioBatDau > gioketthuc && gioPhutGiay > gioketthuc && gioPhutGiay < gioBatDau)
+      || (gioBatDau < gioketthuc && (gioPhutGiay > gioketthuc || gioPhutGiay < gioBatDau))) {
+      setErrors(prev => ({ ...prev, [name]: "Thời gian đãi tiệc phải thuộc khung giờ của ca đã chọn" }))
+    }
+    else
+      setErrors(prev => ({ ...prev, [name]: "" }))
+  }, []);
+
+  const validateTextField = useCallback((name, value) => {
+    if (value === null || value === undefined || (typeof value === "string" && value.trim() === "")) {
+      return;
+    }
+    else
+      setErrors((prev) => ({ ...prev, [name]: "" }))
+  }, []);
+
+  const validateRequiredField = useCallback(() => {
+    const requiredFields = {
+      TenChuRe: "Tên chú rể không được để trống.",
+      TenCoDau: "Tên cô dâu không được để trống.",
+      SDT: "Số điện thoại không được để trống.",
+      NgayDaiTiec: "Ngày đãi tiệc không được để trống.",
+      MaSanh: "Chưa chọn sảnh."
+    };
+
+    const rErrors = {};
+
+    for (const [key, message] of Object.entries(requiredFields)) {
+      const value = pdtReFormat[key];
+
+      if (value === null || value === undefined || (typeof value === "string" && value.trim() === "")
+      ) {
+        rErrors[key] = message;
+      }
+    }
+
+    // Sau đó set lỗi
+    setErrors(rErrors);
+
+  }, [pdtReFormat]);
 
   //Phiếu đặt tiệc
   // lưu thông tin thay đổi vào phieuDatTiec
@@ -152,26 +203,81 @@ const ThongTinTiecCuoi = () => {
 
     let newValue = value;
     // Nếu là trường số thì ép kiểu số nguyên
-    if (name === "SoLuongBan" || name === "TienDatCoc" || name == "SoBanDuTru") {
+    if (name === "SoLuongBan" || name === "TienDatCoc" || name === "SoBanDuTru") {
+      if (newValue.length > 21) return;
+
       newValue = parseInt(value, 10);
       if (isNaN(newValue) || newValue < 0) {
-        console.error(`Giá trị không hợp lệ cho trường ${name}: ${value}`);
-        newValue = ""; // Trường hợp người dùng xóa hết input
-      }
+        if (value !== "") {
+          console.error(`Giá trị không hợp lệ cho trường ${name}: ${value}`);
+          return;
+        }
+        else newValue = 0
 
+      }
     }
 
+
+
+
+    //data validation
+    switch (name) {
+      case "TenCoDau": case 'TenChuRe':
+        validateTextField(name, newValue);
+        break;
+      case "NgayDaiTiec":
+        if (!(newValue instanceof Date) || isNaN(newValue.getTime())) {
+          return;
+        }
+        validateDateField(name, newValue);
+
+        break;
+      case "TienDatCoc":
+        validateNumberField(name, newValue, setErrors);
+        break;
+      case "SoLuongBan":
+        validateNumberField(name, newValue, setErrors);
+        if (phieuDatTiec.MaSanh && newValue + phieuDatTiec.SoBanDuTru > Number(sanhInfo.SoLuongBanToiDa)) {
+          setErrors(prev => ({ ...prev, SoLuongBan: "Sảnh quá nhỏ so với số lượng bàn yêu cầu" }));
+        }
+        else setErrors(prev => ({ ...prev, SoLuongBan: "", SoBanDuTru: "" }))
+        break;
+      case "SoBanDuTru":
+        validateNumberField(name, newValue, setErrors);
+        if (phieuDatTiec.MaSanh && newValue + phieuDatTiec.SoLuongBan > Number(sanhInfo.SoLuongBanToiDa)) {
+          setErrors(prev => ({ ...prev, SoBanDuTru: "Sảnh quá nhỏ so với số lượng bàn yêu cầu" }));
+        }
+        else setErrors(prev => ({ ...prev, SoLuongBan: "", SoBanDuTru: "" }))
+        break;
+      case "SDT":
+        validatePhoneNumberField(name, newValue);
+        break;
+      case 'sanhCa':
+        const newCa = shifts.find(ca => ca.MaCa === newValue.MaCa) || { MaCa: null, TenCa: "", ThoiGianBatDau: "", ThoiGianKetThuc: "" };
+        validateTimeField('GioDaiTiec', phieuDatTiec.NgayDaiTiec, newCa.GioBatDau, newCa.GioKetThuc);
+        break;
+      case 'GioDaiTiec':
+        if (caInfo.MaCa)
+          validateTimeField('GioDaiTiec', newValue, caInfo.GioBatDau, caInfo.GioKetThuc);
+        break;
+      default:
+        break;
+    }
+
+
+    //set phieudattiec prop
     if (name === "sanhCa") {
       setPhieuDatTiec(prev => ({
         ...prev,
         MaSanh: newValue.MaSanh,
         MaCa: newValue.MaCa,
       }));
+      handleScroll(sectionRef2);
       toast.success(`Đã chọn sảnh/ca thành công`);
     }
     else if (name === "GioDaiTiec" && newValue) {
       const currentNgay = new Date(phieuDatTiec.NgayDaiTiec);
-      const gioMoi = new Date(newValue);
+      const gioMoi = newValue;
 
       const ngayCapNhat = new Date(
         currentNgay.getFullYear(),
@@ -187,39 +293,15 @@ const ThongTinTiecCuoi = () => {
         NgayDaiTiec: ngayCapNhat
       }));
     }
-
     else
       setPhieuDatTiec({ ...phieuDatTiec, [name]: newValue });
-    if (name === "NgayDaiTiec" || name === "NgayDatTiec") {
-
-      validateTimeField(name, newValue, setErrors);
-
-    }
-    else if (name === "TienDatCoc" || name === "SoLuongBan" || name == "SoBanDuTru") {
-
-      validateNumberField(name, newValue, setErrors);
-      if (phieuDatTiec.MaSanh && name === "SoLuongBan" && newValue + phieuDatTiec.SoBanDuTru > Number(sanhInfo.SoLuongBanToiDa)) {
-        setErrors(prev => ({ ...prev, SoLuongBan: "Sảnh quá nhỏ so với số lượng bàn yêu cầu" }));
-
-      }
-      else if (phieuDatTiec.MaSanh && name === "SoBanDuTru" && newValue + phieuDatTiec.SoLuongBan > Number(sanhInfo.SoLuongBanToiDa)) {
-        setErrors(prev => ({ ...prev, SoBanDuTru: "Sảnh quá nhỏ so với số lượng bàn yêu cầu" }));
-      }
-      else {
-        setErrors(prev => ({ ...prev, SoLuongBan: "", SoBanDuTru: "" }))
-      }
-
-    }
-    else if (name === "SDT") {
-      validatePhoneNumberField(name, newValue, setErrors);
-    }
 
 
   };
 
   // Hàm xử lý khi nhấn nút cuộn
-  const handleScroll = () => {
-    sectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  const handleScroll = (targetRef) => {
+    targetRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
 
@@ -228,7 +310,7 @@ const ThongTinTiecCuoi = () => {
       const data = await caService.getAllCa();
       setshifts(data);
     } catch (error) {
-      toast.error(`${error.message || 'Không thể tải dữ liệu ca!'}`);
+      toastService.error(`${error.message || 'Không thể tải dữ liệu ca!'}`);
     }
 
   }, []);
@@ -250,9 +332,11 @@ const ThongTinTiecCuoi = () => {
       };
 
       setPhieuDatTiec(newData);
+      setOriginDate(newData.NgayDaiTiec);
+      localStorage.setItem("SoLuongBan", newData.SoLuongBan);
 
     } catch (error) {
-      toast.error(`${error.message || 'Không thể tải dữ liệu phiếu đặt tiệc!'}`);
+      toastService.error(`${error.message || 'Không thể tải dữ liệu phiếu đặt tiệc!'}`);
     }
 
   }, []);
@@ -262,7 +346,7 @@ const ThongTinTiecCuoi = () => {
       const data = await sanhService.getSanhsAvailabilityByDate(queries);
       setHalls(data);
     } catch (error) {
-      toast.error(`${error.message || 'Không thể tải dữ liệu sảnh!'}`);
+      toastService.error(`${error.message || 'Không thể tải dữ liệu sảnh!'}`);
     }
 
   }, []);
@@ -273,36 +357,59 @@ const ThongTinTiecCuoi = () => {
 
     try {
       const data = await PhieuDatTiecService.createPhieuDatTiec(pdtReFormat);
-      localStorage.setItem("currentPDT", data.data.SoPhieuDatTiec)
+      const sanh = halls.find(sanh => sanh.MaSanh === data.data.MaSanh) || null;
+      if (sanh) {
+        const loaiSanh = await LoaiSanhService.getById(sanh.MaLoaiSanh);
+        localStorage.setItem("DonGiaBanToiThieu", loaiSanh.DonGiaBanToiThieu);
+      }
+      localStorage.setItem("currentPDT", data.data.SoPhieuDatTiec);
+      localStorage.setItem("SoLuongBan", pdtReFormat.SoLuongBan);
+      console.log("Don gia ban toi thieu: ", localStorage.getItem("DonGiaBanToiThieu"))
+      console.log("So luongg ban: ", localStorage.getItem("SoLuongBan"))
+
 
       handleNav()
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể tạo mới phiếu dặt tiệc!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể tạo mới phiếu dặt tiệc!'}`);
     }
 
-  }, [pdtReFormat]);
+  }, [pdtReFormat, handleNav]);
 
   // cập nhật data phiếu đặt tiêc nếu đang tiến hành đặt tiệc
   const updateCurrentPhieuDatTiec = useCallback(async (id) => {
     try {
-      const data = await PhieuDatTiecService.updatePhieuDatTiec(id, pdtReFormat);
+      await PhieuDatTiecService.updatePhieuDatTiec(id, pdtReFormat);
+      const sanh = halls.find(sanh => sanh.MaSanh === pdtReFormat.MaSanh) || null;
+      if (sanh) {
+        const loaiSanh = await LoaiSanhService.getById(sanh.MaLoaiSanh);
+        localStorage.setItem("DonGiaBanToiThieu", loaiSanh.DonGiaBanToiThieu || 0);
+      }
+
+      localStorage.setItem("SoLuongBan", pdtReFormat.SoLuongBan);
+      toast.success("Cập nhật phiếu đặt tiệc thành công!")
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       handleNav()
+
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể cập nhật phiếu đặt tiệc!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể cập nhật phiếu đặt tiệc!'}`);
     }
-  }, [pdtReFormat]);
+  }, [pdtReFormat, handleNav]);
 
   // hủy data phiếu đặt tiêc nếu đang tiến hành đặt tiệc
   const removeCurrentPhieuDatTiec = useCallback(async (id) => {
     try {
-      if (currentPDT) {
+      if (id) {
         await PhieuDatTiecService.deletePhieuDatTiec(id)
       }
       setCurrentPDT(null);
       setPhieuDatTiec(initialState);
       localStorage.setItem("currentPDT", null);
+      localStorage.setItem("SoLuongBan", 0);
+      localStorage.setItem("DonGiaBanToiThieu", 0);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể xóa phiếu đặt tiệc!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể xóa phiếu đặt tiệc!'}`);
     }
   }, []);
 
@@ -312,55 +419,72 @@ const ThongTinTiecCuoi = () => {
   };
 
   const handleSave = () => {
+    if ((!phieuDatTiec.TenChuRe || !phieuDatTiec.TenCoDau || !phieuDatTiec.SDT
+      || !phieuDatTiec.SoLuongBan || !phieuDatTiec.NgayDaiTiec || !phieuDatTiec.NgayDatTiec)
+      || !phieuDatTiec.MaCa || !phieuDatTiec.MaSanh || hasErrors()) {
+
+      toastService.warning("Vui lòng nhập,chọn chính xác và đầy đủ thông tin!");
+      validateRequiredField();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
     if (!currentPDT || currentPDT === "") {
-      if ((!phieuDatTiec.TenChuRe || !phieuDatTiec.TenCoDau || !phieuDatTiec.SDT
-        || !phieuDatTiec.SoLuongBan || !phieuDatTiec.NgayDaiTiec || !phieuDatTiec.NgayDatTiec)
-        || !phieuDatTiec.MaCa || !phieuDatTiec.MaSanh || hasErrors()) {
-        console.log("hass err", hasErrors())
-        console.log("phieudattiec", phieuDatTiec)
-        console.log("lỗi nhập liệu", errors)
-        const toastId = "save-error-toast";
-        if (!toast.isActive(toastId)) {
-          toast.warn("Vui lòng nhập,chọn chính xác và đầy đủ thông tin!", {
-            toastId: toastId,
-          });
-        }
-        return;
-      }
       createCurrentPhieuDatTiec(phieuDatTiec);
     }
     else
 
       updateCurrentPhieuDatTiec(currentPDT)
-
-
-
   };
 
   //set valid sanh data
   useEffect(() => {
 
-    if (errors.SoLuongBan === "", errors.SoBanDuTru == "") {
-      let slban = phieuDatTiec.SoLuongBan == "" ? 0 : phieuDatTiec.SoLuongBan;
-      let slBanDuTru = phieuDatTiec.SoBanDuTru == "" ? 0 : phieuDatTiec.SoBanDuTru;
-      fetchValidSanhByDate({ ngayDaiTiec: pdtReFormat.NgayDaiTiec.slice(0, 10), soLuongBan: slban, soBanDuTru: slBanDuTru });
-    }
-  }, [phieuDatTiec.NgayDaiTiec, phieuDatTiec.SoLuongBan, phieuDatTiec.SoBanDuTru, phieuDatTiec.MaSanh]);
+    if (errors.SoLuongBan === "" && errors.SoBanDuTru === "" && errors.NgayDaiTiec === "") {
+      let slban = pdtReFormat.SoLuongBan === "" ? 0 : pdtReFormat.SoLuongBan;
+      let slBanDuTru = pdtReFormat.SoBanDuTru === "" ? 0 : pdtReFormat.SoBanDuTru;
 
+      const ngay = pdtReFormat.NgayDaiTiec;
+      const dateStr = typeof ngay === "string" ? ngay.slice(0, 10) : null;
+
+      if (dateStr) {
+        fetchValidSanhByDate({
+          ngayDaiTiec: dateStr,
+          soLuongBan: slban,
+          soBanDuTru: slBanDuTru,
+        });
+
+      }
+    }
+
+  }, [pdtReFormat.MaSanh, errors.NgayDaiTiec, pdtReFormat.SoLuongBan, pdtReFormat.SoBanDuTru, errors.SoBanDuTru, errors.SoLuongBan, fetchValidSanhByDate, pdtReFormat.NgayDaiTiec]);
   //set full ca data
   useEffect(() => {
     fetchFullCa();
-  }, []);
+  }, [fetchFullCa]);
+
+  useEffect(() => {
+    const sanh = halls.find(sanh => sanh.MaSanh === sanhInfo.MaSanh) || null;
+    const ca = sanh ? (sanh.CaAvailability.find(ca => ca.MaCa === caInfo.MaCa) || null) : null;
+    if (ca && ca.TrangThai === "Không trống" && originDate && originDate.getDate() !== phieuDatTiec.NgayDaiTiec.getDate()) {
+      setErrors(prev => ({
+        ...prev,
+        MaCa: "Ca trong ngày đãi tiệc hiện tại không trống"
+      }));
+    } else {
+      setErrors(prev => ({
+        ...prev,
+        MaCa: "" // Hoặc thông báo phù hợp
+      }));
+    }
+  }, [halls, caInfo.MaCa, sanhInfo.MaSanh]);
 
 
-
-  // Lấy currentPDT từ localStorage 
+  // Lấy currentPDT từ localStorage
   useEffect(() => {
     // setPhieuDatTiec(initialState);
-    //localStorage.setItem("currentPDT", "PDT001");
+    //localStorage.setItem("currentPDT", "PDT");
 
     const pdt = localStorage.getItem("currentPDT");
-    console.log("currentPDT: ", pdt)
 
     if (pdt !== "null") {
       setCurrentPDT(pdt);
@@ -369,10 +493,7 @@ const ThongTinTiecCuoi = () => {
     else {
       setCurrentPDT(null);
     }
-
-
-
-  }, []);
+  }, [fetchCurrentPhieuDatTiec]);
 
 
 
@@ -380,20 +501,24 @@ const ThongTinTiecCuoi = () => {
     <div className="page">
       <ToastContainer />
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <Box className="form-section">
+        <Box className="form-section" ref={sectionRef2}>
           <Typography variant='h6' mb={3}>Thông tin khách hàng</Typography>
           <Box className="form-grid">
             <FormTextField label="Tên chú rể"
 
               name="TenChuRe"
               value={phieuDatTiec.TenChuRe}
-              onChange={handleChange} />
+              onChange={handleChange}
+              error={!!errors.TenChuRe}
+              helperText={errors.TenChuRe} />
 
             <FormTextField
               label="Tên cô dâu"
               name="TenCoDau"
               value={phieuDatTiec.TenCoDau}
               onChange={handleChange}
+              error={!!errors.TenCoDau}
+              helperText={errors.TenCoDau}
             />
             <FormTextField
               label="Số điện thoại"
@@ -416,9 +541,6 @@ const ThongTinTiecCuoi = () => {
               <DatePicker
                 label="Ngày đặt tiệc"
                 value={phieuDatTiec.NgayDatTiec}
-                onChange={(newValue) =>
-                  handleChange({ target: { name: "NgayDatTiec", value: newValue } })
-                }
                 format="dd-MM-yyyy"
                 slotProps={{
                   textField: {
@@ -427,6 +549,8 @@ const ThongTinTiecCuoi = () => {
                     helperText: errors.NgayDatTiec,
                   },
                 }}
+                disabled
+
               />
 
 
@@ -436,11 +560,17 @@ const ThongTinTiecCuoi = () => {
                 value={phieuDatTiec.NgayDaiTiec}
                 onChange={(newValue) => handleChange({ target: { name: "NgayDaiTiec", value: newValue } })}
                 format="dd-MM-yyyy"
+
                 slotProps={{
                   textField: {
                     fullWidth: true,
                     error: !!errors.NgayDaiTiec,
                     helperText: errors.NgayDaiTiec,
+                    onKeyDown: (e) => {
+                      if (e.key === "Backspace") {
+                        e.preventDefault();
+                      }
+                    },
                   },
                 }}
               />
@@ -454,8 +584,8 @@ const ThongTinTiecCuoi = () => {
                 slotProps={{
                   textField: {
                     fullWidth: true,
-                    error: !!errors.NgayDaiTiec,
-                    helperText: errors.NgayDaiTiec,
+                    error: !!errors.GioDaiTiec,
+                    helperText: errors.GioDaiTiec,
                   },
                 }}
               />
@@ -463,18 +593,16 @@ const ThongTinTiecCuoi = () => {
             </LocalizationProvider>
           </Box>
           <Typography variant='h6' >Thông tinh sảnh/ca</Typography>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
             <p style={{ color: 'grey', margin: 0 }}>--có thể tiến hành đặt sảnh ở bên dưới--</p>
             <IconButton onClick={() => handleScroll()}>
               <KeyboardDoubleArrowDown />
             </IconButton>
           </div>
           <FormTextField
-            label="Thông tin sảnh"
+            label="Sảnh"
             name="MaSanh"
             value={sanhInfo.MaSanh ? `Mã sảnh: ${sanhInfo.MaSanh}, tên sảnh: ${sanhInfo.TenSanh}, loại sảnh: ${sanhInfo.TenLoaiSanh}, Số lượng bàn tối đa: ${sanhInfo.SoLuongBanToiDa}` : ""}
-            error={!!errors.MaSanh}
-            helperText={errors.MaSanh}
             InputLabelProps={{ shrink: true }}
             disabled
           />
@@ -482,9 +610,9 @@ const ThongTinTiecCuoi = () => {
             label="Ca"
             name="MaCa"
             value={caInfo.MaCa ? `${caInfo.MaCa}, ${caInfo.GioBatDau} - ${caInfo.GioKetThuc}` : ""}
-            error={!!errors.TienDatCoc}
-            helperText={errors.TienDatCoc}
             InputLabelProps={{ shrink: true }}
+            error={!!errors.MaCa}
+            helperText={errors.MaCa}
             disabled
           />
 
@@ -492,29 +620,24 @@ const ThongTinTiecCuoi = () => {
 
           {/* Table Selection */}
           <Box className="table-selection">
-            <div className="BookingCount-container" style={{ paddingTop: 20 }}  >
-              <FormTextField
-                label="Số lượng bàn"
-                value={phieuDatTiec.SoLuongBan.toString()}
-                name="SoLuongBan"
-                onChange={handleChange}
-                size="medium"
-                error={!!errors.SoLuongBan}
-                helperText={errors.SoLuongBan}
-              />
-            </div>
-
-            <div className="BookingCount-container" style={{ paddingTop: 20 }}>
-              <FormTextField
-                label="Số bàn dự trữ"
-                value={phieuDatTiec.SoBanDuTru.toString()}
-                name="SoBanDuTru"
-                onChange={handleChange}
-                size="medium"
-                error={!!errors.SoBanDuTru}
-                helperText={errors.SoBanDuTru}
-              />
-            </div>
+            <FormTextField
+              label="Số lượng bàn"
+              value={phieuDatTiec.SoLuongBan.toString()}
+              name="SoLuongBan"
+              onChange={handleChange}
+              size="medium"
+              error={!!errors.SoLuongBan}
+              helperText={errors.SoLuongBan}
+            />
+            <FormTextField
+              label="Số bàn dự trữ"
+              value={phieuDatTiec.SoBanDuTru.toString()}
+              name="SoBanDuTru"
+              onChange={handleChange}
+              size="medium"
+              error={!!errors.SoBanDuTru}
+              helperText={errors.SoBanDuTru}
+            />
           </Box>
 
         </Box>
@@ -563,14 +686,14 @@ const ThongTinTiecCuoi = () => {
         </div>
 
         <Box sx={{ display: 'flex', justifyContent: 'end', gap: 2, my: 6 }}>
-          <SaveAndPrintButton onClick={() => removeCurrentPhieuDatTiec(currentPDT)} text='hủy' sx={{ color: "white" }} />
+          <SaveAndPrintButton onClick={() => removeCurrentPhieuDatTiec(currentPDT)} text='Hủy' sx={{ color: "white" }} />
           <Cancelbutton onClick={handleSave} textCancel={(currentPDT) ? "Cập nhật" : "Tiếp theo"} />
 
         </Box>
 
       </Box>
 
-    </div>
+    </div >
   );
 }
 
