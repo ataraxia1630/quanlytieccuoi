@@ -206,9 +206,6 @@ const deleteCa = async (maCa) => {
         const phieuDatTiecCount = await PhieuDatTiec.count({
             where: {
                 MaCa: maCa,
-                TrangThai: {
-                    [Op.in]: ['Chưa thanh toán', 'Đã thanh toán'] // Chỉ kiểm tra phiếu còn hiệu lực
-                }
             }
         });
 
