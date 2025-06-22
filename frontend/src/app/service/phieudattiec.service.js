@@ -32,7 +32,7 @@ const handleApiError = (error) => {
   }
 };
 // Hàm xử lý lỗi chung
-const handleApiErrorForPDTForPDT = (error) => {
+const handleApiErrorForPDT = (error) => {
   if (error.response) {
     const { status, data } = error.response;
     if (status === 401) {
@@ -42,9 +42,9 @@ const handleApiErrorForPDTForPDT = (error) => {
         'Bạn không có quyền thực hiện thao tác này. Vui lòng kiểm tra quyền truy cập hoặc đăng nhập lại.'
       );
     }
-    throw new Error(data?.message || defaultMessage);
+    throw new Error(error.response.data.message || 'Lỗi từ server');
   }
-  throw new Error(defaultMessage);
+  throw new Error(error.message);
 };
 
 const PhieuDatTiecService = {
@@ -104,4 +104,4 @@ const PhieuDatTiecService = {
 };
 export default PhieuDatTiecService;
 
-export { handleApiErrorForPDT };
+export { handleApiError };
