@@ -67,7 +67,13 @@ export default function MainRoutes() {
             path="DanhSachTiecCuoi"
             element={
               <CheckPermissionRoute
-                requiredPermissions={['wedding.view', 'wedding.delete']}
+                requiredPermissions={[
+                  'wedding.view',
+                  'wedding.delete',
+                  'bill.create',
+                  'bill.view',
+                  'bill.edit',
+                ]}
               >
                 <DanhSachTiecCuoi />
               </CheckPermissionRoute>
@@ -91,7 +97,9 @@ export default function MainRoutes() {
           <Route
             path="HoaDon"
             element={
-              <CheckPermissionRoute requiredPermissions={['bill.create']}>
+              <CheckPermissionRoute
+                requiredPermissions={['bill.create', 'bill.view', 'bill.edit']}
+              >
                 <HoaDon />
               </CheckPermissionRoute>
             }
