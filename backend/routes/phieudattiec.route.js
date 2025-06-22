@@ -1,36 +1,47 @@
-const express = require("express");
+const express = require('express');
 const validate = require('../middlewares/validation');
-const phieuDatTiecValidation = require("../validations/phieudattiec.validation");
-const phieuDatTiecController = require("../controllers/phieudattiec.controller");
+const phieuDatTiecValidation = require('../validations/phieudattiec.validation');
+const phieuDatTiecController = require('../controllers/phieudattiec.controller');
+const { verifyToken } = require('../middlewares/auth.middleware');
+const { checkPermission } = require('../middlewares/permission.middleware');
 
 const router = express.Router();
 
-
-router.get("/", phieuDatTiecController.getAllPhieuDatTiec);
-router.post("/search",
+router.get('/', verifyToken, phieuDatTiecController.getAllPhieuDatTiec);
+router.post(
+  '/search',
+  verifyToken,
   phieuDatTiecValidation.searchPhieuDatTiec,
   validate,
-  phieuDatTiecController.searchPhieuDatTiec);
+  phieuDatTiecController.searchPhieuDatTiec
+);
 router.get(
-  "/:id",
+  '/:id',
+  verifyToken,
   phieuDatTiecValidation.getPhieuDatTiecById,
   validate,
   phieuDatTiecController.getPhieuDatTiecById
 );
 router.post(
-  "/",
+  '/',
+  verifyToken,
+  checkPermission('order.create'),
   phieuDatTiecValidation.createPhieuDatTiec,
   validate,
   phieuDatTiecController.createPhieuDatTiec
 );
 router.put(
-  "/:id",
+  '/:id',
+  verifyToken,
+  checkPermission('wedding.edit'),
   phieuDatTiecValidation.updatePhieuDatTiec,
   validate,
   phieuDatTiecController.updatePhieuDatTiec
 );
 router.delete(
-  "/:id",
+  '/:id',
+  verifyToken,
+  checkPermission('wedding.delete'),
   phieuDatTiecValidation.deletePhieuDatTiec,
   validate,
   phieuDatTiecController.deletePhieuDatTiec

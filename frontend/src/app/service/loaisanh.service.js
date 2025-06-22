@@ -5,6 +5,10 @@ const baseURL = '/api/loaisanh';
 const LoaiSanhService = {
   getAll: async (search = '', priceMin = 0, priceMax = 10000000) => {
     let uri = baseURL;
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const params = new URLSearchParams();
 
     if (search) params.set('search', search);
@@ -16,7 +20,13 @@ const LoaiSanhService = {
       uri += `?${queryString}`;
     }
 
-    const res = await fetch(uri);
+    const res = await fetch(uri, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (!res.ok) {
       const error = await res.json();
       throw new Error(error.message || 'Không thể lấy danh sách loại sảnh!');
@@ -26,7 +36,17 @@ const LoaiSanhService = {
   },
 
   getById: async (id) => {
-    const res = await fetch(`${baseURL}/${id}`);
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
+    const res = await fetch(`${baseURL}/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (!res.ok) {
       const error = await res.json();
       throw new Error(error.message || 'Không thể lấy thông tin loại sảnh!');
