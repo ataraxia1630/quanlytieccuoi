@@ -892,13 +892,13 @@ const Sidebar = () => {
         {menuItems.map((item) => {
           const hasPermission = item.requirePrefixes
             ? permissions.some((permission) =>
-                item.requirePrefixes.some((prefix) =>
-                  permission.startsWith(prefix)
-                )
+              item.requirePrefixes.some((prefix) =>
+                permission.startsWith(prefix)
               )
+            )
             : permissions.some((permission) =>
-                permission.startsWith(item.requirePrefix)
-              );
+              permission.startsWith(item.requirePrefix)
+            );
           return (
             hasPermission && (
               <ListItem
@@ -906,23 +906,26 @@ const Sidebar = () => {
                 key={item.text}
                 onClick={() => item.path && navigate(`/DashBoard/${item.path}`)}
                 sx={{
-                  opacity: isOpen ? 1 : 0,
-                  transition: 'opacity 0.3s',
                   whiteSpace: 'nowrap',
                   fontStyle: 'normal',
-                  paddingTop: '10px ',
+                  paddingY: '10px',
+                  border: 'none',
+                  background: 'transparent',
+                  display: 'flex',
+                  alignItems: 'start',
+                  justifyContent: 'flex-start',
+                  px: 1,
+                  height: "80px"
                 }}
               >
                 <ListItemIcon
                   sx={{
                     minWidth: 0,
                     mr: isOpen ? 3 : 0,
-                    justifyContent: 'center',
+                    justifyContent: 'start',
                     '& svg': {
-                      transition: 'transform 0.1s ease-in-out',
-                      transform: location.pathname.startsWith(
-                        `/DashBoard/${item.path}`
-                      )
+                      transition: 'transform 0.2`s ease-in-out',
+                      transform: location.pathname.startsWith(`/DashBoard/${item.path}`)
                         ? 'scale(1.2)'
                         : 'scale(0.9)',
                     },
@@ -930,19 +933,19 @@ const Sidebar = () => {
                 >
                   {item.icon}
                 </ListItemIcon>
-                {item.text && (
+
+                {isOpen && (
                   <ListItemText
                     primary={item.text}
                     sx={{
-                      opacity: isOpen ? 1 : 0,
-                      transition: 'opacity 0.3s',
                       whiteSpace: 'nowrap',
                       fontStyle: 'normal',
-                      paddingTop: '10px ',
+                      paddingTop: '10px',
                     }}
                   />
                 )}
               </ListItem>
+
             )
           );
         })}
