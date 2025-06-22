@@ -21,11 +21,10 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-
 // Hàm xử lý lỗi chung
 const handleApiErrorForPDT = (error) => {
   if (error.response) {
-    const { status, data } = error.response;
+    const { status } = error.response;
     if (status === 401) {
       throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!');
     } else if (status === 403) {
@@ -41,7 +40,7 @@ const handleApiErrorForPDT = (error) => {
 const PhieuDatTiecService = {
   getAllPhieuDatTiec: async () => {
     try {
-      const response = await api.get(`/phieudattiec/`);
+      const response = await api.get('/');
       return response.data;
     } catch (error) {
       handleApiErrorForPDT(error);
@@ -50,7 +49,7 @@ const PhieuDatTiecService = {
 
   searchPhieuDatTiec: async (search) => {
     try {
-      const response = await axios.post('/api/phieudattiec/search', search);
+      const response = await api.post('/search', search);
       return response.data;
     } catch (error) {
       handleApiErrorForPDT(error);
@@ -59,7 +58,7 @@ const PhieuDatTiecService = {
 
   getPhieuDatTiecById: async (id) => {
     try {
-      const response = await axios.get(`/api/phieudattiec/${id}`);
+      const response = await api.get(`/${id}`);
       return response.data;
     } catch (error) {
       handleApiErrorForPDT(error);
@@ -68,7 +67,7 @@ const PhieuDatTiecService = {
 
   createPhieuDatTiec: async (data) => {
     try {
-      const response = await axios.post('/api/phieudattiec/', data);
+      const response = await api.post('/', data);
       return response.data;
     } catch (error) {
       handleApiErrorForPDT(error);
@@ -77,7 +76,7 @@ const PhieuDatTiecService = {
 
   updatePhieuDatTiec: async (id, data) => {
     try {
-      const response = await axios.put(`/api/phieudattiec/${id}`, data);
+      const response = await api.put(`/${id}`, data);
       return response.data;
     } catch (error) {
       handleApiErrorForPDT(error);
@@ -86,12 +85,12 @@ const PhieuDatTiecService = {
 
   deletePhieuDatTiec: async (id) => {
     try {
-      const response = await axios.delete(`/api/phieudattiec/${id}`);
+      const response = await api.delete(`/${id}`);
       return response.data;
     } catch (error) {
       handleApiErrorForPDT(error);
     }
   },
 };
-export default PhieuDatTiecService;
 
+export default PhieuDatTiecService;

@@ -81,7 +81,7 @@ export default function QuanLyNhomTab() {
   };
 
   return (
-    <Box>
+    <Box sx={{ p: 3 }}>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
       <Box
         sx={{

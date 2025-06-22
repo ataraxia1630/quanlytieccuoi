@@ -367,7 +367,7 @@ const ThongTinTiecCuoi = () => {
       console.log("Don gia ban toi thieu: ", localStorage.getItem("DonGiaBanToiThieu"))
       console.log("So luongg ban: ", localStorage.getItem("SoLuongBan"))
 
-
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       handleNav()
     } catch (error) {
       toastService.error(`Lỗi: ${error.message || 'Không thể tạo mới phiếu dặt tiệc!'}`);
@@ -406,6 +406,8 @@ const ThongTinTiecCuoi = () => {
       localStorage.setItem("currentPDT", null);
       localStorage.setItem("SoLuongBan", 0);
       localStorage.setItem("DonGiaBanToiThieu", 0);
+      localStorage.setItem("TongTienDatBan", 0);
+      localStorage.setItem("TongTienDichVu", 0);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
     } catch (error) {
