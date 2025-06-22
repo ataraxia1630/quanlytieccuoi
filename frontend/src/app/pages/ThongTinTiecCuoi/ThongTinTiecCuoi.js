@@ -132,7 +132,6 @@ const ThongTinTiecCuoi = () => {
 
   const validateDateField = useCallback((name, value) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
     const timeStr = value instanceof Date ? value.toTimeString() : (value || "");
     if (timeStr && value.getTime() < today.getTime()) {
       setErrors((prev) => ({
@@ -149,18 +148,57 @@ const ThongTinTiecCuoi = () => {
     if (!(value instanceof Date) || isNaN(value.getTime())) {
       return;
     }
-    const gioPhutGiay = new Intl.DateTimeFormat('vi-VN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false
-    }).format(value);
-    if ((gioBatDau > gioketthuc && gioPhutGiay > gioketthuc && gioPhutGiay < gioBatDau)
-      || (gioBatDau < gioketthuc && (gioPhutGiay > gioketthuc || gioPhutGiay < gioBatDau))) {
-      setErrors(prev => ({ ...prev, [name]: "Thời gian đãi tiệc phải thuộc khung giờ của ca đã chọn" }))
+
+    const now = new Date();
+
+    const gioPhutGiay = {
+      hour: value.getHours(),
+      minute: value.getMinutes(),
+      second: value.getSeconds()
+    };
+
+    const nowTime = {
+      hour: now.getHours(),
+      minute: now.getMinutes(),
+      second: now.getSeconds()
+    };
+
+    // So sánh giờ phút giây với thời điểm hiện tại
+    const isInPast =
+      gioPhutGiay.hour < nowTime.hour ||
+      (gioPhutGiay.hour === nowTime.hour && gioPhutGiay.minute < nowTime.minute) ||
+      (gioPhutGiay.hour === nowTime.hour && gioPhutGiay.minute === nowTime.minute && gioPhutGiay.second < nowTime.second);
+
+    if (isInPast) {
+      setErrors(prev => ({ ...prev, [name]: "Thời gian đãi tiệc không được trong quá khứ" }));
+      return;
     }
-    else
-      setErrors(prev => ({ ...prev, [name]: "" }))
+
+    // Chuyển đổi thời gian dạng chuỗi về số phút trong ngày để dễ so sánh
+    const toMinutes = (time) => {
+      if (typeof time === 'string') {
+        const [h, m] = time.split(':');
+        return parseInt(h) * 60 + parseInt(m);
+      } else if (typeof time === 'object') {
+        return time.hour * 60 + time.minute;
+      }
+      return 0;
+    };
+
+    const gioValueMinutes = toMinutes(gioPhutGiay);
+    const gioBDMinutes = toMinutes(gioBatDau);
+    const gioKTMinutes = toMinutes(gioketthuc);
+
+    const isOutsideRange =
+      (gioBDMinutes > gioKTMinutes && (gioValueMinutes > gioKTMinutes && gioValueMinutes < gioBDMinutes)) ||
+      (gioBDMinutes < gioKTMinutes && (gioValueMinutes > gioKTMinutes || gioValueMinutes < gioBDMinutes));
+
+    if (isOutsideRange) {
+      setErrors(prev => ({ ...prev, [name]: "Thời gian đãi tiệc phải thuộc khung giờ của ca đã chọn" }));
+    } else {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+
   }, []);
 
   const validateTextField = useCallback((name, value) => {
@@ -205,8 +243,8 @@ const ThongTinTiecCuoi = () => {
     // Nếu là trường số thì ép kiểu số nguyên
     if (name === "SoLuongBan" || name === "TienDatCoc" || name === "SoBanDuTru") {
       if (newValue.length > 21) return;
-
-      newValue = parseInt(value, 10);
+      else
+        newValue = parseInt(value, 10);
       if (isNaN(newValue) || newValue < 0) {
         if (value !== "") {
           console.error(`Giá trị không hợp lệ cho trường ${name}: ${value}`);
@@ -233,6 +271,7 @@ const ThongTinTiecCuoi = () => {
 
         break;
       case "TienDatCoc":
+
         validateNumberField(name, newValue, setErrors);
         break;
       case "SoLuongBan":
@@ -301,7 +340,7 @@ const ThongTinTiecCuoi = () => {
 
   // Hàm xử lý khi nhấn nút cuộn
   const handleScroll = (targetRef) => {
-    targetRef.current?.scrollIntoView({ behavior: 'smooth' });
+    targetRef?.current.scrollIntoView({ behavior: 'smooth' });
   };
 
 
@@ -596,8 +635,8 @@ const ThongTinTiecCuoi = () => {
           </Box>
           <Typography variant='h6' >Thông tinh sảnh/ca</Typography>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
-            <p style={{ color: 'grey', margin: 0 }}>--có thể tiến hành đặt sảnh ở bên dưới--</p>
-            <IconButton onClick={() => handleScroll()}>
+            <p style={{ color: 'orange', margin: 0 }}>--Có thể tiến hành đặt sảnh ở bên dưới--</p>
+            <IconButton onClick={() => handleScroll(sectionRef)} sx={{ color: "orange" }}>
               <KeyboardDoubleArrowDown />
             </IconButton>
           </div>

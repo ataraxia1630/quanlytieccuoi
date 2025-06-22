@@ -25,6 +25,8 @@ const defaultColumns = [
         label: "Đơn Giá",
         sortable: true,
         width: 150,
+        render: (row) =>
+            new Intl.NumberFormat('vi-VN').format(row.DonGia),
     },
     {
         id: "GhiChu",

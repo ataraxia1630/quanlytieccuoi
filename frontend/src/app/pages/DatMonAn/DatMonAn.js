@@ -254,7 +254,7 @@ function DatMonAn() {
             textAlign: 'center'
           }}
         >
-          (Tiền ban phải đạt mức tối thiểu :{Intl.NumberFormat('vi-VN').format(Number(localStorage.getItem("DonGiaBanToiThieu")) || 0)})
+          (Tiền bàn phải đạt mức tối thiểu :{Intl.NumberFormat('vi-VN').format(Number(localStorage.getItem("DonGiaBanToiThieu")) || 0)})
         </Typography>
         <div className='button-container' style={{ paddingTop: "30px" }}>
           <Cancelbutton onClick={() => { if (isDatTienbanThoiThieu) handleNav() }} textCancel="Tiếp tục" />

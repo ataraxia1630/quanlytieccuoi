@@ -16,10 +16,10 @@ const CustomTable = memo(
   ({
     data = [],
     columns,
-    onEdit = () => {},
-    onDelete = () => {},
+    onEdit = () => { },
+    onDelete = () => { },
     serverSideSort = false,
-    onSortChange = () => {},
+    onSortChange = () => { },
     disabledEdit = false,
     disabledDelete = false,
     disabledCreate = false,
