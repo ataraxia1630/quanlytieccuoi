@@ -102,20 +102,27 @@ module.exports = {
     };
 
     const getRandomStatus = (ngayDaiTiec) => {
-      const currentDate = new Date(); // Lấy ngày hiện tại
+      const currentDate = new Date();
       const partyDate = new Date(ngayDaiTiec);
       partyDate.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để so sánh ngày
       currentDate.setHours(0, 0, 0, 0);
 
-      if (partyDate < currentDate) {
-        // Nếu đã đến hoặc qua ngày đãi tiệc, ưu tiên "Đã thanh toán"
+      const sevenDaysAgo = new Date(currentDate);
+      sevenDaysAgo.setDate(currentDate.getDate() - 7);
+
+      if (partyDate < sevenDaysAgo) {
+        // Trước hiện tại 7 ngày : ưu tiên "Đã thanh toán"
         return 'Đã thanh toán';
+      } else if (partyDate < currentDate) {
+        const rand = Math.random();
+        if (rand < 0.6) return 'Đã thanh toán'; // 60%
+        if (rand < 0.95) return 'Chưa thanh toán'; // 35%
+        return 'Đã hủy'; // 5%
       }
 
-      // Nếu ngày đãi tiệc trong tương lai, chỉ gán "Chưa thanh toán" hoặc "Đã hủy"
       const rand = Math.random();
-      if (rand < 0.95) return 'Chưa thanh toán'; // ~95%
-      return 'Đã hủy'; // ~5%
+      if (rand < 0.95) return 'Chưa thanh toán'; // 95%
+      return 'Đã hủy'; // 5%
     };
 
     // Hàm chuyển đổi giờ dạng "HH:mm:ss" thành phút để so sánh

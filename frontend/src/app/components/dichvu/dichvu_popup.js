@@ -9,8 +9,9 @@ const statusOptions = ['Có sẵn', 'Tạm dừng', 'Ngừng cung cấp'];
 
 const formatPrice = (value) => {
   if (!value && value !== 0) return '';
-  const num = parseInt(value.toString().replace(/\D/g, '') || '0');
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  const cleanValue = String(value).split('.')[0].replace(/\D/g, '');
+  const num = parseInt(cleanValue || '0', 10);
+  return num.toLocaleString('vi-VN', { minimumFractionDigits: 0 });
 };
 
 const parsePrice = (value) => {
@@ -78,12 +79,15 @@ const DichVuDialog = ({
 
   const handlePriceChange = (e) => {
     const value = e.target.value;
-    const formattedValue = formatPrice(value);
-    setPrice(formattedValue);
-    setErrors((prev) => ({
-      ...prev,
-      price: validatePrice(formattedValue),
-    }));
+    const cleanValue = value.replace(/\./g, '');
+    if (cleanValue === '' || !isNaN(cleanValue)) {
+      const formattedValue = formatPrice(cleanValue);
+      setPrice(formattedValue);
+      setErrors((prev) => ({
+        ...prev,
+        price: validatePrice(formattedValue),
+      }));
+    }
   };
 
   const handleStatusChange = (e) => {
@@ -180,7 +184,11 @@ const DichVuDialog = ({
             helperText={errors.price}
             inputProps={{
               inputMode: 'numeric',
-              pattern: '[0-9.]*',
+              onKeyPress: (e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              },
             }}
           />
 
