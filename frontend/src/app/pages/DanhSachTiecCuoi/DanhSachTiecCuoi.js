@@ -253,12 +253,16 @@ function DanhSachTiecCuoi() {
       setLoading(false);
     }
   };
-  const handlePrint = () => {
+  const handlePrint = async () => {
     if (data.length === 0) {
       toastService.file.noPrintData(); // "Không có dữ liệu để in!"
       return;
     }
-    const res = printDanhSachTiec(data);
+     const fullResult = isFiltering && filterPayload
+  ? await postDanhSach({ ...filterPayload, page: 1, limit: 10000 })
+  : await getDanhSach({ page: 1, limit: 10000 });
+
+    const res = printDanhSachTiec(fullResult.data);
     if (!res.success) {
       toastService.file.printError('Connection timeout'); // "Lỗi khi in: Connection timeout"
     }
@@ -269,7 +273,12 @@ function DanhSachTiecCuoi() {
       toastService.file.noPrintData(); // "Không có dữ liệu để in!"
       return;
     }
-    const res = await exportDanhSachTiecCuoiToExcel(data);
+    const fullResult = isFiltering && filterPayload
+  ? await postDanhSach({ ...filterPayload, page: 1, limit: 10000 })
+  : await getDanhSach({ page: 1, limit: 10000 });
+
+const res = await exportDanhSachTiecCuoiToExcel(fullResult.data);
+
     if (!res.success) {
       toastService.file.exportError('File not found'); // "Lỗi khi xuất file: File not found"
     }

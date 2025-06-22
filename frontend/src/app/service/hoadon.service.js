@@ -1,7 +1,18 @@
 const API_URL = "http://localhost:25053/api/danhsachtiec";
 export const getHoaDon = async (id) => {
   try {
-    const res = await fetch(`${API_URL}/hoadon/${id}`);
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
+
+    const res = await fetch(`${API_URL}/hoadon/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
     if (!res.ok) {
       const errorText = await res.text();
       console.error("Không thể lấy hóa đơn:", res.status, errorText);
@@ -21,10 +32,17 @@ export const getHoaDon = async (id) => {
 
 export const createHoaDon = async (data) => {
  try {
+  const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
+
   const res = await fetch(`${API_URL}/hoadon/create`, {
    method: "POST",
    headers: {
     "Content-Type" : "application/json",
+      Authorization: `Bearer ${token}`,
+
    },
    body: JSON.stringify(data)
   })
@@ -39,9 +57,17 @@ export const createHoaDon = async (data) => {
 }
 export const updateHoaDon = async (soHoaDon, data) => {
   try {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
+
     const res = await fetch(`${API_URL}/hoadon/${soHoaDon}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+       },
       body: JSON.stringify(data),
     });
 
@@ -81,26 +107,5 @@ export const checkEditAllowed = async (soHoaDon) => {
   } catch (error) {
     console.error("checkEditAllowed error:", error);
     throw new Error("Không thể kiểm tra trạng thái chỉnh sửa hóa đơn");
-  }
-};
-
-
-export const deleteHoaDon = async (soHoaDon) => {
-  try {
-    const res = await fetch(`${API_URL}/hoadon/${soHoaDon}`, {
-      method: "DELETE",
-    });
-
-    if (!res.ok) {
-      const errorText = await res.text();
-      console.error("Không thể xoá hoá đơn:", res.status, errorText);
-      throw new Error(errorText || "Xoá hoá đơn thất bại");
-    }
-
-    const data = await res.json();
-    return data; 
-  } catch (error) {
-    console.error("Lỗi khi xoá hoá đơn:", error);
-    throw error;
   }
 };
