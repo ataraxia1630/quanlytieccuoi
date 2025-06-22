@@ -2,6 +2,10 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: '/api/phieudattiec',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 api.interceptors.request.use(
@@ -27,6 +31,21 @@ const handleApiError = (error) => {
     throw new Error(error.message);
   }
 };
+// Hàm xử lý lỗi chung
+const handleApiErrorForPDTForPDT = (error) => {
+  if (error.response) {
+    const { status, data } = error.response;
+    if (status === 401) {
+      throw new Error('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!');
+    } else if (status === 403) {
+      throw new Error(
+        'Bạn không có quyền thực hiện thao tác này. Vui lòng kiểm tra quyền truy cập hoặc đăng nhập lại.'
+      );
+    }
+    throw new Error(data?.message || defaultMessage);
+  }
+  throw new Error(defaultMessage);
+};
 
 const PhieuDatTiecService = {
   getAllPhieuDatTiec: async () => {
@@ -34,7 +53,7 @@ const PhieuDatTiecService = {
       const response = await api.get(`/phieudattiec/`);
       return response.data;
     } catch (error) {
-      handleApiError(error);
+      handleApiErrorForPDT(error);
     }
   },
 
@@ -43,7 +62,7 @@ const PhieuDatTiecService = {
       const response = await axios.post('/api/phieudattiec/search', search);
       return response.data;
     } catch (error) {
-      handleApiError(error);
+      handleApiErrorForPDT(error);
     }
   },
 
@@ -52,7 +71,7 @@ const PhieuDatTiecService = {
       const response = await axios.get(`/api/phieudattiec/${id}`);
       return response.data;
     } catch (error) {
-      handleApiError(error);
+      handleApiErrorForPDT(error);
     }
   },
 
@@ -61,7 +80,7 @@ const PhieuDatTiecService = {
       const response = await axios.post('/api/phieudattiec/', data);
       return response.data;
     } catch (error) {
-      handleApiError(error);
+      handleApiErrorForPDT(error);
     }
   },
 
@@ -70,7 +89,7 @@ const PhieuDatTiecService = {
       const response = await axios.put(`/api/phieudattiec/${id}`, data);
       return response.data;
     } catch (error) {
-      handleApiError(error);
+      handleApiErrorForPDT(error);
     }
   },
 
@@ -79,10 +98,10 @@ const PhieuDatTiecService = {
       const response = await axios.delete(`/api/phieudattiec/${id}`);
       return response.data;
     } catch (error) {
-      handleApiError(error);
+      handleApiErrorForPDT(error);
     }
   },
 };
 export default PhieuDatTiecService;
 
-export { handleApiError };
+export { handleApiErrorForPDT };
