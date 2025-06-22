@@ -484,7 +484,7 @@ const ThongTinTiecCuoi = () => {
   // Lấy currentPDT từ localStorage
   useEffect(() => {
     // setPhieuDatTiec(initialState);
-    //localStorage.setItem("currentPDT", "PDT");
+    //localStorage.setItem("currentPDT", null);
 
     const pdt = localStorage.getItem("currentPDT");
 

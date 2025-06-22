@@ -248,6 +248,8 @@ console.log("ti le phat: " + initData.TiLePhat)
         );
 
         if (isExist) {
+          console.log("hiiiiiiiii")
+          toast.warn("Dịch vụ đã được chọn trước đó!")
           toastService.hoaDon.serviceAlreadySelected(); // "Dịch vụ đã được chọn trước đó!"
           setIsDVDialogOpen(false);
           return;
