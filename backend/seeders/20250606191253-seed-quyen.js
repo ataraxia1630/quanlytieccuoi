@@ -12,6 +12,7 @@ module.exports = {
       'wedding.delete',
 
       // Thanh toán
+      'bill.view',
       'bill.create',
       'bill.edit',
 
