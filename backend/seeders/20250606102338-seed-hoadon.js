@@ -142,7 +142,7 @@ module.exports = {
 
       // Tính TongTienHoaDon (bao gồm phạt)
       const tongTienHoaDon = parseInt(
-        (tongTienHoaDonBase + tongTienPhat).toFixed(2)
+        tongTienHoaDonBase.toFixed(2)
       );
 
       const tienConLai = parseInt(
