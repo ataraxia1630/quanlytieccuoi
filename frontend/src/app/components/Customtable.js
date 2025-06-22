@@ -22,7 +22,7 @@ const CustomTable = memo(
     onSortChange = () => {},
     disabledEdit = false,
     disabledDelete = false,
-    // Thêm props để nhận current sort state từ parent component
+    disabledCreate = false,
     currentSort = null, // format: { field: 'name', order: 'asc' }
   }) => {
     const [order, setOrder] = useState('asc');
@@ -86,7 +86,7 @@ const CustomTable = memo(
       if (column.id === 'index') return rowIndex + 1;
       if (column.render) {
         return column.id === 'actions'
-          ? column.render(row, onEdit, onDelete, disabledEdit, disabledDelete)
+          ? column.render(row, onEdit, onDelete, disabledEdit, disabledDelete, disabledCreate)
           : column.render(row);
       }
       return row[column.id];

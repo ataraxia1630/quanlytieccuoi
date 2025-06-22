@@ -344,6 +344,8 @@ console.log("ti le phat: " + initData.TiLePhat)
           ...result,
         }));
         setIsDeleteHDDialogOpen(true);
+      PhieuDatTiecService.updatePhieuDatTiec(form.SoPhieuDatTiec, { TrangThai: "Đã thanh toán"});
+
         toast.success("Chỉnh sửa hoá đơn thành công!")
       } else {
         toastService.hoaDon.paymentFailed();
