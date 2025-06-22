@@ -30,12 +30,12 @@ module.exports = {
     }
 
     const ctDatBanRecords = await Ct_DatBan.findAll({
-      attributes: ['SoPhieuDatTiec', 'MaMonAn', 'DonGia'],
+      attributes: ['SoPhieuDatTiec', 'MaMonAn', 'DonGia', 'SoLuong'],
       raw: true,
     });
 
     const ctDichVuRecords = await Ct_DichVu.findAll({
-      attributes: ['SoPhieuDatTiec', 'DonGia'],
+      attributes: ['SoPhieuDatTiec', 'MaDichVu', 'DonGia', 'SoLuong'],
       raw: true,
     });
 
@@ -55,21 +55,25 @@ module.exports = {
       return acc;
     }, {});
 
+    // Tính tổng tiền món ăn: SoLuong * DonGia * SoLuongBanDaDung
     const tongTienMonAnMap = ctDatBanRecords.reduce((acc, ct) => {
       const donGia = parseInt(ct.DonGia) || 0;
-      acc[ct.SoPhieuDatTiec] = (acc[ct.SoPhieuDatTiec] || 0) + donGia;
+      const soLuong = parseInt(ct.SoLuong) || 1;
+      acc[ct.SoPhieuDatTiec] = (acc[ct.SoPhieuDatTiec] || 0) + donGia * soLuong;
       return acc;
     }, {});
 
+    // Tính tổng tiền dịch vụ: SoLuong * DonGia
     const tongTienDichVuMap = ctDichVuRecords.reduce((acc, ct) => {
       const donGia = parseInt(ct.DonGia) || 0;
-      acc[ct.SoPhieuDatTiec] = (acc[ct.SoPhieuDatTiec] || 0) + donGia;
+      const soLuong = parseInt(ct.SoLuong) || 1;
+      acc[ct.SoPhieuDatTiec] = (acc[ct.SoPhieuDatTiec] || 0) + donGia * soLuong;
       return acc;
     }, {});
 
     const data = [];
     let hoaDonCounter = 1;
-    const currentDate = new Date(); // Lấy ngày hiện tại
+    const currentDate = new Date();
 
     for (const phieu of phieuDatTiecRecords) {
       const phieuInfo = phieuInfoMap[phieu.SoPhieuDatTiec];
@@ -105,7 +109,7 @@ module.exports = {
             )
           : 0;
 
-      // Tính DonGiaBan (tổng đơn giá từ Ct_DatBan)
+      // Tính DonGiaBan (tổng đơn giá món ăn cho một bàn)
       const donGiaBan = parseInt(
         (tongTienMonAnMap[phieu.SoPhieuDatTiec] || 0).toFixed(2)
       );
