@@ -1,14 +1,30 @@
 const { Router } = require('express');
 const { UserController } = require('../controllers/user.controller');
 const { verifyToken } = require('../middlewares/auth.middleware');
+import { checkPermission } from '../middlewares/permission.middleware';
 
 const router = Router();
 
-router.post('/', verifyToken, UserController.createAccount);
+router.post(
+  '/',
+  verifyToken,
+  checkPermission('account.create'),
+  UserController.createAccount
+);
 
-router.put('/:username', verifyToken, UserController.updateAccount);
+router.put(
+  '/:username',
+  verifyToken,
+  checkPermission('account.edit'),
+  UserController.updateAccount
+);
 
-router.delete('/:username', verifyToken, UserController.deleteAccount);
+router.delete(
+  '/:username',
+  verifyToken,
+  checkPermission('account.delete'),
+  UserController.deleteAccount
+);
 
 router.get('/all', verifyToken, UserController.getAll);
 
