@@ -62,7 +62,7 @@ module.exports.create = async (req, res) => {
       const randomStr = random.toString().padStart(3, '0');
       SoHoaDon = `HD${randomStr}`;
 
-      const exists = await HoaDon.findOne({ where: { SoHoaDon: soHoaDon } });
+      const exists = await HoaDon.findOne({ where: { SoHoaDon: SoHoaDon } });
       if (!exists) break;
 
       attempt++;
