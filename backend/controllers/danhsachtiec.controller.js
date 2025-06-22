@@ -5,7 +5,7 @@ const { Op, fn, col, where } = require("sequelize");
 module.exports.index = async (req, res) => {
   try {
     const offset = parseInt(req.query.offset) || 0;
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = parseInt(req.query.limit) || 30;
 const sortField = req.query.sortField; // mặc định nếu không truyền
 const sortOrder = req.query.sortOrder === 'desc' ? 'DESC' : 'ASC';
 
@@ -27,7 +27,6 @@ const sortOrder = req.query.sortOrder === 'desc' ? 'DESC' : 'ASC';
       totalItems
     });
   } catch (er) {
-    console.error("🔥 Server error:", er);
     console.error(er);
     return res.status(500).json({ error: "Lỗi server khi lấy danh sách phiếu đặt tiệc" });
   }
@@ -37,7 +36,7 @@ const sortOrder = req.query.sortOrder === 'desc' ? 'DESC' : 'ASC';
 module.exports.filter = async (req, res) => {
   const { ten, sanh, tuNgay, denNgay, tuBan, denBan, trangThai, sortField, sortOrder } = req.body;
   const offset = parseInt(req.query.offset) || 0;
-  const limit = parseInt(req.query.limit) || 10;
+  const limit = parseInt(req.query.limit) || 30;
 
   const where = {};
   if (ten) {

@@ -50,7 +50,7 @@ const Phieucolumns = (navigate) =>
         { id: "TenChuRe", label: "Tên chú rể", sortable: true },
         { id: "TenCoDau", label: "Tên cô dâu", sortable: true },
         {
-            id: "TenSanh", label: "Sảnh", sortable: true,
+            id: "TenSanh", label: "Sảnh",
             render: (row) => row?.Sanh?.TenSanh || "Không rõ"
         },
         { id: "SoLuongBan", label: "Số bàn", sortable: true, width: 100 },
@@ -93,15 +93,11 @@ const Phieucolumns = (navigate) =>
 
             render: (row, _onEdit, onDelete, disabledEdit, disabledDelete, disableCreate) => {
                 const handleXemHoaDon = async (e) => {
-                    const today = new Date();
-                    const ngayDaiTiec = new Date(row.NgayDaiTiec);
-
-                    if (ngayDaiTiec > today) {
-                        toast.warning("Chưa tới ngày đãi tiệc, không thể tạo hoá đơn.");
-                        return;
-                    }
                     e.stopPropagation();
                     try {
+                        const today = new Date();
+                        const ngayDaiTiec = new Date(row.NgayDaiTiec);
+
                         const hoaDon = await getHoaDon(row.SoPhieuDatTiec);
                         const stateData = {
                             soPhieuDatTiec: row.SoPhieuDatTiec,
@@ -112,22 +108,37 @@ const Phieucolumns = (navigate) =>
                             slBanToiDa: row.Sanh?.SoLuongBanToiDa || 255,
                         };
 
-                        if (hoaDon) {
-                            navigate('/DashBoard/HoaDon', {
-                                state: {
-                                    ...stateData,
-                                    soHoaDon: hoaDon.SoHoaDon,
-                                    data: hoaDon,
-                                }
-                            });
-                        } else {
+                        if (!hoaDon) {
+                            if (row.TrangThai === "Đã thanh toán") {
+                                toast.error("Không tìm thấy hoá đơn để xem.");
+                                return;
+                            }
+
+                            // Trường hợp tạo mới
+                            if (ngayDaiTiec > today) {
+                                toast.warning("Chưa tới ngày đãi tiệc, không thể tạo hoá đơn.");
+                                return;
+                            }
+
+                            // Cho phép tạo
                             navigate('/DashBoard/HoaDon', {
                                 state: {
                                     ...stateData,
                                     data: row,
                                 }
                             });
+                            return;
                         }
+
+                        // Nếu có hóa đơn thì xem
+                        navigate('/DashBoard/HoaDon', {
+                            state: {
+                                ...stateData,
+                                soHoaDon: hoaDon.SoHoaDon,
+                                data: hoaDon,
+                            }
+                        });
+
                     } catch (error) {
                         console.error("Lỗi xem/tạo hóa đơn:", error);
                     }
@@ -140,35 +151,32 @@ const Phieucolumns = (navigate) =>
                 return (
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
                         {/* Tạo hoặc Xem hóa đơn */}
-                        {
-                            isDaThanhToan && <IconButton
+                        {isDaThanhToan && (
+                            <IconButton
                                 className="action"
                                 onClick={handleXemHoaDon}
-
+                            // KHÔNG dùng disableCreate
                             >
                                 <EyeIcon />
-                                <Typography variant="body2" sx={{ ml: 1, color: "#000", marginLeft: "0px" }}>
-                                    Xem hóa đơn
-                                </Typography>
+                                <Typography sx={{ marginTop: "15px" }}>Xem hóa đơn</Typography>
                             </IconButton>
-                        }
-                        {
-                            !isDaHuy && isChuaThanhToan && <IconButton
+                        )}
+
+                        {!isDaHuy && isChuaThanhToan && (
+                            <IconButton
                                 className="action"
                                 onClick={handleXemHoaDon}
-                                disabled={!hasPermission(permissions, 'bill.create')}
-
+                                disabled={disableCreate}
                                 sx={{
                                     opacity: disableCreate ? 0.5 : 1,
                                     cursor: disableCreate ? 'not-allowed' : 'pointer',
                                 }}
                             >
                                 <EyeIcon />
-                                <Typography variant="body2" sx={{ ml: 1, color: "#000", marginLeft: "0px" }}>
-                                    Tạo hóa đơn
-                                </Typography>
+                                <Typography sx={{ marginTop: "15px" }}>Tạo hóa đơn</Typography>
                             </IconButton>
-                        }
+                        )}
+
                         {/* Huỷ hoặc kích hoạt phiếu */}
                         {
                             isDaHuy && <IconButton

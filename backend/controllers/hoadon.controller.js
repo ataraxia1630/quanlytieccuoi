@@ -33,7 +33,7 @@ module.exports.index = async (req, res) => {
       raw: true
     });
 
-    
+
     const result = hoadon.map(hd => {
       const json = hd.toJSON();
       return {
@@ -52,8 +52,25 @@ module.exports.index = async (req, res) => {
 
 module.exports.create = async (req, res) => {
   try {
-    const { SoPhieuDatTiec, SoHoaDon, SoLuongBanDaDung } = req.body;
+    const { SoPhieuDatTiec, SoLuongBanDaDung } = req.body;
+    let SoHoaDon = '';
+    let attempt = 0;
+    const MAX_ATTEMPT = 10;
 
+    do {
+      const random = Math.floor(Math.random() * 1000);
+      const randomStr = random.toString().padStart(3, '0');
+      SoHoaDon = `HD${randomStr}`;
+
+      const exists = await HoaDon.findOne({ where: { SoHoaDon: SoHoaDon } });
+      if (!exists) break;
+
+      attempt++;
+    } while (attempt < MAX_ATTEMPT);
+
+    if (attempt >= MAX_ATTEMPT) {
+      return res.status(500).json({ message: 'Không thể tạo mã hóa đơn duy nhất sau nhiều lần thử' });
+    }
     // Lấy dữ liệu dịch vụ
     const dsDichVu = await Ct_DichVu.findAll({
       include: [{ model: DichVu, attributes: ['TenDichVu'] }],
@@ -79,7 +96,7 @@ module.exports.create = async (req, res) => {
 
     // Lấy tham số hệ thống
     const { THOIDIEMTHANHTOAN, TILEPHAT, APDUNGPHAT } =
-    await ThamSoService.getThamSoValues();
+      await ThamSoService.getThamSoValues();
 
     const now = new Date();
     const ngayDaiTiec = new Date(phieuDatTiec.NgayDaiTiec);
@@ -192,19 +209,17 @@ module.exports.update = async (req, res) => {
     const tongTien = tongTienDichVu + tongTienBan;
 
     const tienphat = hoaDon.TongTienPhat;
-const tongtien = hoaDon.TongTienHoaDon;
+    const tongtien = hoaDon.TongTienHoaDon;
 
-    if(!tongtien) {
+    if (!tongtien) {
       return res.status(500).json({
-      message: "Tong tien phai > 0",
-      error: error.message,
-    });
+        message: "Tong tien phai > 0",
+        error: error.message,
+      });
     }
-    const TiLePhat = 10
-console.log("ti le phat " + tienphat + ' ' + tongtien + ' ' + TiLePhat)
-    let tienPhat = TiLePhat * tongTien/100;
-    console.log(hoaDon.NgayThanhToan)
-    console.log(phieuDatTiec.NgayDaiTiec)
+    const TiLePhat = tienphat / tongtien
+    console.log("ti le phat " + tienphat + ' ' + tongtien + ' ' + TiLePhat)
+    let tienPhat = TiLePhat * tongTien / 100;
 
 
     const tienDatCoc = Number(phieuDatTiec.TienDatCoc) || 0;
