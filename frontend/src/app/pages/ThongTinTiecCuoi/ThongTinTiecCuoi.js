@@ -635,8 +635,8 @@ const ThongTinTiecCuoi = () => {
           </Box>
           <Typography variant='h6' >Thông tinh sảnh/ca</Typography>
           <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20 }}>
-            <p style={{ color: 'grey', margin: 0 }}>--có thể tiến hành đặt sảnh ở bên dưới--</p>
-            <IconButton onClick={() => handleScroll(sectionRef)}>
+            <p style={{ color: 'orange', margin: 0 }}>--Có thể tiến hành đặt sảnh ở bên dưới--</p>
+            <IconButton onClick={() => handleScroll(sectionRef)} sx={{ color: "orange" }}>
               <KeyboardDoubleArrowDown />
             </IconButton>
           </div>
