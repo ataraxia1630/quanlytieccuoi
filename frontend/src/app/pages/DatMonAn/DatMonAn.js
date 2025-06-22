@@ -13,6 +13,7 @@ import CustomTable from "../../components/Customtable";
 import { Typography } from '@mui/material';
 import DeleteDialog from '../../components/Deletedialog';
 import { Pagination } from '@mui/material';
+import toastService from '../../service/toast/toast.service';
 
 
 
@@ -38,7 +39,7 @@ function DatMonAn() {
 
       setTotalPages(Math.ceil(data.data.length / perPage || 1));
     } catch (error) {
-      toast.error(error.message || "lỗi khi tải món ăn");
+      toastService.error(error.message || "lỗi khi tải món ăn");
     }
   }, []);
 
@@ -75,7 +76,7 @@ function DatMonAn() {
       setReservedFoods(temp);
       toast.success("cập nhật chi tiết đặt món thành công!")
     } catch (err) {
-      toast.error(err.message || "lỗi khi cập nhật chi tiết đặt bàn");
+      toastService.error(err.message || "lỗi khi cập nhật chi tiết đặt bàn");
     }
   }, [currentPDT, reservedFoods]);
 
@@ -203,10 +204,17 @@ function DatMonAn() {
   };
 
   const totalPrice = useMemo(() => {
-    const value = reservedFoods.reduce((sum, rev) => sum + Number(rev.DonGia) * Number(rev.SoLuong), 0);
+    const value = reservedFoods.reduce((sum, rev) =>
+      sum + Number(rev.DonGia) * Number(rev.SoLuong), 0
+    );
 
-    return value.toFixed(2) * Number(localStorage.getItem("SoluongBan")); // trả về chuỗi dạng "10000.00"
+    const total = value * Number(localStorage.getItem("SoLuongBan"));
+
+    localStorage.setItem("TongTienDatBan", total);
+    return new Intl.NumberFormat('vi-VN').format(total);
   }, [reservedFoods]);
+
+  const isDatTienbanThoiThieu = (Number(localStorage.getItem("TongTienDatBan")) / Number(localStorage.getItem("SoLuongBan"))) >= Number(localStorage.getItem("DonGiaBanToiThieu"));
 
   return (
     <div className="page">
@@ -220,20 +228,36 @@ function DatMonAn() {
         >
           Các món đã đặt
         </Typography>
-        <Typography
-          variant="subtitle1"
-          sx={{ color: "#063F5C" }}
-        >
-          Tổng tiền dịch vụ : <b>{totalPrice}</b>
-        </Typography>
         <CustomTable
           data={fullReservedFoodsData}
           columns={defaultColumns}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
+        <Typography
+          variant="body1"
+          sx={{ color: "#063F5C", fontSize: '1.5rem', marginTop: 2 }}
+        >
+          TỔNG TIỀN MÓN ĂN (chưa bao gồm tiền bàn dự trữ): <b>{totalPrice}</b>
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{ color: "#063F5C", fontSize: '1.3rem', marginTop: 2, fontWeight: "bold" }}
+        >
+          TỔNG TIỀN TIỆC: <b>{Intl.NumberFormat('vi-VN').format((Number(localStorage.getItem("TongTienDatBan")) || 0) + (Number(localStorage.getItem("TongTienDichVu")) || 0))}</b>
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            color: (isDatTienbanThoiThieu) ? "gray" : "red",
+            marginTop: 2,
+            textAlign: 'center'
+          }}
+        >
+          (Tiền ban phải đạt mức tối thiểu :{Intl.NumberFormat('vi-VN').format(Number(localStorage.getItem("DonGiaBanToiThieu")) || 0)})
+        </Typography>
         <div className='button-container' style={{ paddingTop: "30px" }}>
-          <Cancelbutton onClick={() => handleNav()} textCancel="Tiếp tục" />
+          <Cancelbutton onClick={() => { if (isDatTienbanThoiThieu) handleNav() }} textCancel="Tiếp tục" />
         </div>
       </div>
       <DeleteDialog

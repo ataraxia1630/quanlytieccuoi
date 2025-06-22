@@ -70,7 +70,9 @@ const Header = () => {
         }}
       >
         {/* Logo */}
-        <Typography variant="h6" sx={{ fontWeight: 'light' }}>
+        <Typography
+          onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); navigate('/') }}
+          variant="h6" sx={{ fontWeight: 'light' }}>
           <b>DAPHNE</b>
         </Typography>
 

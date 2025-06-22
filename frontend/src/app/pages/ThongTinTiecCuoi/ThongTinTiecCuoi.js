@@ -18,8 +18,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import HallCard from '../../components/Hallcard';
 import { format, isValid } from 'date-fns';
-
-
+import toastService from '../../service/toast/toast.service';
+import LoaiSanhService from '../../service/loaisanh.service';
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -44,6 +44,7 @@ const ThongTinTiecCuoi = () => {
   //thong tin cơ bản 
   const { validateNumberField } = useValidation();
   const [currentPDT, setCurrentPDT] = useState(null)
+  const [originDate, setOriginDate] = useState(null)
   const [errors, setErrors] = useState({
     SDT: "",
     TenChuRe: "",
@@ -79,7 +80,7 @@ const ThongTinTiecCuoi = () => {
       imageUrl: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730641/Image-1_u1ebzb.png',
     },
     {
-      title: 'lãng Mạn',
+      title: 'Lãng Mạn',
       description: 'Sảnh tiệc cưới lãng mạn với sắc hoa tươi thắm và thiết kế mềm mại, tạo nên không gian ấm áp, dịu dàng cho ngày trọng đại.',
       imageUrl: 'https://res.cloudinary.com/digpe9tmq/image/upload/v1747730640/Image-2_sc6ztt.png',
     },
@@ -202,13 +203,17 @@ const ThongTinTiecCuoi = () => {
 
     let newValue = value;
     // Nếu là trường số thì ép kiểu số nguyên
-    if (name === "SoLuongBan" || name === "TienDatCoc" || name === "SoBanDuTru" || name === "SDT") {
+    if (name === "SoLuongBan" || name === "TienDatCoc" || name === "SoBanDuTru") {
       if (newValue.length > 21) return;
 
       newValue = parseInt(value, 10);
       if (isNaN(newValue) || newValue < 0) {
-        console.error(`Giá trị không hợp lệ cho trường ${name}: ${value}`);
-        return;
+        if (value !== "") {
+          console.error(`Giá trị không hợp lệ cho trường ${name}: ${value}`);
+          return;
+        }
+        else newValue = 0
+
       }
     }
 
@@ -231,8 +236,8 @@ const ThongTinTiecCuoi = () => {
         validateNumberField(name, newValue, setErrors);
         break;
       case "SoLuongBan":
+        validateNumberField(name, newValue, setErrors);
         if (phieuDatTiec.MaSanh && newValue + phieuDatTiec.SoBanDuTru > Number(sanhInfo.SoLuongBanToiDa)) {
-          validateNumberField(name, newValue, setErrors);
           setErrors(prev => ({ ...prev, SoLuongBan: "Sảnh quá nhỏ so với số lượng bàn yêu cầu" }));
         }
         else setErrors(prev => ({ ...prev, SoLuongBan: "", SoBanDuTru: "" }))
@@ -258,6 +263,7 @@ const ThongTinTiecCuoi = () => {
       default:
         break;
     }
+
 
     //set phieudattiec prop
     if (name === "sanhCa") {
@@ -304,7 +310,7 @@ const ThongTinTiecCuoi = () => {
       const data = await caService.getAllCa();
       setshifts(data);
     } catch (error) {
-      toast.error(`${error.message || 'Không thể tải dữ liệu ca!'}`);
+      toastService.error(`${error.message || 'Không thể tải dữ liệu ca!'}`);
     }
 
   }, []);
@@ -326,10 +332,11 @@ const ThongTinTiecCuoi = () => {
       };
 
       setPhieuDatTiec(newData);
-      localStorage.setItem("SoluongBan", newData.SoLuongBan);
+      setOriginDate(newData.NgayDaiTiec);
+      localStorage.setItem("SoLuongBan", newData.SoLuongBan);
 
     } catch (error) {
-      toast.error(`${error.message || 'Không thể tải dữ liệu phiếu đặt tiệc!'}`);
+      toastService.error(`${error.message || 'Không thể tải dữ liệu phiếu đặt tiệc!'}`);
     }
 
   }, []);
@@ -339,7 +346,7 @@ const ThongTinTiecCuoi = () => {
       const data = await sanhService.getSanhsAvailabilityByDate(queries);
       setHalls(data);
     } catch (error) {
-      toast.error(`${error.message || 'Không thể tải dữ liệu sảnh!'}`);
+      toastService.error(`${error.message || 'Không thể tải dữ liệu sảnh!'}`);
     }
 
   }, []);
@@ -350,12 +357,20 @@ const ThongTinTiecCuoi = () => {
 
     try {
       const data = await PhieuDatTiecService.createPhieuDatTiec(pdtReFormat);
+      const sanh = halls.find(sanh => sanh.MaSanh === data.data.MaSanh) || null;
+      if (sanh) {
+        const loaiSanh = await LoaiSanhService.getById(sanh.MaLoaiSanh);
+        localStorage.setItem("DonGiaBanToiThieu", loaiSanh.DonGiaBanToiThieu);
+      }
       localStorage.setItem("currentPDT", data.data.SoPhieuDatTiec);
-      localStorage.setItem("SoluongBan", data.data.SoLuongBan);
+      localStorage.setItem("SoLuongBan", pdtReFormat.SoLuongBan);
+      console.log("Don gia ban toi thieu: ", localStorage.getItem("DonGiaBanToiThieu"))
+      console.log("So luongg ban: ", localStorage.getItem("SoLuongBan"))
+
 
       handleNav()
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể tạo mới phiếu dặt tiệc!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể tạo mới phiếu dặt tiệc!'}`);
     }
 
   }, [pdtReFormat, handleNav]);
@@ -363,11 +378,20 @@ const ThongTinTiecCuoi = () => {
   // cập nhật data phiếu đặt tiêc nếu đang tiến hành đặt tiệc
   const updateCurrentPhieuDatTiec = useCallback(async (id) => {
     try {
-      const data = await PhieuDatTiecService.updatePhieuDatTiec(id, pdtReFormat);
-      localStorage.setItem("SoluongBan", data.data.SoLuongBan);
+      await PhieuDatTiecService.updatePhieuDatTiec(id, pdtReFormat);
+      const sanh = halls.find(sanh => sanh.MaSanh === pdtReFormat.MaSanh) || null;
+      if (sanh) {
+        const loaiSanh = await LoaiSanhService.getById(sanh.MaLoaiSanh);
+        localStorage.setItem("DonGiaBanToiThieu", loaiSanh.DonGiaBanToiThieu || 0);
+      }
+
+      localStorage.setItem("SoLuongBan", pdtReFormat.SoLuongBan);
+      toast.success("Cập nhật phiếu đặt tiệc thành công!")
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       handleNav()
+
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể cập nhật phiếu đặt tiệc!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể cập nhật phiếu đặt tiệc!'}`);
     }
   }, [pdtReFormat, handleNav]);
 
@@ -380,9 +404,12 @@ const ThongTinTiecCuoi = () => {
       setCurrentPDT(null);
       setPhieuDatTiec(initialState);
       localStorage.setItem("currentPDT", null);
-      localStorage.setItem("SoluongBan", 0);
+      localStorage.setItem("SoLuongBan", 0);
+      localStorage.setItem("DonGiaBanToiThieu", 0);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể xóa phiếu đặt tiệc!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể xóa phiếu đặt tiệc!'}`);
     }
   }, []);
 
@@ -395,12 +422,8 @@ const ThongTinTiecCuoi = () => {
     if ((!phieuDatTiec.TenChuRe || !phieuDatTiec.TenCoDau || !phieuDatTiec.SDT
       || !phieuDatTiec.SoLuongBan || !phieuDatTiec.NgayDaiTiec || !phieuDatTiec.NgayDatTiec)
       || !phieuDatTiec.MaCa || !phieuDatTiec.MaSanh || hasErrors()) {
-      const toastId = "save-error-toast";
-      if (!toast.isActive(toastId)) {
-        toast.warn("Vui lòng nhập,chọn chính xác và đầy đủ thông tin!", {
-          toastId: toastId,
-        });
-      }
+
+      toastService.warning("Vui lòng nhập,chọn chính xác và đầy đủ thông tin!");
       validateRequiredField();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
@@ -433,7 +456,7 @@ const ThongTinTiecCuoi = () => {
       }
     }
 
-  }, [errors.NgayDaiTiec, pdtReFormat.SoLuongBan, pdtReFormat.SoBanDuTru, errors.SoBanDuTru, errors.SoLuongBan, fetchValidSanhByDate, pdtReFormat.NgayDaiTiec]);
+  }, [pdtReFormat.MaSanh, errors.NgayDaiTiec, pdtReFormat.SoLuongBan, pdtReFormat.SoBanDuTru, errors.SoBanDuTru, errors.SoLuongBan, fetchValidSanhByDate, pdtReFormat.NgayDaiTiec]);
   //set full ca data
   useEffect(() => {
     fetchFullCa();
@@ -442,9 +465,7 @@ const ThongTinTiecCuoi = () => {
   useEffect(() => {
     const sanh = halls.find(sanh => sanh.MaSanh === sanhInfo.MaSanh) || null;
     const ca = sanh ? (sanh.CaAvailability.find(ca => ca.MaCa === caInfo.MaCa) || null) : null;
-    console.log(sanh)
-    console.log("ca: ", ca)
-    if (ca && ca.TrangThai === "Không trống") {
+    if (ca && ca.TrangThai === "Không trống" && originDate && originDate.getDate() !== phieuDatTiec.NgayDaiTiec.getDate()) {
       setErrors(prev => ({
         ...prev,
         MaCa: "Ca trong ngày đãi tiệc hiện tại không trống"
@@ -456,12 +477,12 @@ const ThongTinTiecCuoi = () => {
       }));
     }
   }, [halls, caInfo.MaCa, sanhInfo.MaSanh]);
-  console.log(errors)
+
 
   // Lấy currentPDT từ localStorage
   useEffect(() => {
     // setPhieuDatTiec(initialState);
-    localStorage.setItem("currentPDT", "PDT269");
+    //localStorage.setItem("currentPDT", "PDT");
 
     const pdt = localStorage.getItem("currentPDT");
 
@@ -528,6 +549,8 @@ const ThongTinTiecCuoi = () => {
                     helperText: errors.NgayDatTiec,
                   },
                 }}
+                disabled
+
               />
 
 
@@ -597,29 +620,24 @@ const ThongTinTiecCuoi = () => {
 
           {/* Table Selection */}
           <Box className="table-selection">
-            <div className="BookingCount-container" style={{ paddingTop: 20 }}  >
-              <FormTextField
-                label="Số lượng bàn"
-                value={phieuDatTiec.SoLuongBan.toString()}
-                name="SoLuongBan"
-                onChange={handleChange}
-                size="medium"
-                error={!!errors.SoLuongBan}
-                helperText={errors.SoLuongBan}
-              />
-            </div>
-
-            <div className="BookingCount-container" style={{ paddingTop: 20 }}>
-              <FormTextField
-                label="Số bàn dự trữ"
-                value={phieuDatTiec.SoBanDuTru.toString()}
-                name="SoBanDuTru"
-                onChange={handleChange}
-                size="medium"
-                error={!!errors.SoBanDuTru}
-                helperText={errors.SoBanDuTru}
-              />
-            </div>
+            <FormTextField
+              label="Số lượng bàn"
+              value={phieuDatTiec.SoLuongBan.toString()}
+              name="SoLuongBan"
+              onChange={handleChange}
+              size="medium"
+              error={!!errors.SoLuongBan}
+              helperText={errors.SoLuongBan}
+            />
+            <FormTextField
+              label="Số bàn dự trữ"
+              value={phieuDatTiec.SoBanDuTru.toString()}
+              name="SoBanDuTru"
+              onChange={handleChange}
+              size="medium"
+              error={!!errors.SoBanDuTru}
+              helperText={errors.SoBanDuTru}
+            />
           </Box>
 
         </Box>
@@ -675,7 +693,7 @@ const ThongTinTiecCuoi = () => {
 
       </Box>
 
-    </div>
+    </div >
   );
 }
 

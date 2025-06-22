@@ -198,16 +198,16 @@ const searchAndFilterSanh = async ({ maSanh, tenSanh, maLoaiSanh, minSoLuongBan,
             if (tenSanh) where[Op.or].push({ TenSanh: { [Op.like]: `%${tenSanh}%` } });
         }
         if (maLoaiSanh) where.MaLoaiSanh = maLoaiSanh;
-        
+
         if (minSoLuongBan || maxSoLuongBan) {
             const minVal = minSoLuongBan ? parseInt(minSoLuongBan) : null;
             const maxVal = maxSoLuongBan ? parseInt(maxSoLuongBan) : null;
-            
+
             // Kiểm tra logic min/max hợp lệ
             if (minVal && maxVal && minVal > maxVal) {
                 throw new ApiError(400, 'Số lượng bàn tối thiểu không thể lớn hơn số lượng bàn tối đa');
             }
-            
+
             where.SoLuongBanToiDa = {};
             if (minVal) where.SoLuongBanToiDa[Op.gte] = minVal;
             if (maxVal) where.SoLuongBanToiDa[Op.lte] = maxVal;
@@ -334,6 +334,7 @@ const getSanhsAvailabilityByDate = async ({ ngayDaiTiec, soLuongBan, soBanDuTru 
 
             // Thêm thuộc tính TenLoaiSanh và xóa LoaiSanh, PhieuDatTiecs
             sanhData.TenLoaiSanh = sanhData.LoaiSanh ? sanhData.LoaiSanh.TenLoaiSanh : null;
+            sanhData.MaLoaiSanh = sanhData.LoaiSanh ? sanhData.LoaiSanh.MaLoaiSanh : null;
             delete sanhData.LoaiSanh;
             delete sanhData.PhieuDatTiecs;
 

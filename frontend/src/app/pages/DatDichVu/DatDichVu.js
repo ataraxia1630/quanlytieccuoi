@@ -199,10 +199,12 @@ function DatDichVu() {
   };
 
   const totalPrice = useMemo(() => {
-    const value = reservedServices.reduce((sum, rev) => sum + Number(rev.DonGia) * Number(rev.SoLuong), 0);
-    return value.toFixed(2); // trả về chuỗi dạng "10000.00"
+    const value = reservedServices.reduce((sum, rev) =>
+      sum + Number(rev.DonGia) * Number(rev.SoLuong), 0
+    );
+    localStorage.setItem("TongTienDichVu", value);
+    return new Intl.NumberFormat('vi-VN').format(value);
   }, [reservedServices]);
-
 
   return (
     <div className="page">
@@ -228,18 +230,24 @@ function DatDichVu() {
           Dịch vụ đã đặt
         </Typography>
 
-        <Typography
-          variant="subtitle1"
-          sx={{ color: "#063F5C" }}
-        >
-          Tổng tiền dịch vụ : <b>{totalPrice}</b>
-        </Typography>
         <CustomTable
           data={fullReservedServicesData}
           columns={defaultColumns}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
+        <Typography
+          variant="body1"
+          sx={{ color: "#063F5C", fontSize: '1.5rem', marginTop: 2 }}
+        >
+          TỔNG TIỀN DỊCH VỤ : <b>{totalPrice}</b>
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{ color: "#063F5C", fontSize: '1.3rem', marginTop: 2, fontWeight: "bold" }}
+        >
+          TỔNG TIỀN TIỆC: <b>{Intl.NumberFormat('vi-VN').format((Number(localStorage.getItem("TongTienDatBan")) || 0) + (Number(localStorage.getItem("TongTienDichVu")) || 0))}</b>
+        </Typography>
         <div className='button-container' style={{ paddingTop: "30px" }}>
           <Cancelbutton onClick={() => {
             localStorage.setItem("currentPDT", null);
