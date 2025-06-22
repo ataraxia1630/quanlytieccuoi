@@ -218,9 +218,8 @@ module.exports.update = async (req, res) => {
       });
     }
     const TiLePhat = tienphat / tongtien
-    console.log("ti le phat " + tienphat + ' ' + tongtien + ' ' + TiLePhat)
-    let tienPhat = TiLePhat * tongTien / 100;
-
+    
+    let tienPhat = TiLePhat * tongTien;
 
     const tienDatCoc = Number(phieuDatTiec.TienDatCoc) || 0;
 
