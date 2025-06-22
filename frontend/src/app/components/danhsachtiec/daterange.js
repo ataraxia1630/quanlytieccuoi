@@ -32,7 +32,7 @@ const DateRangePicker = ({ label, fromDate, toDate, onFromChange, onToChange }) 
           label="Từ"
           value={fromDate ? dayjs(fromDate) : null}
           onChange={(newValue) =>
-            onFromChange(newValue ? newValue.toISOString() : "")
+            onFromChange(newValue ? dayjs(newValue).format("YYYY-MM-DD") : "")
           }
           format="DD/MM/YYYY"
           slotProps={{
@@ -51,7 +51,7 @@ const DateRangePicker = ({ label, fromDate, toDate, onFromChange, onToChange }) 
             label="Đến"
             value={toDate ? dayjs(toDate) : null}
             onChange={(newValue) =>
-              onToChange(newValue ? newValue.toISOString() : "")
+              onToChange(newValue ? dayjs(newValue).format("YYYY-MM-DD") : "")
             }
             format="DD/MM/YYYY"
             slotProps={{

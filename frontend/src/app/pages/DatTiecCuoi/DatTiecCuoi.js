@@ -51,15 +51,10 @@ const DatTiecCuoi = () => {
 
   const handleNav = (step = -1) => {
     let nextStep = step === -1 ? activeStep + 1 : step;
-    let path;
 
     if (nextStep === activeStep || nextStep < -1) return;
     if (nextStep >= steps.length) {
       nextStep = 0;
-      path = "/DashBoard/DanhSachTiecCuoi";
-    }
-    else {
-      path = steps[nextStep].path;
     }
     localStorage.setItem("currentStep", nextStep);
     setActiveStep(nextStep);

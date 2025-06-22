@@ -7,6 +7,17 @@ import DialogButtons from '../Dialogbutton';
 
 const statusOptions = ['Có sẵn', 'Tạm dừng', 'Ngừng cung cấp'];
 
+const formatPrice = (value) => {
+  if (!value && value !== 0) return '';
+  const cleanValue = String(value).split('.')[0].replace(/\D/g, '');
+  const num = parseInt(cleanValue || '0', 10);
+  return num.toLocaleString('vi-VN', { minimumFractionDigits: 0 });
+};
+
+const parsePrice = (value) => {
+  return value.replace(/\./g, '');
+};
+
 const DichVuDialog = ({
   open,
   onClose,
@@ -24,7 +35,7 @@ const DichVuDialog = ({
     if (open) {
       if (mode === 'edit' && initialData) {
         setName(initialData.TenDichVu || '');
-        setPrice(initialData.DonGia?.toString() || '');
+        setPrice(initialData.DonGia ? formatPrice(initialData.DonGia) : '');
         setStatus(initialData.TinhTrang || '');
       } else {
         setName('');
@@ -35,6 +46,59 @@ const DichVuDialog = ({
     }
   }, [open, mode, initialData]);
 
+  const validateName = (value) => {
+    if (value.trim() && value.trim().length > 100) {
+      return 'Tên dịch vụ không được vượt quá 100 ký tự';
+    }
+    return '';
+  };
+
+  const validatePrice = (value) => {
+    const parsedPrice = parsePrice(value);
+    if (parsedPrice && (isNaN(parsedPrice) || Number(parsedPrice) < 0)) {
+      return 'Giá phải là số không âm';
+    }
+    if (parsedPrice && Number(parsedPrice) >= 100000000) {
+      return 'Giá phải nhỏ hơn 100 triệu';
+    }
+    return '';
+  };
+
+  const validateStatus = () => {
+    return '';
+  };
+
+  const handleNameChange = (e) => {
+    const value = e.target.value;
+    setName(value);
+    setErrors((prev) => ({
+      ...prev,
+      name: validateName(value),
+    }));
+  };
+
+  const handlePriceChange = (e) => {
+    const value = e.target.value;
+    const cleanValue = value.replace(/\./g, '');
+    if (cleanValue === '' || !isNaN(cleanValue)) {
+      const formattedValue = formatPrice(cleanValue);
+      setPrice(formattedValue);
+      setErrors((prev) => ({
+        ...prev,
+        price: validatePrice(formattedValue),
+      }));
+    }
+  };
+
+  const handleStatusChange = (e) => {
+    const value = e.target.value;
+    setStatus(value);
+    setErrors((prev) => ({
+      ...prev,
+      status: validateStatus(value),
+    }));
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -44,11 +108,12 @@ const DichVuDialog = ({
       newErrors.name = 'Tên dịch vụ không được vượt quá 100 ký tự';
     }
 
-    if (!price.trim()) {
+    const parsedPrice = parsePrice(price);
+    if (!parsedPrice) {
       newErrors.price = 'Giá không được để trống';
-    } else if (isNaN(price) || Number(price) < 0) {
+    } else if (isNaN(parsedPrice) || Number(parsedPrice) < 0) {
       newErrors.price = 'Giá phải là số không âm';
-    } else if (isNaN(price) || Number(price) >= 100000000) {
+    } else if (Number(parsedPrice) >= 100000000) {
       newErrors.price = 'Giá phải nhỏ hơn 100 triệu';
     }
 
@@ -64,7 +129,7 @@ const DichVuDialog = ({
     if (validateForm()) {
       const formData = {
         name: name.trim(),
-        price: Number(price),
+        price: Number(parsePrice(price)),
         status: status,
       };
       onSave(formData);
@@ -101,7 +166,7 @@ const DichVuDialog = ({
           <FormTextField
             label="Tên dịch vụ"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={handleNameChange}
             fullWidth
             error={!!errors.name}
             helperText={errors.name}
@@ -109,9 +174,8 @@ const DichVuDialog = ({
 
           <FormTextField
             label="Giá"
-            type="number"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={handlePriceChange}
             InputProps={{
               endAdornment: <span style={{ marginLeft: 4 }}>VNĐ</span>,
             }}
@@ -119,8 +183,12 @@ const DichVuDialog = ({
             error={!!errors.price}
             helperText={errors.price}
             inputProps={{
-              min: 0,
-              step: 1000,
+              inputMode: 'numeric',
+              onKeyPress: (e) => {
+                if (!/[0-9]/.test(e.key)) {
+                  e.preventDefault();
+                }
+              },
             }}
           />
 
@@ -128,7 +196,7 @@ const DichVuDialog = ({
             label="Tình trạng"
             options={statusOptions}
             value={status}
-            onChange={(e) => setStatus(e.target.value)}
+            onChange={handleStatusChange}
             fullWidth
             error={!!errors.status}
             helperText={errors.status}

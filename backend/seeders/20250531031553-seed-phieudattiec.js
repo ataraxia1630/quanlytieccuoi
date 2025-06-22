@@ -40,42 +40,9 @@ module.exports = {
     }, {});
 
     const getRandomName = (isMale) => {
-      const maleNames = [
-        'Nam',
-        'Hùng',
-        'Minh',
-        'Long',
-        'Khoa',
-        'Đức',
-        'Tuấn',
-        'Hải',
-        'Phong',
-        'Vũ',
-      ];
-      const femaleNames = [
-        'Lan',
-        'Mai',
-        'Hương',
-        'Ngọc',
-        'Thảo',
-        'Linh',
-        'Yến',
-        'Trang',
-        'Huyền',
-        'Thu',
-      ];
-      const lastNames = [
-        'Nguyễn',
-        'Trần',
-        'Lê',
-        'Phạm',
-        'Hoàng',
-        'Vũ',
-        'Đặng',
-        'Bùi',
-        'Đỗ',
-        'Hồ',
-      ];
+      const maleNames = ['Nam', 'Huy', 'Minh', 'Khoa', 'Duy'];
+      const femaleNames = ['Lan', 'Mai', 'Linh', 'Yến', 'Thu'];
+      const lastNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Vũ'];
       const firstName = isMale
         ? maleNames[Math.floor(Math.random() * maleNames.length)]
         : femaleNames[Math.floor(Math.random() * femaleNames.length)];
@@ -98,6 +65,66 @@ module.exports = {
       );
     };
 
+    const getPartyDate = (ngayDatTiec) => {
+      const rand = Math.random();
+
+      const baseDateStart = new Date('2025-01-01T00:00:00+07:00');
+      const baseDateEnd = new Date('2025-07-31T23:59:59+07:00');
+      const baseDate = getRandomDate(baseDateStart, baseDateEnd);
+
+      let partyDate;
+
+      if (rand < 0.4) {
+        // 40% : chọn ngày trước baseDate từ 1–3 ngày
+        const daysBefore = Math.floor(Math.random() * 3) + 1;
+        partyDate = new Date(
+          baseDate.getTime() - daysBefore * 24 * 60 * 60 * 1000
+        );
+      } else if (rand < 0.8) {
+        // 40% : chọn ngày sau baseDate từ 4–5 ngày
+        const daysAfter = Math.floor(Math.random() * 2) + 4;
+        partyDate = new Date(
+          baseDate.getTime() + daysAfter * 24 * 60 * 60 * 1000
+        );
+      } else {
+        // 20% : chọn ngẫu nhiên trong vòng 30 ngày sau baseDate
+        const maxDate = new Date(baseDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+        partyDate = getRandomDate(
+          baseDate,
+          maxDate > baseDateEnd ? baseDateEnd : maxDate
+        );
+      }
+
+      return partyDate > ngayDatTiec && partyDate <= baseDateEnd
+        ? partyDate
+        : new Date(ngayDatTiec.getTime() + 24 * 60 * 60 * 1000);
+    };
+
+    const getRandomStatus = (ngayDaiTiec) => {
+      const currentDate = new Date();
+      const partyDate = new Date(ngayDaiTiec);
+      partyDate.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để so sánh ngày
+      currentDate.setHours(0, 0, 0, 0);
+
+      const sevenDaysAgo = new Date(currentDate);
+      sevenDaysAgo.setDate(currentDate.getDate() - 7);
+
+      if (partyDate < sevenDaysAgo) {
+        // Trước hiện tại 7 ngày : ưu tiên "Đã thanh toán"
+        return 'Đã thanh toán';
+      } else if (partyDate < currentDate) {
+        const rand = Math.random();
+        if (rand < 0.6) return 'Đã thanh toán'; // 60%
+        if (rand < 0.95) return 'Chưa thanh toán'; // 35%
+        return 'Đã hủy'; // 5%
+      }
+
+      const rand = Math.random();
+      if (rand < 0.95) return 'Chưa thanh toán'; // 95%
+      return 'Đã hủy'; // 5%
+    };
+
     // Hàm chuyển đổi giờ dạng "HH:mm:ss" thành phút để so sánh
     const timeToMinutes = (timeStr) => {
       const [hours, minutes] = timeStr.split(':').map(Number);
@@ -110,7 +137,6 @@ module.exports = {
       const endMinutes = timeToMinutes(end);
 
       const validMinutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
-
       const possibleTimes = [];
 
       for (let minutes = startMinutes; minutes <= endMinutes; minutes++) {
@@ -156,13 +182,6 @@ module.exports = {
       );
     };
 
-    const getRandomStatus = () => {
-      const rand = Math.random();
-      if (rand < 0.05) return 'Đã hủy';
-      if (rand < 0.9) return 'Đã thanh toán'; // 85%
-      return 'Chưa thanh toán';
-    };
-
     const startDate = new Date('2025-01-01T00:00:00+07:00');
     const endDate = new Date();
     const data = [];
@@ -175,16 +194,7 @@ module.exports = {
 
       while (!validSchedule && attempts < 10) {
         const ngayDatTiec = getRandomDate(startDate, endDate);
-        const minDaiTiec = new Date(
-          ngayDatTiec.getTime() + 1 * 24 * 60 * 60 * 1000
-        );
-        const maxDaiTiec = new Date(
-          ngayDatTiec.getTime() + 30 * 24 * 60 * 60 * 1000
-        );
-        const ngayDaiTiecDate = getRandomDate(
-          minDaiTiec,
-          maxDaiTiec > endDate ? endDate : maxDaiTiec
-        );
+        const ngayDaiTiecDate = getPartyDate(ngayDatTiec);
         const maSanh = maSanhIds[Math.floor(Math.random() * maSanhIds.length)];
         const maCa = maCaIds[Math.floor(Math.random() * maCaIds.length)];
         const timeForCa = getRandomTimeForCa(maCa);
@@ -199,7 +209,7 @@ module.exports = {
           MaCa: maCa,
           NgayDaiTiec: ngayDaiTiec,
           NgayDatTiec: ngayDatTiec,
-          TrangThai: getRandomStatus(),
+          TrangThai: getRandomStatus(ngayDaiTiec),
         };
 
         validSchedule = !usedSchedules.some((existing) =>
@@ -210,14 +220,14 @@ module.exports = {
 
       if (!validSchedule) {
         const maCa = maCaIds[Math.floor(Math.random() * maCaIds.length)];
-        const ngayDaiTiecDate = getRandomDate(startDate, endDate);
+        const ngayDaiTiecDate = getPartyDate(phieu.NgayDatTiec);
         const timeForCa = getRandomTimeForCa(maCa);
         const [hours, minutes, seconds] = timeForCa.split(':').map(Number);
         const ngayDaiTiec = new Date(ngayDaiTiecDate);
         ngayDaiTiec.setHours(hours, minutes, seconds, 0);
         phieu.NgayDaiTiec = ngayDaiTiec;
         phieu.MaCa = maCa;
-        phieu.TrangThai = getRandomStatus();
+        phieu.TrangThai = getRandomStatus(ngayDaiTiec);
       }
 
       const maSanh = phieu.MaSanh;
@@ -235,7 +245,7 @@ module.exports = {
       const soBanDuTru =
         Math.random() > 0.3 && maxDuTru > 0
           ? Math.min(
-              Math.floor(Math.random() * Math.min(15, maxDuTru)) + 1, // 1- 15 bàn
+              Math.floor(Math.random() * Math.min(15, maxDuTru)) + 1, // 1-15 bàn
               255 - soLuongBan
             )
           : 0;

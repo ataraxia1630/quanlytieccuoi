@@ -3,11 +3,13 @@ import './DanhSachLoaiSanh.css';
 import 'react-toastify/dist/ReactToastify.css';
 
 import { Box, Typography, CircularProgress } from '@mui/material';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
+import toastService from '../../service/toast/toast.service';
 
 import SearchBar from '../../components/Searchbar';
 import FilterButton from '../../components/Filterbutton';
 import AddButton from '../../components/Addbutton';
+import ActionDropdown from '../../components/Printandexport';
 import CustomTable from '../../components/Customtable';
 import HallTypeFilterPanel from '../../components/loaisanh/loaisanh_filter_panel';
 import EditHallTypePopUp from '../../components/loaisanh/loaisanh_edit_popup';
@@ -29,9 +31,10 @@ export default function DanhSachLoaiSanh() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [filters, setFilters] = useState({
     priceMin: 0,
-    priceMax: 10000000,
+    priceMax: 0,
   });
   const [loading, setLoading] = useState(false);
+  let total;
 
   const permissions = localStorage.getItem('permissions');
   //#endregion
@@ -47,11 +50,10 @@ export default function DanhSachLoaiSanh() {
       );
       console.log(result.data);
       setHallTypeData(result.data || []);
+      total = result.total;
     } catch (error) {
       console.log('Error fetching sanhs:', error.message);
-      toast.error(
-        `Lỗi: ${error.message || 'Không thể tải danh sách loại sảnh!'}`
-      );
+      toastService.crud.error.generic();
     } finally {
       setLoading(false);
     }
@@ -60,12 +62,37 @@ export default function DanhSachLoaiSanh() {
   useEffect(() => {
     fetchData();
   }, [filters]);
+
+  useEffect(() => {
+    if (!searchTerm) fetchData();
+  }, [searchTerm]);
   //#endregion
 
   //#region func handler
-  const handleSearch = () => {
-    // toast.info(`Đang tìm kiếm: ${searchTerm}`);
-    fetchData();
+  const handleSearchResult = () => {
+    if (total > 0) toastService.search.success(total, 'loại sảnh');
+    else toastService.search.noResults('loại sảnh');
+  };
+
+  const handleSearch = async () => {
+    try {
+      await fetchData();
+      handleSearchResult();
+    } catch (error) {}
+  };
+
+  const handlePrint = async () => {
+    const res = LoaiSanhService.print(hallTypeData);
+    if (!res.success) {
+      toastService.file.printError(res.message);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    const res = await LoaiSanhService.exportExcel(hallTypeData);
+    if (!res.success) {
+      toastService.file.exportError(res.message);
+    }
   };
 
   const handleOpenHideFilter = () => {
@@ -74,47 +101,47 @@ export default function DanhSachLoaiSanh() {
 
   const handleApplyFilter = (newFilters) => {
     setFilters(newFilters);
-    toast.success('Đã áp dụng bộ lọc');
+    toastService.search.appliedFilter();
   };
 
   const handleResetFilter = () => {
-    setFilters({ priceMin: 0, priceMax: 10000000 });
+    setFilters({ priceMin: 0, priceMax: 0 });
     setSearchTerm('');
-    toast.success('Đã reset bộ lọc');
+    toastService.search.resetFilter();
   };
 
   const handleAdd = () => {
     setMode('add');
     setSelectedRow(null);
     setIsEditDialogOpen(true);
-    toast.success('Bắt đầu thêm loại sảnh mới');
+    toastService.entity.createStart('loại sảnh');
   };
 
   const handleEdit = async (row) => {
     setMode('edit');
     setSelectedRow(row);
     setIsEditDialogOpen(true);
-    toast.info(`Đang chỉnh sửa loại sảnh: ${row.TenLoaiSanh}`);
+    toastService.entity.editing('loại sảnh', row.TenLoaiSanh);
   };
 
   const handleCloseEditDialog = () => {
     setIsEditDialogOpen(false);
     setSelectedRow(false);
     mode === 'edit'
-      ? toast.info('Đã đóng cửa sổ chỉnh sửa')
-      : toast.info('Đã đóng cửa sổ thêm mới');
+      ? toastService.crud.cancel.edit()
+      : toastService.crud.cancel.create();
   };
 
   const handleDelete = async (row) => {
     setIsDeleteDialogOpen(true);
     setSelectedRow(row);
-    toast.warn(`Bạn sắp xóa loại sảnh: ${row.TenLoaiSanh}`);
+    toastService.entity.deleteConfirm('loại sảnh', row.TenLoaiSanh);
   };
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
     setSelectedRow(null);
-    toast.info('Đã hủy xóa loại sảnh');
+    toastService.entity.cancelDelete('loại sảnh');
   };
 
   const handleSaveHallType = async (data) => {
@@ -124,17 +151,19 @@ export default function DanhSachLoaiSanh() {
         DonGiaBanToiThieu: Number(data.price),
       };
       console.log(loaisanhData);
-      toast.info('Đang xử lý yêu cầu ...');
+      toastService.crud.processing.saving();
 
       if (mode === 'edit' && selectedRow) {
         await LoaiSanhService.update(selectedRow.MaLoaiSanh, loaisanhData);
-        toast.success(
-          `Cập nhật loại sảnh "${loaisanhData.TenLoaiSanh}" thành công!`
+        toastService.entity.updateSuccess(
+          'loại sảnh',
+          loaisanhData.TenLoaiSanh
         );
       } else {
         await LoaiSanhService.createNew(loaisanhData);
-        toast.success(
-          `Thêm loại sảnh "${loaisanhData.TenLoaiSanh}" thành công!`
+        toastService.entity.createSuccess(
+          'loại sảnh',
+          loaisanhData.TenLoaiSanh
         );
       }
 
@@ -142,23 +171,21 @@ export default function DanhSachLoaiSanh() {
       setSelectedRow(null);
       fetchData();
     } catch (error) {
-      toast.error(`Lỗi: ${error.message || 'Không thể lưu loại sảnh!'}`);
+      toastService.error(`Lỗi: ${error.message || 'Không thể lưu loại sảnh!'}`);
     }
   };
 
   const acceptDelete = async () => {
     try {
-      await LoaiSanhService.delete(selectedRow.MaLoaiSanh);
-      toast.success(
-        `Đã xóa loại sảnh "${selectedRow.TenLoaiSanh}" thành công!`
-      );
+      const message = await LoaiSanhService.delete(selectedRow.MaLoaiSanh);
+      if (message === 'success')
+        toastService.entity.deleteSuccess('loại sảnh', selectedRow.TenLoaiSanh);
+      else toastService.info(message);
       setIsDeleteDialogOpen(false);
       setSelectedRow(null);
       fetchData();
     } catch (error) {
-      toast.error(
-        `Xóa thất bại: ${error.message || 'Không thể xóa loại sảnh!'}`
-      );
+      toastService.error(`Xóa thất bại: ${error.message || 'Xóa thất bại!'}`);
     }
   };
 
@@ -178,25 +205,41 @@ export default function DanhSachLoaiSanh() {
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '20px',
+          alignItems: 'flex-start',
+          gap: 2,
           mb: 3,
+          flexWrap: { xs: 'wrap', md: 'nowrap' },
         }}
       >
-        <SearchBar
-          value={searchTerm}
-          onChange={setSearchTerm}
-          onSearch={handleSearch}
-          placeholder="Tìm tên hoặc mã loại sảnh ..."
-        />
+        <Box
+          sx={{ flex: 1, minWidth: 250, display: 'flex', alignItems: 'center' }}
+        >
+          <SearchBar
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSearch={handleSearch}
+            placeholder="Tìm tên hoặc mã loại sảnh ..."
+          />
+        </Box>
 
-        <Box sx={{ display: 'flex', gap: '17px', justifyContent: 'flex-end' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            alignItems: 'center',
+            flexShrink: 0,
+            flexWrap: 'wrap',
+          }}
+        >
           <FilterButton onClick={handleOpenHideFilter} text="Filter" />
           <AddButton
             onClick={handleAdd}
             text="Thêm"
             disabled={!hasPermission(permissions, 'hallType.create')}
+          />
+          <ActionDropdown
+            onPrint={handlePrint}
+            onExportExcel={handleExportExcel}
           />
         </Box>
       </Box>

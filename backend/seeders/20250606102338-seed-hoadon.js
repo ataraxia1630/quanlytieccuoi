@@ -30,19 +30,19 @@ module.exports = {
     }
 
     const ctDatBanRecords = await Ct_DatBan.findAll({
-      attributes: ['SoPhieuDatTiec', 'MaMonAn', 'DonGia'],
+      attributes: ['SoPhieuDatTiec', 'MaMonAn', 'DonGia', 'SoLuong'],
       raw: true,
     });
 
     const ctDichVuRecords = await Ct_DichVu.findAll({
-      attributes: ['SoPhieuDatTiec', 'DonGia'],
+      attributes: ['SoPhieuDatTiec', 'MaDichVu', 'DonGia', 'SoLuong'],
       raw: true,
     });
 
-    const monAnRecords = await MonAn.findAll({
-      attributes: ['MaMonAn', 'DonGia'],
-      raw: true,
-    });
+    // const monAnRecords = await MonAn.findAll({
+    //   attributes: ['MaMonAn', 'DonGia'],
+    //   raw: true,
+    // });
 
     // Tạo map cho PĐT
     const phieuInfoMap = phieuDatTiecRecords.reduce((acc, phieu) => {
@@ -55,36 +55,38 @@ module.exports = {
       return acc;
     }, {});
 
-    const dishUnitPrices = monAnRecords.reduce((acc, monAn) => {
-      acc[monAn.MaMonAn] = parseInt(monAn.DonGia);
-      return acc;
-    }, {});
-
-    const phieuMonAnMap = ctDatBanRecords.reduce((acc, ct) => {
-      if (!acc[ct.SoPhieuDatTiec]) {
-        acc[ct.SoPhieuDatTiec] = new Set();
-      }
-      acc[ct.SoPhieuDatTiec].add(ct.MaMonAn);
-      return acc;
-    }, {});
-
+    // Tính tổng tiền món ăn: SoLuong * DonGia * SoLuongBanDaDung
     const tongTienMonAnMap = ctDatBanRecords.reduce((acc, ct) => {
       const donGia = parseInt(ct.DonGia) || 0;
-      acc[ct.SoPhieuDatTiec] = (acc[ct.SoPhieuDatTiec] || 0) + donGia;
+      const soLuong = parseInt(ct.SoLuong) || 1;
+      acc[ct.SoPhieuDatTiec] = (acc[ct.SoPhieuDatTiec] || 0) + donGia * soLuong;
       return acc;
     }, {});
 
+    // Tính tổng tiền dịch vụ: SoLuong * DonGia
     const tongTienDichVuMap = ctDichVuRecords.reduce((acc, ct) => {
       const donGia = parseInt(ct.DonGia) || 0;
-      acc[ct.SoPhieuDatTiec] = (acc[ct.SoPhieuDatTiec] || 0) + donGia;
+      const soLuong = parseInt(ct.SoLuong) || 1;
+      acc[ct.SoPhieuDatTiec] = (acc[ct.SoPhieuDatTiec] || 0) + donGia * soLuong;
       return acc;
     }, {});
 
     const data = [];
     let hoaDonCounter = 1;
+    const currentDate = new Date();
 
     for (const phieu of phieuDatTiecRecords) {
       const phieuInfo = phieuInfoMap[phieu.SoPhieuDatTiec];
+
+      // Kiểm tra xem đã đến ngày đãi tiệc hay chưa
+      if (phieuInfo.ngayDaiTiec > currentDate) {
+        console.log(
+          `Bỏ qua phiếu ${
+            phieu.SoPhieuDatTiec
+          } vì chưa đến ngày đãi tiệc (${phieuInfo.ngayDaiTiec.toISOString()}).`
+        );
+        continue;
+      }
 
       // Random ngày thanh toán, 30% trễ hạn
       const isLate = Math.random() < 0.3;
@@ -107,17 +109,14 @@ module.exports = {
             )
           : 0;
 
-      // Tính DonGiaBan (tổng đơn giá món ăn với SoLuong = 1)
-      const monAnList = phieuMonAnMap[phieu.SoPhieuDatTiec] || new Set();
-      let donGiaBan = 0;
-      for (const maMonAn of monAnList) {
-        donGiaBan += dishUnitPrices[maMonAn] || 0;
-      }
-      donGiaBan = parseInt(donGiaBan.toFixed(2));
-
-      const tongTienMonAn = parseInt(
+      // Tính DonGiaBan (tổng đơn giá món ăn cho một bàn)
+      const donGiaBan = parseInt(
         (tongTienMonAnMap[phieu.SoPhieuDatTiec] || 0).toFixed(2)
       );
+
+      // Tính TongTienMonAn (DonGiaBan * SoLuongBanDaDung)
+      const tongTienMonAn = parseInt((donGiaBan * soLuongBanDaDung).toFixed(2));
+
       const tongTienDichVu = parseInt(
         (tongTienDichVuMap[phieu.SoPhieuDatTiec] || 0).toFixed(2)
       );
@@ -168,12 +167,19 @@ module.exports = {
       hoaDonCounter++;
     }
 
+    if (data.length === 0) {
+      console.warn(
+        'Không có hóa đơn nào được tạo vì chưa có phiếu nào đến ngày đãi tiệc.'
+      );
+      return;
+    }
+
     await queryInterface.bulkInsert('HOADON', data, {});
   },
 
   async down(queryInterface, Sequelize) {
     const maHoaDonList = Array.from(
-      { length: 265 }, // Đổi số nếu muốn undo nhiều/ít hóa đơn hơn
+      { length: 300 },
       (_, i) => `HD${String(i + 1).padStart(3, '0')}`
     );
 

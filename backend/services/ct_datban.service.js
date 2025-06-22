@@ -108,7 +108,7 @@ const CTDatBanService = {
                 SoPhieuDatTiec: SoPhieuDatTiec || ct.SoPhieuDatTiec,
                 SoLuong: SoLuong !== undefined ? SoLuong : ct.SoLuong,
                 DonGia: DonGia !== undefined ? DonGia : ct.DonGia,
-                GhiChu: GhiChu || ct.GhiChu
+                GhiChu: GhiChu
             });
 
             return ct;

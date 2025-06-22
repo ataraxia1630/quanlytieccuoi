@@ -12,6 +12,11 @@ import CustomTable from "../../components/Customtable";
 import { Typography, Box } from '@mui/material';
 import EditCTDichVuDialog from "../../components/ct_dichvu/ct_dichvu_edit_dialog";
 import DeleteDialog from '../../components/Deletedialog';
+import { Pagination } from '@mui/material';
+
+
+
+const perPage = 10;
 
 
 
@@ -24,40 +29,16 @@ function DatDichVu() {
   const [currentPDT, setCurrentPDT] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [ctdichvuToEdit, setCtdichvuToEdit] = useState(null);
-  console.log("DatDichVu: currentPDT:", reservedServices);
-  //mock data         
-  // const mockItems = useMemo(() => [
-  //   {
-  //     "MaDV": "DV004",
-  //     "TenDV": "Quay phim & Chụp ảnh",
-  //     "DonGia": 2000000.00,
-  //     "TrangThai": "Ngừng cung cấp"
-  //   },
-  //   {
-  //     "MaDV": "DV006",
-  //     "TenDV": "Rượu mừng",
-  //     "DonGia": 20000000.00,
-  //     "TrangThai": "Tạm dừng"
-  //   },
-  //   {
-  //     "MaDV": "DV007",
-  //     "TenDV": "Thuê MC",
-  //     "DonGia": 500000.00,
-  //     "TrangThai": "Có sẵn"
-  //   },
-  //   {
-  //     "MaDV": "DV008",
-  //     "TenDV": "Cổng cưới",
-  //     "DonGia": 1000000.00,
-  //     "TrangThai": "Có sẵn"
-  //   }
-  // ], []);
+
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // fetch data dịch vụ từ db
   const fetchValidServices = useCallback(async () => {
     try {
       const data = await DichVuService.searchDichVu({ TinhTrang: "Có sẵn" });
       setServices(data); // set dữ liệu nếu thành công
+      setTotalPages(Math.ceil(data.length / perPage || 1));
     } catch (error) {
       toast.error(error.message || "lỗi khi tải dịch vụ");
     }
@@ -205,7 +186,6 @@ function DatDichVu() {
   };
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setCtdichvuToEdit(null);
   }
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);
@@ -217,6 +197,14 @@ function DatDichVu() {
     RemoveReservedService(ctdichvuToEdit);
     setCtdichvuToEdit(null);
   };
+
+  const totalPrice = useMemo(() => {
+    const value = reservedServices.reduce((sum, rev) =>
+      sum + Number(rev.DonGia) * Number(rev.SoLuong), 0
+    );
+    localStorage.setItem("TongTienDichVu", value);
+    return new Intl.NumberFormat('vi-VN').format(value);
+  }, [reservedServices]);
 
   return (
     <div className="page">
@@ -237,16 +225,36 @@ function DatDichVu() {
       <div style={{ width: "90%" }}>
         <Typography
           variant="h4"
-          sx={{ fontWeight: "bold", color: "#063F5C", marginBottom: 4, marginTop: -12 }}
+          sx={{ fontWeight: "bold", color: "#063F5C", marginBottom: 2, marginTop: -12 }}
         >
           Dịch vụ đã đặt
         </Typography>
+
         <CustomTable
           data={fullReservedServicesData}
           columns={defaultColumns}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
+        <Typography
+          variant="body1"
+          sx={{ color: "#063F5C", fontSize: '1.5rem', marginTop: 2 }}
+        >
+          TỔNG TIỀN DỊCH VỤ : <b>{totalPrice}</b>
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{ color: "#063F5C", fontSize: '1.3rem', marginTop: 2, fontWeight: "bold" }}
+        >
+          TỔNG TIỀN TIỆC: <b>{Intl.NumberFormat('vi-VN').format((Number(localStorage.getItem("TongTienDatBan")) || 0) + (Number(localStorage.getItem("TongTienDichVu")) || 0))}</b>
+        </Typography>
+        <div className='button-container' style={{ paddingTop: "30px" }}>
+          <Cancelbutton onClick={() => {
+            localStorage.setItem("currentPDT", null);
+            localStorage.setItem("SoluongBan", 0);
+            handleNav();
+          }} textCancel="Xong" />
+        </div>
       </div>
 
       <DeleteDialog
@@ -265,14 +273,49 @@ function DatDichVu() {
       >
         <input autoFocus />
       </EditCTDichVuDialog>
-      <div className='selection-container' >
-        {services.map((item, index) => (
-          <ServiceCard key={index} srv={item} onClick={AddReservedService} />
-        ))}
+      <div className='selection-container'>
+        {(() => {
+          const start = (currentPage - 1) * perPage;
+          const end = currentPage * perPage;
+
+          return services.slice(start, end).map((item, index) => (
+            <ServiceCard key={start + index} srv={item} onClick={AddReservedService} />
+          ));
+        })()}
       </div>
-      <div className='button-container'>
-        <Cancelbutton onClick={() => handleNav()} textCancel="Hoàn Thành" />
-      </div>
+      <Pagination
+        count={totalPages}
+        siblingCount={1}
+        boundaryCount={1}
+        variant="outlined"
+        onChange={(e, value) => setCurrentPage(value)}
+        page={currentPage}
+        sx={{
+          '& .MuiPaginationItem-root': {
+            color: '#063F5C',
+            borderColor: '#063F5C',
+            minWidth: '45px',
+            height: '45px',
+            borderRadius: '999px',
+          },
+          '& .MuiPaginationItem-root.Mui-selected': {
+            backgroundColor: '#063F5C',
+            color: '#fff',
+            borderColor: '#063F5C',
+            '&:hover': {
+              backgroundColor: '#045172',
+            },
+            '&.Mui-focusVisible': {
+              backgroundColor: '#045172',
+            },
+            '&.Mui-disabled': {
+              backgroundColor: '#063F5C',
+              opacity: 1,
+            },
+          },
+          marginTop: '50px',
+        }}
+      />
     </div>
   );
 }

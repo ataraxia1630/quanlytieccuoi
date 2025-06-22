@@ -14,12 +14,13 @@ import {
 } from '@mui/material';
 import { Add, Remove } from '@mui/icons-material';
 
+
 function FoodCard({ food, onClick }) {
-    const [quantity, setQuantity] = useState(1);
+    const [quantity, setQuantity] = useState(0);
     const [note, setNote] = useState(null);
 
     const handleDecrease = () => {
-        setQuantity((prev) => Math.max(1, prev - 1));
+        setQuantity((prev) => Math.max(0, prev - 1));
     };
 
     const handleIncrease = () => {
@@ -60,20 +61,43 @@ function FoodCard({ food, onClick }) {
                     rows={2}
                     placeholder="Thêm ghi chú ....."
                     variant="outlined"
-                    onChange={(e) => setNote(e.target.value)}
+                    onChange={(e) => { if (e.target.value.length < 200) setNote(e.target.value) }}
                     sx={{ mt: 2 }}
                 />
             </CardContent>
 
             {/* Số lượng & Nút Add */}
-            <CardActions sx={{ px: 2, pb: 2, pt: 0, display: 'flex', justifyContent: 'space-between' }}>
-                <Box display="flex" alignItems="center">
+            <CardActions sx={{ px: 2, pb: 2, pt: 0, display: 'flex', justifyContent: 'space-between', alignItems: "start" }}>
+                <Box display="flex" alignItems="start">
                     <IconButton size="small" onClick={handleDecrease}>
                         <Remove />
                     </IconButton>
-                    <Typography sx={{ mx: 1, minWidth: 24, textAlign: 'center', marginBottom: 0 }}>
-                        {quantity}
-                    </Typography>
+                    <TextField
+                        variant="outlined"
+                        InputProps={{
+                            disableUnderline: true,
+                        }}
+                        value={quantity.toString()}
+                        onChange={(e) => {
+                            const value = Number(e.target.value);
+                            if ((value === "" || isNaN(value))) return;
+                            if (value < 0) return;
+                            setQuantity(value);
+                        }}
+                        inputProps={{
+                            style: {
+                                padding: '6px', // chỉnh padding bên trong
+                                textAlign: 'center', // căn giữa
+                                fontSize: '1.2rem',
+                            }
+                        }}
+                        sx={{
+                            border: 'none',
+                            outline: 'none',
+                            width: '55px',
+                            textAlign: 'center'
+                        }}
+                    />
                     <IconButton size="small" onClick={handleIncrease}>
                         <Add />
                     </IconButton>
@@ -83,19 +107,23 @@ function FoodCard({ food, onClick }) {
                     variant="contained"
                     size="small"
                     sx={{
-                        bgcolor: 'orange',
+                        bgcolor: quantity > 0 ? 'orange' : 'gray',
                         '&:hover': { bgcolor: 'darkorange' },
                         borderRadius: '999px',
                         textTransform: 'none',
                         paddingX: 3,
+                        marginTop: 0.2
                     }}
-                    onClick={() => onClick({
-                        MaMonAn: food.MaMonAn,
-                        SoLuong: quantity,
-                        DonGia: food.DonGia,
-                        GhiChu: note
+                    onClick={() => {
+                        if (quantity > 0)
+                            onClick({
+                                MaMonAn: food.MaMonAn,
+                                SoLuong: quantity,
+                                DonGia: food.DonGia,
+                                GhiChu: note
 
-                    })}
+                            })
+                    }}
                 >
                     Thêm
                 </Button>

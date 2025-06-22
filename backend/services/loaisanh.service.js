@@ -1,4 +1,4 @@
-const { LoaiSanh } = require('../models');
+const { LoaiSanh, Sanh, PhieuDatTiec } = require('../models');
 const { Op } = require('sequelize');
 const ApiError = require('../utils/apiError');
 
@@ -176,17 +176,31 @@ const LoaiSanhService = {
           404,
           'Xóa thất bại!\nKhông tìm thấy loại sảnh này trong CSDL!'
         );
-      await loaisanh.destroy();
-    } catch (error) {
-      if (
-        error.name === 'SequelizeForeignKeyConstraintError' ||
-        (error.parent && error.parent.code === '23503')
-      ) {
-        throw new ApiError(
-          409,
-          'Xóa thất bại!\nLoại sảnh đã hoặc đang được sử dụng.'
-        );
+      // ktra cac sanh dang sd
+      let message;
+      const sanhs = await Sanh.findAll({
+        attributes: ['MaSanh'],
+        where: { MaLoaiSanh: id },
+      });
+      if (sanhs.length === 0) {
+        await loaisanh.destroy();
+        message = 'success';
+        return message;
       }
+      const maSanhList = sanhs.map((sanh) => sanh.MaSanh);
+      const pdt = await PhieuDatTiec.findOne({
+        where: {
+          MaSanh: { [Op.in]: maSanhList },
+        },
+      });
+      if (pdt) {
+        message = `Không thể xóa! Có sảnh thuộc loại sảnh này đã được đặt!`;
+        return message;
+      }
+      await loaisanh.destroy();
+      message = 'success';
+      return message;
+    } catch (error) {
       throw new ApiError(
         500,
         error.message || 'Xóa thất bại! Vui lòng thử lại sau.'

@@ -12,9 +12,12 @@ import EditCTDatBanDialog from '../../components/ct_datban/ct_datban_edit_dialog
 import CustomTable from "../../components/Customtable";
 import { Typography } from '@mui/material';
 import DeleteDialog from '../../components/Deletedialog';
-import { set } from 'date-fns';
+import { Pagination } from '@mui/material';
+import toastService from '../../service/toast/toast.service';
 
 
+
+const perPage = 20;
 
 function DatMonAn() {
   const [foods, setFoods] = useState([]);
@@ -25,53 +28,18 @@ function DatMonAn() {
   const [ctdatbanToEdit, setCtdatbanToEdit] = useState(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  // Mock data
-  const mockItems = useMemo(() => [
-    {
-      "MaMonAn": "MA001", // Loại bỏ khoảng trắng
-      "TenMonAn": "Thịtsáasdsa  heo",
-      "DonGia": 10000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MA001", // Loại bỏ khoảng trắng
-      "TenMonAn": "Thịt heo",
-      "DonGia": 10000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MA001", // Loại bỏ khoảng trắng
-      "TenMonAn": "Thịt heo",
-      "DonGia": 10000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MA002", // Giữ lại một mục duy nhất cho MA002
-      "TenMonAn": "Cua hấp bia",
-      "DonGia": 300000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    },
-    {
-      "MaMonAn": "MA003",
-      "TenMonAn": "Cua hoàng đế",
-      "DonGia": 4000000.0,
-      "HinhAnh": null,
-      "TrangThai": "AVAILABLE"
-    }
-  ], []);
-
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // fetch data món ăn từ db
   const fetchValidFoods = useCallback(async () => {
     try {
       const data = await MonAnService.getAvailableMonAn();
       setFoods(data.data); // set dữ liệu nếu thành công
+
+      setTotalPages(Math.ceil(data.data.length / perPage || 1));
     } catch (error) {
-      toast.error(error.message || "lỗi khi tải món ăn");
+      toastService.error(error.message || "lỗi khi tải món ăn");
     }
   }, []);
 
@@ -108,7 +76,7 @@ function DatMonAn() {
       setReservedFoods(temp);
       toast.success("cập nhật chi tiết đặt món thành công!")
     } catch (err) {
-      toast.error(err.message || "lỗi khi cập nhật chi tiết đặt bàn");
+      toastService.error(err.message || "lỗi khi cập nhật chi tiết đặt bàn");
     }
   }, [currentPDT, reservedFoods]);
 
@@ -183,7 +151,6 @@ function DatMonAn() {
       console.log("current: ", currentPDT)
       fetchReservedFoods();
     }
-    console.log("currrrr: ", currentPDT)
   }, [currentPDT, fetchReservedFoods]);
 
   // Gọi fetchValidFoods lây dữ liệu món ăn
@@ -194,11 +161,8 @@ function DatMonAn() {
   }, [fetchValidFoods]);
 
   const fullReservedFoodsData = useMemo(() => {
-    console.log("ctdatban: ", reservedFoods);
-    console.log("monan: ", foods);
     return reservedFoods.map((reserv) => {
       const foodItem = foods.find((item) => item.MaMonAn === reserv.MaMonAn);
-      console.log("fullReservedFoodsData: ", foodItem ? foodItem.TenMonAn : 'Không xác định');
       return {
         ...reserv,
         TenMonAn: (foodItem ? foodItem.TenMonAn : 'Không xác định'), // Giá trị mặc định nếu không tìm thấy
@@ -224,7 +188,7 @@ function DatMonAn() {
   };
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setCtdatbanToEdit(null);
+
   }
 
   const handleCloseDeleteDialog = () => {
@@ -238,6 +202,19 @@ function DatMonAn() {
     RemoveReservedFood(ctdatbanToEdit);
     setCtdatbanToEdit(null);
   };
+
+  const totalPrice = useMemo(() => {
+    const value = reservedFoods.reduce((sum, rev) =>
+      sum + Number(rev.DonGia) * Number(rev.SoLuong), 0
+    );
+
+    const total = value * Number(localStorage.getItem("SoLuongBan"));
+
+    localStorage.setItem("TongTienDatBan", total);
+    return new Intl.NumberFormat('vi-VN').format(total);
+  }, [reservedFoods]);
+
+  const isDatTienbanThoiThieu = (Number(localStorage.getItem("TongTienDatBan")) / Number(localStorage.getItem("SoLuongBan"))) >= Number(localStorage.getItem("DonGiaBanToiThieu"));
 
   return (
     <div className="page">
@@ -257,6 +234,31 @@ function DatMonAn() {
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
+        <Typography
+          variant="body1"
+          sx={{ color: "#063F5C", fontSize: '1.5rem', marginTop: 2 }}
+        >
+          TỔNG TIỀN MÓN ĂN (chưa bao gồm tiền bàn dự trữ): <b>{totalPrice}</b>
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{ color: "#063F5C", fontSize: '1.3rem', marginTop: 2, fontWeight: "bold" }}
+        >
+          TỔNG TIỀN TIỆC: <b>{Intl.NumberFormat('vi-VN').format((Number(localStorage.getItem("TongTienDatBan")) || 0) + (Number(localStorage.getItem("TongTienDichVu")) || 0))}</b>
+        </Typography>
+        <Typography
+          variant="body1"
+          sx={{
+            color: (isDatTienbanThoiThieu) ? "gray" : "red",
+            marginTop: 2,
+            textAlign: 'center'
+          }}
+        >
+          (Tiền ban phải đạt mức tối thiểu :{Intl.NumberFormat('vi-VN').format(Number(localStorage.getItem("DonGiaBanToiThieu")) || 0)})
+        </Typography>
+        <div className='button-container' style={{ paddingTop: "30px" }}>
+          <Cancelbutton onClick={() => { if (isDatTienbanThoiThieu) handleNav() }} textCancel="Tiếp tục" />
+        </div>
       </div>
       <DeleteDialog
         open={isDeleteDialogOpen}
@@ -274,14 +276,51 @@ function DatMonAn() {
       >
         <input autoFocus />
       </EditCTDatBanDialog>
-      <div className='selection-container' >
-        {foods.map((item, index) => (
-          <FoodCard key={index} food={item} onClick={AddReservedFood} />
-        ))}
+
+      <div className='selection-container'>
+        {(() => {
+          const start = (currentPage - 1) * perPage;
+          const end = currentPage * perPage;
+
+          return foods.slice(start, end).map((item, index) => (
+            <FoodCard key={start + index} food={item} onClick={AddReservedFood} />
+          ));
+        })()}
       </div>
-      <div className='button-container'>
-        <Cancelbutton onClick={() => handleNav()} textCancel="Tiếp tục" />
-      </div>
+      <Pagination
+        count={totalPages}
+        siblingCount={1}
+        boundaryCount={1}
+        variant="outlined"
+        onChange={(e, value) => setCurrentPage(value)}
+        page={currentPage}
+        sx={{
+          '& .MuiPaginationItem-root': {
+            color: '#063F5C',
+            borderColor: '#063F5C',
+            minWidth: '45px',
+            height: '45px',
+            borderRadius: '999px',
+          },
+          '& .MuiPaginationItem-root.Mui-selected': {
+            backgroundColor: '#063F5C',
+            color: '#fff',
+            borderColor: '#063F5C',
+            '&:hover': {
+              backgroundColor: '#045172',
+            },
+            '&.Mui-focusVisible': {
+              backgroundColor: '#045172',
+            },
+            '&.Mui-disabled': {
+              backgroundColor: '#063F5C',
+              opacity: 1,
+            },
+          },
+          marginTop: '50px',
+        }}
+      />
+
     </div>
   );
 }

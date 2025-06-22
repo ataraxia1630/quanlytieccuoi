@@ -3,6 +3,7 @@ import { Dialog, DialogContent, Box, Divider } from "@mui/material";
 import DialogTitleCustom from "../Dialogtitlecustom";
 import FormTextField from "../Formtextfield";
 import DialogButtons from "../Dialogbutton";
+import NumericFormatCustom from '../NumericFormatCustom';
 
 
 const DichVuDialog = ({
@@ -86,27 +87,27 @@ const DichVuDialog = ({
 
       <DialogContent sx={{ pt: 4.5, px: 5, pb: 3.5 }}>
         <Box display="flex" flexDirection="column" gap={3.5}>
-        {initialData?.DichVu?.TenDichVu && (
-          <strong style={{ fontSize: '16px', color: '#063F5C' }}>
-            {initialData.DichVu.TenDichVu}
-          </strong>
-        )}
+          {initialData?.DichVu?.TenDichVu && (
+            <strong style={{ fontSize: '16px', color: '#063F5C' }}>
+              {initialData.DichVu.TenDichVu}
+            </strong>
+          )}
           <FormTextField
             label="Giá"
-            type="number"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
             InputProps={{
+              readOnly: true, // ✅ Thêm dòng này
               endAdornment: <span style={{ marginLeft: 4 }}>VNĐ</span>,
             }}
             fullWidth
             error={!!errors.price}
             helperText={errors.price}
             inputProps={{
-              min: 0,
-              step: 1000,
+              inputMode: 'numeric',
+              pattern: '[0-9.]*',
             }}
           />
+
 
           <FormTextField
             label="Số lượng"
@@ -114,8 +115,8 @@ const DichVuDialog = ({
             value={sl}
             onChange={(e) => setSL(e.target.value)}
             fullWidth
-            error={!!errors.price}
-            helperText={errors.sl}
+            error={!!errors.sl}
+            helperText={errors.sl || " "}
           />
 
         </Box>

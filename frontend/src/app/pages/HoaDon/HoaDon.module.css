@@ -1,11 +1,11 @@
 .hoadonBox {
   display: flex;
-  width: 1230px;
-  height: 700px;
+  margin: 0px 24px;
+  width: 1332px;
+  height: 690px;
   flex-shrink: 0;
   border-radius: 5px;
   background: #063F5C;
-  margin-left: 30px;
 }
 
 .ctHoadon {
@@ -22,11 +22,10 @@
 }
 
 .hoadonLeft {
-  width: 293px;
-  height: 700px;
+  width: 330px;
   border-right: 1px dashed white;
   margin-left: 19px;
-
+  height: 690px;
 }
 
 .dashedBorder {
@@ -38,13 +37,12 @@
 
 .hoadonRight {
   margin-left: 43px;
-  width: calc(100% - 293px - 59px);
-  height: 700px;
   display: flex;
   flex-direction: column;
-
-  overflow-y: auto;      
-  padding-right: 16px;   
+  height: 690px;
+  width: 996px;
+  overflow-y: auto;
+  padding-right: 16px;
   box-sizing: border-box;
 }
 
@@ -65,7 +63,7 @@
   font-size: 18px;
   font-style: normal;
   font-weight: 500;
-  line-height: normal;
+  
 }
 
 .hoadonName {
@@ -85,19 +83,48 @@
 
 
 @media print {
+  @page {
+  size: A4 portrait; /* hoặc size: auto; */
+  margin: 10mm 15mm; /* chỉnh lề phù hợp */
+}
   body * {
     visibility: hidden !important;
+    color: black !important;
   }
-  .printableHoaDon, .printableHoaDon * {
+
+  .printableHoaDon,
+  .printableHoaDon *,
+  .footerPrint,
+  .footerPrint * {
     visibility: visible !important;
   }
+
+  .signatureTitle {
+    margin-top: 50px;
+    font-size: 16px;
+    font-weight: 900;
+  }
+
+  .footerPrint {
+    text-align: center;
+    width: 80px;
+    display: flex !important;
+    height: 30px;
+  }
+
+
+  .printableHoaDon,
+  .printableHoaDon * {
+    visibility: visible !important;
+  }
+
   .ctHoadon {
     text-align: center;
-  width: 100%;
-  display: block;
-  margin-bottom: 15px !important;
+    width: 100%;
+    display: block;
+    margin-bottom: 19px !important;
   }
-  
+
   .printableHoaDon {
     width: 100% !important;
     padding: 10mm;
@@ -108,26 +135,25 @@
   .hoadonBox {
     display: flex !important;
     width: 100% !important;
-    flex-direction: column-reverse !important; 
+    flex-direction: column-reverse !important;
     max-width: 100% !important;
     height: auto !important;
     overflow: visible !important;
     margin: 0 !important;
     padding: 0 !important;
     gap: 0 !important;
+    color: black !important;
 
   }
-  
-.noPrint, .noPrint * {
+
+  .noPrint,
+  .noPrint * {
     display: none !important;
   }
-  .hoadonLeft {
-  margin-bottom: 5px; /* nếu cần */
-}
 
-.hoadonRight {
-  margin-top: 0;
-}
+  .hoadonRight {
+    margin-top: 0;
+  }
 
   .hoadonLeft,
   .hoadonRight {
@@ -136,22 +162,27 @@
     margin-left: 0 !important;
     border: none !important;
     padding: 0 !important;
-    
 
   }
-  .hoadonLeft * , .hoadonRight * {
+
+  .hoadonLeft *,
+  .hoadonRight * {
     margin: 0 !important;
     padding: 0 !important;
   }
 
   .hoadonLeft {
-  display: flex !important;
-  flex-direction: row;        /* Căn theo hàng ngang */
-  justify-content: space-between; /* Cách đều các phần tử ngang */
-  align-items: flex-end;      /* Căn các phần tử sát đáy (dưới cùng) */
-  height: 100%; 
-  margin-top: 20px;              /* Đảm bảo chiều cao đủ để căn dưới */
-}
+    display: flex !important;
+    flex-direction: row;
+    /* Căn theo hàng ngang */
+    justify-content: space-between;
+    /* Cách đều các phần tử ngang */
+    align-items: flex-end;
+    /* Căn các phần tử sát đáy (dưới cùng) */
+    height: 100%;
+    margin-top: 20px;
+    /* Đảm bảo chiều cao đủ để căn dưới */
+  }
 
 
   table {
@@ -161,26 +192,46 @@
     margin-top: 15px !important;
   }
 
-  td, th {
+  td,
+  th {
     white-space: normal !important;
     word-break: break-word !important;
   }
-.MuiDialog-root,
+
+  table,
+  th,
+  td {
+    border: 1px solid #f0f0f0 !important;
+    background-color: #f0f0f0 !important;
+    /* màu nền xám nhạt */
+    color: black !important;
+  }
+
+  .MuiDialog-root,
   .MuiDialog-container,
   .MuiBackdrop-root,
   .MuiModal-root {
     display: none !important;
   }
+
   .Toastify__toast-container {
     display: none !important;
   }
 
-  body, html {
+  .hoadonText {
+    margin-bottom: 5px !important;
+  }
+
+  body,
+  html {
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
   }
-  .table {
-    margin-top: 15px !important;
+
+  .ctHoadon {
+    margin-bottom: 20px !important;
   }
+
+
 }

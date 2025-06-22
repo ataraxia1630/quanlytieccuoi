@@ -31,7 +31,7 @@ const GroupService = {
       await t.rollback();
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -43,7 +43,7 @@ const GroupService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(500, 'Lỗi server! Vui lòng thử lại sau.');
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -76,10 +76,7 @@ const GroupService = {
       await t.rollback();
       throw error instanceof ApiError
         ? error
-        : new ApiError(
-            500,
-            'Lỗi server khi cập nhật nhóm! Vui lòng thử lại sau.'
-          );
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 
@@ -105,10 +102,7 @@ const GroupService = {
     } catch (error) {
       throw error instanceof ApiError
         ? error
-        : new ApiError(
-            500,
-            'Lỗi server khi cập nhật nhóm! Vui lòng thử lại sau.'
-          );
+        : new ApiError(500, 'Có lỗi xảy ra! Vui lòng thử lại sau.');
     }
   },
 };
