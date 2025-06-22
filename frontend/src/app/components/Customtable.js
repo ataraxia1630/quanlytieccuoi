@@ -16,10 +16,10 @@ const CustomTable = memo(
   ({
     data = [],
     columns,
-    onEdit = () => {},
-    onDelete = () => {},
+    onEdit = () => { },
+    onDelete = () => { },
     serverSideSort = false,
-    onSortChange = () => {},
+    onSortChange = () => { },
     disabledEdit = false,
     disabledDelete = false,
     // Thêm props để nhận current sort state từ parent component
