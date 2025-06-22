@@ -1,5 +1,15 @@
 const getAllSanh = async () => {
-  const response = await fetch('/api/sanh');
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+  }
+  const response = await fetch('/api/sanh', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
   if (!response.ok) throw new Error('Failed to fetch sanhs');
   return response.json();
 };
