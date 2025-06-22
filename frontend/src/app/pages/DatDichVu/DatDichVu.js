@@ -252,6 +252,10 @@ function DatDichVu() {
           <Cancelbutton onClick={() => {
             localStorage.setItem("currentPDT", null);
             localStorage.setItem("SoluongBan", 0);
+            localStorage.setItem("TongTienDatBan", 0);
+            localStorage.setItem("TongTienDichVu", 0);
+            localStorage.setItem("DonGiaBanToiThieu", 0);
+
             handleNav();
           }} textCancel="Xong" />
         </div>

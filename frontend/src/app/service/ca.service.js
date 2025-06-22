@@ -94,6 +94,11 @@ const deleteCa = async (maCa) => {
 
 const searchAndFilterCa = async (filters) => {
   try {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
+    
     const params = {};
     if (filters.maCa) params.maCa = filters.maCa;
     if (filters.tenCa) params.tenCa = filters.tenCa;
@@ -104,7 +109,11 @@ const searchAndFilterCa = async (filters) => {
 
     const query = new URLSearchParams(params).toString();
     console.log('Search query:', `/api/ca/search?${query}`); // Debug log
-    const response = await fetch(`/api/ca/search?${query}`);
+    const response = await fetch(`/api/ca/search?${query}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Failed to search and filter cas');

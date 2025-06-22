@@ -86,15 +86,15 @@ module.exports = {
 
         for (const maMonAn of selectedDishes) {
           // const soLuong = totalBan;
-          const soLuong = Math.floor(Math.random() * 10) + 2; // 2-11 món
+          const soLuong = Math.floor(Math.random() * 3) + 1; // 1-4 món
           const donGiaMon = dishUnitPrices[maMonAn];
-          const donGia = parseInt((soLuong * donGiaMon).toFixed(2));
+          // const donGia = parseInt((soLuong * donGiaMon).toFixed(2));
 
           tempData.push({
             MaMonAn: maMonAn,
             SoPhieuDatTiec: soPhieuDatTiec,
             SoLuong: soLuong,
-            DonGia: donGia,
+            DonGia: donGiaMon,
           });
 
           tongDonGiaMon += donGiaMon;

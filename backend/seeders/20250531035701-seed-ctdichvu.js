@@ -46,15 +46,15 @@ module.exports = {
 
       for (const maDichVu of selectedServices) {
         const soLuong = Math.floor(Math.random() * 3) + 1; // 1–3
-        const donGia = parseInt(
-          (soLuong * dichVuUnitPrices[maDichVu]).toFixed(2)
-        );
+        // const donGia = parseInt(
+        //   (soLuong * dichVuUnitPrices[maDichVu]).toFixed(2)
+        // );
 
         data.push({
           MaDichVu: maDichVu,
           SoPhieuDatTiec: soPhieuDatTiec,
           SoLuong: soLuong,
-          DonGia: donGia,
+          DonGia: dichVuUnitPrices[maDichVu],
         });
       }
     }
