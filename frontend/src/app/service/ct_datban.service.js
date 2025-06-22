@@ -1,10 +1,19 @@
 import axios from 'axios';
-import { handleApiError } from './phieudattiec.service'
+
 
 const api = axios.create({
     baseURL: '/api/ct-datban',
 });
-
+// Hàm xử lý lỗi chung
+const handleApiError = (error) => {
+    if (error.response) {
+        throw new Error(error.response.data.message || 'Lỗi từ server');
+    } else if (error.request) {
+        throw new Error('Không thể kết nối đến server');
+    } else {
+        throw new Error(error.message);
+    }
+};
 
 const getAllByPhieuDatTiecId = async (pdtId) => {
     try {

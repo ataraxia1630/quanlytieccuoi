@@ -21,16 +21,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Hàm xử lý lỗi chung
-const handleApiError = (error) => {
-  if (error.response) {
-    throw new Error(error.response.data.message || 'Lỗi từ server');
-  } else if (error.request) {
-    throw new Error('Không thể kết nối đến server');
-  } else {
-    throw new Error(error.message);
-  }
-};
+
 // Hàm xử lý lỗi chung
 const handleApiErrorForPDT = (error) => {
   if (error.response) {
@@ -104,4 +95,3 @@ const PhieuDatTiecService = {
 };
 export default PhieuDatTiecService;
 
-export { handleApiError };
