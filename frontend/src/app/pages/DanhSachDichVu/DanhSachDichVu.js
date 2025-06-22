@@ -152,14 +152,7 @@ function DanhSachDichVu() {
     setSelectedDichVu(null);
   };
 
-  const handleSaveDichVu = async (formData, errors) => {
-    if (errors) {
-      Object.values(errors).forEach((error) =>
-        toastService.validation.invalidData(error)
-      );
-      return;
-    }
-
+  const handleSaveDichVu = async (formData) => {
     try {
       setLoading(true);
       const dichVuData = {
@@ -167,7 +160,21 @@ function DanhSachDichVu() {
         DonGia: Number(formData.price),
         TinhTrang: formData.status,
       };
+
       if (mode === 'edit' && selectedDichVu) {
+        const isUnchanged =
+          dichVuData.TenDichVu ===
+            String(selectedDichVu.TenDichVu).trim().replace(/\s+/g, ' ') &&
+          dichVuData.DonGia === Number(selectedDichVu.DonGia) &&
+          dichVuData.TinhTrang === String(selectedDichVu.TinhTrang);
+
+        if (isUnchanged) {
+          toastService.entity.updateSuccess('dịch vụ', dichVuData.TenDichVu);
+          setIsDialogOpen(false);
+          setSelectedDichVu(null);
+          return;
+        }
+
         await DichVuService.updateDichVu(selectedDichVu.MaDichVu, dichVuData);
         toastService.entity.updateSuccess('dịch vụ', dichVuData.TenDichVu);
       } else {
@@ -184,7 +191,11 @@ function DanhSachDichVu() {
         searchTerm
       );
     } catch (error) {
-      toastService.crud.error.create('dịch vụ');
+      if (mode === 'edit') {
+        toastService.crud.error.update('dịch vụ');
+      } else {
+        toastService.crud.error.create('dịch vụ');
+      }
     } finally {
       setLoading(false);
     }
