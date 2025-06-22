@@ -50,7 +50,7 @@ const Phieucolumns = (navigate) =>
         { id: "TenChuRe", label: "Tên chú rể", sortable: true },
         { id: "TenCoDau", label: "Tên cô dâu", sortable: true },
         {
-            id: "TenSanh", label: "Sảnh", sortable: true,
+            id: "TenSanh", label: "Sảnh",
             render: (row) => row?.Sanh?.TenSanh || "Không rõ"
         },
         { id: "SoLuongBan", label: "Số bàn", sortable: true, width: 100 },
