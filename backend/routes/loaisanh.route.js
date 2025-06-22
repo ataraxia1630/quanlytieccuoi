@@ -5,17 +5,22 @@ const {
   createLoaiSanhValidation,
   updateLoaiSanhValidation,
 } = require('../validations/loaisanh.validation');
+const { verifyToken } = require('../middlewares/auth.middleware');
+const { checkPermission } = require('../middlewares/permission.middleware');
+
 const router = Router();
 
 // Lấy tất cả loại sânh
-router.get('/', LoaiSanhController.getAllLoaiSanh);
+router.get('/', verifyToken, LoaiSanhController.getAllLoaiSanh);
 
 // Lấy loại sânh theo id
-router.get('/:id', LoaiSanhController.getLoaiSanhById);
+router.get('/:id', verifyToken, LoaiSanhController.getLoaiSanhById);
 
 // Thêm loại sânh mới
 router.post(
   '/',
+  verifyToken,
+  checkPermission('hallType.create'),
   createLoaiSanhValidation,
   validate,
   LoaiSanhController.createLoaiSanh
@@ -24,15 +29,22 @@ router.post(
 // Cập nhật loại sânh theo id
 router.put(
   '/:id',
+  verifyToken,
+  checkPermission('hallType.edit'),
   updateLoaiSanhValidation,
   validate,
   LoaiSanhController.updateLoaiSanh
 );
 
 // Xóa loại sânh theo id
-router.delete('/:id', LoaiSanhController.deleteLoaiSanh);
+router.delete(
+  '/:id',
+  verifyToken,
+  checkPermission('hallType.delete'),
+  LoaiSanhController.deleteLoaiSanh
+);
 
 // Xóa tất cả loại sânh
-router.delete('/', LoaiSanhController.deleteAllLoaiSanh);
+// router.delete('/', LoaiSanhController.deleteAllLoaiSanh);
 
 module.exports = router;

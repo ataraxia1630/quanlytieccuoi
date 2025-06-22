@@ -6,17 +6,20 @@ module.exports.index = async (req, res) => {
   try {
     const offset = parseInt(req.query.offset) || 0;
     const limit = parseInt(req.query.limit) || 10;
+const sortField = req.query.sortField; // mặc định nếu không truyền
+const sortOrder = req.query.sortOrder === 'desc' ? 'DESC' : 'ASC';
 
     const { count: totalItems, rows: phieudattiecs } = await PhieuDatTiec.findAndCountAll({
       include: [
         {
           model: Sanh,
           as: 'Sanh',
-          attributes: ['TenSanh']
+          attributes: ['TenSanh', 'SoLuongBanToiDa'],
         }
       ],
       offset,
-      limit
+      limit,
+      order: sortField ? [[sortField, sortOrder]] : []
     });
 
     return res.status(200).json({
@@ -24,6 +27,7 @@ module.exports.index = async (req, res) => {
       totalItems
     });
   } catch (er) {
+    console.error("🔥 Server error:", er);
     console.error(er);
     return res.status(500).json({ error: "Lỗi server khi lấy danh sách phiếu đặt tiệc" });
   }
@@ -31,7 +35,7 @@ module.exports.index = async (req, res) => {
 
 
 module.exports.filter = async (req, res) => {
-  const { ten, sanh, tuNgay, denNgay, tuBan, denBan, trangThai } = req.body;
+  const { ten, sanh, tuNgay, denNgay, tuBan, denBan, trangThai, sortField, sortOrder } = req.body;
   const offset = parseInt(req.query.offset) || 0;
   const limit = parseInt(req.query.limit) || 10;
 
@@ -76,18 +80,21 @@ module.exports.filter = async (req, res) => {
   if (trangThai) {
     where.trangthai = trangThai;
   }
-
+const orderClause = sortField
+  ? [[col(sortField), sortOrder?.toUpperCase() || 'ASC']]
+  : [];
   const { count: totalItems, rows: phieudattiecs } = await PhieuDatTiec.findAndCountAll({
     where,
     include: [
       {
         model: Sanh,
-        attributes: ['TenSanh'],
+        attributes: ['TenSanh', 'SoLuongBanToiDa'],
       },
     ]
     ,
     offset,
-    limit
+    limit,
+    order: orderClause
   });
   return res.status(200).json({
     data: phieudattiecs,

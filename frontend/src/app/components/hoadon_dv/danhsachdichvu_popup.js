@@ -2,8 +2,7 @@ import { Dialog, DialogContent, DialogTitle, Button, List, ListItem, ListItemTex
 import { useEffect, useState } from "react";
 import DichVuService from "../../service/dichvu.service";
 import DialogTitleCustom from "../Dialogtitlecustom";
-import FormTextField from "../Formtextfield";
-import DialogButtons from "../Dialogbutton";
+
 
 const DanhSachDichVuDialog = ({
   open,

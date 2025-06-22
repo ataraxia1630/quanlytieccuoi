@@ -40,42 +40,9 @@ module.exports = {
     }, {});
 
     const getRandomName = (isMale) => {
-      const maleNames = [
-        'Nam',
-        'Hùng',
-        'Minh',
-        'Long',
-        'Khoa',
-        'Đức',
-        'Tuấn',
-        'Hải',
-        'Phong',
-        'Vũ',
-      ];
-      const femaleNames = [
-        'Lan',
-        'Mai',
-        'Hương',
-        'Ngọc',
-        'Thảo',
-        'Linh',
-        'Yến',
-        'Trang',
-        'Huyền',
-        'Thu',
-      ];
-      const lastNames = [
-        'Nguyễn',
-        'Trần',
-        'Lê',
-        'Phạm',
-        'Hoàng',
-        'Vũ',
-        'Đặng',
-        'Bùi',
-        'Đỗ',
-        'Hồ',
-      ];
+      const maleNames = ['Nam', 'Huy', 'Minh', 'Khoa', 'Duy'];
+      const femaleNames = ['Lan', 'Mai', 'Linh', 'Yến', 'Thu'];
+      const lastNames = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Vũ'];
       const firstName = isMale
         ? maleNames[Math.floor(Math.random() * maleNames.length)]
         : femaleNames[Math.floor(Math.random() * femaleNames.length)];
@@ -135,17 +102,27 @@ module.exports = {
     };
 
     const getRandomStatus = (ngayDaiTiec) => {
-      const partyMonth = ngayDaiTiec.getMonth(); // Trả về tháng (0 = tháng 1, 4 = tháng 5)
+      const currentDate = new Date();
+      const partyDate = new Date(ngayDaiTiec);
+      partyDate.setHours(0, 0, 0, 0); // Đặt giờ về 00:00:00 để so sánh ngày
+      currentDate.setHours(0, 0, 0, 0);
 
-      if (partyMonth <= 4) {
+      const sevenDaysAgo = new Date(currentDate);
+      sevenDaysAgo.setDate(currentDate.getDate() - 7);
+
+      if (partyDate < sevenDaysAgo) {
+        // Trước hiện tại 7 ngày : ưu tiên "Đã thanh toán"
         return 'Đã thanh toán';
+      } else if (partyDate < currentDate) {
+        const rand = Math.random();
+        if (rand < 0.6) return 'Đã thanh toán'; // 60%
+        if (rand < 0.95) return 'Chưa thanh toán'; // 35%
+        return 'Đã hủy'; // 5%
       }
 
-      // Nếu là tháng 6 hoặc 7, phân phối tỷ lệ để đạt khoảng 40% đã thanh toán toàn kỳ:
       const rand = Math.random();
-      if (rand < 0.15) return 'Đã thanh toán'; // ~15%
-      if (rand < 0.95) return 'Chưa thanh toán'; // ~80%
-      return 'Đã hủy'; // ~5%
+      if (rand < 0.95) return 'Chưa thanh toán'; // 95%
+      return 'Đã hủy'; // 5%
     };
 
     // Hàm chuyển đổi giờ dạng "HH:mm:ss" thành phút để so sánh
