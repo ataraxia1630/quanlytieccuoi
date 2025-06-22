@@ -611,9 +611,10 @@ console.log("ti le phat: " + initData.TiLePhat)
             <div>
               <p className={styles.hoadonText} style={{ marginTop: '20px' }}>Tổng tiền dịch vụ: {new Intl.NumberFormat('vi-VN').format(form.TongTienDichVu) ?? 0}</p>
               <p className={styles.hoadonText}>Tổng tiền bàn: {new Intl.NumberFormat('vi-VN').format(form.TongTienMonAn) ?? 0}</p>
+              <p className={styles.hoadonText}>Tiền phạt: {new Intl.NumberFormat('vi-VN').format(form.TongTienPhat)}</p>
+              
               <p className={styles.hoadonText}>Tổng tiền hoá đơn: {new Intl.NumberFormat('vi-VN').format(form.TongTienHoaDon)}</p>
               <p className={styles.hoadonText}>Tiền đặt cọc: {new Intl.NumberFormat('vi-VN').format(tienCoc)}</p>
-              <p className={styles.hoadonText}>Tiền phạt: {new Intl.NumberFormat('vi-VN').format(form.TongTienPhat)}</p>
               {form.TienConLai > 0 ?
                 <p className={styles.hoadonText}>Khách còn thiếu: {new Intl.NumberFormat('vi-VN').format(form.TienConLai)}</p>
                 :

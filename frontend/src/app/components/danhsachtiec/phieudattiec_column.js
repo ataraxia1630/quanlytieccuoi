@@ -158,7 +158,7 @@ const Phieucolumns = (navigate) =>
                             // KHÔNG dùng disableCreate
                             >
                                 <EyeIcon />
-                                <Typography>Xem hóa đơn</Typography>
+                                <Typography sx={{ marginTop: "15px" }}>Xem hóa đơn</Typography>
                             </IconButton>
                         )}
 
@@ -173,7 +173,7 @@ const Phieucolumns = (navigate) =>
                                 }}
                             >
                                 <EyeIcon />
-                                <Typography>Tạo hóa đơn</Typography>
+                                <Typography sx={{ marginTop: "15px" }}>Tạo hóa đơn</Typography>
                             </IconButton>
                         )}
 
