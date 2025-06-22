@@ -14,6 +14,10 @@ const MonAnService = {
     sort
   ) => {
     let uri = baseURL;
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
     const params = new URLSearchParams();
 
     if (status.length > 0) params.set('status', status.join(','));
@@ -29,7 +33,13 @@ const MonAnService = {
       uri += `?${queryString}`;
     }
 
-    const res = await fetch(uri);
+    const res = await fetch(uri, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (!res.ok) {
       const error = await res.json();
       throw new Error(error.message || 'Không thể lấy danh sách món ăn!');
@@ -40,8 +50,17 @@ const MonAnService = {
 
   getAvailableMonAn: async () => {
     let uri = baseURL;
-
-    const res = await fetch(uri);
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
+    const res = await fetch(uri, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (!res.ok) {
       const error = await res.json();
       throw new Error(
@@ -53,7 +72,17 @@ const MonAnService = {
   },
 
   getById: async (id) => {
-    const res = await fetch(`${baseURL}/${id}`);
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('Có lỗi xảy ra. Vui lòng đăng nhập lại!');
+    }
+    const res = await fetch(`${baseURL}/${id}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (!res.ok) {
       const error = await res.json();
       throw new Error(error.message || 'Không thể lấy thông tin món ăn!');

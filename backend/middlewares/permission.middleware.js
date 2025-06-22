@@ -13,7 +13,7 @@ const checkPermission = (requiredPermission) => {
 
       next();
     } catch (error) {
-      return res.status(500).json({ error: error.message || 'Lỗi server' });
+      return res.status(403).json({ error: error.message || 'Lỗi server' });
     }
   };
 };
