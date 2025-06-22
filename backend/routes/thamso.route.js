@@ -3,7 +3,7 @@ const ThamSoController = require('../controllers/thamso.controller.js');
 const ThamSoValidation = require('../validations/thamso.validation.js');
 const validate = require('../middlewares/validation');
 const { verifyToken } = require('../middlewares/auth.middleware');
-import { checkPermission } from '../middlewares/permission.middleware';
+const { checkPermission } = require('../middlewares/permission.middleware');
 
 const router = Router();
 

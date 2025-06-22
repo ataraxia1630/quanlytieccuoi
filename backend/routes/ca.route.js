@@ -9,7 +9,7 @@ const {
   searchAndFilterValidation,
 } = require('../validations/ca.validations');
 const { verifyToken } = require('../middlewares/auth.middleware');
-import { checkPermission } from '../middlewares/permission.middleware';
+const { checkPermission } = require('../middlewares/permission.middleware');
 
 router.get('/', verifyToken, caController.getAllCa);
 router.get(

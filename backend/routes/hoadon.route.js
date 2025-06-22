@@ -1,7 +1,7 @@
 const router = require('express').Router({ mergeParams: true });
 const hoadonController = require('../controllers/hoadon.controller');
 const { verifyToken } = require('../middlewares/auth.middleware');
-import { checkPermission } from '../middlewares/permission.middleware';
+const { checkPermission } = require('../middlewares/permission.middleware');
 
 router.get('/:id', hoadonController.index);
 router.post(

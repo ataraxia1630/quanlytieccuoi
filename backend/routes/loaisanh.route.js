@@ -6,7 +6,7 @@ const {
   updateLoaiSanhValidation,
 } = require('../validations/loaisanh.validation');
 const { verifyToken } = require('../middlewares/auth.middleware');
-import { checkPermission } from '../middlewares/permission.middleware';
+const { checkPermission } = require('../middlewares/permission.middleware');
 
 const router = Router();
 

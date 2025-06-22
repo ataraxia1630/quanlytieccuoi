@@ -3,7 +3,7 @@ const DichVuValidation = require('../validations/dichvu.validation.js');
 const DichVuController = require('../controllers/dichvu.controller.js');
 const validate = require('../middlewares/validation.js');
 const { verifyToken } = require('../middlewares/auth.middleware');
-import { checkPermission } from '../middlewares/permission.middleware';
+const { checkPermission } = require('../middlewares/permission.middleware');
 
 const router = Router();
 

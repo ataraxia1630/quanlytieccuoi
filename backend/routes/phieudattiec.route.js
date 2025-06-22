@@ -3,7 +3,7 @@ const validate = require('../middlewares/validation');
 const phieuDatTiecValidation = require('../validations/phieudattiec.validation');
 const phieuDatTiecController = require('../controllers/phieudattiec.controller');
 const { verifyToken } = require('../middlewares/auth.middleware');
-import { checkPermission } from '../middlewares/permission.middleware';
+const { checkPermission } = require('../middlewares/permission.middleware');
 
 const router = express.Router();
 

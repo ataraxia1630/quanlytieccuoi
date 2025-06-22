@@ -10,7 +10,7 @@ const {
 } = require('../validations/sanh.validations');
 const uploadHandler = require('../middlewares/uploadHandler');
 const { verifyToken } = require('../middlewares/auth.middleware');
-import { checkPermission } from '../middlewares/permission.middleware';
+const { checkPermission } = require('../middlewares/permission.middleware');
 
 router.get('/', verifyToken, sanhController.getAllSanh);
 router.get(

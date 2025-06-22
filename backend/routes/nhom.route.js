@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const { GroupController } = require('../controllers/nhom.controller');
 const { verifyToken } = require('../middlewares/auth.middleware');
-import { checkPermission } from '../middlewares/permission.middleware';
+const { checkPermission } = require('../middlewares/permission.middleware');
 
 const router = Router();
 
